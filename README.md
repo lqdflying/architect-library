@@ -2,7 +2,7 @@
 
 A coding agent skill that generates beautiful and practical Excalidraw diagrams from natural language descriptions. Not just boxes-and-arrows - diagrams that **argue visually**.
 
-Compatible with [Cursor](https://cursor.com), [VS Code + GitHub Copilot](https://code.visualstudio.com/docs/copilot/customization/custom-agents), [Claude Code](https://docs.anthropic.com/en/docs/claude-code), and OpenCode. Pick the install path for your editor below.
+Compatible with [Cursor](https://cursor.com), [VS Code + GitHub Copilot](https://code.visualstudio.com/docs/copilot/customization/agent-skills), [Claude Code](https://docs.anthropic.com/en/docs/claude-code), and OpenCode. Pick the install path for your editor below.
 
 ## What Makes This Different
 
@@ -50,47 +50,37 @@ The agent picks up the skill from its `description` in `SKILL.md` — no mode pi
 ln -sf /path/to/excalidraw-diagram-skill ~/.cursor/skills/excalidraw-diagram
 ```
 
-### VS Code (GitHub Copilot Custom Agent)
+### VS Code (GitHub Copilot Agent Skill)
 
-VS Code uses [custom agents](https://code.visualstudio.com/docs/copilot/customization/custom-agents) — `.agent.md` files stored in specific folders. You can install globally (available in all workspaces) or per-workspace.
-
-Note: `~/.copilot/agents/` only discovers `.agent.md` files at its **root level** (not in subdirectories). The agent file must be placed directly in the folder, with the `references/` subfolder alongside it.
+VS Code uses [Agent Skills](https://code.visualstudio.com/docs/copilot/customization/agent-skills) — folders with a `SKILL.md` file that define reusable capabilities. Skills resolve relative paths from the `SKILL.md` location, so no path rewriting is needed. Install **globally** (all workspaces) or **per-workspace**.
 
 **Global install (recommended):**
 
 ```bash
 git clone https://github.com/coleam00/excalidraw-diagram-skill.git
-
-# Copy the references subfolder
-cp -r excalidraw-diagram-skill ~/.copilot/agents/excalidraw-diagram
-
-# Place the agent file at the top level (required for discovery)
-cp excalidraw-diagram-skill/SKILL.md ~/.copilot/agents/excalidraw-diagram.agent.md
-
-# Rewrite references/ paths to point into the subfolder
-sed -i "s|references/|excalidraw-diagram/references/|g" \
-  ~/.copilot/agents/excalidraw-diagram.agent.md
-# macOS: use sed -i '' instead of sed -i
+mkdir -p ~/.copilot/skills/excalidraw-diagram
+cp excalidraw-diagram-skill/SKILL.md ~/.copilot/skills/excalidraw-diagram/
+cp -r excalidraw-diagram-skill/references ~/.copilot/skills/excalidraw-diagram/
 ```
 
 **Per-workspace install** (run from your project root):
 
 ```bash
 git clone https://github.com/coleam00/excalidraw-diagram-skill.git
-mkdir -p .github/agents
-cp -r excalidraw-diagram-skill .github/agents/excalidraw-diagram
-
-# .github/agents/ discovers .md files recursively, so no move needed
+mkdir -p .github/skills
+cp -r excalidraw-diagram-skill .github/skills/excalidraw-diagram
 ```
 
-Note: `.github/agents/` accepts any `.md` file recursively, so the skill folder can be copied as-is with no path rewriting.
+Note: The skill directory name must match the `name` field in `SKILL.md` frontmatter (`excalidraw-diagram`).
 
-**Using the agent:** After installation, reload VS Code (`Ctrl+Shift+P` → "Developer: Reload Window"). The agent appears in the **mode picker dropdown** at the top of the Copilot Chat panel — select "excalidraw-diagram" to activate it.
+**Using the skill:** After installation, reload VS Code (`Ctrl+Shift+P` → "Developer: Reload Window"). The skill is available as:
+- A **slash command**: type `/excalidraw-diagram` in chat
+- **Automatically loaded** when the agent detects a relevant request (e.g., "create a diagram")
 
-| Scope | Agent file location | References |
-|-------|-------------------|------------|
-| Global (all workspaces) | `~/.copilot/agents/excalidraw-diagram.agent.md` | `~/.copilot/agents/excalidraw-diagram/references/` |
-| Workspace | `.github/agents/excalidraw-diagram/SKILL.md` | `.github/agents/excalidraw-diagram/references/` |
+| Scope | Skill location |
+|-------|----------------|
+| Global (all workspaces) | `~/.copilot/skills/excalidraw-diagram/` |
+| Workspace | `.github/skills/excalidraw-diagram/` |
 
 ### Claude Code / OpenCode
 
@@ -123,11 +113,11 @@ cd .cursor/skills/excalidraw-diagram/references
 bash install_deps.sh
 
 # VS Code Copilot (global):
-cd ~/.copilot/agents/excalidraw-diagram/references
+cd ~/.copilot/skills/excalidraw-diagram/references
 bash install_deps.sh
 
 # VS Code Copilot (workspace):
-cd .github/agents/excalidraw-diagram/references
+cd .github/skills/excalidraw-diagram/references
 bash install_deps.sh
 
 # Claude Code / OpenCode:
