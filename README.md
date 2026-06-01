@@ -52,46 +52,45 @@ ln -sf /path/to/excalidraw-diagram-skill ~/.cursor/skills/excalidraw-diagram
 
 ### VS Code (GitHub Copilot Custom Agent)
 
-VS Code uses [custom agents](https://code.visualstudio.com/docs/copilot/customization/custom-agents) — `.agent.md` files stored in specific folders. You can install globally (available in all workspaces) or per-workspace. VS Code discovers agent files recursively and resolves relative paths from the file's location, so the entire skill folder can be copied as-is.
+VS Code uses [custom agents](https://code.visualstudio.com/docs/copilot/customization/custom-agents) — `.agent.md` files stored in specific folders. You can install globally (available in all workspaces) or per-workspace.
+
+Note: `~/.copilot/agents/` only discovers `.agent.md` files at its **root level** (not in subdirectories). The agent file must be placed directly in the folder, with the `references/` subfolder alongside it.
 
 **Global install (recommended):**
 
 ```bash
 git clone https://github.com/coleam00/excalidraw-diagram-skill.git
+
+# Copy the references subfolder
 cp -r excalidraw-diagram-skill ~/.copilot/agents/excalidraw-diagram
 
-# ~/.copilot/agents/ requires .agent.md extension
-mv ~/.copilot/agents/excalidraw-diagram/SKILL.md \
-   ~/.copilot/agents/excalidraw-diagram/excalidraw-diagram.agent.md
+# Place the agent file at the top level (required for discovery)
+cp excalidraw-diagram-skill/SKILL.md ~/.copilot/agents/excalidraw-diagram.agent.md
+
+# Rewrite references/ paths to point into the subfolder
+sed -i "s|references/|excalidraw-diagram/references/|g" \
+  ~/.copilot/agents/excalidraw-diagram.agent.md
+# macOS: use sed -i '' instead of sed -i
 ```
 
 **Per-workspace install** (run from your project root):
 
 ```bash
 git clone https://github.com/coleam00/excalidraw-diagram-skill.git
+mkdir -p .github/agents
 cp -r excalidraw-diagram-skill .github/agents/excalidraw-diagram
+
+# .github/agents/ discovers .md files recursively, so no move needed
 ```
 
-Note: `.github/agents/` accepts any `.md` file as an agent definition, so no rename is needed.
-
-**Live updates from a dev checkout:** Symlink instead of copy so changes apply immediately:
-
-```bash
-# Global
-ln -sf /path/to/excalidraw-diagram-skill ~/.copilot/agents/excalidraw-diagram
-mv ~/.copilot/agents/excalidraw-diagram/SKILL.md \
-   ~/.copilot/agents/excalidraw-diagram/excalidraw-diagram.agent.md
-
-# Per-workspace
-ln -sf /path/to/excalidraw-diagram-skill .github/agents/excalidraw-diagram
-```
+Note: `.github/agents/` accepts any `.md` file recursively, so the skill folder can be copied as-is with no path rewriting.
 
 **Using the agent:** After installation, reload VS Code (`Ctrl+Shift+P` → "Developer: Reload Window"). The agent appears in the **mode picker dropdown** at the top of the Copilot Chat panel — select "excalidraw-diagram" to activate it.
 
-| Scope | Agent file location | File extension |
-|-------|-------------------|---------------|
-| Global (all workspaces) | `~/.copilot/agents/excalidraw-diagram/` | `.agent.md` |
-| Workspace | `.github/agents/excalidraw-diagram/` | any `.md` |
+| Scope | Agent file location | References |
+|-------|-------------------|------------|
+| Global (all workspaces) | `~/.copilot/agents/excalidraw-diagram.agent.md` | `~/.copilot/agents/excalidraw-diagram/references/` |
+| Workspace | `.github/agents/excalidraw-diagram/SKILL.md` | `.github/agents/excalidraw-diagram/references/` |
 
 ### Claude Code / OpenCode
 
