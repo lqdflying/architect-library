@@ -2,7 +2,7 @@
 
 A coding agent skill that generates beautiful and practical Excalidraw diagrams from natural language descriptions. Not just boxes-and-arrows - diagrams that **argue visually**.
 
-Compatible with any coding agent that supports skills. For agents that read from `.claude/skills/` (like [Claude Code](https://docs.anthropic.com/en/docs/claude-code) and OpenCode), just drop it in and go.
+Compatible with [Cursor](https://cursor.com), [VS Code + GitHub Copilot](https://code.visualstudio.com/docs/copilot/customization/custom-agents), [Claude Code](https://docs.anthropic.com/en/docs/claude-code), and OpenCode. Pick the install path for your editor below.
 
 ## What Makes This Different
 
@@ -12,6 +12,88 @@ Compatible with any coding agent that supports skills. For agents that read from
 - **Brand-customizable.** All colors and brand styles live in a single file (`references/color-palette.md`). Swap it out and every diagram follows your palette.
 
 ## Installation
+
+### Cursor
+
+Cursor loads skills from a folder containing `SKILL.md` (with YAML frontmatter). Install **globally** (all projects on this machine) or **per project** (committed with your repo).
+
+**Global install (recommended):**
+
+```bash
+git clone https://github.com/coleam00/excalidraw-diagram-skill.git
+mkdir -p ~/.cursor/skills
+cp -r excalidraw-diagram-skill ~/.cursor/skills/excalidraw-diagram
+```
+
+**Per-project install:**
+
+```bash
+git clone https://github.com/coleam00/excalidraw-diagram-skill.git
+mkdir -p .cursor/skills
+cp -r excalidraw-diagram-skill .cursor/skills/excalidraw-diagram
+```
+
+**Using the skill:** Open any project in Cursor and ask for a diagram in chat, for example:
+
+> Create an Excalidraw diagram of our authentication flow.
+
+The agent picks up the skill from its `description` in `SKILL.md` — no mode picker required. Relative paths like `references/color-palette.md` work as-is; do **not** copy `~/.cursor/skills-cursor/` (that directory is reserved for Cursor built-in skills).
+
+| Scope | Skill location |
+|-------|----------------|
+| Global (all projects) | `~/.cursor/skills/excalidraw-diagram/` |
+| Single project | `.cursor/skills/excalidraw-diagram/` |
+
+**Live updates from a dev checkout:** If you are editing this repo locally, symlink instead of copy so changes apply immediately:
+
+```bash
+ln -sf /path/to/excalidraw-diagram-skill ~/.cursor/skills/excalidraw-diagram
+```
+
+### VS Code (GitHub Copilot Custom Agent)
+
+VS Code uses [custom agents](https://code.visualstudio.com/docs/copilot/customization/custom-agents) — `.agent.md` files stored in specific folders. You can install globally (available in all workspaces) or per-workspace. VS Code discovers agent files recursively and resolves relative paths from the file's location, so the entire skill folder can be copied as-is.
+
+**Global install (recommended):**
+
+```bash
+git clone https://github.com/coleam00/excalidraw-diagram-skill.git
+cp -r excalidraw-diagram-skill ~/.copilot/agents/excalidraw-diagram
+
+# ~/.copilot/agents/ requires .agent.md extension
+mv ~/.copilot/agents/excalidraw-diagram/SKILL.md \
+   ~/.copilot/agents/excalidraw-diagram/excalidraw-diagram.agent.md
+```
+
+**Per-workspace install** (run from your project root):
+
+```bash
+git clone https://github.com/coleam00/excalidraw-diagram-skill.git
+cp -r excalidraw-diagram-skill .github/agents/excalidraw-diagram
+```
+
+Note: `.github/agents/` accepts any `.md` file as an agent definition, so no rename is needed.
+
+**Live updates from a dev checkout:** Symlink instead of copy so changes apply immediately:
+
+```bash
+# Global
+ln -sf /path/to/excalidraw-diagram-skill ~/.copilot/agents/excalidraw-diagram
+mv ~/.copilot/agents/excalidraw-diagram/SKILL.md \
+   ~/.copilot/agents/excalidraw-diagram/excalidraw-diagram.agent.md
+
+# Per-workspace
+ln -sf /path/to/excalidraw-diagram-skill .github/agents/excalidraw-diagram
+```
+
+**Using the agent:** After installation, reload VS Code (`Ctrl+Shift+P` → "Developer: Reload Window"). The agent appears in the **mode picker dropdown** at the top of the Copilot Chat panel — select "excalidraw-diagram" to activate it.
+
+| Scope | Agent file location | File extension |
+|-------|-------------------|---------------|
+| Global (all workspaces) | `~/.copilot/agents/excalidraw-diagram/` | `.agent.md` |
+| Workspace | `.github/agents/excalidraw-diagram/` | any `.md` |
+
+### Claude Code / OpenCode
 
 Clone or download this repo, then copy it into your project's `.claude/skills/` directory:
 
@@ -26,12 +108,38 @@ The skill includes a render pipeline that lets the agent visually validate its d
 
 **Option A: Ask your coding agent (easiest)**
 
-Just tell your agent: *"Set up the Excalidraw diagram skill renderer by following the instructions in SKILL.md."* It will run the commands for you.
+Just tell your agent: *"Set up the Excalidraw diagram skill renderer."* It will run the install script for you.
 
 **Option B: Manual**
 
+Run the install script from your `references` folder (pick the path that matches your install):
+
 ```bash
+# Cursor (global):
+cd ~/.cursor/skills/excalidraw-diagram/references
+bash install_deps.sh
+
+# Cursor (project):
+cd .cursor/skills/excalidraw-diagram/references
+bash install_deps.sh
+
+# VS Code Copilot (global):
+cd ~/.copilot/agents/excalidraw-diagram/references
+bash install_deps.sh
+
+# VS Code Copilot (workspace):
+cd .github/agents/excalidraw-diagram/references
+bash install_deps.sh
+
+# Claude Code / OpenCode:
 cd .claude/skills/excalidraw-diagram/references
+bash install_deps.sh
+```
+
+Or manually install just the Python deps:
+
+```bash
+cd <path-to-references>
 uv sync
 uv run playwright install chromium
 ```
@@ -46,7 +154,7 @@ The render pipeline requires:
 
 **The included helper script installs everything in one step** (uv + system libs + Python deps + Chromium):
 ```bash
-cd .claude/skills/excalidraw-diagram/references
+cd <path-to-references>   # see paths in Option B above
 bash install_deps.sh
 ```
 
@@ -71,7 +179,7 @@ sudo dnf install -y atk at-spi2-atk cups-libs libXcomposite libXdamage \
 
 **Then install Python deps and Chromium:**
 ```bash
-cd .claude/skills/excalidraw-diagram/references
+cd <path-to-references>
 uv sync
 uv run playwright install chromium
 ```
@@ -92,7 +200,7 @@ In offline, proxied, or firewalled environments these hosts may be blocked. If `
 To render without hitting `esm.sh` on every run, download the pinned library once into a local `vendor/` folder. The renderer prefers this local copy and falls back to the CDN only if it's missing:
 
 ```bash
-cd .claude/skills/excalidraw-diagram/references
+cd <path-to-references>
 mkdir -p vendor
 curl -L "https://esm.sh/@excalidraw/excalidraw@0.17.6?bundle" -o vendor/excalidraw.js
 ```
