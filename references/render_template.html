@@ -13,7 +13,31 @@
   <div id="root"></div>
 
   <script type="module">
-    import { exportToSvg } from "https://esm.sh/@excalidraw/excalidraw?bundle";
+    // The Excalidraw version is pinned so an upstream release can't silently
+    // break rendering. We prefer a locally vendored copy (vendor/excalidraw.js)
+    // so renders work without live network access; if it isn't present we fall
+    // back to the pinned esm.sh build. See README "Setup" for the vendor step.
+    const CDN_URL = "https://esm.sh/@excalidraw/excalidraw@0.17.6?bundle";
+    const LOCAL_URL = "./vendor/excalidraw.js";
+
+    let exportToSvg;
+    try {
+      ({ exportToSvg } = await import(LOCAL_URL));
+      window.__excalidrawSource = "local";
+    } catch (localErr) {
+      try {
+        ({ exportToSvg } = await import(CDN_URL));
+        window.__excalidrawSource = "cdn";
+      } catch (cdnErr) {
+        // Surface a structured reason so the Python side can print a helpful
+        // message instead of just hanging until the readiness timeout fires.
+        window.__moduleError =
+          "Could not load the Excalidraw library. " +
+          "local (" + LOCAL_URL + "): " + (localErr && localErr.message) + "; " +
+          "cdn (" + CDN_URL + "): " + (cdnErr && cdnErr.message);
+        throw cdnErr;
+      }
+    }
 
     window.renderDiagram = async function(jsonData) {
       try {
