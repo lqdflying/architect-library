@@ -22,11 +22,15 @@
 
     let exportToSvg;
     try {
-      ({ exportToSvg } = await import(LOCAL_URL));
+      const localMod = await import(LOCAL_URL);
+      exportToSvg = localMod.exportToSvg || (localMod.default && localMod.default.exportToSvg);
+      if (!exportToSvg) throw new Error("exportToSvg not found in local module");
       window.__excalidrawSource = "local";
     } catch (localErr) {
       try {
-        ({ exportToSvg } = await import(CDN_URL));
+        const cdnMod = await import(CDN_URL);
+        exportToSvg = cdnMod.exportToSvg || (cdnMod.default && cdnMod.default.exportToSvg);
+        if (!exportToSvg) throw new Error("exportToSvg not found in CDN module");
         window.__excalidrawSource = "cdn";
       } catch (cdnErr) {
         // Surface a structured reason so the Python side can print a helpful

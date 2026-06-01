@@ -504,6 +504,7 @@ The loop is done when:
 If the render script hasn't been set up yet:
 ```bash
 cd .claude/skills/excalidraw-diagram/references
+bash install_deps.sh   # install system libraries for headless Chromium (needs sudo)
 uv sync
 uv run playwright install chromium
 ```

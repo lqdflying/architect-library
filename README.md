@@ -36,6 +36,48 @@ uv sync
 uv run playwright install chromium
 ```
 
+### System prerequisites
+
+The render pipeline requires:
+- **Python >= 3.11** (uv will auto-download one if your system Python is older)
+- **[uv](https://docs.astral.sh/uv/)** — Python package manager
+- **curl** — for installing uv and optional offline vendoring
+- **System libraries** for headless Chromium (atk, nss, pango, etc.)
+
+**The included helper script installs everything in one step** (uv + system libs + Python deps + Chromium):
+```bash
+cd .claude/skills/excalidraw-diagram/references
+bash install_deps.sh
+```
+
+Or install manually:
+
+**uv** (if not already installed):
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+**Chromium system libraries — Debian / Ubuntu:**
+```bash
+sudo apt-get install -y libatk1.0-0 libatk-bridge2.0-0 libcups2 libxcomposite1 \
+  libxdamage1 libxrandr2 libgbm1 libpango-1.0-0 libasound2 libnss3
+```
+
+**Chromium system libraries — RHEL / Oracle Linux / Rocky / Alma (dnf):**
+```bash
+sudo dnf install -y atk at-spi2-atk cups-libs libXcomposite libXdamage \
+  libXrandr mesa-libgbm pango alsa-lib nss
+```
+
+**Then install Python deps and Chromium:**
+```bash
+cd .claude/skills/excalidraw-diagram/references
+uv sync
+uv run playwright install chromium
+```
+
+If you're on a desktop Linux with a browser already installed, the system libraries are almost certainly present and you can skip that step.
+
 ### Network requirements
 
 The render pipeline reaches the network in two places:
@@ -78,6 +120,7 @@ excalidraw-diagram/
     color-palette.md                # Brand colors (edit this to customize)
     element-templates.md            # JSON templates for each element type
     json-schema.md                  # Excalidraw JSON format reference
+    install_deps.sh                 # Install system libs for headless Chromium
     render_excalidraw.py            # Render .excalidraw to PNG
     render_template.html            # Browser template for rendering
     pyproject.toml                  # Python dependencies (playwright)
