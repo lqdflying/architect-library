@@ -2,7 +2,7 @@
 
 A coding agent skill that generates beautiful and practical Excalidraw diagrams from natural language descriptions. Not just boxes-and-arrows - diagrams that **argue visually**.
 
-Compatible with any coding agent that supports skills. For agents that read from `.claude/skills/` (like [Claude Code](https://docs.anthropic.com/en/docs/claude-code) and [OpenCode](https://github.com/nicepkg/OpenCode)), just drop it in and go.
+Compatible with any coding agent that supports skills. For agents that read from `.claude/skills/` (like [Claude Code](https://docs.anthropic.com/en/docs/claude-code) and OpenCode), just drop it in and go.
 
 ## What Makes This Different
 
@@ -35,6 +35,27 @@ cd .claude/skills/excalidraw-diagram/references
 uv sync
 uv run playwright install chromium
 ```
+
+### Network requirements
+
+The render pipeline reaches the network in two places:
+
+- **Setup:** `playwright install chromium` downloads the headless browser from `cdn.playwright.dev`.
+- **Render time:** the browser loads the Excalidraw library (pinned to `0.17.6`) from `esm.sh` each time it renders.
+
+In offline, proxied, or firewalled environments these hosts may be blocked. If `esm.sh` is unreachable, the renderer prints a clear error instead of hanging.
+
+### Optional: vendor Excalidraw for offline rendering
+
+To render without hitting `esm.sh` on every run, download the pinned library once into a local `vendor/` folder. The renderer prefers this local copy and falls back to the CDN only if it's missing:
+
+```bash
+cd .claude/skills/excalidraw-diagram/references
+mkdir -p vendor
+curl -L "https://esm.sh/@excalidraw/excalidraw@0.17.6?bundle" -o vendor/excalidraw.js
+```
+
+`vendor/` is gitignored, so it stays local to your checkout.
 
 ## Usage
 

@@ -508,6 +508,8 @@ uv sync
 uv run playwright install chromium
 ```
 
+Rendering reaches the network twice: setup downloads Chromium from `cdn.playwright.dev`, and each render loads the pinned Excalidraw library from `esm.sh`. In offline or firewalled environments, vendor the library once so renders work locally (see README "Setup" → "Optional: vendor Excalidraw for offline rendering"). If the library can't be loaded, the render script prints a clear error rather than hanging.
+
 ---
 
 ## Quality Checklist

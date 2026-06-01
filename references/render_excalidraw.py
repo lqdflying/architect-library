@@ -2,12 +2,17 @@
 
 Usage:
     cd .claude/skills/excalidraw-diagram/references
-    uv run python render_excalidraw.py <path-to-file.excalidraw> [--output path.png] [--scale 2] [--width 1920]
+    uv run python render_excalidraw.py <path-to-file.excalidraw> [--output path.png] [--scale 2]
 
 First-time setup:
     cd .claude/skills/excalidraw-diagram/references
     uv sync
     uv run playwright install chromium
+
+Network note:
+    Rendering needs the Excalidraw library. By default it is fetched from
+    esm.sh at render time. To render without live network access, vendor it
+    once (see README "Setup") so it loads from references/vendor/excalidraw.js.
 """
 
 from __future__ import annotations
@@ -35,50 +40,16 @@ def validate_excalidraw(data: dict) -> list[str]:
     return errors
 
 
-def compute_bounding_box(elements: list[dict]) -> tuple[float, float, float, float]:
-    """Compute bounding box (min_x, min_y, max_x, max_y) across all elements."""
-    min_x = float("inf")
-    min_y = float("inf")
-    max_x = float("-inf")
-    max_y = float("-inf")
-
-    for el in elements:
-        if el.get("isDeleted"):
-            continue
-        x = el.get("x", 0)
-        y = el.get("y", 0)
-        w = el.get("width", 0)
-        h = el.get("height", 0)
-
-        # For arrows/lines, points array defines the shape relative to x,y
-        if el.get("type") in ("arrow", "line") and "points" in el:
-            for px, py in el["points"]:
-                min_x = min(min_x, x + px)
-                min_y = min(min_y, y + py)
-                max_x = max(max_x, x + px)
-                max_y = max(max_y, y + py)
-        else:
-            min_x = min(min_x, x)
-            min_y = min(min_y, y)
-            max_x = max(max_x, x + abs(w))
-            max_y = max(max_y, y + abs(h))
-
-    if min_x == float("inf"):
-        return (0, 0, 800, 600)
-
-    return (min_x, min_y, max_x, max_y)
-
-
 def render(
     excalidraw_path: Path,
     output_path: Path | None = None,
     scale: int = 2,
-    max_width: int = 1920,
 ) -> Path:
     """Render an .excalidraw file to PNG. Returns the output PNG path."""
     # Import playwright here so validation errors show before import errors
     try:
         from playwright.sync_api import sync_playwright
+        from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
     except ImportError:
         print("ERROR: playwright not installed.", file=sys.stderr)
         print("Run: cd .claude/skills/excalidraw-diagram/references && uv sync && uv run playwright install chromium", file=sys.stderr)
@@ -98,17 +69,6 @@ def render(
         for err in errors:
             print(f"  - {err}", file=sys.stderr)
         sys.exit(1)
-
-    # Compute viewport size from element bounding box
-    elements = [e for e in data["elements"] if not e.get("isDeleted")]
-    min_x, min_y, max_x, max_y = compute_bounding_box(elements)
-    padding = 80
-    diagram_w = max_x - min_x + padding * 2
-    diagram_h = max_y - min_y + padding * 2
-
-    # Cap viewport width, let height be natural
-    vp_width = min(int(diagram_w), max_width)
-    vp_height = max(int(diagram_h), 600)
 
     # Output path
     if output_path is None:
@@ -132,20 +92,35 @@ def render(
                 sys.exit(1)
             raise
 
+        # The exported SVG is sized to its content and captured via an element
+        # screenshot below, so the page viewport does not affect the output;
+        # a generous fixed size just avoids any layout quirks.
         page = browser.new_page(
-            viewport={"width": vp_width, "height": vp_height},
+            viewport={"width": 1920, "height": 1080},
             device_scale_factor=scale,
         )
 
         # Load the template
         page.goto(template_url)
 
-        # Wait for the ES module to load (imports from esm.sh)
-        page.wait_for_function("window.__moduleReady === true", timeout=30000)
+        # Wait for the ES module to load (imports the Excalidraw library)
+        try:
+            page.wait_for_function("window.__moduleReady === true", timeout=30000)
+        except PlaywrightTimeoutError:
+            module_error = page.evaluate("window.__moduleError || null")
+            print("ERROR: Could not load the Excalidraw library in the browser.", file=sys.stderr)
+            if module_error:
+                print(f"  {module_error}", file=sys.stderr)
+            print("This usually means the renderer could not reach esm.sh.", file=sys.stderr)
+            print("Either allow network access to esm.sh, or vendor the library", file=sys.stderr)
+            print("locally (see README \"Setup\") so it loads from vendor/excalidraw.js.", file=sys.stderr)
+            browser.close()
+            sys.exit(1)
 
-        # Inject the diagram data and render
-        json_str = json.dumps(data)
-        result = page.evaluate(f"window.renderDiagram({json_str})")
+        # Inject the diagram data and render. Pass `data` as an argument rather
+        # than interpolating JSON into the expression so values containing JS
+        # line terminators (U+2028 / U+2029) can't break the call.
+        result = page.evaluate("data => window.renderDiagram(data)", data)
 
         if not result or not result.get("success"):
             error_msg = result.get("error", "Unknown render error") if result else "renderDiagram returned null"
@@ -174,14 +149,13 @@ def main() -> None:
     parser.add_argument("input", type=Path, help="Path to .excalidraw JSON file")
     parser.add_argument("--output", "-o", type=Path, default=None, help="Output PNG path (default: same name with .png)")
     parser.add_argument("--scale", "-s", type=int, default=2, help="Device scale factor (default: 2)")
-    parser.add_argument("--width", "-w", type=int, default=1920, help="Max viewport width (default: 1920)")
     args = parser.parse_args()
 
     if not args.input.exists():
         print(f"ERROR: File not found: {args.input}", file=sys.stderr)
         sys.exit(1)
 
-    png_path = render(args.input, args.output, args.scale, args.width)
+    png_path = render(args.input, args.output, args.scale)
     print(str(png_path))
 
 
