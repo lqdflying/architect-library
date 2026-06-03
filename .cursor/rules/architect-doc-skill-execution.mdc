@@ -12,6 +12,8 @@ Task is **not** complete until:
 | **excalidraw-diagram** | `.excalidraw` → PNG rendered, images **viewed**, layout fixed |
 | **word-document** | DOCX validates; explicit table styling (docx-js) or one python-docx path; deliver **`.docx` only** (no generator beside deliverable unless user asks) |
 | **powerpoint-presentation** | PPTX validates; **`thumbnail` every deck** (grid + `--per-slide` 150 DPI), images **viewed**, overflow fixed; `office-system` installed if missing |
+| **spreadsheet-document** | `.xlsx` delivered; if formulas used: `office_tools.py recalc` → JSON `status: success` (zero formula errors); `office-system` for recalc |
+| **pdf-document** | Deliver requested `.pdf`; form fills: run validation scripts per `references/forms.md` |
 
 **PowerPoint is not done** when the `.pptx` exists—only after layout preview (or user waives visual QA).
 
@@ -25,7 +27,8 @@ Task is **not** complete until:
 |--------|---------|-----|
 | Office Python | `bash scripts/install_deps.sh office` | validate, extract, unpack/pack |
 | Excalidraw | `bash scripts/install_deps.sh excalidraw` | PNG render |
-| LibreOffice + Poppler | `bash scripts/install_deps.sh office-system` | **all PPT deliveries**, PDF, `accept` |
+| LibreOffice + Poppler | `bash scripts/install_deps.sh office-system` | **all PPT deliveries**, XLSX `recalc`, DOCX `accept`, conversions |
+| PDF Python (pypdf, etc.) | `bash scripts/install_deps.sh pdf` | pdf-document scripts |
 | npm `docx` / `pptxgenjs` | manual | new Word / new PPT |
 
 ## Office toolkit

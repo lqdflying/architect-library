@@ -1,6 +1,6 @@
 # Architecture Document Principles
 
-Use these principles across the architect document skill set. They apply to diagrams, Word documents, and PowerPoint decks.
+Use these principles across the architect document skill set. They apply to diagrams, Word documents, and PowerPoint decks. For general spreadsheet or PDF tasks, use `spreadsheet-document` or `pdf-document`; apply these principles when the deliverable is architecture-related (models, review packs, exported PDFs).
 
 ## Core Standard
 

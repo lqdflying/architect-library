@@ -33,11 +33,23 @@ Use `/tmp` or `.cursor/` for previews—not the user’s deliverable folder unle
 
 **You must open or inspect these images** (agent vision, user screenshot, or attach in chat). XML validation alone does not count as layout review.
 
+## Content QA (before or with visual review)
+
+Assume problems exist until ruled out.
+
+```bash
+python -m markitdown output.pptx | grep -iE "xxxx|lorem|ipsum|TODO|\[insert|this.*(page|slide).*layout"
+```
+
+Also run `office_tools.py extract` or pandoc if markitdown is not installed. Fix placeholder text before sign-off.
+
 ## What to inspect
 
 **Grid (2a):** slide order, hidden slides, overall rhythm, repeated layouts, missing slides.
 
 **Per-slide (2b):** text clipping; tables/diagrams inside margins (≥ 0.5"); no overlapping shapes; consistent titles; broken images; contrast.
+
+Use a **second reviewer or subagent** on the JPEGs when possible — authors often miss defects they introduced in source.
 
 ## Fix cycle
 

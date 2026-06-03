@@ -1,6 +1,6 @@
 ---
 name: word-document
-description: Create, edit, and validate Microsoft Word DOCX architecture documents, HLDs, LLDs, ADRs, design docs, requirements, comments, tracked changes, and template-based Word files.
+description: Create, edit, and validate Word DOCX files — architecture documents (HLD, LLD, ADR), reports, memos, letters, templates, comments, and tracked changes. Validate before delivery; explicit table styling for new docx-js docs; deliver .docx only unless asked otherwise.
 ---
 
 # Word Architecture Document Creator
@@ -14,7 +14,7 @@ Use this skill when the user asks for a Word document, DOCX file, architecture d
 Before authoring substantial content, read:
 
 - `../_shared/architecture-document-principles.md`
-- `references/docx-guide.md`
+- `references/docx-guide.md` — docx-js creation and XML editing (Part 2 unpack/pack patterns)
 - `references/production-lessons.md` — table styling, compliance structure, generator workflow (read for ADD/compliance DOCX)
 - `references/python-docx-patterns.md` — only if generating with python-docx instead of docx-js
 

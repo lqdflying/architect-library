@@ -29,6 +29,7 @@ python3 office_tools.py <command> [args...]
 | `slide` | Duplicate PPTX slides or create from layout |
 | `clean` | Remove orphaned PPTX files (cascading) |
 | `thumbnail` | PPTX layout preview: thumbnail grid and/or per-slide JPEGs (`--per-slide`, `--dpi`, `--no-grid`) |
+| `recalc` | Recalculate XLSX formulas via LibreOffice; JSON report of `#REF!`, `#DIV/0!`, etc. |
 
 ### Standalone scripts (also usable directly)
 
@@ -112,7 +113,7 @@ python3 office_tools.py extract presentation.pptx
 ## Integration
 
 ### Skills Repository
-This toolkit is shared by the sibling `word-document` and `powerpoint-presentation` skills.
+This toolkit is shared by the sibling `word-document`, `powerpoint-presentation`, and `spreadsheet-document` skills.
 
 Expected installed layout:
 

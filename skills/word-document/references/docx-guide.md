@@ -400,15 +400,17 @@ Do NOT use tables inside headers/footers for layout (cells have forced minimum h
 
 ## Part 2: Editing Existing Documents
 
-A .docx is a ZIP archive of XML files. The workflow:
+**Follow all three steps in order.** Use the shared office toolkit (not manual `unzip`/`zip`):
+
+```bash
+python3 ../_shared/office-tools/office_tools.py unpack document.docx unpacked/
+# edit XML under unpacked/word/
+python3 ../_shared/office-tools/office_tools.py pack unpacked/ output.docx --original document.docx
+```
 
 ### Step 1: Unpack
 
-```bash
-mkdir unpacked
-cd unpacked
-unzip ../document.docx
-```
+Unpack pretty-prints XML, merges adjacent runs, and converts smart quotes to XML entities (`&#x201C;` etc.) so they survive editing. Use `--merge-runs false` to skip run merging.
 
 Key files:
 - `word/document.xml` — main body content
@@ -418,59 +420,109 @@ Key files:
 
 ### Step 2: Edit XML
 
-Use a text editor or `sed`/programmatic XML manipulation.
+Edit files in `unpacked/word/`.
 
-Important XML patterns:
+**Prefer the Edit tool for string replacement in XML.** Do not write one-off Python patch scripts — the Edit tool shows exactly what is replaced.
 
-**Paragraphs and runs:**
-```xml
-<w:p>
-  <w:pPr>
-    <w:pStyle w:val="Heading1"/>
-  </w:pPr>
-  <w:r>
-    <w:rPr><w:b/></w:rPr>
-    <w:t>Bold heading text</w:t>
-  </w:r>
-</w:p>
+**Smart quotes for new content** — use XML entities:
+
+| Entity | Character |
+|--------|-----------|
+| `&#x2018;` | ‘ (left single) |
+| `&#x2019;` | ’ (right single / apostrophe) |
+| `&#x201C;` | “ (left double) |
+| `&#x201D;` | ” (right double) |
+
+**Comments** (text must be pre-escaped XML):
+
+```bash
+python3 ../_shared/office-tools/office_tools.py comment unpacked/ 0 "Comment with &amp; and &#x2019;"
+python3 ../_shared/office-tools/office_tools.py comment unpacked/ 1 "Reply" --parent 0
 ```
 
-**Tracked changes (insertion):**
+Then add markers to `document.xml` (see Comments below).
+
+### Step 3: Pack
+
+Pack runs auto-repair, validation, condense XML, and repack. Use pack’s `--validate false` only when you intend to skip validation.
+
+**Auto-repair will fix:**
+- `durableId` >= 0x7FFFFFFF (regenerates valid ID)
+- Missing `xml:space="preserve"` on `<w:t>` with whitespace
+
+**Auto-repair won’t fix:**
+- Malformed XML, invalid element nesting, missing relationships, schema violations
+
+### Common pitfalls
+
+- Replace entire `<w:r>...</w:r>` blocks when adding tracked changes — don’t inject change tags inside a run.
+- Copy `<w:rPr>` from the original run into replacement runs to preserve formatting.
+
+### Schema compliance
+
+- Element order in `<w:pPr>`: `<w:pStyle>`, `<w:numPr>`, `<w:spacing>`, `<w:ind>`, `<w:jc>`, `<w:rPr>` last
+- RSIDs: 8-digit hex (e.g., `00AB1234`)
+
+### Tracked changes
+
+**Insertion:**
 ```xml
 <w:ins w:id="1" w:author="Author" w:date="2025-01-01T00:00:00Z">
-  <w:r><w:t>new text</w:t></w:r>
+  <w:r><w:t>inserted text</w:t></w:r>
 </w:ins>
 ```
 
-**Tracked changes (deletion):**
+**Deletion** — inside `<w:del>` use `<w:delText>` instead of `<w:t>`, and `<w:delInstrText>` instead of `<w:instrText>`:
 ```xml
 <w:del w:id="2" w:author="Author" w:date="2025-01-01T00:00:00Z">
-  <w:r><w:delText>removed text</w:delText></w:r>
+  <w:r><w:delText>deleted text</w:delText></w:r>
 </w:del>
 ```
 
-Inside `<w:del>`, use `<w:delText>` instead of `<w:t>`.
-
-**Adding images:**
-1. Place image file in `word/media/`
-2. Add relationship in `word/_rels/document.xml.rels`
-3. Add content type in `[Content_Types].xml`
-4. Reference via `r:embed` in document.xml
-
-### Step 3: Repack
-
-```bash
-cd unpacked
-zip -r ../output.docx . -x "*.DS_Store"
+**Minimal edits** — only mark what changes:
+```xml
+<w:r><w:t>The term is </w:t></w:r>
+<w:del w:id="1" w:author="Author" w:date="2025-01-01T00:00:00Z">
+  <w:r><w:delText>30</w:delText></w:r>
+</w:del>
+<w:ins w:id="2" w:author="Author" w:date="2025-01-01T00:00:00Z">
+  <w:r><w:t>60</w:t></w:r>
+</w:ins>
+<w:r><w:t> days.</w:t></w:r>
 ```
 
-### XML Editing Rules
+**Deleting entire paragraphs/list items** — when removing all content, also mark the paragraph mark deleted (`<w:del/>` inside `<w:pPr><w:rPr>`) so accepting changes does not leave an empty paragraph:
+```xml
+<w:p>
+  <w:pPr>
+    <w:numPr>...</w:numPr>
+    <w:rPr>
+      <w:del w:id="1" w:author="Author" w:date="2025-01-01T00:00:00Z"/>
+    </w:rPr>
+  </w:pPr>
+  <w:del w:id="2" w:author="Author" w:date="2025-01-01T00:00:00Z">
+    <w:r><w:delText>Entire paragraph...</w:delText></w:r>
+  </w:del>
+</w:p>
+```
 
-- Element order in `<w:pPr>` matters: `<w:pStyle>` -> `<w:numPr>` -> `<w:spacing>` -> `<w:ind>` -> `<w:jc>` -> `<w:rPr>`
-- Add `xml:space="preserve"` to any `<w:t>` with leading/trailing whitespace
-- When making tracked-change edits, replace entire `<w:r>` blocks rather than injecting change tags inside a run
-- Copy `<w:rPr>` from the original run into your replacement runs to preserve formatting
-- Use smart quote XML entities: `&#x201C;` (left double), `&#x201D;` (right double), `&#x2018;` (left single), `&#x2019;` (right single / apostrophe)
+### Comments
+
+`<w:commentRangeStart>` and `<w:commentRangeEnd>` are **siblings** of `<w:r>`, never inside `<w:r>`.
+
+```xml
+<w:commentRangeStart w:id="0"/>
+<w:r><w:t>commented text</w:t></w:r>
+<w:commentRangeEnd w:id="0"/>
+<w:r><w:rPr><w:rStyle w:val="CommentReference"/></w:rPr><w:commentReference w:id="0"/></w:r>
+```
+
+### Images (OOXML edit path)
+
+1. Add image to `word/media/`
+2. Add relationship in `word/_rels/document.xml.rels`
+3. Add content type in `[Content_Types].xml`
+4. Reference via `w:drawing` / `r:embed` in `document.xml`
 
 ---
 

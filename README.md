@@ -1,6 +1,6 @@
 # Architect Document Skills
 
-A multi-skill repository for creating architecture artifacts with coding agents. The skill set covers visual architecture diagrams, Word architecture documents, and PowerPoint architecture presentations.
+A multi-skill repository for creating architecture and office artifacts with coding agents: Excalidraw diagrams, Word documents, PowerPoint decks, spreadsheets, and PDFs.
 
 The original Excalidraw diagram skill is preserved under `skills/excalidraw-diagram/`. Word and PowerPoint skills have been added around the Office draft guides and shared DOCX/PPTX tooling.
 
@@ -9,7 +9,7 @@ Compatible with [Cursor](https://cursor.com), [VS Code + GitHub Copilot](https:/
 **For coding agents:**
 
 - Working **in this repo**: [`.cursor/`](.cursor/) (project Cursor config and rules, tracked in git) and [docs/MAINTAINING-SKILLS.md](docs/MAINTAINING-SKILLS.md) (when adding skills, steps, or deps—update rules + docs, not only README/scripts).
-- **Installing** skills in Cursor/Copilot: [docs/AGENT-SKILL-INSTALL.md](docs/AGENT-SKILL-INSTALL.md) (four folders, `_shared` sibling, execution rules for Excalidraw PNG review, Word tables, **mandatory PPT layout preview**).
+- **Installing** skills in Cursor/Copilot: [docs/AGENT-SKILL-INSTALL.md](docs/AGENT-SKILL-INSTALL.md) (six skill folders + `_shared` sibling; execution rules for Excalidraw PNG review, Word tables, **mandatory PPT layout preview**, XLSX recalc, PDF forms).
 
 **Instructions vs runtime:** Skill `SKILL.md` files load as soon as they are copied into your editor. **Completing** a task still needs runtimes: Excalidraw → Playwright; Word (new DOCX) → optional npm `docx`; **PowerPoint → `office-system` (LibreOffice + Poppler) on every deck** for layout preview, plus npm `pptxgenjs` for new decks. See [First-time preparation](#first-time-preparation-one-time-per-machine).
 
@@ -33,8 +33,8 @@ From the repository root (after `git clone`):
 
 ```bash
 cd architect-doc-skill   # or your clone path
-bash scripts/install_deps.sh              # Excalidraw + Office Python deps (no LibreOffice)
-bash scripts/install_deps.sh office-system   # add LibreOffice Impress + Poppler (PPT layout preview, PDF, accept changes)
+bash scripts/install_deps.sh              # Excalidraw + Office + PDF Python deps (no LibreOffice)
+bash scripts/install_deps.sh office-system   # add LibreOffice Impress + Poppler (PPT layout preview, XLSX recalc, accept changes)
 ```
 
 **Is LibreOffice mandatory?** Not for creating `.docx` or building `.pptx` source (Node/python). **Yes for completing PowerPoint skill work**—every deck must go through layout preview (`thumbnail`), which needs LibreOffice Impress + Poppler. Word-only tasks can skip `office-system`. Install: `bash scripts/install_deps.sh office-system`.
@@ -45,6 +45,7 @@ Install only one runtime:
 bash scripts/install_deps.sh excalidraw
 bash scripts/install_deps.sh office
 bash scripts/install_deps.sh office-system
+bash scripts/install_deps.sh pdf              # pypdf, pdfplumber, reportlab (pdf-document skill)
 ```
 
 ### Excalidraw renderer (first-time)
@@ -89,9 +90,17 @@ Optional for PPTX icon workflows (see [`skills/powerpoint-presentation/README.md
 npm install -g react-icons react react-dom sharp
 ```
 
+### PDF tools (first-time)
+
+For the `pdf-document` skill (included in `bash scripts/install_deps.sh all`):
+
+```bash
+bash scripts/install_deps.sh pdf
+```
+
 ### Office tools (first-time)
 
-Shared by Word and PowerPoint skills. Included in `bash scripts/install_deps.sh`; to run alone:
+Shared by Word, PowerPoint, and spreadsheet skills. Included in `bash scripts/install_deps.sh`; to run alone:
 
 ```bash
 cd skills/_shared/office-tools
@@ -123,10 +132,9 @@ After [first-time preparation](#first-time-preparation-one-time-per-machine) (sk
 
    ```bash
    mkdir -p ~/.cursor/skills
-   cp -r skills/excalidraw-diagram ~/.cursor/skills/
-   cp -r skills/word-document ~/.cursor/skills/
-   cp -r skills/powerpoint-presentation ~/.cursor/skills/
-   cp -r skills/_shared ~/.cursor/skills/
+   for n in excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document _shared; do
+     cp -r "skills/$n" ~/.cursor/skills/
+   done
    ```
 
 3. **Ask your agent** (skills load from their descriptions—no slash command required):
@@ -142,7 +150,9 @@ See [Installation](#installation) for Copilot / Claude Code paths, or [docs/AGEN
 | `excalidraw-diagram` | Create Excalidraw architecture diagrams, workflows, system maps, and concept visuals. |
 | `word-document` | Create or edit DOCX architecture documents, HLDs, LLDs, ADRs, design docs, requirements, comments, and tracked changes. |
 | `powerpoint-presentation` | Create or edit PPTX decks; **every delivery requires layout preview** (slide images via LibreOffice + Poppler). |
-| `_shared` | Shared principles and Office tooling used by the Word and PowerPoint skills. **Must** be installed as a sibling of the other skills. |
+| `spreadsheet-document` | Create or edit `.xlsx`; formula recalc via `office_tools.py recalc` (LibreOffice). |
+| `pdf-document` | Read, create, merge, split, and fill PDFs. |
+| `_shared` | Shared principles and Office tooling for Word, PowerPoint, and spreadsheet skills. **Must** be a sibling of those skills. |
 
 ## Documentation map
 
@@ -163,6 +173,8 @@ See [Installation](#installation) for Copilot / Claude Code paths, or [docs/AGEN
 | [`skills/powerpoint-presentation/README.md`](skills/powerpoint-presentation/README.md) | PPT setup (including optional icon packages) |
 | [`skills/powerpoint-presentation/references/pptx-guide.md`](skills/powerpoint-presentation/references/pptx-guide.md) | pptxgenjs and template editing |
 | [`skills/powerpoint-presentation/references/layout-preview.md`](skills/powerpoint-presentation/references/layout-preview.md) | PPTX layout preview images (grid + per-slide JPEGs) |
+| [`skills/spreadsheet-document/SKILL.md`](skills/spreadsheet-document/SKILL.md) | XLSX workflow and recalc |
+| [`skills/pdf-document/SKILL.md`](skills/pdf-document/SKILL.md) | PDF workflows and form fill |
 | [`skills/_shared/architecture-document-principles.md`](skills/_shared/architecture-document-principles.md) | Shared structure for architecture docs and decks |
 | [`skills/_shared/office-tools/README.md`](skills/_shared/office-tools/README.md) | Full `office_tools.py` command reference and validation checks |
 
@@ -174,7 +186,7 @@ architect-doc-skill/
   docs/
     AGENT-SKILL-INSTALL.md   # agent procedure for Cursor / Copilot install
   scripts/
-    install_deps.sh           # all | excalidraw | office | office-system
+    install_deps.sh           # all | excalidraw | office | office-system | pdf
     vendor_excalidraw.sh      # build offline Excalidraw bundle (Node.js)
     vendor_excalidraw/        # esbuild vendor project (not the bundle itself)
   skills/
@@ -194,6 +206,13 @@ architect-doc-skill/
       SKILL.md
       README.md
       references/pptx-guide.md
+    spreadsheet-document/
+      SKILL.md
+      references/xlsx-guide.md
+    pdf-document/
+      SKILL.md
+      references/pdf-guide.md
+      scripts/
     _shared/
       architecture-document-principles.md
       office-tools/
@@ -223,10 +242,9 @@ Install globally for all workspaces:
 ```bash
 cd /path/to/architect-doc-skill
 mkdir -p ~/.copilot/skills
-cp -r skills/excalidraw-diagram ~/.copilot/skills/
-cp -r skills/word-document ~/.copilot/skills/
-cp -r skills/powerpoint-presentation ~/.copilot/skills/
-cp -r skills/_shared ~/.copilot/skills/
+for n in excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document _shared; do
+  cp -r "skills/$n" ~/.copilot/skills/
+done
 ```
 
 Install per workspace from your project root:
@@ -248,10 +266,9 @@ Install globally:
 ```bash
 cd /path/to/architect-doc-skill
 mkdir -p ~/.cursor/skills
-cp -r skills/excalidraw-diagram ~/.cursor/skills/
-cp -r skills/word-document ~/.cursor/skills/
-cp -r skills/powerpoint-presentation ~/.cursor/skills/
-cp -r skills/_shared ~/.cursor/skills/
+for n in excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document _shared; do
+  cp -r "skills/$n" ~/.cursor/skills/
+done
 ```
 
 Install per project:
@@ -271,10 +288,9 @@ Install into a project:
 ```bash
 cd /path/to/architect-doc-skill
 mkdir -p .claude/skills
-cp -r skills/excalidraw-diagram .claude/skills/
-cp -r skills/word-document .claude/skills/
-cp -r skills/powerpoint-presentation .claude/skills/
-cp -r skills/_shared .claude/skills/
+for n in excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document _shared; do
+  cp -r "skills/$n" .claude/skills/
+done
 ```
 
 Keep `_shared` as a sibling of the other skill folders. The Word and PowerPoint skills reference shared Office tools through `../_shared/office-tools/`.

@@ -1,6 +1,6 @@
 ---
 name: powerpoint-presentation
-description: Create, edit, and validate PowerPoint PPTX architecture decks. Every delivery requires layout preview (office_tools thumbnail grid + per-slide JPEGs via LibreOffice Impress and Poppler)—install office-system deps before finishing. Executive decks, solution overviews, technical walkthroughs, roadmap and migration slides, template population.
+description: Create, edit, and validate PowerPoint PPTX decks (slides, pitch decks, templates). Mandatory layout preview on every delivery — office_tools thumbnail grid + per-slide 150 DPI JPEGs (LibreOffice Impress + Poppler; install office-system). Architecture, executive, and general presentations. Validate PPTX; view preview images; fix overflow before finishing.
 ---
 
 # PowerPoint Architecture Presentation Creator

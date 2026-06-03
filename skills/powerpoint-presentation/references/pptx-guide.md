@@ -330,16 +330,17 @@ When you have an existing .pptx to modify (e.g., branded template):
 
 ### Step 1: Analyze
 
-Convert to thumbnails for visual overview, then extract text to see placeholder content.
+Preview layouts and extract placeholder text before editing.
 
 ```bash
-# Visual overview
-libreoffice --headless --convert-to pdf template.pptx
-pdftoppm -jpeg -r 100 template.pdf thumb
+python3 ../_shared/office-tools/office_tools.py thumbnail template.pptx /tmp/template-preview --cols 4
+python3 ../_shared/office-tools/office_tools.py analyze template.pptx
 
-# Text extraction
-pandoc template.pptx -t plain -o content.txt
+# Full-deck text (install: pip install markitdown)
+python -m markitdown template.pptx
 ```
+
+Review the thumbnail grid for layout variety; use markitdown or `office_tools.py extract` for placeholder copy.
 
 ### Step 2: Plan Slide Mapping
 
@@ -355,8 +356,7 @@ Avoid repeating the same text-heavy bullet layout on every slide.
 ### Step 3: Unpack
 
 ```bash
-mkdir unpacked && cd unpacked
-unzip ../template.pptx
+python3 ../_shared/office-tools/office_tools.py unpack template.pptx unpacked/
 ```
 
 Key structure:
@@ -379,7 +379,7 @@ All structural changes (add/remove/reorder slides) must be done before content e
 
 ### Step 5: Edit Content
 
-For each slide XML, identify text placeholders and replace content.
+For each slide XML, identify text placeholders and replace content. Slide XML files are independent — **parallel edits** (e.g. subagents) are safe once structural work in Step 4 is complete.
 
 **Formatting rules:**
 - Bold all titles and inline labels: set `b="1"` on `<a:rPr>`
@@ -401,12 +401,14 @@ Example of properly structured multi-item content:
 </a:p>
 ```
 
-### Step 6: Repack
+### Step 6: Clean and pack
 
 ```bash
-cd unpacked
-zip -r ../output.pptx . -x "*.DS_Store"
+python3 ../_shared/office-tools/office_tools.py clean unpacked/
+python3 ../_shared/office-tools/office_tools.py pack unpacked/ output.pptx --original template.pptx
 ```
+
+Then run validate and the mandatory layout preview workflow in `layout-preview.md`.
 
 ### Template Adaptation Pitfalls
 
@@ -501,21 +503,22 @@ Every slide needs at least one visual element (image, chart, icon, or shape). Pu
 
 ## Part 4: QA Workflow
 
+Treat QA as a **bug hunt**, not confirmation. If the first pass finds zero issues, look again.
+
 ### Content Verification
 
-After generating slides, extract text and check for:
-- Missing content
-- Wrong order
-- Typos
-- Leftover placeholder text from templates
+After generating slides, extract text and check for missing content, wrong order, typos, and leftover template placeholders:
 
 ```bash
+python -m markitdown output.pptx | grep -iE "xxxx|lorem|ipsum|TODO|\[insert|this.*(page|slide).*layout"
+# or:
+python3 ../_shared/office-tools/office_tools.py extract output.pptx
 pandoc output.pptx -t plain | grep -iE "lorem|ipsum|TODO|\[insert|xxx"
 ```
 
 ### Visual Verification
 
-Use the shared thumbnail tool first (see `layout-preview.md`):
+Use the shared thumbnail tool (required — see `layout-preview.md`). For layout JPEG review, a **second pass or subagent** with fresh eyes catches overlap and clipping you may miss after editing source.
 
 ```bash
 python3 ../_shared/office-tools/office_tools.py thumbnail output.pptx /tmp/deck-preview --cols 4

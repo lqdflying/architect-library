@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Unified CLI for office-tools.
+"""Unified CLI for office-tools (DOCX, PPTX, XLSX).
 
 Usage:
     python3 office_tools.py unpack document.docx unpacked/
@@ -12,6 +12,7 @@ Usage:
     python3 office_tools.py slide unpacked/ slide2.xml
     python3 office_tools.py clean unpacked/
     python3 office_tools.py thumbnail presentation.pptx /tmp/preview --per-slide /tmp/slides --dpi 150
+    python3 office_tools.py recalc model.xlsx
 """
 
 import sys
@@ -29,6 +30,7 @@ COMMANDS = {
     "clean":     ("clean_pptx.py",         "Remove orphaned PPTX files"),
     "thumbnail": ("thumbnail.py",          "PPTX layout preview: grid and/or per-slide JPEGs"),
     "analyze":   ("analyze_template.py",   "Analyze PPTX template structure"),
+    "recalc":    ("recalc.py",             "Recalculate Excel formulas via LibreOffice"),
 }
 
 
