@@ -26,5 +26,7 @@ npm install -g docx
 ## References
 
 - `SKILL.md` - agent workflow
-- `references/docx-guide.md` - DOCX creation and XML editing details
+- `references/docx-guide.md` - docx-js creation and XML editing (explicit table theming)
+- `references/production-lessons.md` - compliance ADD lessons, one styling path, visual verify
+- `references/python-docx-patterns.md` - python-docx: built-in table style + tblHeader, or explicit fills
 - `../_shared/office-tools/` - validation, unpack, pack, comments, redline, and extraction tools

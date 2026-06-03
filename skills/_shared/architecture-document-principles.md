@@ -49,6 +49,9 @@ Use only the sections that help the reader. Do not add ceremonial sections with 
 - Mark assumptions explicitly when facts are missing.
 - Keep decision records traceable: decision, rationale, alternatives, consequence, and owner.
 - Align diagrams, tables, and prose so they tell the same story.
+- Word tables: one styling approach per doc (docx-js explicit fills, or python-docx built-in theme + header row—not mixed); verify visually in Word; 9pt table text for dense ADD/compliance docs.
+- Parallel subsections should use parallel structure (if 5.1.1 is a tool table, 5.1.2 and 5.1.3 are tables too).
+- Deliver `.docx` only; generator scripts live under `scripts/` unless the user requests otherwise.
 - Validate generated Office files or rendered diagrams before delivery when tools are available.
 
 ## Tone

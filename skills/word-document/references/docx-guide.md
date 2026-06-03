@@ -173,40 +173,92 @@ Same `reference` value = continuous numbering. Different `reference` = restarts 
 
 ### Tables
 
-Two things MUST both be set for correct rendering:
+**docx-js (this section):** Apply **explicit** header shading, borders, and optional row banding in code so output looks finished without the user picking a Table Design theme.
+
+**python-docx:** Prefer built-in `Medium Shading 1 Accent 1` + `w:tblHeader` with fonts/margins/widths only (`python-docx-patterns.md` Approach A). Use explicit fills here only as Approach B when Word still shows plain grid after visual check. **Never mix** both on the same table.
+
+See `production-lessons.md` for compliance ADD structure (parallel tool tables, TOC, visual verify).
+
+**Width (required):**
+
 1. `columnWidths` on the Table
 2. `width` on each TableCell
 
 Always use `WidthType.DXA` — percentage widths break in Google Docs.
 
+**Typography (architecture docs):**
+
+- Table body: **9pt** (dense compliance/HLD tables); document body: 10–10.5pt
+- Cell padding: `margins` top/bottom **80**, left/right **120** DXA (~4–6pt)
+- US Letter with 1" margins: table width **9360** DXA (6.5") or **8640** DXA (6.0") for slightly narrower tables
+- Two-column layouts: narrow label column (~2400 DXA) + wide detail column
+
+**Visual pattern:**
+
+- Header row: fill `D5E8F0`, text `1F3864`, bold
+- Body: alternate `F7F7F7` / white on even/odd rows
+- Borders: `BorderStyle.SINGLE`, size 1, color `CCCCCC` on all sides
+
 ```javascript
 const border = { style: BorderStyle.SINGLE, size: 1, color: "CCCCCC" };
 const allBorders = { top: border, bottom: border, left: border, right: border };
+const headerShading = { fill: "D5E8F0", type: ShadingType.CLEAR };
+const bandShading = { fill: "F7F7F7", type: ShadingType.CLEAR };
+
+function headerCell(widthDxa, text) {
+  return new TableCell({
+    borders: allBorders,
+    width: { size: widthDxa, type: WidthType.DXA },
+    shading: headerShading,
+    margins: { top: 80, bottom: 80, left: 120, right: 120 },
+    children: [new Paragraph({
+      children: [new TextRun({ text, bold: true, size: 18, color: "1F3864" })],  // 18 half-points = 9pt
+    })],
+  });
+}
+
+function bodyCell(widthDxa, text, banded) {
+  return new TableCell({
+    borders: allBorders,
+    width: { size: widthDxa, type: WidthType.DXA },
+    shading: banded ? bandShading : undefined,
+    margins: { top: 80, bottom: 80, left: 120, right: 120 },
+    children: [new Paragraph({
+      spacing: { before: 0, after: 0 },
+      children: [new TextRun({ text, size: 18 })],
+    })],
+  });
+}
 
 new Table({
   width: { size: 9360, type: WidthType.DXA },
-  columnWidths: [4680, 4680],  // must sum to table width
+  columnWidths: [2400, 6960],
   rows: [
     new TableRow({
-      children: [
-        new TableCell({
-          borders: allBorders,
-          width: { size: 4680, type: WidthType.DXA },
-          shading: { fill: "D5E8F0", type: ShadingType.CLEAR },  // CLEAR, not SOLID
-          margins: { top: 80, bottom: 80, left: 120, right: 120 },
-          children: [new Paragraph({ children: [new TextRun("Cell A")] })]
-        }),
-        new TableCell({
-          borders: allBorders,
-          width: { size: 4680, type: WidthType.DXA },
-          margins: { top: 80, bottom: 80, left: 120, right: 120 },
-          children: [new Paragraph({ children: [new TextRun("Cell B")] })]
-        }),
-      ]
-    })
-  ]
-})
+      children: [headerCell(2400, "Goal"), headerCell(6960, "Approach")],
+    }),
+    new TableRow({
+      children: [bodyCell(2400, "Fail closed", false), bodyCell(6960, "Deny on authz or policy errors", true)],
+    }),
+  ],
+});
 ```
+
+**Pagination:**
+
+- Keep each logical table row on one page when possible: short cell copy; avoid multi-sentence Approach cells in two-column goal tables
+- In docx-js, prefer compact rows over `PageBreak` inside tables
+- If using python-docx, see `python-docx-patterns.md` for `w:cantSplit` and `w:keepLines`
+
+**Anti-patterns:**
+
+- **Table Grid** as the effective style (plain black borders)
+- **Mixing** built-in table style (python-docx) with manual cell fills or white header text — theme flattens; see `production-lessons.md`
+- White header text without a header fill
+- One subsection with a full tool/inventory table and sibling subsections with paragraph-only lists (compliance scans fail)
+- Auto-TOC fields in generators without user request (validator noise; stale pages)
+- Leaving `generate_*.py` beside the delivered `.docx` unless the user asked to keep it
+- Trusting XML style names without opening the file in Word
 
 ### Images
 
@@ -464,3 +516,10 @@ pandoc --track-changes=all document.docx -o output.md
 12. **TOC only works with `HeadingLevel`** — custom paragraph styles are invisible to TOC
 13. **Override built-in style IDs** — must use exact IDs like `Heading1`, `Heading2`
 14. **Include `outlineLevel`** on heading styles — required for TOC generation (0 = H1, 1 = H2, ...)
+15. **One table styling approach** — docx-js: explicit fills; python-docx: built-in style + `tblHeader` OR explicit fills, never both
+16. **Architecture table text: 9pt** — tighter than body; use cell margins 80/120 DXA (docx-js) or 36–40 DXA (python-docx)
+17. **Deliverable is the `.docx` only** — generator scripts belong in `scripts/` unless the user requests otherwise
+18. **Short table rows for pagination** — concise cell copy; `cantSplit` on python-docx rows
+19. **Verify tables in Word** — XML style names can lie; screenshot/open beats validator alone
+20. **Parallel sections, parallel tables** — compliance ADD: matching tables in sibling subsections (e.g. 5.1.1–5.1.3)
+21. **TOC in Word** — heading styles in generator; user inserts TOC via References unless embedded TOC is required

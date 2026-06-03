@@ -15,6 +15,8 @@ Before authoring substantial content, read:
 
 - `../_shared/architecture-document-principles.md`
 - `references/docx-guide.md`
+- `references/production-lessons.md` — table styling, compliance structure, generator workflow (read for ADD/compliance DOCX)
+- `references/python-docx-patterns.md` — only if generating with python-docx instead of docx-js
 
 For DOCX tooling, use the shared toolkit:
 
@@ -59,7 +61,7 @@ First decide which path fits the request.
 
 | Task | Primary tool |
 |------|--------------|
-| Create a new DOCX from scratch | `docx` npm package |
+| Create a new DOCX from scratch | `docx` npm package (if no npm: python-docx per `python-docx-patterns.md`) |
 | Edit an existing DOCX | Unpack, edit XML, pack |
 | Add comments | `office_tools.py comment` |
 | Accept tracked changes | `office_tools.py accept` |
@@ -81,8 +83,9 @@ Use `docx` (docx-js) for new documents.
 5. Define heading styles with correct `Heading1`, `Heading2`, and outline levels so the table of contents works.
 6. Use Word numbering APIs for bullets and numbered lists. Do not type unicode bullets manually.
 7. Use DXA units consistently.
-8. Generate the DOCX.
-9. Validate the output:
+8. Generate the DOCX with **one table-styling approach** (docx-js: explicit fills in `docx-guide.md`; python-docx: built-in `Medium Shading 1 Accent 1` + header row, or explicit fills only—never both). Use 9pt table text and fixed column widths.
+9. For compliance/ADD docs, read `references/production-lessons.md` (parallel tool tables, TOC, visual verify).
+10. Validate the output:
 
 ```bash
 python3 ../_shared/office-tools/office_tools.py validate output.docx --auto-repair
@@ -134,16 +137,39 @@ A good architecture DOCX should be navigable and reviewable:
 - Decision and rationale sections for approvers
 - Tables for risks, assumptions, dependencies, requirements, interfaces, and open questions
 - Diagrams embedded or referenced when they clarify structure or flow
-- Consistent heading hierarchy and table formatting
+- Consistent heading hierarchy and table formatting (themed headers, light row banding, 9pt table text)
 - No placeholder sections left empty
 - Validation completed before delivery
+
+## Tables (required for new DOCX)
+
+Production tables must not render as plain **Table Grid** (black borders only). **Pick one styling path and verify in Word** (not XML alone). See `references/production-lessons.md`.
+
+| Toolchain | Table styling |
+|-----------|----------------|
+| **docx-js** | Explicit header fill, borders, banding in code (`docx-guide.md` § Tables) |
+| **python-docx** | **Preferred:** `Medium Shading 1 Accent 1` + `w:tblHeader` on row 1 + 9pt fonts/margins/widths only — **no** manual cell fills |
+| **python-docx fallback** | Full explicit OXML fills — **no** built-in table style name |
+
+Shared rules: **9pt** table text; tight cell margins; fixed column widths; `cantSplit` on rows (python-docx); concise cells to avoid bad page breaks.
+
+**Never mix** built-in table style with hand-painted cell shading or white header text — theme will flatten to Table Grid.
+
+**Compliance / ADD:** If one subsection uses a full inventory table (e.g. tools 5.1.1), sibling subsections (5.1.2, 5.1.3) need matching tables — not paragraph summaries only.
 
 ## Delivery Checklist
 
 Before finishing:
 
-1. Confirm the DOCX opens or validates.
-2. Run the shared validator when possible.
-3. Extract text if you need to confirm generated content order.
-4. Mention any skipped checks, such as missing LibreOffice for conversion.
-5. Keep source scripts or unpacked working directories out of the final deliverable unless the user asks for them.
+1. **Open in Word** (or use a user screenshot) — confirm table header banding, not plain grid.
+2. Confirm the DOCX validates when possible; note non-blocking python-docx validator warnings if Word opens cleanly.
+3. Extract text if you need to confirm section order and parallel tables.
+4. Mention skipped checks (no LibreOffice, no npm, no Word preview).
+5. **Deliver only the `.docx`** unless the user asked for more.
+6. **Do not leave generator scripts** beside the deliverable unless requested — prefer `scripts/` for maintained `generate_*.py` / `.js`.
+7. Keep unpacked working directories out of the deliverable unless the user asks for them.
+8. **TOC:** use heading styles in the generator; tell the user to insert TOC in Word unless they asked for an embedded field.
+
+Regenerate the file only when content, version, or generator logic changes — not for every submission handoff. Regenerating overwrites Word-only edits unless those edits were merged into the generator.
+
+If the user explicitly wants a maintained regen script beside the document, place it only where they specify and say so in your reply.

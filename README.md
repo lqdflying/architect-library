@@ -149,7 +149,9 @@ See [Installation](#installation) for Copilot / Claude Code paths, or [docs/AGEN
 | [`skills/excalidraw-diagram/README.md`](skills/excalidraw-diagram/README.md) | Render setup, offline bundle, PNG validation |
 | [`skills/word-document/SKILL.md`](skills/word-document/SKILL.md) | DOCX agent workflow (new vs edit, comments, redlines) |
 | [`skills/word-document/README.md`](skills/word-document/README.md) | Word skill setup and pointers |
-| [`skills/word-document/references/docx-guide.md`](skills/word-document/references/docx-guide.md) | docx-js and XML editing patterns |
+| [`skills/word-document/references/docx-guide.md`](skills/word-document/references/docx-guide.md) | docx-js and XML editing patterns (explicit table theming) |
+| [`skills/word-document/references/production-lessons.md`](skills/word-document/references/production-lessons.md) | Real-delivery lessons: one table style path, parallel tables, TOC, Word verify |
+| [`skills/word-document/references/python-docx-patterns.md`](skills/word-document/references/python-docx-patterns.md) | python-docx: built-in `Medium Shading 1 Accent 1` + tblHeader, or explicit fills |
 | [`skills/powerpoint-presentation/SKILL.md`](skills/powerpoint-presentation/SKILL.md) | PPTX agent workflow |
 | [`skills/powerpoint-presentation/README.md`](skills/powerpoint-presentation/README.md) | PPT setup (including optional icon packages) |
 | [`skills/powerpoint-presentation/references/pptx-guide.md`](skills/powerpoint-presentation/references/pptx-guide.md) | pptxgenjs and template editing |
