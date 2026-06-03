@@ -99,6 +99,37 @@ rm -rf .github/skills/excalidraw-diagram
 
 ---
 
+## Patch / upgrade Cursor skills (agent default)
+
+When the user says **patch**, **upgrade**, **install**, or **refresh** skills — or you just changed skills in this repo — **run this** (global Cursor). Do not stop at editing only `$REPO/skills/`.
+
+| Action | What happens under `~/.cursor/skills/` |
+|--------|----------------------------------------|
+| **New** skill in repo | Folder copied in the bundle (e.g. `spreadsheet-document`) |
+| **Existing** skill (Word, PPT, …) | Old folder **removed**, fresh `cp -a` from repo (**patch**) |
+| **`_shared`** | Always refreshed with Word/PPT/spreadsheet installs |
+
+```bash
+REPO=/path/to/architect-doc-skill
+CURSOR=~/.cursor/skills
+BUNDLE="excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document _shared"
+
+mkdir -p "$CURSOR"
+for legacy in docx pptx xlsx pdf; do rm -rf "$CURSOR/$legacy"; done
+for name in $BUNDLE; do
+  rm -rf "$CURSOR/$name"
+  cp -a "$REPO/skills/$name" "$CURSOR/$name"
+done
+```
+
+Then: verify layout (Step 6), tell the user to **open a new agent chat**.
+
+Project-local install: same loop with `CURSOR=.cursor/skills` from the user’s project root.
+
+Repo rule: [`.cursor/rules/architect-doc-skill-cursor-patch.mdc`](../.cursor/rules/architect-doc-skill-cursor-patch.mdc).
+
+---
+
 ## Step 3: Install for Cursor
 
 ### Global (recommended for individuals)
@@ -274,12 +305,12 @@ Do not run `install_deps.sh` inside `~/.cursor/skills/` — run it from the **re
 | GitHub Copilot | `~/.copilot/skills/<skill-name>/` | `.github/skills/<skill-name>/` |
 | Claude Code | — | `.claude/skills/<skill-name>/` |
 
-Each `<skill-name>` is one of: `excalidraw-diagram`, `word-document`, `powerpoint-presentation`, `_shared`.
+Each `<skill-name>` is one of: `excalidraw-diagram`, `word-document`, `powerpoint-presentation`, `spreadsheet-document`, `pdf-document`, `_shared`.
 
 ---
 
-## When the user updates the repo (`git pull`)
+## When the user updates the repo (`git pull`) or patches skills
 
-Re-run Step 2 (legacy cleanup if needed) and Step 3 or 4 (copy all skill folders again). Then ask them to open a new agent chat.
+Re-run **Patch / upgrade Cursor skills** (or Step 2 + Step 3): replace every bundle folder under `~/.cursor/skills/`. Then ask them to open a new agent chat.
 
 Optionally verify with `diff` against `$REPO/skills/` as in Step 6.

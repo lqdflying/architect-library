@@ -18,6 +18,7 @@ Update **agent guidance** (all that apply):
 - [ ] [architecture-document-principles.md](../skills/_shared/architecture-document-principles.md) — cross-skill rules
 - [ ] [scripts/install_deps.sh](../scripts/install_deps.sh) — new install target if the skill needs a runtime
 - [ ] Add a new `.mdc` rule only if the skill needs always-on guidance beyond the two core rules
+- [ ] If the user uses Cursor globally: **patch `~/.cursor/skills/`** per [`.cursor/rules/architect-doc-skill-cursor-patch.mdc`](../.cursor/rules/architect-doc-skill-cursor-patch.mdc) (full bundle `cp -a`; new skills added, old folders replaced)
 
 If the skill uses Office tools:
 

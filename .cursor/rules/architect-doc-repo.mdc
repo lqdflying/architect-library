@@ -5,7 +5,9 @@ alwaysApply: true
 
 # architect-doc-skill — repository
 
-Work inside this clone to edit skills, `office-tools`, or docs. To install skills into a user’s editor, follow `docs/AGENT-SKILL-INSTALL.md`.
+Work inside this clone to edit skills, `office-tools`, or docs.
+
+**Install or patch Cursor skills:** after skill changes or when the user asks, refresh `~/.cursor/skills/` from `skills/` — see [architect-doc-skill-cursor-patch.mdc](architect-doc-skill-cursor-patch.mdc) and [docs/AGENT-SKILL-INSTALL.md](docs/AGENT-SKILL-INSTALL.md). New skills get added; existing ones are **replaced** (not merged in place).
 
 ## Layout
 
