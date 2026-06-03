@@ -1,224 +1,336 @@
-# Excalidraw Diagram Skill
+# Architect Document Skills
 
-A coding agent skill that generates beautiful and practical Excalidraw diagrams from natural language descriptions. Not just boxes-and-arrows - diagrams that **argue visually**.
+A multi-skill repository for creating architecture artifacts with coding agents. The skill set covers visual architecture diagrams, Word architecture documents, and PowerPoint architecture presentations.
 
-Compatible with [Cursor](https://cursor.com), [VS Code + GitHub Copilot](https://code.visualstudio.com/docs/copilot/customization/agent-skills), [Claude Code](https://docs.anthropic.com/en/docs/claude-code), and OpenCode. Pick the install path for your editor below.
+The original Excalidraw diagram skill is preserved under `skills/excalidraw-diagram/`. Word and PowerPoint skills have been added around the Office draft guides and shared DOCX/PPTX tooling.
 
-## What Makes This Different
+Compatible with [Cursor](https://cursor.com), [VS Code + GitHub Copilot](https://code.visualstudio.com/docs/copilot/customization/agent-skills), [Claude Code](https://docs.anthropic.com/en/docs/claude-code), and OpenCode.
 
-- **Diagrams that argue, not display.** Every shape/group of shapes mirrors the concept it represents — fan-outs for one-to-many, timelines for sequences, convergence for aggregation. No uniform card grids.
-- **Evidence artifacts.** As an example, technical diagrams include real code snippets and actual JSON payloads.
-- **Built-in visual validation.** A Playwright-based render pipeline lets the agent see its own output, catch layout issues (overlapping text, misaligned arrows, unbalanced spacing), and fix them in a loop before delivering.
-- **Brand-customizable.** All colors and brand styles live in a single file (`references/color-palette.md`). Swap it out and every diagram follows your palette.
+**Instructions vs runtime:** Each skill’s `SKILL.md` works as soon as it is copied into your editor—the agent can draft diagrams, outlines, and scripts without any extra packages. The section below installs Python/Playwright/Office tooling on your machine **once** (first-time preparation). You only need the parts that match what you plan to use.
+
+## First-time preparation (one-time per machine)
+
+Run these steps **once** on each computer (or CI image) where you want rendering, Office XML tools, or offline Excalidraw. You do not repeat them for every project—only copy the skill folders per project or globally ([Installation](#installation)).
+
+### Prerequisites
+
+| Requirement | Needed for |
+|-------------|------------|
+| Python 3.11+ | Excalidraw renderer, Office toolkit (`uv` installs deps) |
+| [uv](https://docs.astral.sh/uv/) | Installed automatically by `install_deps.sh` if missing |
+| Node.js + npm | `npm install -g docx` / `pptxgenjs`; `scripts/vendor_excalidraw.sh` (bootstraps npm if absent) |
+| sudo (Linux only) | Optional OS libraries for headless Chromium (`install_deps.sh`) and LibreOffice/Poppler (`office-system`) |
+| LibreOffice + Poppler | Optional: accept tracked changes, DOCX→PDF, PPTX thumbnails (`bash scripts/install_deps.sh office-system`) |
+
+### All-in-one (recommended)
+
+From the repository root (after `git clone`):
+
+```bash
+cd architect-doc-skill   # or your clone path
+bash scripts/install_deps.sh              # Excalidraw + Office Python deps
+bash scripts/install_deps.sh office-system   # optional: LibreOffice + Poppler
+```
+
+Install only one runtime:
+
+```bash
+bash scripts/install_deps.sh excalidraw
+bash scripts/install_deps.sh office
+bash scripts/install_deps.sh office-system
+```
+
+### Excalidraw renderer (first-time)
+
+Playwright + Chromium let the agent render `.excalidraw` files to PNG for visual QA. Included in `bash scripts/install_deps.sh`; to run alone:
+
+```bash
+cd skills/excalidraw-diagram/references
+bash install_deps.sh
+```
+
+Manual equivalent:
+
+```bash
+cd skills/excalidraw-diagram/references
+uv sync
+uv run python -m playwright install chromium
+```
+
+**Online (default):** each render can load Excalidraw from `esm.sh` (network required).
+
+**Offline / firewalled (first-time, requires Node.js):** build a local bundle once:
+
+```bash
+bash scripts/vendor_excalidraw.sh
+```
+
+Details: [`skills/excalidraw-diagram/README.md`](skills/excalidraw-diagram/README.md) → **Offline rendering**.
+
+### Node.js (first-time, for new DOCX / PPTX only)
+
+Not installed by `install_deps.sh`:
+
+```bash
+npm install -g docx        # Word — new DOCX via docx-js
+npm install -g pptxgenjs   # PowerPoint — new PPTX decks
+```
+
+Optional for PPTX icon workflows (see [`skills/powerpoint-presentation/README.md`](skills/powerpoint-presentation/README.md)):
+
+```bash
+npm install -g react-icons react react-dom sharp
+```
+
+### Office tools (first-time)
+
+Shared by Word and PowerPoint skills. Included in `bash scripts/install_deps.sh`; to run alone:
+
+```bash
+cd skills/_shared/office-tools
+bash install_deps.sh
+bash install_deps.sh --with-system   # LibreOffice + Poppler when needed
+```
+
+Verify:
+
+```bash
+cd skills/_shared/office-tools
+uv run python3 office_tools.py --help
+```
+
+---
+
+## Quick start (every project)
+
+After [first-time preparation](#first-time-preparation-one-time-per-machine) (skip if you only need agent instructions with no PNG/Office tooling):
+
+1. **Clone** (if you have not already)
+
+   ```bash
+   git clone https://github.com/lqdflying/architect-doc-skill.git
+   cd architect-doc-skill
+   ```
+
+2. **Install skills into your editor** (Cursor example — copy all four folders, including `_shared`):
+
+   ```bash
+   mkdir -p ~/.cursor/skills
+   cp -r skills/excalidraw-diagram ~/.cursor/skills/
+   cp -r skills/word-document ~/.cursor/skills/
+   cp -r skills/powerpoint-presentation ~/.cursor/skills/
+   cp -r skills/_shared ~/.cursor/skills/
+   ```
+
+3. **Ask your agent** (skills load from their descriptions—no slash command required):
+
+   > Create an Excalidraw diagram of our payment authorization flow.
+
+See [Installation](#installation) for Copilot / Claude Code paths and per-project `.cursor/skills` copies.
+
+## Skills
+
+| Skill | Use when |
+|-------|----------|
+| `excalidraw-diagram` | Create Excalidraw architecture diagrams, workflows, system maps, and concept visuals. |
+| `word-document` | Create or edit DOCX architecture documents, HLDs, LLDs, ADRs, design docs, requirements, comments, and tracked changes. |
+| `powerpoint-presentation` | Create or edit PPTX architecture decks, executive summaries, solution overviews, migration plans, roadmap decks, and template-based presentations. |
+| `_shared` | Shared principles and Office tooling used by the Word and PowerPoint skills. **Must** be installed as a sibling of the other skills. |
+
+## Documentation map
+
+| Read this | When you need |
+|-----------|----------------|
+| [`skills/excalidraw-diagram/SKILL.md`](skills/excalidraw-diagram/SKILL.md) | Diagram design rules and agent workflow |
+| [`skills/excalidraw-diagram/README.md`](skills/excalidraw-diagram/README.md) | Render setup, offline bundle, PNG validation |
+| [`skills/word-document/SKILL.md`](skills/word-document/SKILL.md) | DOCX agent workflow (new vs edit, comments, redlines) |
+| [`skills/word-document/README.md`](skills/word-document/README.md) | Word skill setup and pointers |
+| [`skills/word-document/references/docx-guide.md`](skills/word-document/references/docx-guide.md) | docx-js and XML editing patterns |
+| [`skills/powerpoint-presentation/SKILL.md`](skills/powerpoint-presentation/SKILL.md) | PPTX agent workflow |
+| [`skills/powerpoint-presentation/README.md`](skills/powerpoint-presentation/README.md) | PPT setup (including optional icon packages) |
+| [`skills/powerpoint-presentation/references/pptx-guide.md`](skills/powerpoint-presentation/references/pptx-guide.md) | pptxgenjs and template editing |
+| [`skills/_shared/architecture-document-principles.md`](skills/_shared/architecture-document-principles.md) | Shared structure for architecture docs and decks |
+| [`skills/_shared/office-tools/README.md`](skills/_shared/office-tools/README.md) | Full `office_tools.py` command reference and validation checks |
+
+## Repository layout
+
+```text
+architect-doc-skill/
+  README.md
+  scripts/
+    install_deps.sh           # all | excalidraw | office | office-system
+    vendor_excalidraw.sh      # build offline Excalidraw bundle (Node.js)
+    vendor_excalidraw/        # esbuild vendor project (not the bundle itself)
+  skills/
+    excalidraw-diagram/
+      SKILL.md
+      README.md
+      references/
+        install_deps.sh
+        render_excalidraw.py
+        render_template.html
+        vendor/                 # generated: excalidraw.bundle.mjs (gitignored, ~19MB)
+    word-document/
+      SKILL.md
+      README.md
+      references/docx-guide.md
+    powerpoint-presentation/
+      SKILL.md
+      README.md
+      references/pptx-guide.md
+    _shared/
+      architecture-document-principles.md
+      office-tools/
+        office_tools.py
+        README.md
+        install_deps.sh
+```
 
 ## Installation
 
+Clone the repository:
+
+```bash
+git clone git@github.com:lqdflying/architect-doc-skill.git
+```
+
+If you prefer HTTPS:
+
+```bash
+git clone https://github.com/lqdflying/architect-doc-skill.git
+```
+
+### VS Code GitHub Copilot
+
+Install globally for all workspaces:
+
+```bash
+cd /path/to/architect-doc-skill
+mkdir -p ~/.copilot/skills
+cp -r skills/excalidraw-diagram ~/.copilot/skills/
+cp -r skills/word-document ~/.copilot/skills/
+cp -r skills/powerpoint-presentation ~/.copilot/skills/
+cp -r skills/_shared ~/.copilot/skills/
+```
+
+Install per workspace from your project root:
+
+```bash
+mkdir -p .github/skills
+cp -r /path/to/architect-doc-skill/skills/excalidraw-diagram .github/skills/
+cp -r /path/to/architect-doc-skill/skills/word-document .github/skills/
+cp -r /path/to/architect-doc-skill/skills/powerpoint-presentation .github/skills/
+cp -r /path/to/architect-doc-skill/skills/_shared .github/skills/
+```
+
+Reload VS Code after installation. The skills are available as slash commands such as `/excalidraw-diagram`, `/word-document`, and `/powerpoint-presentation`, and may also load automatically when the request matches their descriptions.
+
 ### Cursor
 
-Cursor loads skills from a folder containing `SKILL.md` (with YAML frontmatter). Install **globally** (all projects on this machine) or **per project** (committed with your repo).
-
-**Global install (recommended):**
+Install globally:
 
 ```bash
-git clone https://github.com/coleam00/excalidraw-diagram-skill.git
+cd /path/to/architect-doc-skill
 mkdir -p ~/.cursor/skills
-cp -r excalidraw-diagram-skill ~/.cursor/skills/excalidraw-diagram
+cp -r skills/excalidraw-diagram ~/.cursor/skills/
+cp -r skills/word-document ~/.cursor/skills/
+cp -r skills/powerpoint-presentation ~/.cursor/skills/
+cp -r skills/_shared ~/.cursor/skills/
 ```
 
-**Per-project install:**
+Install per project:
 
 ```bash
-git clone https://github.com/coleam00/excalidraw-diagram-skill.git
 mkdir -p .cursor/skills
-cp -r excalidraw-diagram-skill .cursor/skills/excalidraw-diagram
+cp -r /path/to/architect-doc-skill/skills/excalidraw-diagram .cursor/skills/
+cp -r /path/to/architect-doc-skill/skills/word-document .cursor/skills/
+cp -r /path/to/architect-doc-skill/skills/powerpoint-presentation .cursor/skills/
+cp -r /path/to/architect-doc-skill/skills/_shared .cursor/skills/
 ```
-
-**Using the skill:** Open any project in Cursor and ask for a diagram in chat, for example:
-
-> Create an Excalidraw diagram of our authentication flow.
-
-The agent picks up the skill from its `description` in `SKILL.md` — no mode picker required. Relative paths like `references/color-palette.md` work as-is; do **not** copy `~/.cursor/skills-cursor/` (that directory is reserved for Cursor built-in skills).
-
-| Scope | Skill location |
-|-------|----------------|
-| Global (all projects) | `~/.cursor/skills/excalidraw-diagram/` |
-| Single project | `.cursor/skills/excalidraw-diagram/` |
-
-**Live updates from a dev checkout:** If you are editing this repo locally, symlink instead of copy so changes apply immediately:
-
-```bash
-ln -sf /path/to/excalidraw-diagram-skill ~/.cursor/skills/excalidraw-diagram
-```
-
-### VS Code (GitHub Copilot Agent Skill)
-
-VS Code uses [Agent Skills](https://code.visualstudio.com/docs/copilot/customization/agent-skills) — folders with a `SKILL.md` file that define reusable capabilities. Skills resolve relative paths from the `SKILL.md` location, so no path rewriting is needed. Install **globally** (all workspaces) or **per-workspace**.
-
-**Global install (recommended):**
-
-```bash
-git clone https://github.com/coleam00/excalidraw-diagram-skill.git
-mkdir -p ~/.copilot/skills/excalidraw-diagram
-cp excalidraw-diagram-skill/SKILL.md ~/.copilot/skills/excalidraw-diagram/
-cp -r excalidraw-diagram-skill/references ~/.copilot/skills/excalidraw-diagram/
-```
-
-**Per-workspace install** (run from your project root):
-
-```bash
-git clone https://github.com/coleam00/excalidraw-diagram-skill.git
-mkdir -p .github/skills
-cp -r excalidraw-diagram-skill .github/skills/excalidraw-diagram
-```
-
-Note: The skill directory name must match the `name` field in `SKILL.md` frontmatter (`excalidraw-diagram`).
-
-**Using the skill:** After installation, reload VS Code (`Ctrl+Shift+P` → "Developer: Reload Window"). The skill is available as:
-- A **slash command**: type `/excalidraw-diagram` in chat
-- **Automatically loaded** when the agent detects a relevant request (e.g., "create a diagram")
-
-| Scope | Skill location |
-|-------|----------------|
-| Global (all workspaces) | `~/.copilot/skills/excalidraw-diagram/` |
-| Workspace | `.github/skills/excalidraw-diagram/` |
 
 ### Claude Code / OpenCode
 
-Clone or download this repo, then copy it into your project's `.claude/skills/` directory:
+Install into a project:
 
 ```bash
-git clone https://github.com/coleam00/excalidraw-diagram-skill.git
-cp -r excalidraw-diagram-skill .claude/skills/excalidraw-diagram
+cd /path/to/architect-doc-skill
+mkdir -p .claude/skills
+cp -r skills/excalidraw-diagram .claude/skills/
+cp -r skills/word-document .claude/skills/
+cp -r skills/powerpoint-presentation .claude/skills/
+cp -r skills/_shared .claude/skills/
 ```
 
-## Setup
+Keep `_shared` as a sibling of the other skill folders. The Word and PowerPoint skills reference shared Office tools through `../_shared/office-tools/`.
 
-The skill includes a render pipeline that lets the agent visually validate its diagrams. There are two ways to set it up:
+## Office workflows (manual)
 
-**Option A: Ask your coding agent (easiest)**
-
-Just tell your agent: *"Set up the Excalidraw diagram skill renderer."* It will run the install script for you.
-
-**Option B: Manual**
-
-Run the install script from your `references` folder (pick the path that matches your install):
+Render a diagram to PNG (after first-time Excalidraw setup):
 
 ```bash
-# Cursor (global):
-cd ~/.cursor/skills/excalidraw-diagram/references
-bash install_deps.sh
-
-# Cursor (project):
-cd .cursor/skills/excalidraw-diagram/references
-bash install_deps.sh
-
-# VS Code Copilot (global):
-cd ~/.copilot/skills/excalidraw-diagram/references
-bash install_deps.sh
-
-# VS Code Copilot (workspace):
-cd .github/skills/excalidraw-diagram/references
-bash install_deps.sh
-
-# Claude Code / OpenCode:
-cd .claude/skills/excalidraw-diagram/references
-bash install_deps.sh
+cd skills/excalidraw-diagram/references
+uv run python render_excalidraw.py path/to/diagram.excalidraw
 ```
 
-Or manually install just the Python deps:
+From `skills/_shared/office-tools` (or use paths from an installed skill folder—see each `SKILL.md`):
 
 ```bash
-cd <path-to-references>
-uv sync
-uv run playwright install chromium
+# Edit existing DOCX
+uv run python3 office_tools.py unpack input.docx unpacked/
+# … edit XML under unpacked/word/ …
+uv run python3 office_tools.py pack unpacked/ output.docx --original input.docx
+
+# Validate only
+uv run python3 office_tools.py validate output.docx --auto-repair
+
+# PPTX template QA
+uv run python3 office_tools.py analyze template.pptx
+uv run python3 office_tools.py thumbnail deck.pptx   # needs LibreOffice + Poppler
 ```
 
-### System prerequisites
+Full command list: [`skills/_shared/office-tools/README.md`](skills/_shared/office-tools/README.md).
 
-The render pipeline requires:
-- **Python >= 3.11** (uv will auto-download one if your system Python is older)
-- **[uv](https://docs.astral.sh/uv/)** — Python package manager
-- **curl** — for installing uv and optional offline vendoring
-- **System libraries** for headless Chromium (atk, nss, pango, etc.)
+## Usage examples
 
-**The included helper script installs everything in one step** (uv + system libs + Python deps + Chromium):
-```bash
-cd <path-to-references>   # see paths in Option B above
-bash install_deps.sh
-```
+Ask your coding agent:
 
-Or install manually:
+> Create an Excalidraw diagram showing the target-state payment authorization flow.
 
-**uv** (if not already installed):
-```bash
-curl -LsSf https://astral.sh/uv/install.sh | sh
-```
+> Create a Word HLD for this event-driven architecture with risks, assumptions, and decision records.
 
-**Chromium system libraries — Debian / Ubuntu:**
-```bash
-sudo apt-get install -y libatk1.0-0 libatk-bridge2.0-0 libcups2 libxcomposite1 \
-  libxdamage1 libxrandr2 libgbm1 libpango-1.0-0 libasound2 libnss3
-```
+> Create a PowerPoint executive architecture review deck for the migration plan.
 
-**Chromium system libraries — RHEL / Oracle Linux / Rocky / Alma (dnf):**
-```bash
-sudo dnf install -y atk at-spi2-atk cups-libs libXcomposite libXdamage \
-  libXrandr mesa-libgbm pango alsa-lib nss
-```
+For existing Office files, attach the `.docx` or `.pptx` and ask the agent to edit, comment, validate, or extract text.
 
-**Then install Python deps and Chromium:**
-```bash
-cd <path-to-references>
-uv sync
-uv run playwright install chromium
-```
+## Customization
 
-If you're on a desktop Linux with a browser already installed, the system libraries are almost certainly present and you can skip that step.
+- Diagram colors: [`skills/excalidraw-diagram/references/color-palette.md`](skills/excalidraw-diagram/references/color-palette.md)
+- Architecture writing principles: [`skills/_shared/architecture-document-principles.md`](skills/_shared/architecture-document-principles.md)
+- DOCX patterns: [`skills/word-document/references/docx-guide.md`](skills/word-document/references/docx-guide.md)
+- PPTX patterns: [`skills/powerpoint-presentation/references/pptx-guide.md`](skills/powerpoint-presentation/references/pptx-guide.md)
 
-### Network requirements
+## Validation
 
-The render pipeline reaches the network in two places:
-
-- **Setup:** `playwright install chromium` downloads the headless browser from `cdn.playwright.dev`.
-- **Render time:** the browser loads the Excalidraw library (pinned to `0.17.6`) from `esm.sh` each time it renders.
-
-In offline, proxied, or firewalled environments these hosts may be blocked. If `esm.sh` is unreachable, the renderer prints a clear error instead of hanging.
-
-### Optional: vendor Excalidraw for offline rendering
-
-To render without hitting `esm.sh` on every run, download the pinned library once into a local `vendor/` folder. The renderer prefers this local copy and falls back to the CDN only if it's missing:
+Smoke checks after [first-time preparation](#first-time-preparation-one-time-per-machine):
 
 ```bash
-cd <path-to-references>
-mkdir -p vendor
-curl -L "https://esm.sh/@excalidraw/excalidraw@0.17.6?bundle" -o vendor/excalidraw.js
+cd skills/_shared/office-tools
+uv run python3 office_tools.py --help
+uv run python3 office_tools.py validate --help
+uv run python3 office_tools.py analyze --help
+
+cd ../../excalidraw-diagram/references
+uv run python render_excalidraw.py --help
 ```
 
-`vendor/` is gitignored, so it stays local to your checkout.
+## Troubleshooting
 
-## Usage
-
-Ask your coding agent to create a diagram:
-
-> "Create an Excalidraw diagram showing how the AG-UI protocol streams events from an AI agent to a frontend UI"
-
-The skill handles the rest — concept mapping, layout, JSON generation, rendering, and visual validation.
-
-## Customize Colors
-
-Edit `references/color-palette.md` to match your brand. Everything else in the skill is universal design methodology.
-
-## File Structure
-
-```
-excalidraw-diagram/
-  SKILL.md                          # Design methodology + workflow
-  references/
-    color-palette.md                # Brand colors (edit this to customize)
-    element-templates.md            # JSON templates for each element type
-    json-schema.md                  # Excalidraw JSON format reference
-    install_deps.sh                 # Install system libs for headless Chromium
-    render_excalidraw.py            # Render .excalidraw to PNG
-    render_template.html            # Browser template for rendering
-    pyproject.toml                  # Python dependencies (playwright)
-```
+| Problem | What to try |
+|---------|-------------|
+| `playwright: command not found` during `install_deps.sh` | Use `uv run python -m playwright install chromium` (already what `install_deps.sh` runs after setup). |
+| Excalidraw render times out / “Could not load library” | Online: allow `esm.sh`. Offline: run `bash scripts/vendor_excalidraw.sh`, then retry. |
+| `process is not defined` after vendoring | Rebuild the bundle: `bash scripts/vendor_excalidraw.sh` (includes browser shims). |
+| Office commands fail with import errors | Run from `skills/_shared/office-tools` with `uv run python3 office_tools.py …` after `bash install_deps.sh`. |
+| `accept` or `thumbnail` fails | Install system deps: `bash scripts/install_deps.sh office-system`. |
+| Word/PPT skill can’t find tools | Ensure `_shared` is copied next to `word-document` and `powerpoint-presentation` in your skills folder. |
+| Pack skipped redline checks | Pass `--original input.docx` to `pack`; without it, only structural validation runs (a warning is printed). |

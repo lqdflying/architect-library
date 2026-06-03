@@ -1,4 +1,13 @@
+.cursor/
 .venv/
+**/.venv/
 *.png
+*.pdf
 __pycache__/
-references/vendor/
+**/__pycache__/
+unpacked/
+workdir/
+dist/
+skills/excalidraw-diagram/references/vendor/
+scripts/vendor_excalidraw/node_modules/
+scripts/vendor_excalidraw/.npm-bootstrap/

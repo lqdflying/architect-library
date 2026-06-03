@@ -3,7 +3,7 @@
 # Installs: system libraries for Chromium, uv, Python deps, and Chromium itself.
 #
 # Usage:
-#   cd .claude/skills/excalidraw-diagram/references
+#   cd <installed-skills-root>/excalidraw-diagram/references
 #   bash install_deps.sh
 
 set -euo pipefail
@@ -96,7 +96,7 @@ uv sync
 
 echo ""
 echo "Installing Playwright Chromium..."
-uv run playwright install chromium
+uv run python -m playwright install chromium
 
 echo ""
 echo "========================================="

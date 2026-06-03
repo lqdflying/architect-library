@@ -451,7 +451,7 @@ You cannot judge a diagram from JSON alone. After generating or editing the Exca
 ### How to Render
 
 ```bash
-cd .claude/skills/excalidraw-diagram/references && uv run python render_excalidraw.py <path-to-file.excalidraw>
+cd <installed-skills-root>/excalidraw-diagram/references && uv run python render_excalidraw.py <path-to-file.excalidraw>
 ```
 
 This outputs a PNG next to the `.excalidraw` file. Then use the **Read tool** on the PNG to actually view it.
@@ -503,13 +503,13 @@ The loop is done when:
 ### First-Time Setup
 If the render script hasn't been set up yet:
 ```bash
-cd .claude/skills/excalidraw-diagram/references
-bash install_deps.sh   # install system libraries for headless Chromium (needs sudo)
-uv sync
-uv run playwright install chromium
+cd <installed-skills-root>/excalidraw-diagram/references
+bash install_deps.sh
 ```
 
-Rendering reaches the network twice: setup downloads Chromium from `cdn.playwright.dev`, and each render loads the pinned Excalidraw library from `esm.sh`. In offline or firewalled environments, vendor the library once so renders work locally (see README "Setup" → "Optional: vendor Excalidraw for offline rendering"). If the library can't be loaded, the render script prints a clear error rather than hanging.
+`install_deps.sh` installs uv (if needed), Python dependencies, Chromium for Playwright, and on Linux may prompt for sudo only when installing OS libraries required by headless Chromium.
+
+Rendering reaches the network twice by default: setup downloads Chromium from `cdn.playwright.dev`, and each render loads the pinned Excalidraw library from `esm.sh`. In offline or firewalled environments, build the local vendor bundle once (see `README.md` → **Offline rendering**). If the library cannot be loaded, the render script prints a clear error rather than hanging.
 
 ---
 

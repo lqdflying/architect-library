@@ -14,11 +14,11 @@
 
   <script type="module">
     // The Excalidraw version is pinned so an upstream release can't silently
-    // break rendering. We prefer a locally vendored copy (vendor/excalidraw.js)
-    // so renders work without live network access; if it isn't present we fall
-    // back to the pinned esm.sh build. See README "Setup" for the vendor step.
+    // break rendering. We prefer a locally vendored bundle (excalidraw.bundle.mjs)
+    // built by scripts/vendor_excalidraw.sh for offline use; if it isn't present
+    // we fall back to the pinned esm.sh build.
     const CDN_URL = "https://esm.sh/@excalidraw/excalidraw@0.17.6?bundle";
-    const LOCAL_URL = "./vendor/excalidraw.js";
+    const LOCAL_URL = "./vendor/excalidraw.bundle.mjs";
 
     let exportToSvg;
     try {

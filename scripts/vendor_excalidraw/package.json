@@ -1,0 +1,10 @@
+{
+  "name": "excalidraw-vendor-build",
+  "private": true,
+  "dependencies": {
+    "@excalidraw/excalidraw": "0.17.6"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0"
+  }
+}
