@@ -6,6 +6,8 @@ The original Excalidraw diagram skill is preserved under `skills/excalidraw-diag
 
 Compatible with [Cursor](https://cursor.com), [VS Code + GitHub Copilot](https://code.visualstudio.com/docs/copilot/customization/agent-skills), [Claude Code](https://docs.anthropic.com/en/docs/claude-code), and OpenCode.
 
+**For coding agents:** follow [docs/AGENT-SKILL-INSTALL.md](docs/AGENT-SKILL-INSTALL.md) when installing or updating skills in Cursor, Copilot, or Claude Code (four folders, `_shared` sibling, legacy cleanup, verification).
+
 **Instructions vs runtime:** Each skill’s `SKILL.md` works as soon as it is copied into your editor—the agent can draft diagrams, outlines, and scripts without any extra packages. The section below installs Python/Playwright/Office tooling on your machine **once** (first-time preparation). You only need the parts that match what you plan to use.
 
 ## First-time preparation (one-time per machine)
@@ -112,7 +114,7 @@ After [first-time preparation](#first-time-preparation-one-time-per-machine) (sk
    cd architect-doc-skill
    ```
 
-2. **Install skills into your editor** (Cursor example — copy all four folders, including `_shared`):
+2. **Install skills into your editor** — **Agents:** read and follow [`docs/AGENT-SKILL-INSTALL.md`](docs/AGENT-SKILL-INSTALL.md) in this repo (do not improvise paths). **Humans (Cursor global example):**
 
    ```bash
    mkdir -p ~/.cursor/skills
@@ -126,7 +128,7 @@ After [first-time preparation](#first-time-preparation-one-time-per-machine) (sk
 
    > Create an Excalidraw diagram of our payment authorization flow.
 
-See [Installation](#installation) for Copilot / Claude Code paths and per-project `.cursor/skills` copies.
+See [Installation](#installation) for Copilot / Claude Code paths, or [docs/AGENT-SKILL-INSTALL.md](docs/AGENT-SKILL-INSTALL.md) for the full agent install procedure.
 
 ## Skills
 
@@ -141,6 +143,8 @@ See [Installation](#installation) for Copilot / Claude Code paths and per-projec
 
 | Read this | When you need |
 |-----------|----------------|
+| [`docs/AGENT-SKILL-INSTALL.md`](docs/AGENT-SKILL-INSTALL.md) | **Agent:** install or refresh skills in Cursor / Copilot / Claude Code |
+| This README → [How to use](#how-to-use) | Using installed skills in Cursor, Copilot, or Claude Code chat |
 | [`skills/excalidraw-diagram/SKILL.md`](skills/excalidraw-diagram/SKILL.md) | Diagram design rules and agent workflow |
 | [`skills/excalidraw-diagram/README.md`](skills/excalidraw-diagram/README.md) | Render setup, offline bundle, PNG validation |
 | [`skills/word-document/SKILL.md`](skills/word-document/SKILL.md) | DOCX agent workflow (new vs edit, comments, redlines) |
@@ -157,6 +161,8 @@ See [Installation](#installation) for Copilot / Claude Code paths and per-projec
 ```text
 architect-doc-skill/
   README.md
+  docs/
+    AGENT-SKILL-INSTALL.md   # agent procedure for Cursor / Copilot install
   scripts/
     install_deps.sh           # all | excalidraw | office | office-system
     vendor_excalidraw.sh      # build offline Excalidraw bundle (Node.js)
@@ -290,17 +296,153 @@ uv run python3 office_tools.py thumbnail deck.pptx   # needs LibreOffice + Poppl
 
 Full command list: [`skills/_shared/office-tools/README.md`](skills/_shared/office-tools/README.md).
 
-## Usage examples
+## How to use
 
-Ask your coding agent:
+Skills are **instructions for the coding agent**, not apps you launch yourself. This section assumes skills are [already installed](#installation). Not installed yet? See [Quick start](#quick-start-every-project) or [`docs/AGENT-SKILL-INSTALL.md`](docs/AGENT-SKILL-INSTALL.md).
 
-> Create an Excalidraw diagram showing the target-state payment authorization flow.
+| Skill folder | You get |
+|--------------|---------|
+| `excalidraw-diagram` | `.excalidraw` JSON + optional PNG visual check |
+| `word-document` | `.docx` architecture documents (new or edited) |
+| `powerpoint-presentation` | `.pptx` decks (new or edited) |
+| `_shared` | Not invoked directly — support files for Word/PPT tooling |
 
-> Create a Word HLD for this event-driven architecture with risks, assumptions, and decision records.
+Runtime setup ([first-time preparation](#first-time-preparation-one-time-per-machine)) is optional until you need PNG rendering, Office XML tools, or Node-based **new** DOCX/PPTX generation.
 
-> Create a PowerPoint executive architecture review deck for the migration plan.
+### Cursor
 
-For existing Office files, attach the `.docx` or `.pptx` and ask the agent to edit, comment, validate, or extract text.
+1. **Reload Cursor** — **Developer: Reload Window**, or quit and reopen Cursor, so it picks up any skill changes.
+2. **New Agent chat** — start a fresh chat in **Agent** mode (do not continue an old thread opened before install).
+3. **Run a slash command** — in the chat input, type `/` and pick the skill (clearest way to select which skill runs):
+
+   | Slash command | Skill | Typical use |
+   |---------------|-------|-------------|
+   | `/excalidraw-diagram` | Excalidraw | Diagrams, workflows, system maps |
+   | `/word-document` | Word | HLD, LLD, ADR, DOCX edit/validate |
+   | `/powerpoint-presentation` | PowerPoint | Executive decks, migration/roadmap slides |
+
+   `_shared` has no slash command — it is loaded automatically when Word or PowerPoint skills need Office tools.
+
+4. **Add your request on the same line or next message** — for example:
+
+   ```text
+   /excalidraw-diagram Create a diagram of the payment authorization flow.
+   ```
+
+   ```text
+   /word-document Create an HLD with risks, assumptions, and decision records.
+   ```
+
+5. **Attach files when needed** — for existing `.docx` / `.pptx`, @-mention or attach the file, then use the matching slash command:
+
+   ```text
+   /word-document Add review comments on the risks section in the attached DOCX.
+   ```
+
+   You can also skip the slash command and ask in plain language; Cursor may still auto-select a skill from the `description` in each `SKILL.md`, but slash commands are more explicit.
+
+```text
+Reload Cursor → new Agent chat → /skill-name + your task
+       ↓
+Agent follows that skill’s SKILL.md + references/
+       ↓
+Deliverable: .excalidraw / .docx / .pptx
+```
+
+### VS Code GitHub Copilot
+
+Requires [GitHub Copilot](https://github.com/features/copilot) and [Agent Skills](https://code.visualstudio.com/docs/copilot/customization/agent-skills) support in VS Code. Skills must already be under `~/.copilot/skills/` (global) or `.github/skills/` (workspace)—see [Installation → VS Code GitHub Copilot](#vs-code-github-copilot).
+
+1. **Reload VS Code** — Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`) → **Developer: Reload Window** (do this after every skill install or update).
+
+2. **Open Copilot Chat** — open the **Chat** view (Copilot icon in the Activity Bar, or **GitHub Copilot: Open Chat** from the Command Palette). Use **Agent** mode when your VS Code build offers it (skills apply to agent-style requests).
+
+3. **Slash command usage** — in the chat input, type `/`. VS Code shows available commands, including skills from installed `SKILL.md` files:
+
+   | Slash command | Skill | Typical use |
+   |---------------|-------|-------------|
+   | `/excalidraw-diagram` | Excalidraw | Diagrams, workflows, system maps |
+   | `/word-document` | Word | HLD, LLD, ADR, DOCX edit/validate |
+   | `/powerpoint-presentation` | PowerPoint | Executive decks, migration/roadmap slides |
+
+   Pick one command, then add your task on the **same message** (recommended):
+
+   ```text
+   /excalidraw-diagram Create a diagram of the payment authorization flow.
+   ```
+
+   ```text
+   /word-document Create an HLD with risks, assumptions, and decision records.
+   ```
+
+   ```text
+   /powerpoint-presentation Create a 10-slide executive deck for the migration plan.
+   ```
+
+   **Tips**
+
+   - If `/excalidraw-diagram` (or others) does not appear, confirm skills are in `~/.copilot/skills/` or `.github/skills/`, reload VS Code, and start a **new** chat.
+   - `_shared` has no slash command; Word and PowerPoint skills use it automatically for Office tooling.
+   - You can send the slash command first, then your detailed request in a follow-up message—one combined line is usually clearer.
+
+4. **Attach workspace files** — drag a `.docx` or `.pptx` into chat, use **Add context** / **#** file references (wording depends on VS Code version), then run the matching slash command:
+
+   ```text
+   /word-document Validate the attached DOCX and list any structural issues.
+   ```
+
+   ```text
+   /powerpoint-presentation Analyze placeholder layout on the attached PPTX.
+   ```
+
+5. **Fallback** — describe the task without `/` if you prefer; Copilot may still match a skill by `description` in `SKILL.md`. Slash commands are the clearest way to force the right skill.
+
+```text
+Reload VS Code → Copilot Chat (Agent) → /skill-name + your task
+       ↓
+Copilot follows that skill’s SKILL.md + references/
+       ↓
+Deliverable: .excalidraw / .docx / .pptx
+```
+
+### Claude Code / OpenCode
+
+1. **Start a new session** in the project where `.claude/skills/` is populated (or restart the CLI).
+2. **Describe the task** — the agent loads skills from `SKILL.md` descriptions in that folder.
+
+### Example prompts (with slash commands)
+
+Use the same lines in **Cursor** or **VS Code Copilot Chat**:
+
+**Excalidraw**
+
+```text
+/excalidraw-diagram Create a diagram showing the target-state payment authorization flow.
+```
+
+**Word**
+
+```text
+/word-document Create a Word HLD for this event-driven architecture with risks, assumptions, and decision records.
+```
+
+```text
+/word-document Review the attached DOCX and add comments on the risks section.
+```
+
+**PowerPoint**
+
+```text
+/powerpoint-presentation Create an executive architecture review deck for the migration plan.
+```
+
+```text
+/powerpoint-presentation Analyze the attached template’s placeholders and suggest a slide outline.
+```
+
+Attach `.docx` or `.pptx` files in chat when the task starts from an existing document.
+
+Deeper workflows live in each skill’s `SKILL.md` (see [Documentation map](#documentation-map)).
 
 ## Customization
 
