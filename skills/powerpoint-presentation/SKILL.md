@@ -1,6 +1,6 @@
 ---
 name: powerpoint-presentation
-description: Create, edit, and validate PowerPoint PPTX architecture presentations, executive decks, solution overviews, technical design walkthroughs, roadmap decks, and template-based slides.
+description: Create, edit, and validate PowerPoint PPTX architecture decks. Every delivery requires layout preview (office_tools thumbnail grid + per-slide JPEGs via LibreOffice Impress and Poppler)—install office-system deps before finishing. Executive decks, solution overviews, technical walkthroughs, roadmap and migration slides, template population.
 ---
 
 # PowerPoint Architecture Presentation Creator
@@ -15,6 +15,7 @@ Before authoring substantial content, read:
 
 - `../_shared/architecture-document-principles.md`
 - `references/pptx-guide.md`
+- `references/layout-preview.md` — render preview images and verify layout before delivery
 
 For PPTX tooling, use the shared toolkit:
 
@@ -26,17 +27,25 @@ If the skill is installed in an editor skills folder, `_shared` should be a sibl
 
 ## Setup
 
-Run once from this skill folder (or use `bash scripts/install_deps.sh office` from the repository root):
+Run once from this skill folder (or use `bash scripts/install_deps.sh` from the repository root).
+
+**Every PPTX delivery requires layout review** (rendered slide images). Install system deps on first use:
 
 ```bash
 bash ../_shared/office-tools/install_deps.sh
-```
-
-For PDF/image conversion, PPTX thumbnails, and slide workflows that need LibreOffice or Poppler:
-
-```bash
 bash ../_shared/office-tools/install_deps.sh --with-system
+# or from repo root:
+#   bash scripts/install_deps.sh office
+#   bash scripts/install_deps.sh office-system
 ```
+
+| Package | Needed for |
+|---------|------------|
+| Python (`install_deps.sh`) | `validate`, `extract`, unpack/pack |
+| **LibreOffice Impress + Poppler** (`--with-system`) | **Mandatory layout preview** on every deck |
+| **pptxgenjs** (npm) | Creating new decks from scratch |
+
+Do not mark a PowerPoint task complete without running layout preview. If `soffice` or `pdftoppm` is missing, run `install_deps.sh --with-system` (may need sudo on Linux) and retry—not only note it in the reply.
 
 For **new** decks (pptxgenjs workflow), install Node.js and pptxgenjs:
 
@@ -62,7 +71,7 @@ First decide which path fits the request.
 | Create a new deck from scratch | `pptxgenjs` |
 | Populate or edit a template | Unpack, analyze, edit XML, pack |
 | Inspect template placeholders | `office_tools.py analyze` |
-| Create thumbnail grid | `office_tools.py thumbnail` |
+| Layout preview (grid + per-slide JPEGs) | `office_tools.py thumbnail` |
 | Duplicate or create slides | `office_tools.py slide` |
 | Clean unused PPTX parts | `office_tools.py clean` |
 | Extract text for review | `office_tools.py extract` |
@@ -88,6 +97,16 @@ Use `pptxgenjs` for new decks.
 python3 ../_shared/office-tools/office_tools.py validate output.pptx --auto-repair
 ```
 
+9. **Layout preview (required on every deck):** render images, **view** them, fix layout issues—see `references/layout-preview.md`. Do not skip this step.
+
+```bash
+python3 ../_shared/office-tools/office_tools.py thumbnail output.pptx /tmp/deck-preview --cols 4
+python3 ../_shared/office-tools/office_tools.py thumbnail output.pptx /tmp/deck-preview \
+  --per-slide /tmp/deck-slides --dpi 150 --no-grid
+```
+
+View the grid for deck flow; open per-slide JPEGs to catch text overflow, overlap, and margin issues. Fix the generator or XML, then re-preview affected slides only. Repeat until the deck passes the layout checklist or the user explicitly waives visual QA.
+
 ## Template Editing Workflow
 
 For an existing PPTX template, inspect before editing.
@@ -105,6 +124,8 @@ python3 ../_shared/office-tools/office_tools.py clean unpacked/
 python3 ../_shared/office-tools/office_tools.py pack unpacked/ output.pptx --original template.pptx
 ```
 
+After pack, run the same **layout preview** workflow as for new decks (steps 8–9 above).
+
 Use template placeholders whenever possible. Do not guess placeholder names or coordinates if `analyze` can extract them.
 
 ## Slide Design Rules
@@ -120,29 +141,27 @@ Architecture decks should be clear enough to present and precise enough to revie
 - Avoid generic clip art and decorative shapes that do not carry meaning.
 - Keep executive slides concise and technical appendix slides detailed.
 
-## Visual Validation
+## Layout preview (visual validation)
 
-When LibreOffice and Poppler are available, create a thumbnail grid or PDF export to visually inspect the deck.
+**Required on every PPTX** before delivery—same standard as Excalidraw’s render-and-review loop. Full steps: `references/layout-preview.md`.
 
-```bash
-python3 ../_shared/office-tools/office_tools.py thumbnail output.pptx
-```
+| Step | Command | Purpose |
+|------|---------|---------|
+| Overview | `thumbnail deck.pptx /tmp/preview --cols 4` | Labeled grid; order, hidden slides, repetition |
+| Detail | `thumbnail deck.pptx /tmp/preview --per-slide /tmp/slides --dpi 150 --no-grid` | Per-slide JPEGs for overflow and alignment |
 
-Check for:
+You cannot sign off on layout without viewing these images (or a user screenshot). XML validation alone is insufficient.
 
-- Text clipping or overflow
-- Misaligned titles, icons, and charts
-- Broken images
-- Hidden slides that should be visible
-- Incorrect slide ordering
-- Orphaned relationships or missing media
+Check for: text clipping; misaligned titles/icons/charts; broken images; hidden slides; wrong order; elements closer than 0.3"; content inside 0.5" margins.
 
 ## Delivery Checklist
 
 Before finishing:
 
 1. Confirm the PPTX validates.
-2. Generate thumbnails when available and inspect the result.
+2. **Layout preview completed** — grid + per-slide JPEGs at 150 DPI; you viewed the images and fixed overflow/overlap (or the user explicitly waived visual QA in writing).
 3. Extract text if you need to confirm narrative order.
-4. Mention any skipped checks, such as missing LibreOffice or Poppler.
-5. Keep unpacked working directories out of the final deliverable unless the user asks for them.
+4. If preview tools were unavailable, you ran `install_deps.sh --with-system` and retried; do not silently ship without layout review.
+5. **Deliver only the `.pptx`** unless the user asked for preview images or generator scripts.
+6. Keep preview JPEGs and unpacked working directories out of the deliverable folder (use `/tmp` or `.cursor/`).
+7. Keep generator `.js` out of the deliverable folder unless the user wants a maintained regen script under `scripts/`.

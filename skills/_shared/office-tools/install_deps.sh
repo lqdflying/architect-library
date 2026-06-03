@@ -33,9 +33,10 @@ install_system_deps() {
     sudo apt-get update -qq
     sudo apt-get install -y --no-install-recommends libreoffice poppler-utils
   elif command -v dnf &>/dev/null; then
-    sudo dnf install -y libreoffice poppler-utils
+    # impress component required for PPTX→PDF; headless for server use
+    sudo dnf install -y libreoffice-impress libreoffice-headless poppler-utils
   elif command -v yum &>/dev/null; then
-    sudo yum install -y libreoffice poppler-utils
+    sudo yum install -y libreoffice-impress libreoffice-headless poppler-utils
   elif command -v pacman &>/dev/null; then
     sudo pacman -S --needed --noconfirm libreoffice-still poppler
   elif command -v zypper &>/dev/null; then
@@ -47,15 +48,19 @@ install_system_deps() {
 }
 
 if [[ "$WITH_SYSTEM" == "--with-system" ]]; then
-  echo "Installing optional system dependencies for Office conversion..."
+  echo "Installing system dependencies (LibreOffice Impress + Poppler)..."
   install_system_deps
+  echo "Installed for PPTX layout preview, PDF conversion, and DOCX accept-changes."
 elif [[ -n "$WITH_SYSTEM" ]]; then
   echo "ERROR: Unknown option: $WITH_SYSTEM"
   echo "Usage: bash install_deps.sh [--with-system]"
   exit 1
 else
   echo "Skipping optional system packages."
-  echo "Install LibreOffice and Poppler later if you need PDF conversion, tracked-change acceptance, or PPT thumbnails."
+  echo "For LibreOffice + Poppler, re-run: bash install_deps.sh --with-system"
+  echo "  (or from repo root: bash scripts/install_deps.sh office-system)"
+  echo "Needed for: PPTX layout preview (thumbnail), DOCX/PPTX→PDF, accept tracked changes."
+  echo "Not needed for: validate, extract, unpack/pack, or creating new files via docx-js/pptxgenjs."
 fi
 
 cd "$SCRIPT_DIR"

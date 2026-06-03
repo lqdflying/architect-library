@@ -1,0 +1,40 @@
+---
+description: Skill completion criteria, dependencies, and office_tools for architect-doc-skill
+alwaysApply: true
+---
+
+# Skill execution (installed skills)
+
+Task is **not** complete until:
+
+| Skill | Done when |
+|-------|-----------|
+| **excalidraw-diagram** | `.excalidraw` → PNG rendered, images **viewed**, layout fixed |
+| **word-document** | DOCX validates; explicit table styling (docx-js) or one python-docx path; deliver **`.docx` only** (no generator beside deliverable unless user asks) |
+| **powerpoint-presentation** | PPTX validates; **`thumbnail` every deck** (grid + `--per-slide` 150 DPI), images **viewed**, overflow fixed; `office-system` installed if missing |
+
+**PowerPoint is not done** when the `.pptx` exists—only after layout preview (or user waives visual QA).
+
+- **PPT:** LibreOffice Impress + Poppler every delivery → `bash scripts/install_deps.sh office-system`
+- **Word (new):** npm `docx`; LibreOffice only for PDF / `accept`
+- **Excalidraw:** Playwright via `bash scripts/install_deps.sh excalidraw`
+
+## Dependencies
+
+| Target | Command | For |
+|--------|---------|-----|
+| Office Python | `bash scripts/install_deps.sh office` | validate, extract, unpack/pack |
+| Excalidraw | `bash scripts/install_deps.sh excalidraw` | PNG render |
+| LibreOffice + Poppler | `bash scripts/install_deps.sh office-system` | **all PPT deliveries**, PDF, `accept` |
+| npm `docx` / `pptxgenjs` | manual | new Word / new PPT |
+
+## Office toolkit
+
+```bash
+cd skills/_shared/office-tools
+uv run python3 office_tools.py validate deck.pptx --auto-repair
+uv run python3 office_tools.py thumbnail deck.pptx /tmp/preview --cols 4
+uv run python3 office_tools.py thumbnail deck.pptx /tmp/preview --per-slide /tmp/slides --dpi 150 --no-grid
+```
+
+PPT details: `skills/powerpoint-presentation/references/layout-preview.md`.

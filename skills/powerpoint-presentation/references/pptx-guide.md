@@ -515,7 +515,15 @@ pandoc output.pptx -t plain | grep -iE "lorem|ipsum|TODO|\[insert|xxx"
 
 ### Visual Verification
 
-Convert to images and inspect every slide:
+Use the shared thumbnail tool first (see `layout-preview.md`):
+
+```bash
+python3 ../_shared/office-tools/office_tools.py thumbnail output.pptx /tmp/deck-preview --cols 4
+python3 ../_shared/office-tools/office_tools.py thumbnail output.pptx /tmp/deck-preview \
+  --per-slide /tmp/deck-slides --dpi 150 --no-grid
+```
+
+Manual fallback:
 
 ```bash
 libreoffice --headless --convert-to pdf output.pptx
@@ -533,9 +541,9 @@ pdftoppm -jpeg -r 150 output.pdf slide
 
 ### Fix Cycle
 
-1. Generate -> convert to images -> inspect
-2. Fix issues found
-3. Re-verify only affected slides
+1. Generate → validate → `thumbnail` grid + `--per-slide` JPEGs → **view images**
+2. Fix issues in pptxgenjs source or unpacked XML
+3. Re-preview only affected slides
 4. Stop after one fix cycle unless new user-visible defects appear (overlap, overflow, missing content)
 5. Do not iterate on sub-pixel positioning or minor cosmetic tweaks
 

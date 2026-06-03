@@ -6,9 +6,12 @@ The original Excalidraw diagram skill is preserved under `skills/excalidraw-diag
 
 Compatible with [Cursor](https://cursor.com), [VS Code + GitHub Copilot](https://code.visualstudio.com/docs/copilot/customization/agent-skills), [Claude Code](https://docs.anthropic.com/en/docs/claude-code), and OpenCode.
 
-**For coding agents:** follow [docs/AGENT-SKILL-INSTALL.md](docs/AGENT-SKILL-INSTALL.md) when installing or updating skills in Cursor, Copilot, or Claude Code (four folders, `_shared` sibling, legacy cleanup, verification).
+**For coding agents:**
 
-**Instructions vs runtime:** Each skill’s `SKILL.md` works as soon as it is copied into your editor—the agent can draft diagrams, outlines, and scripts without any extra packages. The section below installs Python/Playwright/Office tooling on your machine **once** (first-time preparation). You only need the parts that match what you plan to use.
+- Working **in this repo**: [`.cursor/`](.cursor/) (project Cursor config and rules, tracked in git) and [docs/MAINTAINING-SKILLS.md](docs/MAINTAINING-SKILLS.md) (when adding skills, steps, or deps—update rules + docs, not only README/scripts).
+- **Installing** skills in Cursor/Copilot: [docs/AGENT-SKILL-INSTALL.md](docs/AGENT-SKILL-INSTALL.md) (four folders, `_shared` sibling, execution rules for Excalidraw PNG review, Word tables, **mandatory PPT layout preview**).
+
+**Instructions vs runtime:** Skill `SKILL.md` files load as soon as they are copied into your editor. **Completing** a task still needs runtimes: Excalidraw → Playwright; Word (new DOCX) → optional npm `docx`; **PowerPoint → `office-system` (LibreOffice + Poppler) on every deck** for layout preview, plus npm `pptxgenjs` for new decks. See [First-time preparation](#first-time-preparation-one-time-per-machine).
 
 ## First-time preparation (one-time per machine)
 
@@ -22,7 +25,7 @@ Run these steps **once** on each computer (or CI image) where you want rendering
 | [uv](https://docs.astral.sh/uv/) | Installed automatically by `install_deps.sh` if missing |
 | Node.js + npm | `npm install -g docx` / `pptxgenjs`; `scripts/vendor_excalidraw.sh` (bootstraps npm if absent) |
 | sudo (Linux only) | Optional OS libraries for headless Chromium (`install_deps.sh`) and LibreOffice/Poppler (`office-system`) |
-| LibreOffice + Poppler | Optional: accept tracked changes, DOCX→PDF, PPTX thumbnails (`bash scripts/install_deps.sh office-system`) |
+| LibreOffice + Poppler | **Optional** for Word-only / XML tooling; **required for every PowerPoint delivery** (mandatory layout preview). Also needed for DOCX/PPTX→PDF and `accept` tracked changes. Install once: `bash scripts/install_deps.sh office-system` |
 
 ### All-in-one (recommended)
 
@@ -30,9 +33,11 @@ From the repository root (after `git clone`):
 
 ```bash
 cd architect-doc-skill   # or your clone path
-bash scripts/install_deps.sh              # Excalidraw + Office Python deps
-bash scripts/install_deps.sh office-system   # optional: LibreOffice + Poppler
+bash scripts/install_deps.sh              # Excalidraw + Office Python deps (no LibreOffice)
+bash scripts/install_deps.sh office-system   # add LibreOffice Impress + Poppler (PPT layout preview, PDF, accept changes)
 ```
+
+**Is LibreOffice mandatory?** Not for creating `.docx` or building `.pptx` source (Node/python). **Yes for completing PowerPoint skill work**—every deck must go through layout preview (`thumbnail`), which needs LibreOffice Impress + Poppler. Word-only tasks can skip `office-system`. Install: `bash scripts/install_deps.sh office-system`.
 
 Install only one runtime:
 
@@ -136,13 +141,15 @@ See [Installation](#installation) for Copilot / Claude Code paths, or [docs/AGEN
 |-------|----------|
 | `excalidraw-diagram` | Create Excalidraw architecture diagrams, workflows, system maps, and concept visuals. |
 | `word-document` | Create or edit DOCX architecture documents, HLDs, LLDs, ADRs, design docs, requirements, comments, and tracked changes. |
-| `powerpoint-presentation` | Create or edit PPTX architecture decks, executive summaries, solution overviews, migration plans, roadmap decks, and template-based presentations. |
+| `powerpoint-presentation` | Create or edit PPTX decks; **every delivery requires layout preview** (slide images via LibreOffice + Poppler). |
 | `_shared` | Shared principles and Office tooling used by the Word and PowerPoint skills. **Must** be installed as a sibling of the other skills. |
 
 ## Documentation map
 
 | Read this | When you need |
 |-----------|----------------|
+| [`.cursor/`](.cursor/) | **Agent:** Cursor project rules and config (tracked in git) |
+| [`docs/MAINTAINING-SKILLS.md`](docs/MAINTAINING-SKILLS.md) | **Maintainer/agent:** checklist when adding skills, steps, or dependencies |
 | [`docs/AGENT-SKILL-INSTALL.md`](docs/AGENT-SKILL-INSTALL.md) | **Agent:** install or refresh skills in Cursor / Copilot / Claude Code |
 | This README → [How to use](#how-to-use) | Using installed skills in Cursor, Copilot, or Claude Code chat |
 | [`skills/excalidraw-diagram/SKILL.md`](skills/excalidraw-diagram/SKILL.md) | Diagram design rules and agent workflow |
@@ -155,6 +162,7 @@ See [Installation](#installation) for Copilot / Claude Code paths, or [docs/AGEN
 | [`skills/powerpoint-presentation/SKILL.md`](skills/powerpoint-presentation/SKILL.md) | PPTX agent workflow |
 | [`skills/powerpoint-presentation/README.md`](skills/powerpoint-presentation/README.md) | PPT setup (including optional icon packages) |
 | [`skills/powerpoint-presentation/references/pptx-guide.md`](skills/powerpoint-presentation/references/pptx-guide.md) | pptxgenjs and template editing |
+| [`skills/powerpoint-presentation/references/layout-preview.md`](skills/powerpoint-presentation/references/layout-preview.md) | PPTX layout preview images (grid + per-slide JPEGs) |
 | [`skills/_shared/architecture-document-principles.md`](skills/_shared/architecture-document-principles.md) | Shared structure for architecture docs and decks |
 | [`skills/_shared/office-tools/README.md`](skills/_shared/office-tools/README.md) | Full `office_tools.py` command reference and validation checks |
 
@@ -293,7 +301,8 @@ uv run python3 office_tools.py validate output.docx --auto-repair
 
 # PPTX template QA
 uv run python3 office_tools.py analyze template.pptx
-uv run python3 office_tools.py thumbnail deck.pptx   # needs LibreOffice + Poppler
+uv run python3 office_tools.py thumbnail deck.pptx /tmp/preview --cols 4
+uv run python3 office_tools.py thumbnail deck.pptx /tmp/preview --per-slide /tmp/slides --dpi 150 --no-grid
 ```
 
 Full command list: [`skills/_shared/office-tools/README.md`](skills/_shared/office-tools/README.md).
@@ -475,6 +484,7 @@ uv run python render_excalidraw.py --help
 | Excalidraw render times out / “Could not load library” | Online: allow `esm.sh`. Offline: run `bash scripts/vendor_excalidraw.sh`, then retry. |
 | `process is not defined` after vendoring | Rebuild the bundle: `bash scripts/vendor_excalidraw.sh` (includes browser shims). |
 | Office commands fail with import errors | Run from `skills/_shared/office-tools` with `uv run python3 office_tools.py …` after `bash install_deps.sh`. |
-| `accept` or `thumbnail` fails | Install system deps: `bash scripts/install_deps.sh office-system`. |
+| `accept` or `thumbnail` fails | Install system deps: `bash scripts/install_deps.sh office-system`. Required before finishing any PowerPoint task. |
+| Agent delivered PPTX without layout review | Reload `powerpoint-presentation` skill; agent must run `thumbnail` and view images per `layout-preview.md`. |
 | Word/PPT skill can’t find tools | Ensure `_shared` is copied next to `word-document` and `powerpoint-presentation` in your skills folder. |
 | Pack skipped redline checks | Pass `--original input.docx` to `pack`; without it, only structural validation runs (a warning is printed). |

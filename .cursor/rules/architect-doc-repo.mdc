@@ -1,0 +1,31 @@
+---
+description: architect-doc-skill repo layout, maintainer policy, and doc map
+alwaysApply: true
+---
+
+# architect-doc-skill — repository
+
+Work inside this clone to edit skills, `office-tools`, or docs. To install skills into a user’s editor, follow `docs/AGENT-SKILL-INSTALL.md`.
+
+## Layout
+
+| Path | Role |
+|------|------|
+| `skills/excalidraw-diagram/` | Excalidraw → PNG visual QA |
+| `skills/word-document/` | DOCX architecture documents |
+| `skills/powerpoint-presentation/` | PPTX → **mandatory** layout preview |
+| `skills/_shared/` | `architecture-document-principles.md`, `office-tools/` |
+| `scripts/install_deps.sh` | `all` \| `excalidraw` \| `office` \| `office-system` |
+| `docs/AGENT-SKILL-INSTALL.md` | Install skills in Cursor/Copilot |
+| `docs/MAINTAINING-SKILLS.md` | Checklist when adding skills, steps, or deps |
+
+Skill behavior: `skills/<name>/SKILL.md` and `skills/<name>/references/`.
+
+## Changing this repo
+
+Do **not** update only scripts or README. When adding or changing a skill, workflow step, or dependency:
+
+1. Follow `docs/MAINTAINING-SKILLS.md`.
+2. Update **`.cursor/`** (rules and project config), `docs/AGENT-SKILL-INSTALL.md`, root `README.md`, and affected `skills/*/SKILL.md` (+ YAML `description` if completion criteria change).
+
+Install bundle for users: copy `excalidraw-diagram`, `word-document`, `powerpoint-presentation`, `_shared` as siblings.

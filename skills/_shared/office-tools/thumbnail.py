@@ -9,6 +9,8 @@ Requires: Pillow, LibreOffice (soffice), Poppler (pdftoppm)
 Usage:
     python thumbnail.py presentation.pptx
     python thumbnail.py template.pptx output_prefix --cols 4
+    python thumbnail.py deck.pptx --per-slide /tmp/pptx-preview --dpi 150
+    python thumbnail.py deck.pptx preview --per-slide ./slides --no-grid
 """
 
 import argparse
@@ -66,7 +68,7 @@ def get_slide_info(pptx_path: Path) -> list[dict]:
     return slides
 
 
-def convert_to_images(pptx_path: Path, temp_dir: Path) -> list[Path]:
+def convert_to_images(pptx_path: Path, temp_dir: Path, dpi: int = DPI) -> list[Path]:
     """Convert PPTX to PDF then to JPEG images."""
     pdf_path = temp_dir / f"{pptx_path.stem}.pdf"
 
@@ -79,7 +81,7 @@ def convert_to_images(pptx_path: Path, temp_dir: Path) -> list[Path]:
         raise RuntimeError(f"PDF conversion failed: {result.stderr}")
 
     subprocess.run(
-        ["pdftoppm", "-jpeg", "-r", str(DPI), str(pdf_path), str(temp_dir / "slide")],
+        ["pdftoppm", "-jpeg", "-r", str(dpi), str(pdf_path), str(temp_dir / "slide")],
         capture_output=True, text=True, check=True,
     )
 
@@ -202,14 +204,42 @@ def create_grids(
     return files
 
 
+def export_per_slide(
+    slides: list[tuple[Path, str]],
+    output_dir: Path,
+) -> list[str]:
+    """Write one JPEG per slide with slide index and XML name in the filename."""
+    output_dir.mkdir(parents=True, exist_ok=True)
+    files = []
+    for i, (img_path, label) in enumerate(slides, start=1):
+        safe = label.replace(".xml", "").replace(" ", "_").replace("/", "-")
+        out = output_dir / f"slide{i:02d}-{safe}.jpg"
+        with Image.open(img_path) as img:
+            img.save(str(out), "JPEG", quality=JPEG_QUALITY)
+        files.append(str(out))
+    return files
+
+
 def main():
-    parser = argparse.ArgumentParser(description="Create PPTX thumbnail grid")
+    parser = argparse.ArgumentParser(
+        description="Create PPTX thumbnail grid and/or per-slide JPEGs for layout QA",
+    )
     parser.add_argument("input", help="Input .pptx file")
     parser.add_argument("output_prefix", nargs="?", default="thumbnails",
-                        help="Output prefix (default: thumbnails)")
+                        help="Output prefix for grid JPG (default: thumbnails)")
     parser.add_argument("--cols", type=int, default=DEFAULT_COLS,
-                        help=f"Columns (default: {DEFAULT_COLS}, max: {MAX_COLS})")
+                        help=f"Grid columns (default: {DEFAULT_COLS}, max: {MAX_COLS})")
+    parser.add_argument("--dpi", type=int, default=DPI,
+                        help=f"PDF/JPEG resolution (default: {DPI}; use 150 for layout detail)")
+    parser.add_argument("--per-slide", type=Path, metavar="DIR",
+                        help="Export one JPEG per slide into DIR (slide01-slide1.xml.jpg, ...)")
+    parser.add_argument("--no-grid", action="store_true",
+                        help="Skip thumbnail grid (use with --per-slide only)")
     args = parser.parse_args()
+
+    if args.no_grid and not args.per_slide:
+        print("Error: --no-grid requires --per-slide", file=sys.stderr)
+        sys.exit(1)
 
     cols = min(args.cols, MAX_COLS)
     input_path = Path(args.input)
@@ -219,18 +249,24 @@ def main():
         sys.exit(1)
 
     output_path = Path(f"{args.output_prefix}.jpg")
-
     slide_info = get_slide_info(input_path)
 
     with tempfile.TemporaryDirectory() as td:
         temp = Path(td)
-        images = convert_to_images(input_path, temp)
+        images = convert_to_images(input_path, temp, dpi=args.dpi)
         slides = build_slide_list(slide_info, images, temp)
-        grid_files = create_grids(slides, cols, THUMB_WIDTH, output_path)
 
-    print(f"Created {len(grid_files)} grid(s):")
-    for gf in grid_files:
-        print(f"  {gf}")
+        if args.per_slide:
+            slide_files = export_per_slide(slides, args.per_slide)
+            print(f"Exported {len(slide_files)} slide image(s) to {args.per_slide}:")
+            for sf in slide_files:
+                print(f"  {sf}")
+
+        if not args.no_grid:
+            grid_files = create_grids(slides, cols, THUMB_WIDTH, output_path)
+            print(f"Created {len(grid_files)} grid(s):")
+            for gf in grid_files:
+                print(f"  {gf}")
 
 
 if __name__ == "__main__":

@@ -11,7 +11,7 @@ Usage:
     python3 office_tools.py verify unpacked/ original.docx
     python3 office_tools.py slide unpacked/ slide2.xml
     python3 office_tools.py clean unpacked/
-    python3 office_tools.py thumbnail presentation.pptx
+    python3 office_tools.py thumbnail presentation.pptx /tmp/preview --per-slide /tmp/slides --dpi 150
 """
 
 import sys
@@ -27,7 +27,7 @@ COMMANDS = {
     "verify":    ("verify_redlines.py",    "Verify tracked changes correctness"),
     "slide":     ("add_slide.py",          "Add/duplicate PPTX slide"),
     "clean":     ("clean_pptx.py",         "Remove orphaned PPTX files"),
-    "thumbnail": ("thumbnail.py",          "Create PPTX thumbnail grid"),
+    "thumbnail": ("thumbnail.py",          "PPTX layout preview: grid and/or per-slide JPEGs"),
     "analyze":   ("analyze_template.py",   "Analyze PPTX template structure"),
 }
 

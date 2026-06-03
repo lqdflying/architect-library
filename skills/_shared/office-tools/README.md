@@ -28,7 +28,7 @@ python3 office_tools.py <command> [args...]
 | `verify` | Verify tracked changes correctness via text comparison |
 | `slide` | Duplicate PPTX slides or create from layout |
 | `clean` | Remove orphaned PPTX files (cascading) |
-| `thumbnail` | Thumbnail grid for PPTX template analysis |
+| `thumbnail` | PPTX layout preview: thumbnail grid and/or per-slide JPEGs (`--per-slide`, `--dpi`, `--no-grid`) |
 
 ### Standalone scripts (also usable directly)
 
@@ -89,7 +89,8 @@ python3 office_tools.py accept input.docx clean_output.docx
 ### Analyze PPTX template before editing
 ```bash
 python3 analyze_template.py template.pptx     # structured placeholder map
-python3 office_tools.py thumbnail template.pptx  # visual overview
+python3 office_tools.py thumbnail template.pptx /tmp/preview --cols 4
+python3 office_tools.py thumbnail deck.pptx /tmp/preview --per-slide /tmp/slides --dpi 150 --no-grid
 ```
 
 ### Edit PPTX template
@@ -135,8 +136,24 @@ See ../word-document/references/docx-guide.md and ../powerpoint-presentation/ref
 ## Dependencies
 
 - **Required:** Python 3.10+, `lxml`, `Pillow`, `defusedxml`
-- **Install:** `bash install_deps.sh` then `uv run python3 office_tools.py` from this directory
-- **System:** LibreOffice (format conversion, accept changes), Poppler `pdftoppm` (PDF to images), GCC (socket shim in sandboxed envs)
+- **Install (Python only):** `bash install_deps.sh` then `uv run python3 office_tools.py` from this directory
+- **Install (with layout preview / PDF):** `bash install_deps.sh --with-system` (from repo root: `bash scripts/install_deps.sh office-system`)
+
+### System packages (optional — `--with-system`)
+
+| You want… | Install system deps? | Packages (typical) |
+|-----------|----------------------|--------------------|
+| Create new DOCX/PPTX (docx-js / pptxgenjs) | No | Node only |
+| `validate`, `extract`, `unpack`, `pack`, `analyze` | No | Python (`uv sync`) only |
+| **PPTX layout preview** (`thumbnail` grid / per-slide JPEGs) | **Yes** | LibreOffice **Impress**, Poppler |
+| DOCX/PPTX → PDF or images | Yes | LibreOffice, Poppler |
+| `accept` tracked changes on DOCX | Yes | LibreOffice |
+
+On RHEL/Oracle Linux, PPTX conversion needs `libreoffice-impress` (not `libreoffice-core` alone). `install_deps.sh --with-system` installs the correct set on dnf/yum.
+
+**PowerPoint skill:** system deps are required on every deck (mandatory `thumbnail` layout review). Install `--with-system` before PPT work.
+
+**Word-only / docx-js:** agents can deliver without system deps if they skip PDF conversion and accept-changes.
 - **Node.js:** `docx` (create DOCX), `pptxgenjs` (create PPTX)
 
 ## License

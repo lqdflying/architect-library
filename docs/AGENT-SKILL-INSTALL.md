@@ -2,6 +2,8 @@
 
 Use this document when the user asks to install, update, or fix skills from the **architect-doc-skill** repository. Follow it literally; do not invent alternate paths.
 
+**Editing this repository?** Cursor loads [`.cursor/rules/`](../.cursor/rules/) automatically. Follow [MAINTAINING-SKILLS.md](MAINTAINING-SKILLS.md) whenever you add a skill, workflow step, or dependency—update those rules, `SKILL.md` `description`, and this install doc—not only scripts or README.
+
 ## What you are installing
 
 This repo publishes **four folders** under `skills/` (not one monolithic skill):
@@ -15,8 +17,22 @@ This repo publishes **four folders** under `skills/` (not one monolithic skill):
 
 Word and PowerPoint skills reference Office tools via `../_shared/office-tools/`. If `_shared` is missing or not a **sibling** of those folders, paths break.
 
-**Source of truth on disk:** `<repo>/skills/<name>/`  
-**Never commit** copies under `<repo>/.cursor/` — that directory is gitignored and is only for optional local editor use.
+## Agent execution rules (read after install)
+
+When you load a skill, follow its `SKILL.md` and `references/`. These repo-wide rules apply:
+
+| Skill | Before marking the task complete |
+|-------|----------------------------------|
+| **excalidraw-diagram** | Render `.excalidraw` → PNG, **view** the image, fix in a loop |
+| **word-document** | Validate DOCX; explicit table styling; deliver `.docx` only (no generator scripts beside deliverable unless asked) |
+| **powerpoint-presentation** | Validate PPTX; run **`thumbnail` layout preview on every deck** (grid + `--per-slide` at 150 DPI), **view** images, fix overflow/overlap; install `bash scripts/install_deps.sh office-system` if `soffice`/`pdftoppm` missing—do not skip preview unless the user waives visual QA |
+
+**PowerPoint is not done** when the `.pptx` file exists. It is done when layout preview has been run and reviewed (or the user explicitly waived).
+
+**Word** does not require LibreOffice for new docx-js decks. **PowerPoint** requires LibreOffice Impress + Poppler for every delivery.
+
+**Source of truth for skill packages:** `<repo>/skills/<name>/`  
+**`<repo>/.cursor/`** is tracked in git (project rules and Cursor config). Do **not** copy `skills/*` into `<repo>/.cursor/skills/` — that duplicates `skills/` and confuses installs.
 
 ---
 
@@ -221,6 +237,7 @@ Installing skills into Cursor/Copilot is **not** the same as installing Python/P
 |------|------|---------------------------|
 | Skill copy | Per user request / after `git pull` | Steps 3–5 above |
 | Runtimes | Once per machine | `bash scripts/install_deps.sh` |
+| LibreOffice + Poppler | Once per machine (**required for PowerPoint skill**) | `bash scripts/install_deps.sh office-system` — mandatory PPTX layout preview every delivery; also PDF export, DOCX accept-changes. Word-only / docx-js can skip |
 | Offline Excalidraw bundle | Once per machine (optional) | `bash scripts/vendor_excalidraw.sh` |
 | New DOCX / PPTX via Node | Once per machine (optional) | `npm install -g docx` / `pptxgenjs` |
 
@@ -236,8 +253,9 @@ Do not run `install_deps.sh` inside `~/.cursor/skills/` — run it from the **re
 | Omit `_shared` | `../_shared/office-tools/` paths in Word/PPT skills break |
 | Copy repo root into `~/.cursor/skills/` | Wrong layout; Cursor expects one folder per skill name |
 | Leave old `~/.cursor/skills/excalidraw-diagram` with nested `.git` | Stale instructions, not from monorepo |
-| Commit `.cursor/skills/` in the repo | Duplicates `skills/`; should stay gitignored |
+| Copy `skills/*` into `<repo>/.cursor/skills/` | Duplicates `skills/`; use `skills/` as source and `~/.cursor/skills/` or `.cursor/skills/` only for editor install |
 | Run `install_deps.sh` in the skills install dir | Dependencies belong in the repo clone paths |
+| Deliver PPTX without `thumbnail` layout preview | Run `office_tools.py thumbnail`; install `office-system` first; see `powerpoint-presentation/references/layout-preview.md` |
 | Use `file://` for Excalidraw render testing | Use `render_excalidraw.py` (loopback HTTP); see excalidraw README |
 
 ---
