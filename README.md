@@ -9,7 +9,7 @@ Compatible with [Cursor](https://cursor.com), [VS Code + GitHub Copilot](https:/
 **For coding agents:**
 
 - Working **in this repo**: [`.cursor/rules/`](.cursor/rules/) (maintainer rules, not installed globally) and [docs/MAINTAINING-SKILLS.md](docs/MAINTAINING-SKILLS.md).
-- **Installing** skills and agents: [docs/AGENT-SKILL-INSTALL.md](docs/AGENT-SKILL-INSTALL.md) — `bash scripts/install_library.sh` (global default).
+- **Installing** skills and agents: [docs/AGENT-SKILL-INSTALL.md](docs/AGENT-SKILL-INSTALL.md) — `bash scripts/install_library.sh all cursor` or `all copilot` (editor-scoped default).
 
 **Instructions vs runtime:** Skill `SKILL.md` files load as soon as they are copied into your editor. **Completing** a task still needs runtimes: Excalidraw → Playwright; Word (new DOCX) → optional npm `docx`; **PowerPoint → `office-system` (LibreOffice + Poppler) on every deck** for layout preview, plus npm `pptxgenjs` for new decks. See [First-time preparation](#first-time-preparation-one-time-per-machine).
 
@@ -35,7 +35,7 @@ From the repository root (after `git clone`):
 cd architect-library   # or your clone path
 bash scripts/install_deps.sh              # Excalidraw + Office + PDF Python deps (no LibreOffice)
 bash scripts/install_deps.sh office-system   # add LibreOffice Impress + Poppler (PPT layout preview, XLSX recalc, accept changes)
-bash scripts/install_library.sh           # skills + agents → global Cursor + Copilot
+bash scripts/install_library.sh all cursor   # or: all copilot — skills + agents for your editor
 ```
 
 **Is LibreOffice mandatory?** Not for creating `.docx` or building `.pptx` source (Node/python). **Yes for completing PowerPoint skill work**—every deck must go through layout preview (`thumbnail`), which needs LibreOffice Impress + Poppler. Word-only tasks can skip `office-system`. Install: `bash scripts/install_deps.sh office-system`.
@@ -251,19 +251,26 @@ git clone https://github.com/lqdflying/architect-library.git
 
 ### Install library (recommended)
 
-From the repo root — installs **skills** and **custom agents** globally for Cursor and Copilot:
+From the repo root — installs **skills** and **custom agents** globally for **your editor**:
 
 ```bash
 cd /path/to/architect-library
+bash scripts/install_library.sh all cursor    # Cursor
+bash scripts/install_library.sh all copilot   # VS Code Copilot
+```
+
+Install all editors at once (only if you use more than one):
+
+```bash
 bash scripts/install_library.sh
 ```
 
-Partial installs:
+Partial installs (still editor-scoped):
 
 ```bash
-bash scripts/install_library.sh skills    # skills only
-bash scripts/install_library.sh agents    # agents only (e.g. code-review)
-bash scripts/install_library.sh all both project   # per-project copy
+bash scripts/install_library.sh skills cursor    # skills only, Cursor
+bash scripts/install_library.sh agents copilot   # agents only, Copilot
+bash scripts/install_library.sh all cursor project   # per-project copy
 ```
 
 **Global targets:**

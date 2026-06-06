@@ -1,27 +1,37 @@
 ---
-description: After skill or agent changes, patch global library via install_library.sh
+description: After skill or agent changes, patch global library via install_library.sh (Cursor only)
 alwaysApply: true
 ---
 
-# Patch / install Architect Library (global default)
+# Patch / install Architect Library (Cursor — global default)
 
-When the user asks to **install library**, **install the library**, **patch library**, **refresh library**, **update library**, **install skills and agents**, **sync library**, **update architect library** — or **patch**, **upgrade**, **install**, or **refresh** skills or agents — or you finish adding/changing `skills/` or `agents/` in this repo — **run the full library install yourself** (`bash scripts/install_library.sh` with no args) — do not only edit source folders.
+**Editor scope:** You are in **Cursor**. Install to **Cursor paths only** — do not write `~/.copilot/` or `~/.claude/` unless the user explicitly asks for all editors.
 
-Use partial installs (`skills` or `agents` only) **only** when the user explicitly asks.
+When the user asks to **install library**, **install the library**, **patch library**, **refresh library**, **update library**, **install skills and agents**, **sync library**, **update architect library** — or **patch**, **upgrade**, **install**, or **refresh** skills or agents — or you finish adding/changing `skills/` or `agents/` in this repo — **run the Cursor library install yourself**:
+
+```bash
+bash scripts/install_library.sh all cursor
+```
+
+Use partial installs **only** when the user explicitly asks:
+
+- Skills only: `bash scripts/install_library.sh skills cursor`
+- Agents only: `bash scripts/install_library.sh agents cursor`
+- All editors (Cursor + Copilot + Claude): `bash scripts/install_library.sh` — **only** when user asks
 
 **Source of truth:**
 
 - Skills: `<repo>/skills/<name>/`
 - Agents: `<repo>/agents/<name>/` (assembled to a single `.md` at install)
 
-**Global install targets (default):**
+**Cursor global install targets:**
 
-| Library | Cursor | Copilot |
-|---------|--------|---------|
-| Skills | `~/.cursor/skills/<name>/` | `~/.copilot/skills/<name>/` |
-| Agents | `~/.cursor/agents/<name>.md` | `~/.copilot/agents/<name>.agent.md` |
+| Library | Path |
+|---------|------|
+| Skills | `~/.cursor/skills/<name>/` |
+| Agents | `~/.cursor/agents/<name>.md` |
 
-Use **per-project** `.cursor/skills/` / `.github/skills/` only if the user explicitly wants project-local install (`install_library.sh … project`).
+Use **per-project** `.cursor/skills/` only if the user explicitly wants project-local install (`install_library.sh all cursor project`).
 
 Do **not** copy skills into `<repo>/.cursor/skills/` or agents into `<repo>/.cursor/agents/` — that duplicates source and breaks the install model.
 
@@ -35,40 +45,30 @@ AGENT_BUNDLE="code-review"
 - **New** skill or agent → add to bundle and install target.
 - **Existing** entry → **replace** whole folder/file (`rm -rf` then fresh copy/assemble).
 
-## Patch procedure (global default)
+## Patch procedure (Cursor)
 
 From the repository root:
 
 ```bash
 REPO=/path/to/architect-library
 cd "$REPO"
-bash scripts/install_library.sh
-```
-
-Partial installs:
-
-```bash
-bash scripts/install_library.sh skills
-bash scripts/install_library.sh agents
 bash scripts/install_library.sh all cursor
-bash scripts/install_library.sh all copilot
 ```
 
-## Verify
+## Verify (Cursor)
 
 ```bash
 test -f ~/.cursor/skills/_shared/office-tools/office_tools.py
 test -f ~/.cursor/skills/word-document/SKILL.md
 test -f ~/.cursor/agents/code-review.md
-test -f ~/.copilot/agents/code-review.agent.md
 grep -q 'readonly: true' ~/.cursor/agents/code-review.md
 ```
 
-The install script runs these checks automatically.
+The install script runs these checks automatically when `EDITOR=cursor`.
 
 ## After patching
 
-1. Tell the user skills and agents were updated under `~/.cursor/` and `~/.copilot/`.
+1. Tell the user skills and agents were updated under `~/.cursor/`.
 2. Ask them to **open a new agent chat** (or reload the window) so skill descriptions and agents reload.
 3. Runtimes are separate: run `bash scripts/install_deps.sh` from the **repo clone**, not from installed skill folders.
 

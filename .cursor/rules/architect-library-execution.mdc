@@ -29,7 +29,7 @@ Applies when the user invokes a custom agent or you test agent behavior in this 
 |-------|-----------|
 | **code-review** | Scope established; logic traced; findings with file:line evidence; technical claims Verified or Unverified via MCP/web; output follows template in `agents/code-review/INSTRUCTIONS.md`; **no source files edited** |
 
-After editing `agents/`, run `bash scripts/install_library.sh agents` so global `~/.cursor/agents/` and `~/.copilot/agents/` match repo source.
+After editing `agents/`, run `bash scripts/install_library.sh agents cursor` so global `~/.cursor/agents/` matches repo source.
 
 ## Dependencies
 

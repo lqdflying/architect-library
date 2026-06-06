@@ -6,13 +6,23 @@ Use this document when the user asks to install, update, or fix **skills** or **
 
 ## User phrases (full install default)
 
-When the user says any of these, run the **full global install** (`bash scripts/install_library.sh` with no args — skills + agents):
+When the user says any of these, run a **full global install** (skills + agents) for **the editor you are running in**:
 
 - **install library** | install the library | patch library | refresh library | update library
 - install skills and agents | sync library | update architect library
 - patch | upgrade | install | refresh (skills or agents)
 
-Use **partial** installs (`skills` or `agents` only) **only** when the user explicitly asks.
+### Editor-scoped commands (default)
+
+| You are in | Command | Targets |
+|------------|---------|---------|
+| **Cursor** | `bash scripts/install_library.sh all cursor` | `~/.cursor/skills/`, `~/.cursor/agents/` |
+| **VS Code Copilot** | `bash scripts/install_library.sh all copilot` | `~/.copilot/skills/`, `~/.copilot/agents/` |
+| **Claude Code** | `bash scripts/install_library.sh all claude` | `~/.claude/skills/`, `~/.claude/agents/` |
+
+Do **not** install to other editors unless the user explicitly asks (e.g. "install for all editors" → `bash scripts/install_library.sh` with no `EDITOR` arg, which uses `both` = Cursor + Copilot + Claude).
+
+Use **partial** installs (`skills` or `agents` only) **only** when the user explicitly asks — still scoped to your editor, e.g. `bash scripts/install_library.sh skills cursor`.
 
 ## What you are installing
 
@@ -64,35 +74,37 @@ echo "OK: repo layout valid"
 
 ## Step 1: Choose install scope
 
-| User intent | Command |
-|-------------|---------|
-| Global (default) | `bash scripts/install_library.sh` |
-| Skills only | `bash scripts/install_library.sh skills` |
-| Agents only | `bash scripts/install_library.sh agents` |
-| Per project | `bash scripts/install_library.sh all both project` from user's project root |
+| User intent | Cursor | VS Code Copilot |
+|-------------|--------|-----------------|
+| Global full install (default) | `bash scripts/install_library.sh all cursor` | `bash scripts/install_library.sh all copilot` |
+| Skills only | `bash scripts/install_library.sh skills cursor` | `bash scripts/install_library.sh skills copilot` |
+| Agents only | `bash scripts/install_library.sh agents cursor` | `bash scripts/install_library.sh agents copilot` |
+| Per project | `bash scripts/install_library.sh all cursor project` | `bash scripts/install_library.sh all copilot project` |
+| All editors (explicit ask) | `bash scripts/install_library.sh` | same |
 
-Prefer **global** unless the user explicitly wants project-local copies.
+Prefer **global** unless the user explicitly wants project-local copies. Prefer **editor-scoped** unless the user explicitly wants all editors.
 
 ---
 
 ## Step 2: Patch / upgrade (agent default)
 
-When the user says **install library** or any phrase in [User phrases](#user-phrases-full-install-default) — or you changed `skills/` or `agents/` — **run this** from the repo root:
+When the user says **install library** or any phrase in [User phrases](#user-phrases-full-install-default) — or you changed `skills/` or `agents/` — **run this** from the repo root (replace `cursor` with `copilot` or `claude` if that is your editor):
 
 ```bash
 REPO=/path/to/architect-library
 cd "$REPO"
-bash scripts/install_library.sh
+bash scripts/install_library.sh all cursor
 ```
 
-| Action | Result |
-|--------|--------|
-| **New** skill | Added under `~/.cursor/skills/`, `~/.copilot/skills/` |
+| Action | Result (Cursor example) |
+|--------|-------------------------|
+| **New** skill | Added under `~/.cursor/skills/` |
 | **Existing** skill | Folder replaced (full refresh) |
-| **New** agent | Assembled to `~/.cursor/agents/`, `~/.copilot/agents/` |
+| **New** agent | Assembled to `~/.cursor/agents/` |
 | **Existing** agent | File replaced |
 
-Repo rule: [`.cursor/rules/architect-library-patch.mdc`](../.cursor/rules/architect-library-patch.mdc).
+Repo rule (Cursor): [`.cursor/rules/architect-library-patch.mdc`](../.cursor/rules/architect-library-patch.mdc).  
+Copilot rule: [`.github/instructions/update-library.instructions.md`](../.github/instructions/update-library.instructions.md).
 
 ---
 
@@ -114,16 +126,25 @@ Repo rule: [`.cursor/rules/architect-library-patch.mdc`](../.cursor/rules/archit
 
 ## Step 4: Verify installation
 
+**Cursor:**
+
 ```bash
 test -f ~/.cursor/skills/_shared/office-tools/office_tools.py && echo "OK: cursor skills"
-test -f ~/.copilot/skills/word-document/SKILL.md && echo "OK: copilot skills"
+test -f ~/.cursor/skills/word-document/SKILL.md && echo "OK: cursor skills"
 test -f ~/.cursor/agents/code-review.md && echo "OK: cursor agents"
-test -f ~/.copilot/agents/code-review.agent.md && echo "OK: copilot agents"
 grep -q 'readonly: true' ~/.cursor/agents/code-review.md && echo "OK: code-review"
 find ~/.cursor/skills -maxdepth 2 -name .git -type d   # expect no output
 ```
 
-The install script runs similar checks automatically.
+**VS Code Copilot:**
+
+```bash
+test -f ~/.copilot/skills/_shared/office-tools/office_tools.py && echo "OK: copilot skills"
+test -f ~/.copilot/skills/word-document/SKILL.md && echo "OK: copilot skills"
+test -f ~/.copilot/agents/code-review.agent.md && echo "OK: copilot agents"
+```
+
+The install script runs similar checks automatically for the `EDITOR` you pass.
 
 ---
 
@@ -160,7 +181,9 @@ See [CODE-REVIEW-AGENT.md](CODE-REVIEW-AGENT.md).
 
 | Task | Command (from repo root) |
 |------|---------------------------|
-| Library copy | `bash scripts/install_library.sh` |
+| Library copy (Cursor) | `bash scripts/install_library.sh all cursor` |
+| Library copy (Copilot) | `bash scripts/install_library.sh all copilot` |
+| Library copy (all editors) | `bash scripts/install_library.sh` |
 | Runtimes | `bash scripts/install_deps.sh` |
 | LibreOffice + Poppler (PPT) | `bash scripts/install_deps.sh office-system` |
 | Offline Excalidraw | `bash scripts/vendor_excalidraw.sh` |
@@ -177,6 +200,7 @@ Do not run `install_deps.sh` inside `~/.cursor/skills/` — run from the **repos
 | Copy only one skill folder | Word/PPT break; missing `_shared` |
 | Omit `_shared` | `../_shared/office-tools/` paths break |
 | Copy repo into `~/.cursor/skills/` | Wrong layout |
+| Install to all editors from one agent | Pollutes unused paths — scope to your editor |
 | Edit `agents/` without running install | Global agents stale |
 | Add agents to `skills/` bundle | Wrong library — use `AGENT_BUNDLE` in `install_library.sh` |
 | Deliver PPTX without `thumbnail` | Violates powerpoint-presentation completion rules |
