@@ -1,4 +1,4 @@
-# Architect Skill
+# Architect Library
 
 A **skill library** and **custom agent library** for Cursor and VS Code Copilot. Install once globally; use in any project.
 
@@ -32,7 +32,7 @@ Run these steps **once** on each computer (or CI image) where you want rendering
 From the repository root (after `git clone`):
 
 ```bash
-cd architect-skill   # or your clone path
+cd architect-library   # or your clone path
 bash scripts/install_deps.sh              # Excalidraw + Office + PDF Python deps (no LibreOffice)
 bash scripts/install_deps.sh office-system   # add LibreOffice Impress + Poppler (PPT layout preview, XLSX recalc, accept changes)
 bash scripts/install_library.sh           # skills + agents → global Cursor + Copilot
@@ -125,8 +125,8 @@ After [first-time preparation](#first-time-preparation-one-time-per-machine) (sk
 1. **Clone** (if you have not already)
 
    ```bash
-   git clone https://github.com/lqdflying/architect-skill.git
-   cd architect-skill
+   git clone https://github.com/lqdflying/architect-library.git
+   cd architect-library
    ```
 
 2. **Install library globally** — skills and custom agents:
@@ -191,7 +191,7 @@ Catalog: [`docs/AGENTS.md`](docs/AGENTS.md). Deep dive: [`docs/CODE-REVIEW-AGENT
 ## Repository layout
 
 ```text
-architect-skill/
+architect-library/
   README.md
   agents/                     # custom agent library (source)
     code-review/
@@ -240,13 +240,13 @@ architect-skill/
 Clone the repository:
 
 ```bash
-git clone git@github.com:lqdflying/architect-skill.git
+git clone git@github.com:lqdflying/architect-library.git
 ```
 
 If you prefer HTTPS:
 
 ```bash
-git clone https://github.com/lqdflying/architect-skill.git
+git clone https://github.com/lqdflying/architect-library.git
 ```
 
 ### Install library (recommended)
@@ -254,7 +254,7 @@ git clone https://github.com/lqdflying/architect-skill.git
 From the repo root — installs **skills** and **custom agents** globally for Cursor and Copilot:
 
 ```bash
-cd /path/to/architect-skill
+cd /path/to/architect-library
 bash scripts/install_library.sh
 ```
 

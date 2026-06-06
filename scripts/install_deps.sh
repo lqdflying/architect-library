@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Convenience installer for the Architect Skill runtimes (skill library deps).
+# Convenience installer for the Architect Library runtimes (skill library deps).
 # Usage:
 #   bash scripts/install_deps.sh              # install Excalidraw + Office Python deps
 #   bash scripts/install_deps.sh excalidraw   # install only Excalidraw renderer deps

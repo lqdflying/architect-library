@@ -1,12 +1,22 @@
-# Agent guide: install Architect Skill (Cursor / Copilot)
+# Agent guide: install Architect Library (Cursor / Copilot)
 
-Use this document when the user asks to install, update, or fix **skills** or **custom agents** from the **architect-skill** repository. Follow it literally; do not invent alternate paths.
+Use this document when the user asks to install, update, or fix **skills** or **custom agents** from the **architect-library** repository. Follow it literally; do not invent alternate paths.
 
 **Editing this repository?** Cursor loads [`.cursor/rules/`](../.cursor/rules/) automatically. Follow [MAINTAINING-SKILLS.md](MAINTAINING-SKILLS.md) whenever you add a skill, agent, workflow step, or dependency.
 
+## User phrases (full install default)
+
+When the user says any of these, run the **full global install** (`bash scripts/install_library.sh` with no args — skills + agents):
+
+- **install library** | install the library | patch library | refresh library | update library
+- install skills and agents | sync library | update architect library
+- patch | upgrade | install | refresh (skills or agents)
+
+Use **partial** installs (`skills` or `agents` only) **only** when the user explicitly asks.
+
 ## What you are installing
 
-Architect Skill publishes **two libraries**:
+Architect Library publishes **two libraries**:
 
 ### Skill library (`skills/`)
 
@@ -37,7 +47,7 @@ Agents install as single `.md` files (assembled from header + `INSTRUCTIONS.md`)
 ## Step 0: Locate the repository root
 
 ```bash
-REPO=/path/to/architect-skill
+REPO=/path/to/architect-library
 cd "$REPO"
 ```
 
@@ -67,10 +77,10 @@ Prefer **global** unless the user explicitly wants project-local copies.
 
 ## Step 2: Patch / upgrade (agent default)
 
-When the user says **patch**, **upgrade**, **install**, or **refresh** — or you changed `skills/` or `agents/` — **run this** from the repo root:
+When the user says **install library** or any phrase in [User phrases](#user-phrases-full-install-default) — or you changed `skills/` or `agents/` — **run this** from the repo root:
 
 ```bash
-REPO=/path/to/architect-skill
+REPO=/path/to/architect-library
 cd "$REPO"
 bash scripts/install_library.sh
 ```
@@ -82,7 +92,7 @@ bash scripts/install_library.sh
 | **New** agent | Assembled to `~/.cursor/agents/`, `~/.copilot/agents/` |
 | **Existing** agent | File replaced |
 
-Repo rule: [`.cursor/rules/architect-skill-patch.mdc`](../.cursor/rules/architect-skill-patch.mdc).
+Repo rule: [`.cursor/rules/architect-library-patch.mdc`](../.cursor/rules/architect-library-patch.mdc).
 
 ---
 

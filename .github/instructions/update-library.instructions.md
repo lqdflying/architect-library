@@ -1,13 +1,15 @@
-# Update Architect Skill library (Global Copilot / Cursor)
+# Update Architect Library (Global Copilot / Cursor)
 
-Trigger: user says "update skills", "refresh skills", "sync skills", "update agents", "patch library", "update architect skill", or similar.
+Trigger: user says **install library**, install the library, patch library, refresh library, update library, install skills and agents, sync library, update architect library, update skills, refresh skills, sync skills, update agents, or similar.
+
+**Default action:** full global install (`bash scripts/install_library.sh` with no args). Use partial installs only when the user explicitly asks for skills-only or agents-only.
 
 ## Procedure
 
 1. **Verify repo layout:**
 
 ```bash
-REPO=/home/opc/architect-skill
+REPO=/home/opc/architect-library
 test -f "$REPO/skills/excalidraw-diagram/SKILL.md" && \
 test -f "$REPO/skills/word-document/SKILL.md" && \
 test -f "$REPO/agents/code-review/INSTRUCTIONS.md" && \
@@ -21,7 +23,7 @@ echo "OK: repo layout valid"
 3. **Install both libraries globally:**
 
 ```bash
-REPO=/home/opc/architect-skill
+REPO=/home/opc/architect-library
 cd "$REPO"
 bash scripts/install_library.sh
 ```
@@ -40,7 +42,7 @@ grep -q 'readonly: true' ~/.cursor/agents/code-review.md && echo "OK: code-revie
 
 ## Source of truth
 
-- Repo: `/home/opc/architect-skill`
+- Repo: `/home/opc/architect-library`
 - Install doc: `docs/AGENT-SKILL-INSTALL.md`
 - Skills: `skills/` → `~/.cursor/skills/`, `~/.copilot/skills/`
 - Agents: `agents/` → `~/.cursor/agents/`, `~/.copilot/agents/`

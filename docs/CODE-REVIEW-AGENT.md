@@ -4,7 +4,7 @@ Read-only custom agent for reviewing code with MCP and web cross-checks.
 
 ## Install
 
-From the architect-skill repo (global default):
+From the architect-library repo (global default):
 
 ```bash
 bash scripts/install_library.sh agents

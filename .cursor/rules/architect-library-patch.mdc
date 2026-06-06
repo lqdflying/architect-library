@@ -3,9 +3,11 @@ description: After skill or agent changes, patch global library via install_libr
 alwaysApply: true
 ---
 
-# Patch / install Architect Skill library (global default)
+# Patch / install Architect Library (global default)
 
-When the user asks to **patch**, **upgrade**, **install**, or **refresh** skills or agents — or you finish adding/changing `skills/` or `agents/` in this repo — **run the library install yourself** — do not only edit source folders.
+When the user asks to **install library**, **install the library**, **patch library**, **refresh library**, **update library**, **install skills and agents**, **sync library**, **update architect library** — or **patch**, **upgrade**, **install**, or **refresh** skills or agents — or you finish adding/changing `skills/` or `agents/` in this repo — **run the full library install yourself** (`bash scripts/install_library.sh` with no args) — do not only edit source folders.
+
+Use partial installs (`skills` or `agents` only) **only** when the user explicitly asks.
 
 **Source of truth:**
 
@@ -38,7 +40,7 @@ AGENT_BUNDLE="code-review"
 From the repository root:
 
 ```bash
-REPO=/path/to/architect-skill
+REPO=/path/to/architect-library
 cd "$REPO"
 bash scripts/install_library.sh
 ```

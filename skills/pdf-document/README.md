@@ -6,7 +6,7 @@ Agent skill for PDF read/create/merge/split/form-fill tasks.
 
 ```bash
 bash references/install_deps.sh
-# or: bash scripts/install_deps.sh pdf   # from architect-skill root
+# or: bash scripts/install_deps.sh pdf   # from architect-library root
 ```
 
 ## References

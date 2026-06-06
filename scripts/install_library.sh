@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Install Architect Skill libraries (skills + custom agents) to Cursor / Copilot / Claude.
+# Install Architect Library (skills + custom agents) to Cursor / Copilot / Claude.
 # Default: global install of both libraries to cursor + copilot home directories.
 set -euo pipefail
 
@@ -166,7 +166,7 @@ install_agents() {
   fi
 }
 
-echo "Architect Skill install_library.sh"
+echo "Architect Library install_library.sh"
 echo "  REPO=$REPO"
 echo "  WHAT=$WHAT EDITOR=$EDITOR SCOPE=$SCOPE"
 

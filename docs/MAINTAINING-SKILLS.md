@@ -1,6 +1,6 @@
 # Maintaining skills, agents, and agent guidance
 
-Use this checklist when adding or changing **skills**, **custom agents**, **workflow steps**, or **dependencies** in **architect-skill**. Scripts and README alone are not enough—agents read `SKILL.md` frontmatter, **`.cursor/rules/`**, and `docs/AGENT-SKILL-INSTALL.md`.
+Use this checklist when adding or changing **skills**, **custom agents**, **workflow steps**, or **dependencies** in **architect-library**. Scripts and README alone are not enough—agents read `SKILL.md` frontmatter, **`.cursor/rules/`**, and `docs/AGENT-SKILL-INSTALL.md`.
 
 ## New skill folder
 
@@ -37,7 +37,7 @@ Update **agent guidance**:
 - [ ] [scripts/install_library.sh](../scripts/install_library.sh) — add to `AGENT_BUNDLE`
 - [ ] [docs/AGENTS.md](AGENTS.md) — catalog row
 - [ ] [README.md](../README.md) — Custom agents table
-- [ ] `.cursor/rules/architect-skill-execution.mdc` — completion row if applicable
+- [ ] `.cursor/rules/architect-library-execution.mdc` — completion row if applicable
 - [ ] Optional deep dive: `docs/<AGENT-NAME>-AGENT.md`
 - [ ] Run `bash scripts/install_library.sh agents`
 
@@ -47,7 +47,7 @@ Update **agent guidance**:
 
 - [ ] `skills/<skill>/SKILL.md` — numbered workflow + delivery checklist
 - [ ] `skills/<skill>/references/<topic>.md`
-- [ ] `.cursor/rules/architect-skill-execution.mdc` — execution row
+- [ ] `.cursor/rules/architect-library-execution.mdc` — execution row
 - [ ] [AGENT-SKILL-INSTALL.md](AGENT-SKILL-INSTALL.md) if agents often skip the step
 
 ## New dependency (Python, system, or npm)
@@ -55,7 +55,7 @@ Update **agent guidance**:
 - [ ] [install_deps.sh](../scripts/install_deps.sh) and/or skill-specific installers
 - [ ] `SKILL.md` Setup section
 - [ ] [README.md](../README.md) Prerequisites table
-- [ ] `.cursor/rules/architect-skill-execution.mdc` — dependency matrix
+- [ ] `.cursor/rules/architect-library-execution.mdc` — dependency matrix
 - [ ] **`SKILL.md` `description`** if the dep blocks delivery
 
 ## New `office_tools.py` command
@@ -63,7 +63,7 @@ Update **agent guidance**:
 - [ ] Implement and register in [office_tools.py](../skills/_shared/office-tools/office_tools.py)
 - [ ] [office-tools/README.md](../skills/_shared/office-tools/README.md)
 - [ ] Consuming skill `SKILL.md`
-- [ ] `.cursor/rules/architect-skill-execution.mdc` if repo-wide
+- [ ] `.cursor/rules/architect-library-execution.mdc` if repo-wide
 
 ## Skill `description` field (auto-invocation)
 

@@ -1,7 +1,7 @@
 [project]
 name = "architect-office-tools"
 version = "0.1.0"
-description = "Shared DOCX, PPTX, and XLSX manipulation tools for Architect Skill"
+description = "Shared DOCX, PPTX, and XLSX manipulation tools for Architect Library"
 requires-python = ">=3.10"
 dependencies = [
     "defusedxml>=0.7.1,<1.0.0",

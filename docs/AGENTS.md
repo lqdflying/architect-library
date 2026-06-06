@@ -1,6 +1,6 @@
 # Custom agents catalog
 
-Architect Skill ships a **custom agent library** under `agents/`. Install globally with `bash scripts/install_library.sh agents`.
+Architect Library ships a **custom agent library** under `agents/`. Install globally with `bash scripts/install_library.sh agents`.
 
 | Agent | Purpose | Invocation |
 |-------|---------|--------------|

@@ -1,13 +1,13 @@
 ---
-description: architect-skill repo layout, dual library, maintainer policy
+description: architect-library repo layout, dual library, maintainer policy
 alwaysApply: true
 ---
 
-# architect-skill — repository
+# architect-library — repository
 
 Skill library + custom agent library for Cursor and Copilot. Work in this clone to edit `skills/`, `agents/`, `office-tools`, scripts, or docs.
 
-**Install or patch (global default):** after skill or agent changes — or when the user asks — run `bash scripts/install_library.sh` from the repo root. Do not only edit source folders. See [architect-skill-patch.mdc](architect-skill-patch.mdc) and [docs/AGENT-SKILL-INSTALL.md](docs/AGENT-SKILL-INSTALL.md).
+**Install or patch (global default):** after skill or agent changes — or when the user asks (e.g. **install library**) — run `bash scripts/install_library.sh` from the repo root. Do not only edit source folders. See [architect-library-patch.mdc](architect-library-patch.mdc) and [docs/AGENT-SKILL-INSTALL.md](docs/AGENT-SKILL-INSTALL.md).
 
 ## Layout
 
