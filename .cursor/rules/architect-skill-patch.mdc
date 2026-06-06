@@ -1,0 +1,73 @@
+---
+description: After skill or agent changes, patch global library via install_library.sh
+alwaysApply: true
+---
+
+# Patch / install Architect Skill library (global default)
+
+When the user asks to **patch**, **upgrade**, **install**, or **refresh** skills or agents — or you finish adding/changing `skills/` or `agents/` in this repo — **run the library install yourself** — do not only edit source folders.
+
+**Source of truth:**
+
+- Skills: `<repo>/skills/<name>/`
+- Agents: `<repo>/agents/<name>/` (assembled to a single `.md` at install)
+
+**Global install targets (default):**
+
+| Library | Cursor | Copilot |
+|---------|--------|---------|
+| Skills | `~/.cursor/skills/<name>/` | `~/.copilot/skills/<name>/` |
+| Agents | `~/.cursor/agents/<name>.md` | `~/.copilot/agents/<name>.agent.md` |
+
+Use **per-project** `.cursor/skills/` / `.github/skills/` only if the user explicitly wants project-local install (`install_library.sh … project`).
+
+Do **not** copy skills into `<repo>/.cursor/skills/` or agents into `<repo>/.cursor/agents/` — that duplicates source and breaks the install model.
+
+## Bundles (in `scripts/install_library.sh`)
+
+```
+SKILL_BUNDLE="excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document _shared"
+AGENT_BUNDLE="code-review"
+```
+
+- **New** skill or agent → add to bundle and install target.
+- **Existing** entry → **replace** whole folder/file (`rm -rf` then fresh copy/assemble).
+
+## Patch procedure (global default)
+
+From the repository root:
+
+```bash
+REPO=/path/to/architect-skill
+cd "$REPO"
+bash scripts/install_library.sh
+```
+
+Partial installs:
+
+```bash
+bash scripts/install_library.sh skills
+bash scripts/install_library.sh agents
+bash scripts/install_library.sh all cursor
+bash scripts/install_library.sh all copilot
+```
+
+## Verify
+
+```bash
+test -f ~/.cursor/skills/_shared/office-tools/office_tools.py
+test -f ~/.cursor/skills/word-document/SKILL.md
+test -f ~/.cursor/agents/code-review.md
+test -f ~/.copilot/agents/code-review.agent.md
+grep -q 'readonly: true' ~/.cursor/agents/code-review.md
+```
+
+The install script runs these checks automatically.
+
+## After patching
+
+1. Tell the user skills and agents were updated under `~/.cursor/` and `~/.copilot/`.
+2. Ask them to **open a new agent chat** (or reload the window) so skill descriptions and agents reload.
+3. Runtimes are separate: run `bash scripts/install_deps.sh` from the **repo clone**, not from installed skill folders.
+
+Full paths, Copilot/Claude variants, and mistakes to avoid: [docs/AGENT-SKILL-INSTALL.md](docs/AGENT-SKILL-INSTALL.md).

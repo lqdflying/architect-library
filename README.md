@@ -1,15 +1,15 @@
-# Architect Document Skills
+# Architect Skill
 
-A multi-skill repository for creating architecture and office artifacts with coding agents: Excalidraw diagrams, Word documents, PowerPoint decks, spreadsheets, and PDFs.
+A **skill library** and **custom agent library** for Cursor and VS Code Copilot. Install once globally; use in any project.
 
-The original Excalidraw diagram skill is preserved under `skills/excalidraw-diagram/`. Word and PowerPoint skills have been added around the Office draft guides and shared DOCX/PPTX tooling.
+**Skills** handle artifacts: Excalidraw diagrams, Word documents, PowerPoint decks, spreadsheets, and PDFs. **Custom agents** handle focused tasks such as read-only [code review](docs/CODE-REVIEW-AGENT.md).
 
 Compatible with [Cursor](https://cursor.com), [VS Code + GitHub Copilot](https://code.visualstudio.com/docs/copilot/customization/agent-skills), [Claude Code](https://docs.anthropic.com/en/docs/claude-code), and OpenCode.
 
 **For coding agents:**
 
-- Working **in this repo**: [`.cursor/`](.cursor/) (project Cursor config and rules, tracked in git) and [docs/MAINTAINING-SKILLS.md](docs/MAINTAINING-SKILLS.md) (when adding skills, steps, or deps—update rules + docs, not only README/scripts).
-- **Installing** skills in Cursor/Copilot: [docs/AGENT-SKILL-INSTALL.md](docs/AGENT-SKILL-INSTALL.md) (six skill folders + `_shared` sibling; execution rules for Excalidraw PNG review, Word tables, **mandatory PPT layout preview**, XLSX recalc, PDF forms).
+- Working **in this repo**: [`.cursor/rules/`](.cursor/rules/) (maintainer rules, not installed globally) and [docs/MAINTAINING-SKILLS.md](docs/MAINTAINING-SKILLS.md).
+- **Installing** skills and agents: [docs/AGENT-SKILL-INSTALL.md](docs/AGENT-SKILL-INSTALL.md) — `bash scripts/install_library.sh` (global default).
 
 **Instructions vs runtime:** Skill `SKILL.md` files load as soon as they are copied into your editor. **Completing** a task still needs runtimes: Excalidraw → Playwright; Word (new DOCX) → optional npm `docx`; **PowerPoint → `office-system` (LibreOffice + Poppler) on every deck** for layout preview, plus npm `pptxgenjs` for new decks. See [First-time preparation](#first-time-preparation-one-time-per-machine).
 
@@ -32,9 +32,10 @@ Run these steps **once** on each computer (or CI image) where you want rendering
 From the repository root (after `git clone`):
 
 ```bash
-cd architect-doc-skill   # or your clone path
+cd architect-skill   # or your clone path
 bash scripts/install_deps.sh              # Excalidraw + Office + PDF Python deps (no LibreOffice)
 bash scripts/install_deps.sh office-system   # add LibreOffice Impress + Poppler (PPT layout preview, XLSX recalc, accept changes)
+bash scripts/install_library.sh           # skills + agents → global Cursor + Copilot
 ```
 
 **Is LibreOffice mandatory?** Not for creating `.docx` or building `.pptx` source (Node/python). **Yes for completing PowerPoint skill work**—every deck must go through layout preview (`thumbnail`), which needs LibreOffice Impress + Poppler. Word-only tasks can skip `office-system`. Install: `bash scripts/install_deps.sh office-system`.
@@ -124,18 +125,17 @@ After [first-time preparation](#first-time-preparation-one-time-per-machine) (sk
 1. **Clone** (if you have not already)
 
    ```bash
-   git clone https://github.com/lqdflying/architect-doc-skill.git
-   cd architect-doc-skill
+   git clone https://github.com/lqdflying/architect-skill.git
+   cd architect-skill
    ```
 
-2. **Install skills into your editor** — **Agents:** read and follow [`docs/AGENT-SKILL-INSTALL.md`](docs/AGENT-SKILL-INSTALL.md) in this repo (do not improvise paths). **Humans (Cursor global example):**
+2. **Install library globally** — skills and custom agents:
 
    ```bash
-   mkdir -p ~/.cursor/skills
-   for n in excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document _shared; do
-     cp -r "skills/$n" ~/.cursor/skills/
-   done
+   bash scripts/install_library.sh
    ```
+
+   See [`docs/AGENT-SKILL-INSTALL.md`](docs/AGENT-SKILL-INSTALL.md) for partial installs and project scope.
 
 3. **Ask your agent** (skills load from their descriptions—no slash command required):
 
@@ -154,13 +154,23 @@ See [Installation](#installation) for Copilot / Claude Code paths, or [docs/AGEN
 | `pdf-document` | Read, create, merge, split, and fill PDFs. |
 | `_shared` | Shared principles and Office tooling for Word, PowerPoint, and spreadsheet skills. **Must** be a sibling of those skills. |
 
+## Custom agents
+
+| Agent | Use when |
+|-------|----------|
+| `code-review` | Read-only review of PRs, diffs, or modules; logic tracing; MCP and web verification. Cursor: `/code-review`. Copilot: agents dropdown. |
+
+Catalog: [`docs/AGENTS.md`](docs/AGENTS.md). Deep dive: [`docs/CODE-REVIEW-AGENT.md`](docs/CODE-REVIEW-AGENT.md).
+
 ## Documentation map
 
 | Read this | When you need |
 |-----------|----------------|
 | [`.cursor/`](.cursor/) | **Agent:** Cursor project rules and config (tracked in git) |
 | [`docs/MAINTAINING-SKILLS.md`](docs/MAINTAINING-SKILLS.md) | **Maintainer/agent:** checklist when adding skills, steps, or dependencies |
-| [`docs/AGENT-SKILL-INSTALL.md`](docs/AGENT-SKILL-INSTALL.md) | **Agent:** install or refresh skills in Cursor / Copilot / Claude Code |
+| [`docs/AGENT-SKILL-INSTALL.md`](docs/AGENT-SKILL-INSTALL.md) | **Agent:** install or refresh skills + custom agents (global) |
+| [`docs/AGENTS.md`](docs/AGENTS.md) | Custom agent catalog |
+| [`docs/CODE-REVIEW-AGENT.md`](docs/CODE-REVIEW-AGENT.md) | code-review agent usage |
 | This README → [How to use](#how-to-use) | Using installed skills in Cursor, Copilot, or Claude Code chat |
 | [`skills/excalidraw-diagram/SKILL.md`](skills/excalidraw-diagram/SKILL.md) | Diagram design rules and agent workflow |
 | [`skills/excalidraw-diagram/README.md`](skills/excalidraw-diagram/README.md) | Render setup, offline bundle, PNG validation |
@@ -181,15 +191,19 @@ See [Installation](#installation) for Copilot / Claude Code paths, or [docs/AGEN
 ## Repository layout
 
 ```text
-architect-doc-skill/
+architect-skill/
   README.md
+  agents/                     # custom agent library (source)
+    code-review/
   docs/
-    AGENT-SKILL-INSTALL.md   # agent procedure for Cursor / Copilot install
+    AGENT-SKILL-INSTALL.md
+    AGENTS.md
   scripts/
+    install_library.sh        # skills + agents → global Cursor / Copilot
     install_deps.sh           # all | excalidraw | office | office-system | pdf
-    vendor_excalidraw.sh      # build offline Excalidraw bundle (Node.js)
-    vendor_excalidraw/        # esbuild vendor project (not the bundle itself)
-  skills/
+    vendor_excalidraw.sh
+    vendor_excalidraw/
+  skills/                     # skill library (source)
     excalidraw-diagram/
       SKILL.md
       README.md
@@ -226,74 +240,42 @@ architect-doc-skill/
 Clone the repository:
 
 ```bash
-git clone git@github.com:lqdflying/architect-doc-skill.git
+git clone git@github.com:lqdflying/architect-skill.git
 ```
 
 If you prefer HTTPS:
 
 ```bash
-git clone https://github.com/lqdflying/architect-doc-skill.git
+git clone https://github.com/lqdflying/architect-skill.git
 ```
 
-### VS Code GitHub Copilot
+### Install library (recommended)
 
-Install globally for all workspaces:
+From the repo root — installs **skills** and **custom agents** globally for Cursor and Copilot:
 
 ```bash
-cd /path/to/architect-doc-skill
-mkdir -p ~/.copilot/skills
-for n in excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document _shared; do
-  cp -r "skills/$n" ~/.copilot/skills/
-done
+cd /path/to/architect-skill
+bash scripts/install_library.sh
 ```
 
-Install per workspace from your project root:
+Partial installs:
 
 ```bash
-mkdir -p .github/skills
-cp -r /path/to/architect-doc-skill/skills/excalidraw-diagram .github/skills/
-cp -r /path/to/architect-doc-skill/skills/word-document .github/skills/
-cp -r /path/to/architect-doc-skill/skills/powerpoint-presentation .github/skills/
-cp -r /path/to/architect-doc-skill/skills/_shared .github/skills/
+bash scripts/install_library.sh skills    # skills only
+bash scripts/install_library.sh agents    # agents only (e.g. code-review)
+bash scripts/install_library.sh all both project   # per-project copy
 ```
 
-Reload VS Code after installation. The skills are available as slash commands such as `/excalidraw-diagram`, `/word-document`, and `/powerpoint-presentation`, and may also load automatically when the request matches their descriptions.
+**Global targets:**
 
-### Cursor
+| Library | Cursor | Copilot |
+|---------|--------|---------|
+| Skills | `~/.cursor/skills/<name>/` | `~/.copilot/skills/<name>/` |
+| Agents | `~/.cursor/agents/<name>.md` | `~/.copilot/agents/<name>.agent.md` |
 
-Install globally:
+Reload Cursor or VS Code after installation. Skills appear as slash commands (`/word-document`, etc.). Custom agents appear in the agent picker (`code-review`, `/code-review` on Cursor).
 
-```bash
-cd /path/to/architect-doc-skill
-mkdir -p ~/.cursor/skills
-for n in excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document _shared; do
-  cp -r "skills/$n" ~/.cursor/skills/
-done
-```
-
-Install per project:
-
-```bash
-mkdir -p .cursor/skills
-cp -r /path/to/architect-doc-skill/skills/excalidraw-diagram .cursor/skills/
-cp -r /path/to/architect-doc-skill/skills/word-document .cursor/skills/
-cp -r /path/to/architect-doc-skill/skills/powerpoint-presentation .cursor/skills/
-cp -r /path/to/architect-doc-skill/skills/_shared .cursor/skills/
-```
-
-### Claude Code / OpenCode
-
-Install into a project:
-
-```bash
-cd /path/to/architect-doc-skill
-mkdir -p .claude/skills
-for n in excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document _shared; do
-  cp -r "skills/$n" .claude/skills/
-done
-```
-
-Keep `_shared` as a sibling of the other skill folders. The Word and PowerPoint skills reference shared Office tools through `../_shared/office-tools/`.
+See [`docs/AGENT-SKILL-INSTALL.md`](docs/AGENT-SKILL-INSTALL.md) for verification steps and common mistakes.
 
 ## Office workflows (manual)
 

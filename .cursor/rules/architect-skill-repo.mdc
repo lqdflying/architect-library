@@ -1,0 +1,51 @@
+---
+description: architect-skill repo layout, dual library, maintainer policy
+alwaysApply: true
+---
+
+# architect-skill — repository
+
+Skill library + custom agent library for Cursor and Copilot. Work in this clone to edit `skills/`, `agents/`, `office-tools`, scripts, or docs.
+
+**Install or patch (global default):** after skill or agent changes — or when the user asks — run `bash scripts/install_library.sh` from the repo root. Do not only edit source folders. See [architect-skill-patch.mdc](architect-skill-patch.mdc) and [docs/AGENT-SKILL-INSTALL.md](docs/AGENT-SKILL-INSTALL.md).
+
+## Layout
+
+| Path | Role |
+|------|------|
+| `skills/` | Skill library source → `~/.cursor/skills/`, `~/.copilot/skills/` |
+| `agents/` | Custom agent library source → `~/.cursor/agents/`, `~/.copilot/agents/` |
+| `agents/<name>/INSTRUCTIONS.md` | Shared agent prompt body |
+| `agents/<name>/cursor.header.md` | Cursor frontmatter (assembled at install) |
+| `agents/<name>/copilot.header.md` | Copilot frontmatter (assembled at install) |
+| `skills/excalidraw-diagram/` | Excalidraw → PNG visual QA |
+| `skills/word-document/` | DOCX architecture documents |
+| `skills/powerpoint-presentation/` | PPTX → **mandatory** layout preview |
+| `skills/spreadsheet-document/` | XLSX / spreadsheets; formula recalc via office-tools |
+| `skills/pdf-document/` | PDF read/create/merge/forms |
+| `skills/_shared/` | `architecture-document-principles.md`, `office-tools/` |
+| `scripts/install_library.sh` | Install/patch both libraries (global default) |
+| `scripts/install_deps.sh` | Runtimes only (`all` \| `excalidraw` \| `office` \| `office-system` \| `pdf`) |
+| `.cursor/rules/` | **Maintainer rules for this repo** — not copied to users |
+| `docs/AGENT-SKILL-INSTALL.md` | End-user install guide |
+| `docs/MAINTAINING-SKILLS.md` | Maintainer checklist (skills + agents) |
+| `docs/AGENTS.md` | Agent catalog |
+
+Skill behavior: `skills/<name>/SKILL.md` and `skills/<name>/references/`.
+
+## Changing this repo
+
+Do **not** update only scripts or README. When adding or changing a skill, agent, workflow step, or dependency:
+
+1. Follow [docs/MAINTAINING-SKILLS.md](docs/MAINTAINING-SKILLS.md).
+2. **Skill change** → update `skills/*/SKILL.md`, execution rule row, `SKILL_BUNDLE` in `install_library.sh` if new skill, run `bash scripts/install_library.sh skills`.
+3. **Agent change** → update `agents/<name>/`, [docs/AGENTS.md](docs/AGENTS.md), `AGENT_BUNDLE` in `install_library.sh` if new agent, run `bash scripts/install_library.sh agents`.
+4. Always update `README.md`, `docs/AGENT-SKILL-INSTALL.md`, and relevant `.cursor/rules/*.mdc`.
+
+**Do not:**
+
+- Copy `skills/` into `repo/.cursor/skills/`.
+- Copy `agents/` into `repo/.cursor/agents/` or `repo/.github/agents/` as canonical source.
+- Add agents to `SKILL_BUNDLE` or skills to `AGENT_BUNDLE`.
+
+Install bundles for users: run `bash scripts/install_library.sh` (skills + agents globally by default).

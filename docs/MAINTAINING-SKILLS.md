@@ -1,74 +1,76 @@
-# Maintaining skills and agent guidance
+# Maintaining skills, agents, and agent guidance
 
-Use this checklist when adding or changing **skills**, **workflow steps**, or **dependencies** in architect-doc-skill. Scripts and README alone are not enough—agents read `SKILL.md` frontmatter, **`.cursor/`** (project rules), and `docs/AGENT-SKILL-INSTALL.md`.
+Use this checklist when adding or changing **skills**, **custom agents**, **workflow steps**, or **dependencies** in **architect-skill**. Scripts and README alone are not enough—agents read `SKILL.md` frontmatter, **`.cursor/rules/`**, and `docs/AGENT-SKILL-INSTALL.md`.
 
 ## New skill folder
 
 Create `skills/<skill-name>/` with at minimum:
 
-- [ ] `SKILL.md` — YAML `name` + **`description`** (include completion criteria: e.g. visual QA, required deps)
+- [ ] `SKILL.md` — YAML `name` + **`description`** (include completion criteria)
 - [ ] `README.md` — human setup summary
 - [ ] `references/` — guides agents load from “Load First” in `SKILL.md`
 
 Update **agent guidance** (all that apply):
 
-- [ ] [`.cursor/`](../.cursor/) — update `rules/*.mdc` (layout, execution, deps); add project Cursor config here if needed
-- [ ] [AGENT-SKILL-INSTALL.md](AGENT-SKILL-INSTALL.md) — “What you are installing” table, execution rules, common mistakes
-- [ ] [README.md](../README.md) — Skills table, documentation map, first-time preparation, example prompts if relevant
-- [ ] [architecture-document-principles.md](../skills/_shared/architecture-document-principles.md) — cross-skill rules
-- [ ] [scripts/install_deps.sh](../scripts/install_deps.sh) — new install target if the skill needs a runtime
-- [ ] Add a new `.mdc` rule only if the skill needs always-on guidance beyond the two core rules
-- [ ] If the user uses Cursor globally: **patch `~/.cursor/skills/`** per [`.cursor/rules/architect-doc-skill-cursor-patch.mdc`](../.cursor/rules/architect-doc-skill-cursor-patch.mdc) (full bundle `cp -a`; new skills added, old folders replaced)
+- [ ] [`.cursor/rules/`](../.cursor/rules/) — execution row, deps if needed
+- [ ] [AGENT-SKILL-INSTALL.md](AGENT-SKILL-INSTALL.md) — skill table, execution rules
+- [ ] [README.md](../README.md) — Skills table, documentation map
+- [ ] [scripts/install_library.sh](../scripts/install_library.sh) — add to `SKILL_BUNDLE`
+- [ ] Run `bash scripts/install_library.sh skills` (global patch)
 
 If the skill uses Office tools:
 
-- [ ] [office-tools/README.md](../skills/_shared/office-tools/README.md) — command table
-- [ ] [office-tools/office_tools.py](../skills/_shared/office-tools/office_tools.py) — CLI help string for new commands
+- [ ] [office-tools/README.md](../skills/_shared/office-tools/README.md)
+- [ ] [office-tools/office_tools.py](../skills/_shared/office-tools/office_tools.py)
+
+## New custom agent
+
+Create `agents/<agent-name>/` with:
+
+- [ ] `README.md` — catalog entry (purpose, MCP, invocation)
+- [ ] `INSTRUCTIONS.md` — shared prompt body (no YAML frontmatter)
+- [ ] `cursor.header.md` — Cursor frontmatter
+- [ ] `copilot.header.md` — Copilot frontmatter
+
+Update **agent guidance**:
+
+- [ ] [scripts/install_library.sh](../scripts/install_library.sh) — add to `AGENT_BUNDLE`
+- [ ] [docs/AGENTS.md](AGENTS.md) — catalog row
+- [ ] [README.md](../README.md) — Custom agents table
+- [ ] `.cursor/rules/architect-skill-execution.mdc` — completion row if applicable
+- [ ] Optional deep dive: `docs/<AGENT-NAME>-AGENT.md`
+- [ ] Run `bash scripts/install_library.sh agents`
+
+**Do not** add agents under `skills/` or to `SKILL_BUNDLE`.
 
 ## New workflow step (existing skill)
 
-Example: “layout preview after validate”, “production-lessons for compliance DOCX”.
-
 - [ ] `skills/<skill>/SKILL.md` — numbered workflow + delivery checklist
-- [ ] `skills/<skill>/references/<topic>.md` — detailed steps (link from Load First)
-- [ ] `.cursor/rules/architect-doc-skill-execution.mdc` — execution rules row updated
-- [ ] [AGENT-SKILL-INSTALL.md](AGENT-SKILL-INSTALL.md) — execution rules + common mistakes if agents often skip the step
-- [ ] [README.md](../README.md) — only if user-facing install or troubleshooting changes
+- [ ] `skills/<skill>/references/<topic>.md`
+- [ ] `.cursor/rules/architect-skill-execution.mdc` — execution row
+- [ ] [AGENT-SKILL-INSTALL.md](AGENT-SKILL-INSTALL.md) if agents often skip the step
 
 ## New dependency (Python, system, or npm)
 
-Example: LibreOffice Impress, new `office_tools` command, Playwright, `pptxgenjs`.
-
-- [ ] Installer: [install_deps.sh](../scripts/install_deps.sh) and/or `skills/_shared/office-tools/install_deps.sh` and/or skill-specific `references/install_deps.sh`
-- [ ] `SKILL.md` Setup section — what’s required vs optional for **completing** tasks
-- [ ] [README.md](../README.md) Prerequisites / first-time preparation table
-- [ ] [AGENT-SKILL-INSTALL.md](AGENT-SKILL-INSTALL.md) “First-time machine setup” table
-- [ ] `.cursor/rules/architect-doc-skill-execution.mdc` — dependency matrix
-- [ ] **`SKILL.md` `description` frontmatter** — if the dep blocks delivery (e.g. PPT requires `office-system`)
-
-After changing installers, run the install path once and smoke-test the feature (e.g. `thumbnail` on a sample `.pptx`).
+- [ ] [install_deps.sh](../scripts/install_deps.sh) and/or skill-specific installers
+- [ ] `SKILL.md` Setup section
+- [ ] [README.md](../README.md) Prerequisites table
+- [ ] `.cursor/rules/architect-skill-execution.mdc` — dependency matrix
+- [ ] **`SKILL.md` `description`** if the dep blocks delivery
 
 ## New `office_tools.py` command
 
-- [ ] Implement in `skills/_shared/office-tools/<script>.py`
-- [ ] Register in [office_tools.py](../skills/_shared/office-tools/office_tools.py) `COMMANDS`
+- [ ] Implement and register in [office_tools.py](../skills/_shared/office-tools/office_tools.py)
 - [ ] [office-tools/README.md](../skills/_shared/office-tools/README.md)
-- [ ] Consuming skill `SKILL.md` decision table + workflow
-- [ ] `.cursor/rules/architect-doc-skill-execution.mdc` if agents should use it repo-wide
-- [ ] [MAINTAINING-SKILLS.md](MAINTAINING-SKILLS.md) — this file if it sets a new pattern
+- [ ] Consuming skill `SKILL.md`
+- [ ] `.cursor/rules/architect-skill-execution.mdc` if repo-wide
 
 ## Skill `description` field (auto-invocation)
 
-Cursor/Copilot match skills via the YAML `description`. When completion rules change, update `description` in the same PR—for example:
-
-- PowerPoint: mention mandatory layout preview + LibreOffice/Poppler
-- Excalidraw: mention render-to-PNG and visual review
-- Word: mention validation and deliverable-only `.docx`
+Update `description` when completion rules change (PowerPoint layout preview, Excalidraw PNG review, etc.).
 
 ## PR self-check
 
-Before merge:
-
-1. Grep for outdated paths or “optional” language that contradicts new mandatory steps.
-2. Confirm `.cursor/rules/` and `AGENT-SKILL-INSTALL.md` agree on execution rules (whole `.cursor/` is tracked in git).
-3. If you only changed human docs, ask whether agents still get wrong defaults—update `SKILL.md` / `description` and `.mdc` rules if yes.
+1. Grep for `architect-doc` — zero stale hits in docs/rules/scripts.
+2. Confirm `.cursor/rules/` and `AGENT-SKILL-INSTALL.md` agree on execution rules.
+3. If skills or agents changed, run `bash scripts/install_library.sh` and verify.

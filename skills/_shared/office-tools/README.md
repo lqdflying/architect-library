@@ -129,7 +129,7 @@ From either Office skill, reference this toolkit as `../_shared/office-tools/`.
 
 ### Claude Code
 ```markdown
-# Architecture Document Skills
+# Architect Skill — Office tools
 Scripts in ../_shared/office-tools/ support DOCX/PPTX manipulation.
 See ../word-document/references/docx-guide.md and ../powerpoint-presentation/references/pptx-guide.md for API patterns.
 ```

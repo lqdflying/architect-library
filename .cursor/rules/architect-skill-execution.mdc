@@ -1,5 +1,5 @@
 ---
-description: Skill completion criteria, dependencies, and office_tools for architect-doc-skill
+description: Skill and agent completion criteria, deps, office_tools for architect-skill
 alwaysApply: true
 ---
 
@@ -20,6 +20,16 @@ Task is **not** complete until:
 - **PPT:** LibreOffice Impress + Poppler every delivery → `bash scripts/install_deps.sh office-system`
 - **Word (new):** npm `docx`; LibreOffice only for PDF / `accept`
 - **Excalidraw:** Playwright via `bash scripts/install_deps.sh excalidraw`
+
+## Custom agents (installed library)
+
+Applies when the user invokes a custom agent or you test agent behavior in this repo:
+
+| Agent | Done when |
+|-------|-----------|
+| **code-review** | Scope established; logic traced; findings with file:line evidence; technical claims Verified or Unverified via MCP/web; output follows template in `agents/code-review/INSTRUCTIONS.md`; **no source files edited** |
+
+After editing `agents/`, run `bash scripts/install_library.sh agents` so global `~/.cursor/agents/` and `~/.copilot/agents/` match repo source.
 
 ## Dependencies
 

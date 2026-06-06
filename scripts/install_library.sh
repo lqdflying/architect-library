@@ -1,0 +1,210 @@
+#!/usr/bin/env bash
+# Install Architect Skill libraries (skills + custom agents) to Cursor / Copilot / Claude.
+# Default: global install of both libraries to cursor + copilot home directories.
+set -euo pipefail
+
+REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+SKILL_BUNDLE="excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document _shared"
+AGENT_BUNDLE="code-review"
+
+LEGACY_SKILLS="docx pptx xlsx pdf"
+
+usage() {
+  cat <<'EOF'
+Usage: install_library.sh [WHAT] [EDITOR] [SCOPE]
+
+WHAT (default: all):
+  all      Install skills and agents
+  skills   Install skill library only
+  agents   Install custom agent library only
+
+EDITOR (default: both):
+  both     Cursor + Copilot + Claude
+  cursor   Cursor paths only
+  copilot  Copilot paths only
+  claude   Claude Code paths only
+
+SCOPE (default: global):
+  global   ~/.cursor/, ~/.copilot/, ~/.claude/
+  project  .cursor/, .github/, .claude/ under current working directory
+
+Examples:
+  bash scripts/install_library.sh
+  bash scripts/install_library.sh skills
+  bash scripts/install_library.sh agents cursor global
+  bash scripts/install_library.sh all both project
+EOF
+}
+
+WHAT="${1:-all}"
+EDITOR="${2:-both}"
+SCOPE="${3:-global}"
+
+case "$WHAT" in
+  all|skills|agents) ;;
+  -h|--help|help) usage; exit 0 ;;
+  *) echo "Unknown WHAT: $WHAT" >&2; usage >&2; exit 1 ;;
+esac
+
+case "$EDITOR" in
+  both|cursor|copilot|claude) ;;
+  global|project)
+    SCOPE="$EDITOR"
+    EDITOR="both"
+    ;;
+  *)
+    echo "Unknown EDITOR: $EDITOR" >&2
+    usage >&2
+    exit 1
+    ;;
+esac
+
+case "$SCOPE" in
+  global|project) ;;
+  *)
+    echo "Unknown SCOPE: $SCOPE" >&2
+    usage >&2
+    exit 1
+    ;;
+esac
+
+if [[ "$SCOPE" == "global" ]]; then
+  BASE="${HOME}"
+else
+  BASE="$(pwd)"
+fi
+
+cursor_skills_dir() { echo "${BASE}/.cursor/skills"; }
+copilot_skills_dir() { echo "${BASE}/.copilot/skills"; }
+claude_skills_dir() { echo "${BASE}/.claude/skills"; }
+github_skills_dir() { echo "${BASE}/.github/skills"; }
+cursor_agents_dir() { echo "${BASE}/.cursor/agents"; }
+copilot_agents_dir() { echo "${BASE}/.copilot/agents"; }
+claude_agents_dir() { echo "${BASE}/.claude/agents"; }
+github_agents_dir() { echo "${BASE}/.github/agents"; }
+
+install_skills_to() {
+  local dest="$1"
+  mkdir -p "$dest"
+  for legacy in $LEGACY_SKILLS; do
+    rm -rf "${dest}/${legacy}"
+  done
+  for name in $SKILL_BUNDLE; do
+    rm -rf "${dest}/${name}"
+    cp -a "${REPO}/skills/${name}" "${dest}/${name}"
+  done
+}
+
+install_agent_file() {
+  local name="$1"
+  local header="$2"
+  local dest="$3"
+  local agent_dir="${REPO}/agents/${name}"
+
+  if [[ ! -f "${agent_dir}/${header}" ]] || [[ ! -f "${agent_dir}/INSTRUCTIONS.md" ]]; then
+    echo "Agent ${name} missing ${header} or INSTRUCTIONS.md in ${agent_dir}" >&2
+    exit 1
+  fi
+  mkdir -p "$(dirname "$dest")"
+  cat "${agent_dir}/${header}" "${agent_dir}/INSTRUCTIONS.md" > "$dest"
+}
+
+install_skills() {
+  case "$EDITOR" in
+    both)
+      install_skills_to "$(cursor_skills_dir)"
+      install_skills_to "$(copilot_skills_dir)"
+      install_skills_to "$(claude_skills_dir)"
+      ;;
+    cursor) install_skills_to "$(cursor_skills_dir)" ;;
+    copilot) install_skills_to "$(copilot_skills_dir)" ;;
+    claude) install_skills_to "$(claude_skills_dir)" ;;
+  esac
+  if [[ "$SCOPE" == "project" && ( "$EDITOR" == "both" || "$EDITOR" == "copilot" ) ]]; then
+    install_skills_to "$(github_skills_dir)"
+  fi
+}
+
+install_agents() {
+  for name in $AGENT_BUNDLE; do
+    if [[ ! -d "${REPO}/agents/${name}" ]]; then
+      echo "Missing agent source: ${REPO}/agents/${name}" >&2
+      exit 1
+    fi
+  done
+
+  if [[ "$EDITOR" == "both" || "$EDITOR" == "cursor" ]]; then
+    for name in $AGENT_BUNDLE; do
+      install_agent_file "$name" "cursor.header.md" "$(cursor_agents_dir)/${name}.md"
+    done
+  fi
+
+  if [[ "$EDITOR" == "both" || "$EDITOR" == "copilot" ]]; then
+    for name in $AGENT_BUNDLE; do
+      install_agent_file "$name" "copilot.header.md" "$(copilot_agents_dir)/${name}.agent.md"
+    done
+  fi
+
+  if [[ "$EDITOR" == "both" || "$EDITOR" == "claude" ]]; then
+    for name in $AGENT_BUNDLE; do
+      install_agent_file "$name" "cursor.header.md" "$(claude_agents_dir)/${name}.md"
+    done
+  fi
+
+  if [[ "$SCOPE" == "project" ]]; then
+    if [[ "$EDITOR" == "both" || "$EDITOR" == "cursor" ]]; then
+      for name in $AGENT_BUNDLE; do
+        install_agent_file "$name" "cursor.header.md" "${BASE}/.cursor/agents/${name}.md"
+      done
+    fi
+    if [[ "$EDITOR" == "both" || "$EDITOR" == "copilot" ]]; then
+      for name in $AGENT_BUNDLE; do
+        install_agent_file "$name" "copilot.header.md" "$(github_agents_dir)/${name}.agent.md"
+      done
+    fi
+  fi
+}
+
+echo "Architect Skill install_library.sh"
+echo "  REPO=$REPO"
+echo "  WHAT=$WHAT EDITOR=$EDITOR SCOPE=$SCOPE"
+
+case "$WHAT" in
+  all)
+    install_skills
+    install_agents
+    ;;
+  skills) install_skills ;;
+  agents) install_agents ;;
+esac
+
+verify() {
+  local ok=0
+  if [[ "$WHAT" == "all" || "$WHAT" == "skills" ]]; then
+    if [[ "$EDITOR" == "both" || "$EDITOR" == "cursor" ]]; then
+      test -f "$(cursor_skills_dir)/_shared/office-tools/office_tools.py" || ok=1
+      test -f "$(cursor_skills_dir)/word-document/SKILL.md" || ok=1
+    fi
+    if [[ "$EDITOR" == "both" || "$EDITOR" == "copilot" ]]; then
+      test -f "$(copilot_skills_dir)/word-document/SKILL.md" || ok=1
+    fi
+  fi
+  if [[ "$WHAT" == "all" || "$WHAT" == "agents" ]]; then
+    if [[ "$EDITOR" == "both" || "$EDITOR" == "cursor" ]]; then
+      test -f "$(cursor_agents_dir)/code-review.md" || ok=1
+      grep -q 'readonly: true' "$(cursor_agents_dir)/code-review.md" || ok=1
+    fi
+    if [[ "$EDITOR" == "both" || "$EDITOR" == "copilot" ]]; then
+      test -f "$(copilot_agents_dir)/code-review.agent.md" || ok=1
+    fi
+  fi
+  if [[ "$ok" -ne 0 ]]; then
+    echo "VERIFY: some checks failed" >&2
+    exit 1
+  fi
+  echo "VERIFY: OK"
+}
+
+verify
+echo "Done."

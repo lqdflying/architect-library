@@ -1,316 +1,178 @@
-# Agent guide: install Architect Document Skills (Cursor / Copilot)
+# Agent guide: install Architect Skill (Cursor / Copilot)
 
-Use this document when the user asks to install, update, or fix skills from the **architect-doc-skill** repository. Follow it literally; do not invent alternate paths.
+Use this document when the user asks to install, update, or fix **skills** or **custom agents** from the **architect-skill** repository. Follow it literally; do not invent alternate paths.
 
-**Editing this repository?** Cursor loads [`.cursor/rules/`](../.cursor/rules/) automatically. Follow [MAINTAINING-SKILLS.md](MAINTAINING-SKILLS.md) whenever you add a skill, workflow step, or dependency—update those rules, `SKILL.md` `description`, and this install doc—not only scripts or README.
+**Editing this repository?** Cursor loads [`.cursor/rules/`](../.cursor/rules/) automatically. Follow [MAINTAINING-SKILLS.md](MAINTAINING-SKILLS.md) whenever you add a skill, agent, workflow step, or dependency.
 
 ## What you are installing
 
-This repo publishes **six installable folders** under `skills/` (not one monolithic skill):
+Architect Skill publishes **two libraries**:
+
+### Skill library (`skills/`)
 
 | Folder | Type | Required |
 |--------|------|----------|
-| `excalidraw-diagram` | Cursor/Copilot skill | Yes, if diagrams are needed |
-| `word-document` | Cursor/Copilot skill | Yes, if DOCX is needed |
-| `powerpoint-presentation` | Cursor/Copilot skill | Yes, if PPTX is needed |
-| `spreadsheet-document` | Cursor/Copilot skill | Yes, if XLSX/spreadsheet work is needed |
-| `pdf-document` | Cursor/Copilot skill | Yes, if PDF work is needed |
+| `excalidraw-diagram` | Cursor/Copilot skill | If diagrams are needed |
+| `word-document` | Cursor/Copilot skill | If DOCX is needed |
+| `powerpoint-presentation` | Cursor/Copilot skill | If PPTX is needed |
+| `spreadsheet-document` | Cursor/Copilot skill | If XLSX/spreadsheet work is needed |
+| `pdf-document` | Cursor/Copilot skill | If PDF work is needed |
 | `_shared` | Support files (not a standalone skill) | **Yes** whenever Word, PowerPoint, or spreadsheet skills are installed |
 
 Word, PowerPoint, and spreadsheet skills reference Office tools via `../_shared/office-tools/`. If `_shared` is missing or not a **sibling** of those folders, paths break.
 
-## Agent execution rules (read after install)
+### Custom agent library (`agents/`)
 
-When you load a skill, follow its `SKILL.md` and `references/`. These repo-wide rules apply:
+| Agent | Purpose |
+|-------|---------|
+| `code-review` | Read-only code review with MCP and web verification |
 
-| Skill | Before marking the task complete |
-|-------|----------------------------------|
-| **excalidraw-diagram** | Render `.excalidraw` → PNG, **view** the image, fix in a loop |
-| **word-document** | Validate DOCX; explicit table styling; deliver `.docx` only (no generator scripts beside deliverable unless asked) |
-| **powerpoint-presentation** | Validate PPTX; run **`thumbnail` layout preview on every deck** (grid + `--per-slide` at 150 DPI), **view** images, fix overflow/overlap; install `bash scripts/install_deps.sh office-system` if `soffice`/`pdftoppm` missing—do not skip preview unless the user waives visual QA |
-| **spreadsheet-document** | Deliver `.xlsx`; if formulas: `office_tools.py recalc` until zero errors; `office-system` for recalc |
-| **pdf-document** | Deliver `.pdf`; form fills: validation scripts per `references/forms.md` |
+Agents install as single `.md` files (assembled from header + `INSTRUCTIONS.md`). See [AGENTS.md](AGENTS.md).
 
-**PowerPoint is not done** when the `.pptx` file exists. It is done when layout preview has been run and reviewed (or the user explicitly waived).
-
-**Word** does not require LibreOffice for new docx-js decks. **PowerPoint** requires LibreOffice Impress + Poppler for every delivery. **Spreadsheet** formula recalc requires LibreOffice (`office-system`).
-
-**Source of truth for skill packages:** `<repo>/skills/<name>/`  
-**`<repo>/.cursor/`** is tracked in git (project rules and Cursor config). Do **not** copy `skills/*` into `<repo>/.cursor/skills/` — that duplicates `skills/` and confuses installs.
+**Source of truth:** `<repo>/skills/<name>/` and `<repo>/agents/<name>/`  
+**Do not** copy into `<repo>/.cursor/skills/` or `<repo>/.cursor/agents/` — use `install_library.sh`.
 
 ---
 
 ## Step 0: Locate the repository root
 
-Set `REPO` to the clone path, for example:
-
 ```bash
-REPO=/path/to/architect-doc-skill
+REPO=/path/to/architect-skill
 cd "$REPO"
 ```
-
-Confirm the layout exists:
 
 ```bash
 test -f "$REPO/skills/excalidraw-diagram/SKILL.md" && \
 test -f "$REPO/skills/word-document/SKILL.md" && \
-test -f "$REPO/skills/spreadsheet-document/SKILL.md" && \
-test -f "$REPO/skills/pdf-document/SKILL.md" && \
+test -f "$REPO/agents/code-review/INSTRUCTIONS.md" && \
+test -f "$REPO/scripts/install_library.sh" && \
 test -f "$REPO/skills/_shared/office-tools/office_tools.py" && \
 echo "OK: repo layout valid"
 ```
-
-If any check fails, stop and ask the user for the correct clone path.
 
 ---
 
 ## Step 1: Choose install scope
 
-| User intent | Install location |
-|-------------|------------------|
-| “Use in all my projects” / global Cursor or Copilot | User home skills directory (below) |
-| “Only this project” / team repo | Project skills directory (below) |
-| Both | Prefer global unless the user explicitly wants project-only |
+| User intent | Command |
+|-------------|---------|
+| Global (default) | `bash scripts/install_library.sh` |
+| Skills only | `bash scripts/install_library.sh skills` |
+| Agents only | `bash scripts/install_library.sh agents` |
+| Per project | `bash scripts/install_library.sh all both project` from user's project root |
 
-Do **not** install only `excalidraw-diagram` when the user wants the full architect-doc set.
-
----
-
-## Step 2: Remove legacy standalone Excalidraw (if present)
-
-Older installs may be a **standalone** Excalidraw skill (single folder, sometimes with its own `.git`), not this monorepo layout.
-
-Before copying, remove outdated global copies so Cursor does not load stale `SKILL.md`:
-
-```bash
-# Cursor legacy
-rm -rf ~/.cursor/skills/excalidraw-diagram
-
-# Copilot legacy (if it exists)
-rm -rf ~/.copilot/skills/excalidraw-diagram
-```
-
-Only remove project-local copies if the user asked to refresh **this** project:
-
-```bash
-rm -rf .cursor/skills/excalidraw-diagram
-rm -rf .github/skills/excalidraw-diagram
-```
+Prefer **global** unless the user explicitly wants project-local copies.
 
 ---
 
-## Patch / upgrade Cursor skills (agent default)
+## Step 2: Patch / upgrade (agent default)
 
-When the user says **patch**, **upgrade**, **install**, or **refresh** skills — or you just changed skills in this repo — **run this** (global Cursor). Do not stop at editing only `$REPO/skills/`.
-
-| Action | What happens under `~/.cursor/skills/` |
-|--------|----------------------------------------|
-| **New** skill in repo | Folder copied in the bundle (e.g. `spreadsheet-document`) |
-| **Existing** skill (Word, PPT, …) | Old folder **removed**, fresh `cp -a` from repo (**patch**) |
-| **`_shared`** | Always refreshed with Word/PPT/spreadsheet installs |
+When the user says **patch**, **upgrade**, **install**, or **refresh** — or you changed `skills/` or `agents/` — **run this** from the repo root:
 
 ```bash
-REPO=/path/to/architect-doc-skill
-CURSOR=~/.cursor/skills
-BUNDLE="excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document _shared"
-
-mkdir -p "$CURSOR"
-for legacy in docx pptx xlsx pdf; do rm -rf "$CURSOR/$legacy"; done
-for name in $BUNDLE; do
-  rm -rf "$CURSOR/$name"
-  cp -a "$REPO/skills/$name" "$CURSOR/$name"
-done
+REPO=/path/to/architect-skill
+cd "$REPO"
+bash scripts/install_library.sh
 ```
 
-Then: verify layout (Step 6), tell the user to **open a new agent chat**.
+| Action | Result |
+|--------|--------|
+| **New** skill | Added under `~/.cursor/skills/`, `~/.copilot/skills/` |
+| **Existing** skill | Folder replaced (full refresh) |
+| **New** agent | Assembled to `~/.cursor/agents/`, `~/.copilot/agents/` |
+| **Existing** agent | File replaced |
 
-Project-local install: same loop with `CURSOR=.cursor/skills` from the user’s project root.
-
-Repo rule: [`.cursor/rules/architect-doc-skill-cursor-patch.mdc`](../.cursor/rules/architect-doc-skill-cursor-patch.mdc).
+Repo rule: [`.cursor/rules/architect-skill-patch.mdc`](../.cursor/rules/architect-skill-patch.mdc).
 
 ---
 
-## Step 3: Install for Cursor
+## Step 3: Global install targets
 
-### Global (recommended for individuals)
+| Library | Cursor | Copilot | Claude (optional) |
+|---------|--------|---------|-------------------|
+| Skills | `~/.cursor/skills/<name>/` | `~/.copilot/skills/<name>/` | `~/.claude/skills/<name>/` |
+| Agents | `~/.cursor/agents/<name>.md` | `~/.copilot/agents/<name>.agent.md` | `~/.claude/agents/<name>.md` |
 
-```bash
-REPO=/path/to/architect-doc-skill
-mkdir -p ~/.cursor/skills
+### Per project (only when asked)
 
-for name in excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document _shared; do
-  rm -rf ~/.cursor/skills/"$name"
-  cp -a "$REPO/skills/$name" ~/.cursor/skills/"$name"
-done
-```
-
-### Per project (from the user’s project root)
-
-```bash
-REPO=/path/to/architect-doc-skill
-mkdir -p .cursor/skills
-
-for name in excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document _shared; do
-  rm -rf .cursor/skills/"$name"
-  cp -a "$REPO/skills/$name" .cursor/skills/"$name"
-done
-```
-
-**Use `cp -a`** (or `cp -r`) from `$REPO/skills/`, not a symlink to the repo, unless the user explicitly wants a symlinked dev setup.
-
-**Do not** copy the whole `architect-doc-skill` repo into `~/.cursor/skills/` — only the skill folders inside `skills/` (plus `_shared`).
+| Library | Cursor | Copilot |
+|---------|--------|---------|
+| Skills | `.cursor/skills/<name>/` | `.github/skills/<name>/` |
+| Agents | `.cursor/agents/<name>.md` | `.github/agents/<name>.agent.md` |
 
 ---
 
-## Step 4: Install for VS Code GitHub Copilot
-
-Copilot Agent Skills use different paths than Cursor.
-
-### Global (all workspaces)
+## Step 4: Verify installation
 
 ```bash
-REPO=/path/to/architect-doc-skill
-mkdir -p ~/.copilot/skills
-
-for name in excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document _shared; do
-  rm -rf ~/.copilot/skills/"$name"
-  cp -a "$REPO/skills/$name" ~/.copilot/skills/"$name"
-done
+test -f ~/.cursor/skills/_shared/office-tools/office_tools.py && echo "OK: cursor skills"
+test -f ~/.copilot/skills/word-document/SKILL.md && echo "OK: copilot skills"
+test -f ~/.cursor/agents/code-review.md && echo "OK: cursor agents"
+test -f ~/.copilot/agents/code-review.agent.md && echo "OK: copilot agents"
+grep -q 'readonly: true' ~/.cursor/agents/code-review.md && echo "OK: code-review"
+find ~/.cursor/skills -maxdepth 2 -name .git -type d   # expect no output
 ```
 
-### Per workspace (project root)
-
-```bash
-REPO=/path/to/architect-doc-skill
-mkdir -p .github/skills
-
-for name in excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document _shared; do
-  rm -rf .github/skills/"$name"
-  cp -a "$REPO/skills/$name" .github/skills/"$name"
-done
-```
-
-Tell the user to **reload VS Code** after installation. Slash commands may appear as `/excalidraw-diagram`, `/word-document`, `/powerpoint-presentation`.
+The install script runs similar checks automatically.
 
 ---
 
-## Step 5: Install for Claude Code / OpenCode (optional)
+## Step 5: Reload the editor
 
-```bash
-REPO=/path/to/architect-doc-skill
-mkdir -p .claude/skills
-
-for name in excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document _shared; do
-  rm -rf .claude/skills/"$name"
-  cp -a "$REPO/skills/$name" .claude/skills/"$name"
-done
-```
-
-Run from the **user’s project root**, not from inside `architect-doc-skill`, unless they develop only in this repo.
+- **Cursor:** new agent chat or reload window (skills + agents reload).
+- **VS Code:** reload window.
 
 ---
 
-## Step 6: Verify installation
+## Agent execution rules (skills)
 
-Run these checks and report results to the user.
+| Skill | Before marking the task complete |
+|-------|----------------------------------|
+| **excalidraw-diagram** | Render `.excalidraw` → PNG, **view** the image, fix in a loop |
+| **word-document** | Validate DOCX; explicit table styling; deliver `.docx` only |
+| **powerpoint-presentation** | Validate PPTX; **`thumbnail` every deck**; **view** images; `office-system` if missing |
+| **spreadsheet-document** | Deliver `.xlsx`; `recalc` until zero formula errors if formulas used |
+| **pdf-document** | Deliver `.pdf`; form fills per `references/forms.md` |
 
-### Layout and siblings
+**PowerPoint is not done** when the `.pptx` exists — only after layout preview (or user waives).
 
-```bash
-CURSOR=~/.cursor/skills   # or .cursor/skills for per-project
+## Custom agent execution (agents)
 
-ls -1 "$CURSOR" | sort
-# Expect: _shared  excalidraw-diagram  pdf-document  powerpoint-presentation  spreadsheet-document  word-document
+| Agent | Done when |
+|-------|-----------|
+| **code-review** | Scope set; logic traced; findings with evidence; MCP/web verification table; **no edits** |
 
-test -f "$CURSOR/_shared/office-tools/office_tools.py" && echo "OK: office-tools"
-test -f "$CURSOR/word-document/SKILL.md" && echo "OK: word SKILL.md"
-```
-
-### No nested git in installed skills
-
-```bash
-find "$CURSOR" -maxdepth 2 -name .git -type d
-# Expect no output
-```
-
-If `.git` appears inside an installed skill, remove that folder and re-copy from `$REPO/skills/` (legacy clone mistake).
-
-### Installed copy matches repo (optional)
-
-```bash
-REPO=/path/to/architect-doc-skill
-diff -q "$REPO/skills/excalidraw-diagram/SKILL.md" "$CURSOR/excalidraw-diagram/SKILL.md" && echo "OK: excalidraw in sync"
-```
-
-### Runtime smoke (optional, after first-time prep)
-
-Only if the user needs PNG rendering or Office XML tools:
-
-```bash
-cd "$REPO" && bash scripts/install_deps.sh
-cd "$REPO/skills/_shared/office-tools" && uv run python3 office_tools.py --help
-```
-
-See [README.md](../README.md) → **First-time preparation** for full runtime setup.
+See [CODE-REVIEW-AGENT.md](CODE-REVIEW-AGENT.md).
 
 ---
 
-## Step 7: Tell the user to reload the editor
+## First-time machine setup (separate from library copy)
 
-After copying skills:
+| Task | Command (from repo root) |
+|------|---------------------------|
+| Library copy | `bash scripts/install_library.sh` |
+| Runtimes | `bash scripts/install_deps.sh` |
+| LibreOffice + Poppler (PPT) | `bash scripts/install_deps.sh office-system` |
+| Offline Excalidraw | `bash scripts/vendor_excalidraw.sh` |
+| New DOCX / PPTX via Node | `npm install -g docx` / `pptxgenjs` |
 
-- **Cursor:** start a **new chat** or reload the window so updated `SKILL.md` files load.
-- **VS Code:** reload the window.
-
-Skills are matched by the `description` field in each `SKILL.md`; the user does not need to type a slash command for basic use.
-
----
-
-## First-time machine setup (separate from skill copy)
-
-Installing skills into Cursor/Copilot is **not** the same as installing Python/Playwright/Office runtimes.
-
-| Task | When | Command (from repo root) |
-|------|------|---------------------------|
-| Skill copy | Per user request / after `git pull` | Steps 3–5 above |
-| Runtimes | Once per machine | `bash scripts/install_deps.sh` |
-| LibreOffice + Poppler | Once per machine (**required for PowerPoint skill**) | `bash scripts/install_deps.sh office-system` — mandatory PPTX layout preview every delivery; also PDF export, DOCX accept-changes. Word-only / docx-js can skip |
-| Offline Excalidraw bundle | Once per machine (optional) | `bash scripts/vendor_excalidraw.sh` |
-| New DOCX / PPTX via Node | Once per machine (optional) | `npm install -g docx` / `pptxgenjs` |
-
-Do not run `install_deps.sh` inside `~/.cursor/skills/` — run it from the **repository clone**.
+Do not run `install_deps.sh` inside `~/.cursor/skills/` — run from the **repository clone**.
 
 ---
 
-## Common mistakes (avoid)
+## Common mistakes
 
 | Mistake | Why it fails |
 |---------|----------------|
-| Copy only `excalidraw-diagram` | Word/PPT break; user misses new skills |
-| Omit `_shared` | `../_shared/office-tools/` paths in Word/PPT skills break |
-| Copy repo root into `~/.cursor/skills/` | Wrong layout; Cursor expects one folder per skill name |
-| Leave old `~/.cursor/skills/excalidraw-diagram` with nested `.git` | Stale instructions, not from monorepo |
-| Copy `skills/*` into `<repo>/.cursor/skills/` | Duplicates `skills/`; use `skills/` as source and `~/.cursor/skills/` or `.cursor/skills/` only for editor install |
-| Run `install_deps.sh` in the skills install dir | Dependencies belong in the repo clone paths |
-| Deliver PPTX without `thumbnail` layout preview | Run `office_tools.py thumbnail`; install `office-system` first; see `powerpoint-presentation/references/layout-preview.md` |
-| Use `file://` for Excalidraw render testing | Use `render_excalidraw.py` (loopback HTTP); see excalidraw README |
+| Copy only one skill folder | Word/PPT break; missing `_shared` |
+| Omit `_shared` | `../_shared/office-tools/` paths break |
+| Copy repo into `~/.cursor/skills/` | Wrong layout |
+| Edit `agents/` without running install | Global agents stale |
+| Add agents to `skills/` bundle | Wrong library — use `AGENT_BUNDLE` in `install_library.sh` |
+| Deliver PPTX without `thumbnail` | Violates powerpoint-presentation completion rules |
 
 ---
 
-## Quick reference: paths
+## Quick reference
 
-| Editor | Global | Per project |
-|--------|--------|-------------|
-| Cursor | `~/.cursor/skills/<skill-name>/` | `.cursor/skills/<skill-name>/` |
-| GitHub Copilot | `~/.copilot/skills/<skill-name>/` | `.github/skills/<skill-name>/` |
-| Claude Code | — | `.claude/skills/<skill-name>/` |
-
-Each `<skill-name>` is one of: `excalidraw-diagram`, `word-document`, `powerpoint-presentation`, `spreadsheet-document`, `pdf-document`, `_shared`.
-
----
-
-## When the user updates the repo (`git pull`) or patches skills
-
-Re-run **Patch / upgrade Cursor skills** (or Step 2 + Step 3): replace every bundle folder under `~/.cursor/skills/`. Then ask them to open a new agent chat.
-
-Optionally verify with `diff` against `$REPO/skills/` as in Step 6.
+Full human guide: [README.md](../README.md). Agent catalog: [AGENTS.md](AGENTS.md).
