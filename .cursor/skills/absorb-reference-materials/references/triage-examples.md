@@ -51,7 +51,7 @@ Extended record of the Superpowers `tmp/skills/` review (negotiated session). Us
 
 - **Before:** 5 skills + 1 agent in bundle
 - **After:** 6 skills + 1 agent (`verification-before-completion` added; `code-review` enhanced)
-- **Cursor install:** `bash scripts/install_library.sh all cursor` only
+- **Cursor readiness install:** runtime setup, then `bash scripts/install_library.sh all cursor` only
 
 ## Closing step (example)
 

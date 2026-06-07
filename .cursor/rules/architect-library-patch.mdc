@@ -3,15 +3,22 @@ description: After skill or agent changes, patch global library via install_libr
 alwaysApply: true
 ---
 
-# Patch / install Architect Library (Cursor — global default)
+# Patch / install Architect Library (Cursor — global readiness default)
 
 **Editor scope:** You are in **Cursor**. Install to **Cursor paths only** — do not write `~/.copilot/` or `~/.claude/` unless the user explicitly asks for all editors.
 
-When the user asks to **install library**, **install the library**, **patch library**, **refresh library**, **update library**, **install skills and agents**, **sync library**, **update architect library** — or **patch**, **upgrade**, **install**, or **refresh** skills or agents — or you finish adding/changing `skills/` or `agents/` in this repo — **run the Cursor library install yourself**:
+When the user asks to **install library**, **install the library**, **patch library**, **refresh library**, **update library**, **install skills and agents**, **sync library**, **update architect library** — or **patch**, **upgrade**, **install**, or **refresh** skills or agents — or you finish adding/changing `skills/` or `agents/` in this repo — **run the Cursor readiness install yourself**.
+
+Default means **runtimes + skills + agents** for Cursor only. Do **not** ask which editor, scope, library subset, or runtime set to install for those trigger phrases.
 
 ```bash
+bash scripts/install_deps.sh
+bash scripts/install_deps.sh office-system
+npm install -g docx pptxgenjs
 bash scripts/install_library.sh all cursor
 ```
+
+If a runtime command fails because of missing permissions, sudo, network, or npm, report the exact failing command and error. Do not claim full readiness until all runtime commands finish successfully.
 
 Use partial installs **only** when the user explicitly asks:
 
@@ -52,6 +59,9 @@ From the repository root:
 ```bash
 REPO=/path/to/architect-library
 cd "$REPO"
+bash scripts/install_deps.sh
+bash scripts/install_deps.sh office-system
+npm install -g docx pptxgenjs
 bash scripts/install_library.sh all cursor
 ```
 
@@ -60,16 +70,21 @@ bash scripts/install_library.sh all cursor
 ```bash
 test -f ~/.cursor/skills/_shared/office-tools/office_tools.py
 test -f ~/.cursor/skills/word-document/SKILL.md
+test -f ~/.cursor/skills/verification-before-completion/SKILL.md
 test -f ~/.cursor/agents/code-review.md
 grep -q 'readonly: true' ~/.cursor/agents/code-review.md
+cd skills/_shared/office-tools && uv run python3 office_tools.py --help >/dev/null
+command -v soffice >/dev/null
+command -v pdftoppm >/dev/null
+npm list -g docx pptxgenjs --depth=0 >/dev/null
 ```
 
 The install script runs these checks automatically when `EDITOR=cursor`.
 
 ## After patching
 
-1. Tell the user skills and agents were updated under `~/.cursor/`.
+1. Tell the user skills, agents, and runtimes were updated for Cursor.
 2. Ask them to **open a new agent chat** (or reload the window) so skill descriptions and agents reload.
-3. Runtimes are separate: run `bash scripts/install_deps.sh` from the **repo clone**, not from installed skill folders.
+3. If any runtime command failed, say readiness is incomplete and include the failing command.
 
 Full paths, Copilot/Claude variants, and mistakes to avoid: [docs/AGENT-SKILL-INSTALL.md](docs/AGENT-SKILL-INSTALL.md).

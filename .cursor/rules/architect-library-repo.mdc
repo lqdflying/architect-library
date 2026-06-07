@@ -7,7 +7,7 @@ alwaysApply: true
 
 Skill library + custom agent library for Cursor and Copilot. Work in this clone to edit `skills/`, `agents/`, `office-tools`, scripts, or docs.
 
-**Install or patch (global default):** after skill or agent changes — or when the user asks (e.g. **install library**) — run `bash scripts/install_library.sh all cursor` from the repo root (Cursor paths only). Do not only edit source folders. See [architect-library-patch.mdc](architect-library-patch.mdc) and [docs/AGENT-SKILL-INSTALL.md](docs/AGENT-SKILL-INSTALL.md).
+**Install or patch (global default):** after skill or agent changes — or when the user asks (e.g. **install library**) — run full Cursor readiness from the repo root: `bash scripts/install_deps.sh`, `bash scripts/install_deps.sh office-system`, `npm install -g docx pptxgenjs`, then `bash scripts/install_library.sh all cursor` (Cursor paths only). Do not only edit source folders. See [architect-library-patch.mdc](architect-library-patch.mdc) and [docs/AGENT-SKILL-INSTALL.md](docs/AGENT-SKILL-INSTALL.md).
 
 ## Layout
 
@@ -53,4 +53,4 @@ When the user asks to **review or absorb ref material under `tmp/`**, read `.cur
 - Copy `agents/` into `repo/.cursor/agents/` or `repo/.github/agents/` as canonical source.
 - Add agents to `SKILL_BUNDLE` or skills to `AGENT_BUNDLE`.
 
-Install bundles for users: run `bash scripts/install_library.sh all cursor` in Cursor (or `all copilot` in VS Code Copilot). Use `bash scripts/install_library.sh` (all editors) only when the user asks.
+Install bundles for users: run runtime dependencies first, then `bash scripts/install_library.sh all cursor` in Cursor (or `all copilot` in VS Code Copilot). Use `bash scripts/install_library.sh` (all editors) only when the user asks.

@@ -4,9 +4,9 @@ Use this document when the user asks to install, update, or fix **skills** or **
 
 **Editing this repository?** Cursor loads [`.cursor/rules/`](../.cursor/rules/) automatically. Follow [MAINTAINING-SKILLS.md](MAINTAINING-SKILLS.md) whenever you add a skill, agent, workflow step, or dependency.
 
-## User phrases (full install default)
+## User phrases (full readiness default)
 
-When the user says any of these, run a **full global install** (skills + agents) for **the editor you are running in**:
+When the user says any of these, run a **full global readiness install** (runtimes + skills + agents) for **the editor you are running in**:
 
 - **install library** | install the library | patch library | refresh library | update library
 - install skills and agents | sync library | update architect library
@@ -14,11 +14,23 @@ When the user says any of these, run a **full global install** (skills + agents)
 
 ### Editor-scoped commands (default)
 
-| You are in | Command | Targets |
-|------------|---------|---------|
+Run these runtime commands first:
+
+```bash
+bash scripts/install_deps.sh
+bash scripts/install_deps.sh office-system
+npm install -g docx pptxgenjs
+```
+
+Then run the editor-scoped library command:
+
+| You are in | Library command | Targets |
+|------------|-----------------|---------|
 | **Cursor** | `bash scripts/install_library.sh all cursor` | `~/.cursor/skills/`, `~/.cursor/agents/` |
 | **VS Code Copilot** | `bash scripts/install_library.sh all copilot` | `~/.copilot/skills/`, `~/.copilot/agents/` |
 | **Claude Code** | `bash scripts/install_library.sh all claude` | `~/.claude/skills/`, `~/.claude/agents/` |
+
+Do **not** ask which editor, scope, subset, or runtime set to install for these trigger phrases. Use the active editor default.
 
 Do **not** install to other editors unless the user explicitly asks (e.g. "install for all editors" → `bash scripts/install_library.sh` with no `EDITOR` arg, which uses `both` = Cursor + Copilot + Claude).
 
@@ -89,13 +101,18 @@ Prefer **global** unless the user explicitly wants project-local copies. Prefer 
 
 ## Step 2: Patch / upgrade (agent default)
 
-When the user says **install library** or any phrase in [User phrases](#user-phrases-full-install-default) — or you changed `skills/` or `agents/` — **run this** from the repo root (replace `cursor` with `copilot` or `claude` if that is your editor):
+When the user says **install library** or any phrase in [User phrases](#user-phrases-full-readiness-default) — or you changed `skills/` or `agents/` — **run this** from the repo root (replace `cursor` with `copilot` or `claude` if that is your editor):
 
 ```bash
 REPO=/path/to/architect-library
 cd "$REPO"
+bash scripts/install_deps.sh
+bash scripts/install_deps.sh office-system
+npm install -g docx pptxgenjs
 bash scripts/install_library.sh all cursor
 ```
+
+If a runtime command fails because of missing permissions, sudo, network, or npm, report the exact failing command and error. Do not claim full readiness until all runtime commands finish successfully.
 
 | Action | Result (Cursor example) |
 |--------|-------------------------|
@@ -136,6 +153,9 @@ test -f ~/.cursor/skills/verification-before-completion/SKILL.md && echo "OK: ve
 test -f ~/.cursor/agents/code-review.md && echo "OK: cursor agents"
 grep -q 'readonly: true' ~/.cursor/agents/code-review.md && echo "OK: code-review"
 find ~/.cursor/skills -maxdepth 2 -name .git -type d   # expect no output
+cd /path/to/architect-library/skills/_shared/office-tools && uv run python3 office_tools.py --help >/dev/null && echo "OK: office tools"
+command -v soffice >/dev/null && command -v pdftoppm >/dev/null && echo "OK: office-system"
+npm list -g docx pptxgenjs --depth=0 >/dev/null && echo "OK: npm docx/pptxgenjs"
 ```
 
 **VS Code Copilot:**
@@ -145,6 +165,9 @@ test -f ~/.copilot/skills/_shared/office-tools/office_tools.py && echo "OK: copi
 test -f ~/.copilot/skills/word-document/SKILL.md && echo "OK: copilot skills"
 test -f ~/.copilot/skills/verification-before-completion/SKILL.md && echo "OK: verification skill"
 test -f ~/.copilot/agents/code-review.agent.md && echo "OK: copilot agents"
+cd /path/to/architect-library/skills/_shared/office-tools && uv run python3 office_tools.py --help >/dev/null && echo "OK: office tools"
+command -v soffice >/dev/null && command -v pdftoppm >/dev/null && echo "OK: office-system"
+npm list -g docx pptxgenjs --depth=0 >/dev/null && echo "OK: npm docx/pptxgenjs"
 ```
 
 The install script runs similar checks automatically for the `EDITOR` you pass.
@@ -181,14 +204,14 @@ See [CODE-REVIEW-AGENT.md](CODE-REVIEW-AGENT.md).
 
 ---
 
-## First-time machine setup (separate from library copy)
+## Runtime command reference
 
 | Task | Command (from repo root) |
 |------|---------------------------|
 | Library copy (Cursor) | `bash scripts/install_library.sh all cursor` |
 | Library copy (Copilot) | `bash scripts/install_library.sh all copilot` |
 | Library copy (all editors) | `bash scripts/install_library.sh` |
-| Runtimes | `bash scripts/install_deps.sh` |
+| Core runtimes | `bash scripts/install_deps.sh` |
 | LibreOffice + Poppler (PPT) | `bash scripts/install_deps.sh office-system` |
 | Offline Excalidraw | `bash scripts/vendor_excalidraw.sh` |
 | New DOCX / PPTX via Node | `npm install -g docx` / `pptxgenjs` |

@@ -134,7 +134,15 @@ When the user asks to review `tmp/` ref material:
 
     Do not delete `tmp/` or start a second absorption pass until the user picks an option. Do not skip this ask because absorption “felt complete.”
 
-## Editor-scoped install (mandatory)
+## Editor-scoped readiness install (mandatory)
+
+Run runtime setup first:
+
+```bash
+bash scripts/install_deps.sh
+bash scripts/install_deps.sh office-system
+npm install -g docx pptxgenjs
+```
 
 | Session | Command only | Targets |
 |---------|----------------|---------|
@@ -144,8 +152,9 @@ When the user asks to review `tmp/` ref material:
 - Never run bare `install_library.sh` (all editors) unless the user explicitly asks.
 - Never write `~/.copilot/` from a Cursor session or `~/.cursor/` from VS Code.
 - Docs must document **both** editor paths; **implementation** uses the active editor only.
+- Do not claim full readiness until the runtime setup and editor-scoped library command finish successfully.
 
-After skill/agent source changes in Cursor: `bash scripts/install_library.sh all cursor` from repo root.
+After skill/agent source changes in Cursor: run the runtime setup above, then `bash scripts/install_library.sh all cursor` from repo root.
 
 ## Shipping checklist (new install target only)
 
@@ -157,7 +166,7 @@ Follow [docs/MAINTAINING-SKILLS.md](../../docs/MAINTAINING-SKILLS.md):
 - [ ] `.cursor/rules/architect-library-execution.mdc` done-when row
 - [ ] `docs/AGENT-SKILL-INSTALL.md` (+ `docs/AGENTS.md` / `CODE-REVIEW-AGENT.md` if agent)
 - [ ] **`README.md`** — skills/agents table, documentation map, repository layout ([readme-after-absorb.md](references/readme-after-absorb.md))
-- [ ] `bash scripts/install_library.sh all cursor` (or `copilot` in VS Code)
+- [ ] Runtime setup, then `bash scripts/install_library.sh all cursor` (or `copilot` in VS Code)
 - [ ] Verify installed path exists under correct home directory
 
 ## Harden-only checklist

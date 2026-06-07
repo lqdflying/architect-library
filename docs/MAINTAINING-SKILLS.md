@@ -18,7 +18,7 @@ Update **agent guidance** (all that apply):
 - [ ] [AGENT-SKILL-INSTALL.md](AGENT-SKILL-INSTALL.md) — skill table, execution rules
 - [ ] [README.md](../README.md) — Skills table, documentation map
 - [ ] [scripts/install_library.sh](../scripts/install_library.sh) — add to `SKILL_BUNDLE`
-- [ ] Run `bash scripts/install_library.sh skills cursor` (global patch from Cursor)
+- [ ] Run full Cursor readiness: `bash scripts/install_deps.sh`, `bash scripts/install_deps.sh office-system`, `npm install -g docx pptxgenjs`, then `bash scripts/install_library.sh all cursor`
 
 If the skill uses Office tools:
 
@@ -42,7 +42,7 @@ Update **agent guidance**:
 - [ ] [README.md](../README.md) — Custom agents table
 - [ ] `.cursor/rules/architect-library-execution.mdc` — completion row if applicable
 - [ ] Optional deep dive: `docs/<AGENT-NAME>-AGENT.md`
-- [ ] Run `bash scripts/install_library.sh agents cursor`
+- [ ] Run full Cursor readiness: `bash scripts/install_deps.sh`, `bash scripts/install_deps.sh office-system`, `npm install -g docx pptxgenjs`, then `bash scripts/install_library.sh all cursor`
 
 **Do not** add agents under `skills/` or to `SKILL_BUNDLE`.
 
@@ -76,4 +76,4 @@ Update `description` when completion rules change (PowerPoint layout preview, Ex
 
 1. Grep for `architect-doc` — zero stale hits in docs/rules/scripts.
 2. Confirm `.cursor/rules/` and `AGENT-SKILL-INSTALL.md` agree on execution rules.
-3. If skills or agents changed, run `bash scripts/install_library.sh all cursor` and verify.
+3. If skills or agents changed, run full editor-scoped readiness install and verify runtimes plus installed files.

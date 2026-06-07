@@ -9,9 +9,9 @@ Compatible with [Cursor](https://cursor.com), [VS Code + GitHub Copilot](https:/
 **For coding agents:**
 
 - Working **in this repo**: [`.cursor/rules/`](.cursor/rules/) (maintainer rules, not installed globally) and [docs/MAINTAINING-SKILLS.md](docs/MAINTAINING-SKILLS.md).
-- **Installing** skills and agents: [docs/AGENT-SKILL-INSTALL.md](docs/AGENT-SKILL-INSTALL.md) — `bash scripts/install_library.sh all cursor` or `all copilot` (editor-scoped default).
+- **Installing** the full ready-to-use library: [docs/AGENT-SKILL-INSTALL.md](docs/AGENT-SKILL-INSTALL.md) — runtime dependencies + `bash scripts/install_library.sh all cursor` or `all copilot` (editor-scoped default).
 
-**Instructions vs runtime:** Skill `SKILL.md` files load as soon as they are copied into your editor. **Completing** a task still needs runtimes: Excalidraw → Playwright; Word (new DOCX) → optional npm `docx`; **PowerPoint → `office-system` (LibreOffice + Poppler) on every deck** for layout preview, plus npm `pptxgenjs` for new decks. See [First-time preparation](#first-time-preparation-one-time-per-machine).
+**Full install means instructions + runtimes:** When an agent handles **install library**, it should install the runtime dependencies first, then copy skills and agents for the active editor. Manual installs should follow the same order below.
 
 ## First-time preparation (one-time per machine)
 
@@ -35,6 +35,7 @@ From the repository root (after `git clone`):
 cd architect-library   # or your clone path
 bash scripts/install_deps.sh              # Excalidraw + Office + PDF Python deps (no LibreOffice)
 bash scripts/install_deps.sh office-system   # add LibreOffice Impress + Poppler (PPT layout preview, XLSX recalc, accept changes)
+npm install -g docx pptxgenjs             # new DOCX/PPTX generation
 bash scripts/install_library.sh all cursor   # or: all copilot — skills + agents for your editor
 ```
 
@@ -263,10 +264,13 @@ git clone https://github.com/lqdflying/architect-library.git
 
 ### Install library (recommended)
 
-From the repo root — installs **skills** and **custom agents** globally for **your editor**:
+From the repo root — installs **runtime dependencies, skills, and custom agents** globally for **your editor**:
 
 ```bash
 cd /path/to/architect-library
+bash scripts/install_deps.sh
+bash scripts/install_deps.sh office-system
+npm install -g docx pptxgenjs
 bash scripts/install_library.sh all cursor    # Cursor
 bash scripts/install_library.sh all copilot   # VS Code Copilot
 bash scripts/install_library.sh all claude    # Claude Code
