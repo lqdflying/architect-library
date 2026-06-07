@@ -1,15 +1,17 @@
 **CRITICAL: You MUST complete these steps in order. Do not skip ahead to writing code.**
 
-Run all scripts from the skill root (`pdf-document/`):
+The uv project (`pyproject.toml`, `uv.lock`) lives under `references/` — same place `install_deps.sh` runs `uv sync`. Run scripts with `--project` pointing there:
 
 ```bash
-cd skills/pdf-document && uv run python scripts/<script>.py ...
+uv run --project skills/pdf-document/references python skills/pdf-document/scripts/<script>.py ...
 ```
+
+From an installed skill root, use `<skill-root>/references` and `<skill-root>/scripts/` instead of the `skills/pdf-document/...` paths above.
 
 If you need to fill out a PDF form, first check to see if the PDF has fillable form fields:
 
 ```bash
-cd skills/pdf-document && uv run python scripts/check_fillable_fields.py <file.pdf>
+uv run --project skills/pdf-document/references python skills/pdf-document/scripts/check_fillable_fields.py <file.pdf>
 ```
 
 Depending on the result, go to either the "Fillable fields" or "Non-fillable fields" section and follow those instructions.
@@ -19,7 +21,7 @@ If the PDF has fillable form fields:
 - Run:
 
 ```bash
-cd skills/pdf-document && uv run python scripts/extract_form_field_info.py <input.pdf> <field_info.json>
+uv run --project skills/pdf-document/references python skills/pdf-document/scripts/extract_form_field_info.py <input.pdf> <field_info.json>
 ```
 
 It will create a JSON file with a list of fields in this format:
@@ -70,7 +72,7 @@ It will create a JSON file with a list of fields in this format:
 - Convert the PDF to PNGs (one image for each page):
 
 ```bash
-cd skills/pdf-document && uv run python scripts/convert_pdf_to_images.py <file.pdf> <output_directory>
+uv run --project skills/pdf-document/references python skills/pdf-document/scripts/convert_pdf_to_images.py <file.pdf> <output_directory>
 ```
 
 Then analyze the images to determine the purpose of each form field (make sure to convert the bounding box PDF coordinates to image coordinates).
@@ -95,7 +97,7 @@ Then analyze the images to determine the purpose of each form field (make sure t
 - Create a filled-in PDF:
 
 ```bash
-cd skills/pdf-document && uv run python scripts/fill_fillable_fields.py <input.pdf> <field_values.json> <output.pdf>
+uv run --project skills/pdf-document/references python skills/pdf-document/scripts/fill_fillable_fields.py <input.pdf> <field_values.json> <output.pdf>
 ```
 
 This script will verify that the field IDs and values you provide are valid; if it prints error messages, correct the appropriate fields and try again.
@@ -108,7 +110,7 @@ If the PDF doesn't have fillable form fields, you'll add text annotations. First
 Run this script to extract text labels, lines, and checkboxes with their exact PDF coordinates:
 
 ```bash
-cd skills/pdf-document && uv run python scripts/extract_form_structure.py <input.pdf> form_structure.json
+uv run --project skills/pdf-document/references python skills/pdf-document/scripts/extract_form_structure.py <input.pdf> form_structure.json
 ```
 
 This creates a JSON file containing:
@@ -193,7 +195,7 @@ Create fields.json using `pdf_width` and `pdf_height` (signals PDF coordinates):
 Before filling, check your bounding boxes for errors:
 
 ```bash
-cd skills/pdf-document && uv run python scripts/check_bounding_boxes.py fields.json
+uv run --project skills/pdf-document/references python skills/pdf-document/scripts/check_bounding_boxes.py fields.json
 ```
 
 This checks for intersecting bounding boxes and entry boxes that are too small for the font size. Fix any reported errors before filling.
@@ -207,7 +209,7 @@ Use this when the PDF is scanned/image-based and structure extraction found no u
 ### B.1: Convert PDF to Images
 
 ```bash
-cd skills/pdf-document && uv run python scripts/convert_pdf_to_images.py <input.pdf> <images_dir/>
+uv run --project skills/pdf-document/references python skills/pdf-document/scripts/convert_pdf_to_images.py <input.pdf> <images_dir/>
 ```
 
 ### B.2: Initial Field Identification
@@ -282,7 +284,7 @@ Create fields.json using `image_width` and `image_height` (signals image coordin
 Before filling, check your bounding boxes for errors:
 
 ```bash
-cd skills/pdf-document && uv run python scripts/check_bounding_boxes.py fields.json
+uv run --project skills/pdf-document/references python skills/pdf-document/scripts/check_bounding_boxes.py fields.json
 ```
 
 This checks for intersecting bounding boxes and entry boxes that are too small for the font size. Fix any reported errors before filling.
@@ -308,7 +310,7 @@ Use this when structure extraction works for most fields but misses some element
 **Always validate bounding boxes before filling:**
 
 ```bash
-cd skills/pdf-document && uv run python scripts/check_bounding_boxes.py fields.json
+uv run --project skills/pdf-document/references python skills/pdf-document/scripts/check_bounding_boxes.py fields.json
 ```
 
 This checks for:
@@ -322,7 +324,7 @@ Fix any reported errors in fields.json before proceeding.
 The fill script auto-detects the coordinate system and handles conversion:
 
 ```bash
-cd skills/pdf-document && uv run python scripts/fill_pdf_form_with_annotations.py <input.pdf> fields.json <output.pdf>
+uv run --project skills/pdf-document/references python skills/pdf-document/scripts/fill_pdf_form_with_annotations.py <input.pdf> fields.json <output.pdf>
 ```
 
 ## Step 4: Verify Output
@@ -330,7 +332,7 @@ cd skills/pdf-document && uv run python scripts/fill_pdf_form_with_annotations.p
 Convert the filled PDF to images and verify text placement:
 
 ```bash
-cd skills/pdf-document && uv run python scripts/convert_pdf_to_images.py <output.pdf> <verify_images/>
+uv run --project skills/pdf-document/references python skills/pdf-document/scripts/convert_pdf_to_images.py <output.pdf> <verify_images/>
 ```
 
 If text is mispositioned:

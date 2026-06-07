@@ -25,12 +25,11 @@ Optional system tools (documented in `pdf-guide.md`, not installed by default): 
 
 ## Form Fill Workflow
 
-When filling PDF forms, follow `references/forms.md` and run validation scripts under `scripts/`:
+When filling PDF forms, follow `references/forms.md` and run validation scripts under `scripts/` (uv project is `references/`):
 
 ```bash
-cd skills/pdf-document   # or installed skill root
-uv run python scripts/check_fillable_fields.py form.pdf
-uv run python scripts/create_validation_image.py ...
+uv run --project skills/pdf-document/references python skills/pdf-document/scripts/check_fillable_fields.py form.pdf
+uv run --project skills/pdf-document/references python skills/pdf-document/scripts/create_validation_image.py ...
 ```
 
 ## Delivery Checklist

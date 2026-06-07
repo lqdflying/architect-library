@@ -269,6 +269,7 @@ From the repo root — installs **skills** and **custom agents** globally for **
 cd /path/to/architect-library
 bash scripts/install_library.sh all cursor    # Cursor
 bash scripts/install_library.sh all copilot   # VS Code Copilot
+bash scripts/install_library.sh all claude    # Claude Code
 ```
 
 Install all editors at once (only if you use more than one):
@@ -287,12 +288,12 @@ bash scripts/install_library.sh all cursor project   # per-project copy
 
 **Global targets:**
 
-| Library | Cursor | Copilot |
-|---------|--------|---------|
-| Skills | `~/.cursor/skills/<name>/` | `~/.copilot/skills/<name>/` |
-| Agents | `~/.cursor/agents/<name>.md` | `~/.copilot/agents/<name>.agent.md` |
+| Library | Cursor | Copilot | Claude Code |
+|---------|--------|---------|-------------|
+| Skills | `~/.cursor/skills/<name>/` | `~/.copilot/skills/<name>/` | `~/.claude/skills/<name>/` |
+| Agents | `~/.cursor/agents/<name>.md` | `~/.copilot/agents/<name>.agent.md` | `~/.claude/agents/<name>.md` |
 
-Reload Cursor or VS Code after installation. Skills appear as slash commands (`/word-document`, etc.). Custom agents appear in the agent picker (`code-review`, `/code-review` on Cursor).
+Reload Cursor, VS Code, or Claude Code after installation. Skills appear as slash commands (`/word-document`, etc.). Custom agents appear in the agent picker (`code-review`, `/code-review` on Cursor).
 
 See [`docs/AGENT-SKILL-INSTALL.md`](docs/AGENT-SKILL-INSTALL.md) for verification steps and common mistakes.
 
