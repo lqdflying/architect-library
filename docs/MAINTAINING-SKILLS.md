@@ -33,6 +33,7 @@ Create `agents/<agent-name>/` with:
 - [ ] `INSTRUCTIONS.md` — shared prompt body (no YAML frontmatter)
 - [ ] `cursor.header.md` — Cursor frontmatter
 - [ ] `copilot.header.md` — Copilot frontmatter
+- [ ] `claude.header.md` — Claude Code frontmatter
 
 Update **agent guidance**:
 

@@ -1,7 +1,6 @@
 ---
 name: spreadsheet-document
 description: "Open, create, edit, or analyze spreadsheet files (.xlsx, .xlsm, .csv, .tsv). Deliver .xlsx with zero formula errors after office_tools recalc when formulas are used. Financial models, data cleanup, tabular exports. Install office + office-system for recalc. Do not use when the primary deliverable is Word, PDF, or a standalone script."
-license: Proprietary. LICENSE.txt has complete terms
 ---
 
 # Spreadsheet Creator

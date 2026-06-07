@@ -59,7 +59,8 @@ Also use built-in **WebSearch** and **WebFetch** when MCP is unavailable.
 | Editor | Mechanism |
 |--------|-----------|
 | Cursor | `readonly: true` in assembled agent file |
-| Copilot | `disallowedTools: edit`; all other tools enabled |
+| Copilot | `disallowedTools: edit`; `agents: []` (no subagent delegation) |
+| Claude Code | `permissionMode: plan`; `disallowedTools: Edit, Write, NotebookEdit, MultiEdit` |
 
 If the user asks for fixes, the agent reports only and suggests switching to the default implementation agent.
 
@@ -71,6 +72,7 @@ agents/code-review/
   INSTRUCTIONS.md
   cursor.header.md
   copilot.header.md
+  claude.header.md
 ```
 
 After edits:

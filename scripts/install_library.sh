@@ -76,13 +76,23 @@ else
 fi
 
 cursor_skills_dir() { echo "${BASE}/.cursor/skills"; }
-copilot_skills_dir() { echo "${BASE}/.copilot/skills"; }
+copilot_skills_dir() {
+  if [[ "$SCOPE" == "project" ]]; then
+    echo "${BASE}/.github/skills"
+  else
+    echo "${BASE}/.copilot/skills"
+  fi
+}
 claude_skills_dir() { echo "${BASE}/.claude/skills"; }
-github_skills_dir() { echo "${BASE}/.github/skills"; }
 cursor_agents_dir() { echo "${BASE}/.cursor/agents"; }
-copilot_agents_dir() { echo "${BASE}/.copilot/agents"; }
+copilot_agents_dir() {
+  if [[ "$SCOPE" == "project" ]]; then
+    echo "${BASE}/.github/agents"
+  else
+    echo "${BASE}/.copilot/agents"
+  fi
+}
 claude_agents_dir() { echo "${BASE}/.claude/agents"; }
-github_agents_dir() { echo "${BASE}/.github/agents"; }
 
 install_skills_to() {
   local dest="$1"
@@ -121,9 +131,6 @@ install_skills() {
     copilot) install_skills_to "$(copilot_skills_dir)" ;;
     claude) install_skills_to "$(claude_skills_dir)" ;;
   esac
-  if [[ "$SCOPE" == "project" && ( "$EDITOR" == "both" || "$EDITOR" == "copilot" ) ]]; then
-    install_skills_to "$(github_skills_dir)"
-  fi
 }
 
 install_agents() {
@@ -148,21 +155,8 @@ install_agents() {
 
   if [[ "$EDITOR" == "both" || "$EDITOR" == "claude" ]]; then
     for name in $AGENT_BUNDLE; do
-      install_agent_file "$name" "cursor.header.md" "$(claude_agents_dir)/${name}.md"
+      install_agent_file "$name" "claude.header.md" "$(claude_agents_dir)/${name}.md"
     done
-  fi
-
-  if [[ "$SCOPE" == "project" ]]; then
-    if [[ "$EDITOR" == "both" || "$EDITOR" == "cursor" ]]; then
-      for name in $AGENT_BUNDLE; do
-        install_agent_file "$name" "cursor.header.md" "${BASE}/.cursor/agents/${name}.md"
-      done
-    fi
-    if [[ "$EDITOR" == "both" || "$EDITOR" == "copilot" ]]; then
-      for name in $AGENT_BUNDLE; do
-        install_agent_file "$name" "copilot.header.md" "$(github_agents_dir)/${name}.agent.md"
-      done
-    fi
   fi
 }
 
@@ -197,6 +191,10 @@ verify() {
     fi
     if [[ "$EDITOR" == "both" || "$EDITOR" == "copilot" ]]; then
       test -f "$(copilot_agents_dir)/code-review.agent.md" || ok=1
+    fi
+    if [[ "$EDITOR" == "both" || "$EDITOR" == "claude" ]]; then
+      test -f "$(claude_agents_dir)/code-review.md" || ok=1
+      grep -q 'permissionMode: plan' "$(claude_agents_dir)/code-review.md" || ok=1
     fi
   fi
   if [[ "$ok" -ne 0 ]]; then

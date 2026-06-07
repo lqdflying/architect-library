@@ -14,7 +14,7 @@ Architect Library ships a **custom agent library** under `agents/`. Install glob
 | Copilot | `~/.copilot/agents/<name>.agent.md` |
 | Claude Code | `~/.claude/agents/<name>.md` |
 
-Agents are assembled at install from `cursor.header.md` / `copilot.header.md` + `INSTRUCTIONS.md`.
+Agents are assembled at install from `cursor.header.md` / `copilot.header.md` / `claude.header.md` + `INSTRUCTIONS.md`.
 
 ## Adding an agent
 

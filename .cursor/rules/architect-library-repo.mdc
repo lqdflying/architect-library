@@ -18,6 +18,7 @@ Skill library + custom agent library for Cursor and Copilot. Work in this clone 
 | `agents/<name>/INSTRUCTIONS.md` | Shared agent prompt body |
 | `agents/<name>/cursor.header.md` | Cursor frontmatter (assembled at install) |
 | `agents/<name>/copilot.header.md` | Copilot frontmatter (assembled at install) |
+| `agents/<name>/claude.header.md` | Claude Code frontmatter (assembled at install) |
 | `skills/excalidraw-diagram/` | Excalidraw → PNG visual QA |
 | `skills/word-document/` | DOCX architecture documents |
 | `skills/powerpoint-presentation/` | PPTX → **mandatory** layout preview |

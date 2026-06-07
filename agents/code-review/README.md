@@ -36,6 +36,7 @@ Use whatever MCP servers are enabled in the user's session:
 ## Enforcement
 
 - Cursor: `readonly: true` in assembled agent file
-- Copilot: `disallowedTools: edit`
+- Copilot: `disallowedTools: edit`; `agents: []` (no subagent delegation)
+- Claude Code: `permissionMode: plan`; `disallowedTools: Edit, Write, NotebookEdit, MultiEdit`
 
 See [docs/CODE-REVIEW-AGENT.md](../../docs/CODE-REVIEW-AGENT.md) for details.
