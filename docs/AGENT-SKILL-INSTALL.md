@@ -37,6 +37,7 @@ Architect Library publishes **two libraries**:
 | `powerpoint-presentation` | Cursor/Copilot skill | If PPTX is needed |
 | `spreadsheet-document` | Cursor/Copilot skill | If XLSX/spreadsheet work is needed |
 | `pdf-document` | Cursor/Copilot skill | If PDF work is needed |
+| `verification-before-completion` | Cursor/Copilot skill | Evidence before completion claims; required by artifact skills at delivery |
 | `_shared` | Support files (not a standalone skill) | **Yes** whenever Word, PowerPoint, or spreadsheet skills are installed |
 
 Word, PowerPoint, and spreadsheet skills reference Office tools via `../_shared/office-tools/`. If `_shared` is missing or not a **sibling** of those folders, paths break.
@@ -131,6 +132,7 @@ Copilot rule: [`.github/instructions/update-library.instructions.md`](../.github
 ```bash
 test -f ~/.cursor/skills/_shared/office-tools/office_tools.py && echo "OK: cursor skills"
 test -f ~/.cursor/skills/word-document/SKILL.md && echo "OK: cursor skills"
+test -f ~/.cursor/skills/verification-before-completion/SKILL.md && echo "OK: verification skill"
 test -f ~/.cursor/agents/code-review.md && echo "OK: cursor agents"
 grep -q 'readonly: true' ~/.cursor/agents/code-review.md && echo "OK: code-review"
 find ~/.cursor/skills -maxdepth 2 -name .git -type d   # expect no output
@@ -141,6 +143,7 @@ find ~/.cursor/skills -maxdepth 2 -name .git -type d   # expect no output
 ```bash
 test -f ~/.copilot/skills/_shared/office-tools/office_tools.py && echo "OK: copilot skills"
 test -f ~/.copilot/skills/word-document/SKILL.md && echo "OK: copilot skills"
+test -f ~/.copilot/skills/verification-before-completion/SKILL.md && echo "OK: verification skill"
 test -f ~/.copilot/agents/code-review.agent.md && echo "OK: copilot agents"
 ```
 
@@ -164,6 +167,7 @@ The install script runs similar checks automatically for the `EDITOR` you pass.
 | **powerpoint-presentation** | Validate PPTX; **`thumbnail` every deck**; **view** images; `office-system` if missing |
 | **spreadsheet-document** | Deliver `.xlsx`; `recalc` until zero formula errors if formulas used |
 | **pdf-document** | Deliver `.pdf`; form fills per `references/forms.md` |
+| **verification-before-completion** | Fresh verification command output in same message before any completion/success claim |
 
 **PowerPoint is not done** when the `.pptx` exists — only after layout preview (or user waives).
 
@@ -171,7 +175,7 @@ The install script runs similar checks automatically for the `EDITOR` you pass.
 
 | Agent | Done when |
 |-------|-----------|
-| **code-review** | Scope set; logic traced; findings with evidence; MCP/web verification table; **no edits** |
+| **code-review** | Scope set (SHA range when provided); requirements alignment when plan supplied; logic traced; Strengths + findings with evidence; MCP/web verification table; merge verdict; **no edits** |
 
 See [CODE-REVIEW-AGENT.md](CODE-REVIEW-AGENT.md).
 

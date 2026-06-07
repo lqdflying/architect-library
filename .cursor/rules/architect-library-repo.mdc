@@ -27,6 +27,8 @@ Skill library + custom agent library for Cursor and Copilot. Work in this clone 
 | `scripts/install_library.sh` | Install/patch both libraries (global default) |
 | `scripts/install_deps.sh` | Runtimes only (`all` \| `excalidraw` \| `office` \| `office-system` \| `pdf`) |
 | `.cursor/rules/` | **Maintainer rules for this repo** — not copied to users |
+| `.cursor/skills/absorb-reference-materials/` | **Maintainer skill** — triage `tmp/` ref material (not in `SKILL_BUNDLE`) |
+| `tmp/` | Staging for external ref skills/agents — review before import; ignored items stay here |
 | `docs/AGENT-SKILL-INSTALL.md` | End-user install guide |
 | `docs/MAINTAINING-SKILLS.md` | Maintainer checklist (skills + agents) |
 | `docs/AGENTS.md` | Agent catalog |
@@ -42,9 +44,11 @@ Do **not** update only scripts or README. When adding or changing a skill, agent
 3. **Agent change** → update `agents/<name>/`, [docs/AGENTS.md](docs/AGENTS.md), `AGENT_BUNDLE` in `install_library.sh` if new agent, run `bash scripts/install_library.sh agents cursor`.
 4. Always update `README.md`, `docs/AGENT-SKILL-INSTALL.md`, and relevant `.cursor/rules/*.mdc`.
 
+When the user asks to **review or absorb ref material under `tmp/`**, read `.cursor/skills/absorb-reference-materials/SKILL.md` first — ship only high-value skills/agents, harden existing installs, ignore the rest. After absorb: update `README.md` when catalog or layout changes (see `absorb-reference-materials/references/readme-after-absorb.md`).
+
 **Do not:**
 
-- Copy `skills/` into `repo/.cursor/skills/`.
+- Copy distributable `skills/` into `repo/.cursor/skills/` (exception: maintainer skills under `.cursor/skills/` only).
 - Copy `agents/` into `repo/.cursor/agents/` or `repo/.github/agents/` as canonical source.
 - Add agents to `SKILL_BUNDLE` or skills to `AGENT_BUNDLE`.
 

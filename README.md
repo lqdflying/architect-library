@@ -152,6 +152,7 @@ See [Installation](#installation) for Copilot / Claude Code paths, or [docs/AGEN
 | `powerpoint-presentation` | Create or edit PPTX decks; **every delivery requires layout preview** (slide images via LibreOffice + Poppler). |
 | `spreadsheet-document` | Create or edit `.xlsx`; formula recalc via `office_tools.py recalc` (LibreOffice). |
 | `pdf-document` | Read, create, merge, split, and fill PDFs. |
+| `verification-before-completion` | Fresh verification evidence before any completion or delivery claim. |
 | `_shared` | Shared principles and Office tooling for Word, PowerPoint, and spreadsheet skills. **Must** be a sibling of those skills. |
 
 ## Custom agents
@@ -168,6 +169,9 @@ Catalog: [`docs/AGENTS.md`](docs/AGENTS.md). Deep dive: [`docs/CODE-REVIEW-AGENT
 |-----------|----------------|
 | [`.cursor/`](.cursor/) | **Agent:** Cursor project rules and config (tracked in git) |
 | [`docs/MAINTAINING-SKILLS.md`](docs/MAINTAINING-SKILLS.md) | **Maintainer/agent:** checklist when adding skills, steps, or dependencies |
+| [`tmp/README.md`](tmp/README.md) | **Maintainer:** staging area for external ref skills/agents before absorption |
+| [`.cursor/skills/absorb-reference-materials/SKILL.md`](.cursor/skills/absorb-reference-materials/SKILL.md) | **Maintainer:** triage `tmp/` ref material — ship, harden, or ignore (not in global install) |
+| [`.cursor/skills/absorb-reference-materials/references/readme-after-absorb.md`](.cursor/skills/absorb-reference-materials/references/readme-after-absorb.md) | **Maintainer:** README audit checklist after each absorb session |
 | [`docs/AGENT-SKILL-INSTALL.md`](docs/AGENT-SKILL-INSTALL.md) | **Agent:** install or refresh skills + custom agents (global) |
 | [`docs/AGENTS.md`](docs/AGENTS.md) | Custom agent catalog |
 | [`docs/CODE-REVIEW-AGENT.md`](docs/CODE-REVIEW-AGENT.md) | code-review agent usage |
@@ -193,6 +197,11 @@ Catalog: [`docs/AGENTS.md`](docs/AGENTS.md). Deep dive: [`docs/CODE-REVIEW-AGENT
 ```text
 architect-library/
   README.md
+  tmp/                        # maintainer staging — external ref before absorption (see tmp/README.md)
+  .cursor/
+    rules/                    # maintainer rules (not installed globally)
+    skills/
+      absorb-reference-materials/   # maintainer skill — triage tmp/ ref (not in SKILL_BUNDLE)
   agents/                     # custom agent library (source)
     code-review/
   docs/
@@ -227,6 +236,9 @@ architect-library/
       SKILL.md
       references/pdf-guide.md
       scripts/
+    verification-before-completion/
+      SKILL.md
+      README.md
     _shared/
       architecture-document-principles.md
       office-tools/

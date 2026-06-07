@@ -157,6 +157,10 @@ Shared rules: **9pt** table text; tight cell margins; fixed column widths; `cant
 
 **Compliance / ADD:** If one subsection uses a full inventory table (e.g. tools 5.1.1), sibling subsections (5.1.2, 5.1.3) need matching tables — not paragraph summaries only.
 
+## Completion discipline
+
+**REQUIRED SUB-SKILL:** Read `../verification-before-completion/SKILL.md` (or `verification-before-completion` when installed globally) before claiming the document is ready.
+
 ## Delivery Checklist
 
 Before finishing:

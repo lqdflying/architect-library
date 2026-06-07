@@ -38,7 +38,7 @@ Do **not** copy skills into `<repo>/.cursor/skills/` or agents into `<repo>/.cur
 ## Bundles (in `scripts/install_library.sh`)
 
 ```
-SKILL_BUNDLE="excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document _shared"
+SKILL_BUNDLE="excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document verification-before-completion _shared"
 AGENT_BUNDLE="code-review"
 ```
 

@@ -15,7 +15,14 @@ Read-only code review custom agent for Cursor and Copilot.
 | Cursor | Agent picker → **code-review**, or `/code-review review this diff` |
 | Copilot | Agents dropdown → **code-review** |
 
-Requires global install: `bash scripts/install_library.sh agents` from the architect-library repo.
+Install from the architect-library repo (scope to your editor):
+
+```bash
+bash scripts/install_library.sh agents cursor    # Cursor
+bash scripts/install_library.sh agents copilot   # VS Code Copilot
+```
+
+Reports Strengths, Critical/Warning/Suggestion findings, requirements alignment when a plan is provided, and a merge verdict (Yes / No / With fixes). Optional `BASE_SHA`..`HEAD_SHA` diff scope.
 
 ## MCP (recommended)
 

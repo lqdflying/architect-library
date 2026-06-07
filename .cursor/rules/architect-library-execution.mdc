@@ -14,8 +14,11 @@ Task is **not** complete until:
 | **powerpoint-presentation** | PPTX validates; **`thumbnail` every deck** (grid + `--per-slide` 150 DPI), images **viewed**, overflow fixed; `office-system` installed if missing |
 | **spreadsheet-document** | `.xlsx` delivered; if formulas used: `office_tools.py recalc` → JSON `status: success` (zero formula errors); `office-system` for recalc |
 | **pdf-document** | Deliver requested `.pdf`; form fills: run validation scripts per `references/forms.md` |
+| **verification-before-completion** | No completion/success claim without fresh verification command output in the same message |
 
 **PowerPoint is not done** when the `.pptx` exists—only after layout preview (or user waives visual QA).
+
+Artifact skills (Word, PPT, XLSX, PDF) require **verification-before-completion** before delivery claims.
 
 - **PPT:** LibreOffice Impress + Poppler every delivery → `bash scripts/install_deps.sh office-system`
 - **Word (new):** npm `docx`; LibreOffice only for PDF / `accept`
@@ -27,7 +30,7 @@ Applies when the user invokes a custom agent or you test agent behavior in this 
 
 | Agent | Done when |
 |-------|-----------|
-| **code-review** | Scope established; logic traced; findings with file:line evidence; technical claims Verified or Unverified via MCP/web; output follows template in `agents/code-review/INSTRUCTIONS.md`; **no source files edited** |
+| **code-review** | Scope established (SHA range when provided); requirements alignment when plan supplied; logic traced; Strengths + findings with file:line evidence; MCP/web verification table; merge verdict (Yes/No/With fixes); **no source files edited** |
 
 After editing `agents/`, run `bash scripts/install_library.sh agents cursor` so global `~/.cursor/agents/` matches repo source.
 

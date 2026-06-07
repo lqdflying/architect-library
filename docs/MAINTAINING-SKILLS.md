@@ -2,6 +2,8 @@
 
 Use this checklist when adding or changing **skills**, **custom agents**, **workflow steps**, or **dependencies** in **architect-library**. Scripts and README alone are not enough—agents read `SKILL.md` frontmatter, **`.cursor/rules/`**, and `docs/AGENT-SKILL-INSTALL.md`.
 
+**Reviewing external ref material (`tmp/skills/`, etc.)?** Read [`.cursor/skills/absorb-reference-materials/SKILL.md`](../.cursor/skills/absorb-reference-materials/SKILL.md) first — ship only high-value install targets, harden existing skills/agents, ignore the rest. That skill is **not** in `SKILL_BUNDLE`. After absorb: audit [README.md](../README.md) per [readme-after-absorb.md](../.cursor/skills/absorb-reference-materials/references/readme-after-absorb.md) (skills/agents tables, documentation map, repository layout).
+
 ## New skill folder
 
 Create `skills/<skill-name>/` with at minimum:

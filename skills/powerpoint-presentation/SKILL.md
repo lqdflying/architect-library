@@ -154,11 +154,22 @@ You cannot sign off on layout without viewing these images (or a user screenshot
 
 Check for: text clipping; misaligned titles/icons/charts; broken images; hidden slides; wrong order; elements closer than 0.3"; content inside 0.5" margins.
 
+## Completion discipline
+
+**REQUIRED SUB-SKILL:** Read `../verification-before-completion/SKILL.md` (or `verification-before-completion` when installed globally) before any completion claim.
+
+| Excuse | Reality |
+|--------|---------|
+| ".pptx exists" | Not done — run thumbnail and view images |
+| "Validated earlier" | Re-run validate + thumbnail in this message |
+| "User seems in a hurry" | No exceptions — layout preview is mandatory |
+| "XML looks fine" | XML ≠ rendered layout — view JPEGs |
+
 ## Delivery Checklist
 
 Before finishing:
 
-1. Confirm the PPTX validates.
+1. Confirm the PPTX validates (fresh command output in this message).
 2. **Layout preview completed** — grid + per-slide JPEGs at 150 DPI; you viewed the images and fixed overflow/overlap (or the user explicitly waived visual QA in writing).
 3. Extract text if you need to confirm narrative order.
 4. If preview tools were unavailable, you ran `install_deps.sh --with-system` and retried; do not silently ship without layout review.
