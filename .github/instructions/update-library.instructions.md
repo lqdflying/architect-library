@@ -10,6 +10,8 @@ Trigger: user says **install library**, install the library, patch library, refr
 bash scripts/install_library.sh all copilot
 ```
 
+Do **not** ask which editor, scope, or library subset to install for trigger phrases above. In VS Code Copilot, the default is already decided: **full global install for Copilot only**. Ask only when the user explicitly requests a non-default target but leaves that target ambiguous.
+
 Use partial installs only when the user explicitly asks:
 
 - Skills only: `bash scripts/install_library.sh skills copilot`
@@ -45,10 +47,19 @@ bash scripts/install_library.sh all copilot
 ```bash
 test -f ~/.copilot/skills/_shared/office-tools/office_tools.py && echo "OK: copilot skills"
 test -f ~/.copilot/skills/word-document/SKILL.md && echo "OK: copilot skills"
+test -f ~/.copilot/skills/verification-before-completion/SKILL.md && echo "OK: verification skill"
 test -f ~/.copilot/agents/code-review.agent.md && echo "OK: copilot agents"
 ```
 
 5. **Tell user:** "Library updated (skills + agents) under ~/.copilot/. Reload VS Code (new agent chat)."
+
+6. **Runtime dependencies are separate.** Do not imply they were installed by `install_library.sh`. If the user asks for runtime readiness, give concrete commands from the repo root:
+
+```bash
+bash scripts/install_deps.sh
+bash scripts/install_deps.sh office-system
+npm install -g docx pptxgenjs
+```
 
 ## Source of truth
 
