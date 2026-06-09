@@ -13,7 +13,7 @@ Use this skill when the user asks for a Word document, DOCX file, architecture d
 
 Before authoring substantial content, read:
 
-- `../_shared/architecture-document-principles.md`
+- `../_shared/architecture-document-principles.md` — includes the **ADR template** and lifecycle for HLD/LLD/ADR deliverables
 - `references/docx-guide.md` — docx-js creation and XML editing (Part 2 unpack/pack patterns)
 - `references/production-lessons.md` — table styling, compliance structure, generator workflow (read for ADD/compliance DOCX)
 - `references/python-docx-patterns.md` — only if generating with python-docx instead of docx-js

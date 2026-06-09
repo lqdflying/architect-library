@@ -5,6 +5,7 @@ Architect Library ships a **custom agent library** under `agents/`. Install glob
 | Agent | Purpose | Invocation |
 |-------|---------|--------------|
 | [code-review](../agents/code-review/) | Read-only code review with MCP and web verification | Cursor: `/code-review` or agent picker. Copilot: agents dropdown |
+| [security-auditor](../agents/security-auditor/) | Read-only security review — STRIDE, OWASP, LLM security, CVE checks | Cursor: `/security-auditor` or agent picker. Copilot: agents dropdown |
 
 ## Install targets (global default)
 

@@ -45,8 +45,8 @@ Do **not** copy skills into `<repo>/.cursor/skills/` or agents into `<repo>/.cur
 ## Bundles (in `scripts/install_library.sh`)
 
 ```
-SKILL_BUNDLE="excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document verification-before-completion _shared"
-AGENT_BUNDLE="code-review"
+SKILL_BUNDLE="excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document verification-before-completion api-and-interface-design deprecation-and-migration _shared"
+AGENT_BUNDLE="code-review security-auditor"
 ```
 
 - **New** skill or agent → add to bundle and install target.
@@ -71,8 +71,12 @@ bash scripts/install_library.sh all cursor
 test -f ~/.cursor/skills/_shared/office-tools/office_tools.py
 test -f ~/.cursor/skills/word-document/SKILL.md
 test -f ~/.cursor/skills/verification-before-completion/SKILL.md
+test -f ~/.cursor/skills/api-and-interface-design/SKILL.md
+test -f ~/.cursor/skills/deprecation-and-migration/SKILL.md
 test -f ~/.cursor/agents/code-review.md
+test -f ~/.cursor/agents/security-auditor.md
 grep -q 'readonly: true' ~/.cursor/agents/code-review.md
+grep -q 'readonly: true' ~/.cursor/agents/security-auditor.md
 cd skills/_shared/office-tools && uv run python3 office_tools.py --help >/dev/null
 command -v soffice >/dev/null
 command -v pdftoppm >/dev/null

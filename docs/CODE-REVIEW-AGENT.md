@@ -23,12 +23,15 @@ Reload Cursor or VS Code after install.
 ## Behavior
 
 1. Establish scope (diff, files, PR, commit, or `BASE_SHA`..`HEAD_SHA` range) using read-only git.
-2. When requirements or a plan are provided, check implementation alignment line by line.
-3. Trace logic through callers and callees before judging.
-4. Report Strengths and Critical / Warning / Suggestion findings with file:line evidence.
-5. Cross-check technical claims via MCP and web search.
-6. Give a merge verdict: **Ready to merge?** Yes | No | With fixes.
-7. Never edit source files.
+2. Review tests first — intent, coverage, and regression value.
+3. When requirements or a plan are provided, check implementation alignment line by line.
+4. Evaluate across five axes: correctness, readability, architecture, security, performance.
+5. Trace logic through callers and callees before judging.
+6. Report Strengths and Critical / Warning / Suggestion findings with file:line evidence.
+7. Include a **Verification story** (tests reviewed, build checked, manual testing).
+8. Cross-check technical claims via MCP and web search.
+9. Give a merge verdict: **Ready to merge?** Yes | No | With fixes (approve when code health improves; block on Critical issues or clear regressions).
+10. Never edit source files. For deep security review, recommend the **security-auditor** agent.
 
 Full prompt: [agents/code-review/INSTRUCTIONS.md](../agents/code-review/INSTRUCTIONS.md).
 

@@ -22,7 +22,7 @@ bash scripts/install_library.sh agents cursor    # Cursor
 bash scripts/install_library.sh agents copilot   # VS Code Copilot
 ```
 
-Reports Strengths, Critical/Warning/Suggestion findings, requirements alignment when a plan is provided, and a merge verdict (Yes / No / With fixes). Optional `BASE_SHA`..`HEAD_SHA` diff scope.
+Reviews tests first, evaluates across five axes (correctness, readability, architecture, security, performance), reports Strengths and Critical/Warning/Suggestion findings, includes a verification story, requirements alignment when a plan is provided, and a merge verdict (Yes / No / With fixes). Optional `BASE_SHA`..`HEAD_SHA` diff scope. For deep security review, use **security-auditor**.
 
 ## MCP (recommended)
 

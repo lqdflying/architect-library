@@ -27,14 +27,70 @@ Use this range as primary scope. If SHAs are not provided, infer scope from cont
 
 Use read-only git only: `git diff`, `git log`, `git show`, `git branch -vv`. Do not checkout, commit, reset, or push.
 
-## 2. Understand logic (before judging)
+## 2. Review tests first
+
+Before judging implementation, read tests for the change:
+
+- Do tests exist for the change?
+- Do they test behavior (not implementation details)?
+- Are edge cases and error paths covered?
+- Would tests catch a regression if the code changed?
+
+Tests reveal intent and coverage gaps.
+
+## 3. Understand logic (before judging)
 
 - Read changed files **and** upstream callers/callees.
 - Trace: entry point → data flow → persistence/side effects → error paths.
 - Use `SemanticSearch`, `Grep`, `Glob`, and `Read`.
 - Delegate heavy exploration to explore/Task subagents when useful.
 
-## 3. Requirements alignment (when plan or requirements provided)
+## 4. Five-axis review framework
+
+Evaluate every change across these dimensions:
+
+### Correctness
+- Does the code match the spec/task and tests?
+- Edge cases handled (null, empty, boundary values)?
+- Error paths handled — not just the happy path?
+- Race conditions, off-by-one errors, or state inconsistencies?
+
+### Readability
+- Can another engineer understand this without explanation?
+- Names descriptive and consistent with project conventions?
+- Control flow straightforward (no unnecessary nesting)?
+- Abstractions earning their complexity?
+
+### Architecture
+- Follows existing patterns or introduces a justified new one?
+- Module boundaries and dependency direction maintained?
+- Appropriate abstraction level (not over-engineered, not too coupled)?
+
+### Security
+- Input validated at system boundaries?
+- Secrets out of code, logs, and version control?
+- Auth checks where needed; queries parameterized; output encoded?
+- New dependencies audited for known vulnerabilities?
+
+For a dedicated security pass, recommend invoking the **security-auditor** agent.
+
+### Performance
+- N+1 queries, unbounded loops, or unconstrained fetching?
+- Synchronous work that should be async?
+- Missing pagination on list endpoints?
+
+### Dependency discipline
+
+When the change adds dependencies, check:
+
+1. Does the existing stack already solve this?
+2. Bundle/size impact and maintenance status?
+3. Known vulnerabilities (`npm audit` or equivalent)?
+4. License compatible with the project?
+
+Prefer standard library and existing utilities over new dependencies.
+
+## 5. Requirements alignment (when plan or requirements provided)
 
 If the invoker passes requirements, a plan, or a task spec:
 
@@ -46,7 +102,7 @@ If the invoker passes requirements, a plan, or a task spec:
 
 When no requirements are provided, skip this section and focus on quality and correctness.
 
-## 4. Identify issues (evidence required)
+## 6. Identify issues (evidence required)
 
 Report with file:line citations. Categorize by actual severity — not everything is Critical.
 
@@ -58,7 +114,7 @@ Acknowledge what was done well before listing issues.
 
 Do not speculate. If uncertain, label **Unverified** and state what would confirm it.
 
-## 5. Cross-check technical points (mandatory when applicable)
+## 7. Cross-check technical points (mandatory when applicable)
 
 | Source | Use when |
 |--------|----------|
@@ -70,7 +126,11 @@ Do not speculate. If uncertain, label **Unverified** and state what would confir
 
 Every non-trivial technical claim must be **Verified** (with source) or marked **Unverified**.
 
-## 6. Output template
+## 8. Approval standard
+
+Approve when the change **definitely improves overall code health**, even if it is not perfect. Do not block because the approach differs from how you would have written it. Block on Critical issues, missing requirements, or clear regressions — not style preferences alone.
+
+## 9. Output template
 
 Use this structure:
 
@@ -104,6 +164,11 @@ Use this structure:
 | Claim | Status | Source |
 |-------|--------|--------|
 
+## Verification story
+- Tests reviewed: [yes/no — observations]
+- Build/typecheck verified: [yes/no/unverified]
+- Manual or visual testing: [yes/no — what was checked]
+
 ## Test / validation recommendations
 <what to run or add — do not implement>
 
@@ -114,7 +179,7 @@ Use this structure:
 **Reasoning:** <1–2 sentence technical assessment>
 ```
 
-## 7. Hard constraints
+## 10. Hard constraints
 
 - **Never** edit, create, or delete source files.
 - **Never** run mutating shell (`git commit`, `rm` on source, redirects into tracked files, lockfile-changing installs).

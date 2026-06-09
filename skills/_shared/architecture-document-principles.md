@@ -55,6 +55,59 @@ Use only the sections that help the reader. Do not add ceremonial sections with 
 - PowerPoint decks: **always** run layout preview (`office_tools.py thumbnail` grid + per-slide JPEGs) and inspect images before delivery; install LibreOffice Impress + Poppler (`install_deps.sh --with-system`) if missing.
 - Validate generated Office files or rendered diagrams before delivery when tools are available.
 
+## Architecture Decision Records (ADR)
+
+Use ADRs for significant technical decisions — framework choice, data model, auth strategy, API architecture, hosting platform, or any decision expensive to reverse.
+
+### Storage and naming
+
+- **Markdown (in-repo):** `docs/decisions/NNN-short-title.md` with sequential numbering (`001-use-postgresql.md`).
+- **Word deliverable:** use the same section structure below in a `.docx` ADR (see `word-document` skill).
+
+### Lifecycle
+
+```
+PROPOSED → ACCEPTED → (SUPERSEDED or DEPRECATED)
+```
+
+Do not delete old ADRs — they capture historical context. When a decision changes, write a new ADR that references and supersedes the old one.
+
+### ADR template
+
+```markdown
+# ADR-NNN: [Short decision title]
+
+## Status
+Proposed | Accepted | Superseded by ADR-XXX | Deprecated
+
+## Date
+YYYY-MM-DD
+
+## Context
+What problem are we solving? Constraints, requirements, and forces at play.
+
+## Decision
+What we decided — be specific.
+
+## Alternatives considered
+
+### [Alternative A]
+- Pros: …
+- Cons: …
+- Rejected because: …
+
+### [Alternative B]
+…
+
+## Consequences
+Positive and negative outcomes, follow-up work, and operational impact.
+
+## Owner
+[Name or role accountable for the decision]
+```
+
+For Word ADRs, map each heading to a styled heading level and keep alternatives in a table or parallel subsections.
+
 ## Tone
 
 Architecture writing should be precise, calm, and decision-oriented. Avoid marketing language unless the artifact is explicitly an external sales or executive pitch deck. Keep wording useful for reviewers who need to approve or implement the design.

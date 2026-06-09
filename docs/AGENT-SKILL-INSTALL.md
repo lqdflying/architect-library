@@ -50,6 +50,8 @@ Architect Library publishes **two libraries**:
 | `spreadsheet-document` | Cursor/Copilot skill | If XLSX/spreadsheet work is needed |
 | `pdf-document` | Cursor/Copilot skill | If PDF work is needed |
 | `verification-before-completion` | Cursor/Copilot skill | Evidence before completion claims; required by artifact skills at delivery |
+| `api-and-interface-design` | Cursor/Copilot skill | API and module boundary design workflow |
+| `deprecation-and-migration` | Cursor/Copilot skill | Deprecation and migration planning workflow |
 | `_shared` | Support files (not a standalone skill) | **Yes** whenever Word, PowerPoint, or spreadsheet skills are installed |
 
 Word, PowerPoint, and spreadsheet skills reference Office tools via `../_shared/office-tools/`. If `_shared` is missing or not a **sibling** of those folders, paths break.
@@ -59,6 +61,7 @@ Word, PowerPoint, and spreadsheet skills reference Office tools via `../_shared/
 | Agent | Purpose |
 |-------|---------|
 | `code-review` | Read-only code review with MCP and web verification |
+| `security-auditor` | Read-only security review — STRIDE, OWASP, LLM security, CVE checks |
 
 Agents install as single `.md` files (assembled from header + `INSTRUCTIONS.md`). See [AGENTS.md](AGENTS.md).
 
@@ -150,8 +153,12 @@ Copilot rule: [`.github/instructions/update-library.instructions.md`](../.github
 test -f ~/.cursor/skills/_shared/office-tools/office_tools.py && echo "OK: cursor skills"
 test -f ~/.cursor/skills/word-document/SKILL.md && echo "OK: cursor skills"
 test -f ~/.cursor/skills/verification-before-completion/SKILL.md && echo "OK: verification skill"
+test -f ~/.cursor/skills/api-and-interface-design/SKILL.md && echo "OK: api skill"
+test -f ~/.cursor/skills/deprecation-and-migration/SKILL.md && echo "OK: deprecation skill"
 test -f ~/.cursor/agents/code-review.md && echo "OK: cursor agents"
 grep -q 'readonly: true' ~/.cursor/agents/code-review.md && echo "OK: code-review"
+test -f ~/.cursor/agents/security-auditor.md && echo "OK: security-auditor"
+grep -q 'readonly: true' ~/.cursor/agents/security-auditor.md && echo "OK: security-auditor readonly"
 find ~/.cursor/skills -maxdepth 2 -name .git -type d   # expect no output
 cd /path/to/architect-library/skills/_shared/office-tools && uv run python3 office_tools.py --help >/dev/null && echo "OK: office tools"
 command -v soffice >/dev/null && command -v pdftoppm >/dev/null && echo "OK: office-system"
@@ -191,6 +198,8 @@ The install script runs similar checks automatically for the `EDITOR` you pass.
 | **spreadsheet-document** | Deliver `.xlsx`; `recalc` until zero formula errors if formulas used |
 | **pdf-document** | Deliver `.pdf`; form fills per `references/forms.md` |
 | **verification-before-completion** | Fresh verification command output in same message before any completion/success claim |
+| **api-and-interface-design** | Contract before implementation; consistent errors; boundary validation; list pagination; deprecation cross-check when changing public interfaces |
+| **deprecation-and-migration** | Replacement before deprecation; migration guide; zero-usage verified before removal |
 
 **PowerPoint is not done** when the `.pptx` exists — only after layout preview (or user waives).
 
@@ -198,9 +207,10 @@ The install script runs similar checks automatically for the `EDITOR` you pass.
 
 | Agent | Done when |
 |-------|-----------|
-| **code-review** | Scope set (SHA range when provided); requirements alignment when plan supplied; logic traced; Strengths + findings with evidence; MCP/web verification table; merge verdict; **no edits** |
+| **code-review** | Scope set (SHA range when provided); tests reviewed first; five-axis review; requirements alignment when plan supplied; logic traced; Strengths + findings with evidence; verification story; MCP/web verification table; merge verdict; **no edits** |
+| **security-auditor** | Scope set; trust boundaries + STRIDE; findings by severity with evidence; PoC for Critical/High; release verdict; **no edits** |
 
-See [CODE-REVIEW-AGENT.md](CODE-REVIEW-AGENT.md).
+See [CODE-REVIEW-AGENT.md](CODE-REVIEW-AGENT.md) and [SECURITY-AUDITOR-AGENT.md](SECURITY-AUDITOR-AGENT.md).
 
 ---
 

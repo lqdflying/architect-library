@@ -2,7 +2,7 @@
 
 A **skill library** and **custom agent library** for Cursor and VS Code Copilot. Install once globally; use in any project.
 
-**Skills** handle artifacts: Excalidraw diagrams, Word documents, PowerPoint decks, spreadsheets, and PDFs. **Custom agents** handle focused tasks such as read-only [code review](docs/CODE-REVIEW-AGENT.md).
+**Skills** handle artifacts (Excalidraw, Word, PowerPoint, spreadsheets, PDFs) and architecture workflows (API design, deprecation/migration). **Custom agents** handle focused readonly tasks such as [code review](docs/CODE-REVIEW-AGENT.md) and [security audit](docs/SECURITY-AUDITOR-AGENT.md).
 
 Compatible with [Cursor](https://cursor.com), [VS Code + GitHub Copilot](https://code.visualstudio.com/docs/copilot/customization/agent-skills), [Claude Code](https://docs.anthropic.com/en/docs/claude-code), and OpenCode.
 
@@ -154,15 +154,18 @@ See [Installation](#installation) for Copilot / Claude Code paths, or [docs/AGEN
 | `spreadsheet-document` | Create or edit `.xlsx`; formula recalc via `office_tools.py recalc` (LibreOffice). |
 | `pdf-document` | Read, create, merge, split, and fill PDFs. |
 | `verification-before-completion` | Fresh verification evidence before any completion or delivery claim. |
+| `api-and-interface-design` | Design stable APIs and module boundaries — contract-first, error semantics, pagination, Hyrum's Law. |
+| `deprecation-and-migration` | Deprecate and migrate systems safely — strangler pattern, migration guides, zero-usage removal. |
 | `_shared` | Shared principles and Office tooling for Word, PowerPoint, and spreadsheet skills. **Must** be a sibling of those skills. |
 
 ## Custom agents
 
 | Agent | Use when |
 |-------|----------|
-| `code-review` | Read-only review of PRs, diffs, or modules; logic tracing; MCP and web verification. Cursor: `/code-review`. Copilot: agents dropdown. |
+| `code-review` | Read-only review of PRs, diffs, or modules; five-axis review; MCP and web verification. Cursor: `/code-review`. Copilot: agents dropdown. |
+| `security-auditor` | Read-only security review — STRIDE, OWASP, LLM security, CVE checks. Cursor: `/security-auditor`. Copilot: agents dropdown. |
 
-Catalog: [`docs/AGENTS.md`](docs/AGENTS.md). Deep dive: [`docs/CODE-REVIEW-AGENT.md`](docs/CODE-REVIEW-AGENT.md).
+Catalog: [`docs/AGENTS.md`](docs/AGENTS.md). Deep dive: [`docs/CODE-REVIEW-AGENT.md`](docs/CODE-REVIEW-AGENT.md), [`docs/SECURITY-AUDITOR-AGENT.md`](docs/SECURITY-AUDITOR-AGENT.md).
 
 ## Documentation map
 
@@ -176,6 +179,9 @@ Catalog: [`docs/AGENTS.md`](docs/AGENTS.md). Deep dive: [`docs/CODE-REVIEW-AGENT
 | [`docs/AGENT-SKILL-INSTALL.md`](docs/AGENT-SKILL-INSTALL.md) | **Agent:** install or refresh skills + custom agents (global) |
 | [`docs/AGENTS.md`](docs/AGENTS.md) | Custom agent catalog |
 | [`docs/CODE-REVIEW-AGENT.md`](docs/CODE-REVIEW-AGENT.md) | code-review agent usage |
+| [`docs/SECURITY-AUDITOR-AGENT.md`](docs/SECURITY-AUDITOR-AGENT.md) | security-auditor agent usage |
+| [`skills/api-and-interface-design/SKILL.md`](skills/api-and-interface-design/SKILL.md) | API and interface design workflow |
+| [`skills/deprecation-and-migration/SKILL.md`](skills/deprecation-and-migration/SKILL.md) | Deprecation and migration workflow |
 | This README → [How to use](#how-to-use) | Using installed skills in Cursor, Copilot, or Claude Code chat |
 | [`skills/excalidraw-diagram/SKILL.md`](skills/excalidraw-diagram/SKILL.md) | Diagram design rules and agent workflow |
 | [`skills/excalidraw-diagram/README.md`](skills/excalidraw-diagram/README.md) | Render setup, offline bundle, PNG validation |
@@ -205,6 +211,7 @@ architect-library/
       absorb-reference-materials/   # maintainer skill — triage tmp/ ref (not in SKILL_BUNDLE)
   agents/                     # custom agent library (source)
     code-review/
+    security-auditor/
   docs/
     AGENT-SKILL-INSTALL.md
     AGENTS.md
@@ -238,6 +245,12 @@ architect-library/
       references/pdf-guide.md
       scripts/
     verification-before-completion/
+      SKILL.md
+      README.md
+    api-and-interface-design/
+      SKILL.md
+      README.md
+    deprecation-and-migration/
       SKILL.md
       README.md
     _shared/
@@ -297,7 +310,7 @@ bash scripts/install_library.sh all cursor project   # per-project copy
 | Skills | `~/.cursor/skills/<name>/` | `~/.copilot/skills/<name>/` | `~/.claude/skills/<name>/` |
 | Agents | `~/.cursor/agents/<name>.md` | `~/.copilot/agents/<name>.agent.md` | `~/.claude/agents/<name>.md` |
 
-Reload Cursor, VS Code, or Claude Code after installation. Skills appear as slash commands (`/word-document`, etc.). Custom agents appear in the agent picker (`code-review`, `/code-review` on Cursor).
+Reload Cursor, VS Code, or Claude Code after installation. Skills appear as slash commands (`/word-document`, etc.). Custom agents appear in the agent picker (`code-review`, `security-auditor`, `/code-review` on Cursor).
 
 See [`docs/AGENT-SKILL-INSTALL.md`](docs/AGENT-SKILL-INSTALL.md) for verification steps and common mistakes.
 
