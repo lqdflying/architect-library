@@ -130,13 +130,14 @@ After [first-time preparation](#first-time-preparation-one-time-per-machine) (sk
    cd architect-library
    ```
 
-2. **Install library globally** — skills and custom agents:
+2. **Install library globally** — skills and custom agents (pick your editor):
 
    ```bash
-   bash scripts/install_library.sh
+   bash scripts/install_library.sh all cursor    # Cursor
+   bash scripts/install_library.sh all copilot   # VS Code Copilot
    ```
 
-   See [`docs/AGENT-SKILL-INSTALL.md`](docs/AGENT-SKILL-INSTALL.md) for partial installs and project scope.
+   AI agents working in this repo: see [`AGENTS.md`](AGENTS.md). Full procedure: [`docs/AGENT-SKILL-INSTALL.md`](docs/AGENT-SKILL-INSTALL.md).
 
 3. **Ask your agent** (skills load from their descriptions—no slash command required):
 
@@ -171,6 +172,7 @@ Catalog: [`docs/AGENTS.md`](docs/AGENTS.md). Deep dive: [`docs/CODE-REVIEW-AGENT
 
 | Read this | When you need |
 |-----------|----------------|
+| [`AGENTS.md`](AGENTS.md) | **Agent (Cursor + Copilot):** install library contract, editor scope, anti-patterns |
 | [`.cursor/`](.cursor/) | **Agent:** Cursor project rules and config (tracked in git) |
 | [`docs/MAINTAINING-SKILLS.md`](docs/MAINTAINING-SKILLS.md) | **Maintainer/agent:** checklist when adding skills, steps, or dependencies |
 | [`tmp/README.md`](tmp/README.md) | **Maintainer:** staging area for external ref skills/agents before absorption |
@@ -204,6 +206,7 @@ Catalog: [`docs/AGENTS.md`](docs/AGENTS.md). Deep dive: [`docs/CODE-REVIEW-AGENT
 ```text
 architect-library/
   README.md
+  AGENTS.md                   # cross-editor agent guide (install library, scope law)
   tmp/                        # maintainer staging — external ref before absorption (see tmp/README.md)
   .cursor/
     rules/                    # maintainer rules (not installed globally)

@@ -1,19 +1,12 @@
 # Update Architect Library (VS Code Copilot)
 
+**Read first:** [AGENTS.md](../../AGENTS.md) — cross-editor install contract (editor scope, commands, anti-patterns).
+
 Trigger: user says **install library**, install the library, patch library, refresh library, update library, install skills and agents, sync library, update architect library, update skills, refresh skills, sync skills, update agents, or similar.
 
-**Editor scope:** You are in **VS Code Copilot**. Install to **Copilot paths only** — do not write `~/.cursor/` or `~/.claude/` unless the user explicitly asks for all editors.
+**You are in VS Code Copilot.** Follow **AGENTS.md** § Install library with **`all copilot`** only. Do not write `~/.cursor/` or `~/.claude/` unless the user explicitly asks for all editors.
 
-**Default action:** full Copilot readiness install — runtimes, skills, and agents:
-
-```bash
-bash scripts/install_deps.sh
-bash scripts/install_deps.sh office-system
-npm install -g docx pptxgenjs
-bash scripts/install_library.sh all copilot
-```
-
-Do **not** ask which editor, scope, library subset, or runtime set to install for trigger phrases above. In VS Code Copilot, the default is already decided: **full global readiness for Copilot only**. Ask only when the user explicitly requests a non-default target but leaves that target ambiguous.
+Do **not** ask which editor, scope, library subset, or runtime set to install for trigger phrases above. Do **not** install Node.js/nvm when `npm` is missing — report the error per AGENTS.md.
 
 Use partial installs only when the user explicitly asks:
 

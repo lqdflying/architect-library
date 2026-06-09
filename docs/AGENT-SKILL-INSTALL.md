@@ -2,6 +2,8 @@
 
 Use this document when the user asks to install, update, or fix **skills** or **custom agents** from the **architect-library** repository. Follow it literally; do not invent alternate paths.
 
+**Cross-editor contract:** [AGENTS.md](../AGENTS.md) at the repo root — install trigger phrases, editor scope, and anti-patterns (both Cursor and Copilot should follow it).
+
 **Editing this repository?** Cursor loads [`.cursor/rules/`](../.cursor/rules/) automatically. Follow [MAINTAINING-SKILLS.md](MAINTAINING-SKILLS.md) whenever you add a skill, agent, workflow step, or dependency.
 
 ## User phrases (full readiness default)

@@ -5,6 +5,8 @@ alwaysApply: true
 
 # Patch / install Architect Library (Cursor — global readiness default)
 
+**Shared contract:** [AGENTS.md](../../AGENTS.md) — install trigger phrases, editor scope, anti-patterns.
+
 **Editor scope:** You are in **Cursor**. Install to **Cursor paths only** — do not write `~/.copilot/` or `~/.claude/` unless the user explicitly asks for all editors.
 
 When the user asks to **install library**, **install the library**, **patch library**, **refresh library**, **update library**, **install skills and agents**, **sync library**, **update architect library** — or **patch**, **upgrade**, **install**, or **refresh** skills or agents — or you finish adding/changing `skills/` or `agents/` in this repo — **run the Cursor readiness install yourself**.

@@ -1,6 +1,8 @@
 # Custom agents catalog
 
-Architect Library ships a **custom agent library** under `agents/`. Install globally with `bash scripts/install_library.sh agents`.
+> **Repo agent guide (install library, editor scope):** [AGENTS.md](../AGENTS.md) at repository root.
+
+Architect Library ships a **custom agent library** under `agents/`. Install globally with `bash scripts/install_library.sh agents cursor` or `agents copilot` (editor-scoped).
 
 | Agent | Purpose | Invocation |
 |-------|---------|--------------|
