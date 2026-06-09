@@ -173,28 +173,60 @@ case "$WHAT" in
   agents) install_agents ;;
 esac
 
+verify_skills_at() {
+  local dir="$1"
+  test -f "${dir}/_shared/office-tools/office_tools.py" || return 1
+  test -f "${dir}/word-document/SKILL.md" || return 1
+  test -f "${dir}/api-and-interface-design/SKILL.md" || return 1
+  test -f "${dir}/deprecation-and-migration/SKILL.md" || return 1
+}
+
+verify_cursor_agents() {
+  local dir="$1"
+  test -f "${dir}/code-review.md" || return 1
+  test -f "${dir}/security-auditor.md" || return 1
+  grep -q 'readonly: true' "${dir}/code-review.md" || return 1
+  grep -q 'readonly: true' "${dir}/security-auditor.md" || return 1
+}
+
+verify_copilot_agents() {
+  local dir="$1"
+  test -f "${dir}/code-review.agent.md" || return 1
+  test -f "${dir}/security-auditor.agent.md" || return 1
+  grep -q 'disallowedTools: edit' "${dir}/code-review.agent.md" || return 1
+  grep -q 'disallowedTools: edit' "${dir}/security-auditor.agent.md" || return 1
+}
+
+verify_claude_agents() {
+  local dir="$1"
+  test -f "${dir}/code-review.md" || return 1
+  test -f "${dir}/security-auditor.md" || return 1
+  grep -q 'permissionMode: plan' "${dir}/code-review.md" || return 1
+  grep -q 'permissionMode: plan' "${dir}/security-auditor.md" || return 1
+}
+
 verify() {
   local ok=0
   if [[ "$WHAT" == "all" || "$WHAT" == "skills" ]]; then
     if [[ "$EDITOR" == "both" || "$EDITOR" == "cursor" ]]; then
-      test -f "$(cursor_skills_dir)/_shared/office-tools/office_tools.py" || ok=1
-      test -f "$(cursor_skills_dir)/word-document/SKILL.md" || ok=1
+      verify_skills_at "$(cursor_skills_dir)" || ok=1
     fi
     if [[ "$EDITOR" == "both" || "$EDITOR" == "copilot" ]]; then
-      test -f "$(copilot_skills_dir)/word-document/SKILL.md" || ok=1
+      verify_skills_at "$(copilot_skills_dir)" || ok=1
+    fi
+    if [[ "$EDITOR" == "both" || "$EDITOR" == "claude" ]]; then
+      verify_skills_at "$(claude_skills_dir)" || ok=1
     fi
   fi
   if [[ "$WHAT" == "all" || "$WHAT" == "agents" ]]; then
     if [[ "$EDITOR" == "both" || "$EDITOR" == "cursor" ]]; then
-      test -f "$(cursor_agents_dir)/code-review.md" || ok=1
-      grep -q 'readonly: true' "$(cursor_agents_dir)/code-review.md" || ok=1
+      verify_cursor_agents "$(cursor_agents_dir)" || ok=1
     fi
     if [[ "$EDITOR" == "both" || "$EDITOR" == "copilot" ]]; then
-      test -f "$(copilot_agents_dir)/code-review.agent.md" || ok=1
+      verify_copilot_agents "$(copilot_agents_dir)" || ok=1
     fi
     if [[ "$EDITOR" == "both" || "$EDITOR" == "claude" ]]; then
-      test -f "$(claude_agents_dir)/code-review.md" || ok=1
-      grep -q 'permissionMode: plan' "$(claude_agents_dir)/code-review.md" || ok=1
+      verify_claude_agents "$(claude_agents_dir)" || ok=1
     fi
   fi
   if [[ "$ok" -ne 0 ]]; then
