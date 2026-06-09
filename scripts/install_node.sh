@@ -12,7 +12,6 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$ROOT_DIR/scripts/npm_bootstrap_common.sh"
 # shellcheck source=architect_env.sh
 source "$ROOT_DIR/scripts/architect_env.sh"
-architect_apply_env
 NPM_BOOTSTRAP="$(architect_npm_bootstrap_dir)"
 NPM_PREFIX="${NPM_CONFIG_PREFIX:-$HOME/.npm-global}"
 
@@ -106,7 +105,14 @@ fi
 echo "Using node: $NODE_BIN_RESOLVED"
 mkdir -p "$NPM_PREFIX/bin"
 export NPM_CONFIG_PREFIX="$NPM_PREFIX"
-export PATH="$NPM_PREFIX/bin:$PATH"
+export NODE_BIN="$NODE_BIN_RESOLVED"
+architect_path_prepend_once "$NPM_PREFIX/bin"
+architect_path_prepend_once "$(dirname "$NODE_BIN_RESOLVED")"
+
+if ! command -v npm &>/dev/null; then
+  bootstrap_npm
+fi
+architect_ensure_npm_shim "$NODE_BIN_RESOLVED"
 
 echo "Installing global npm packages: docx, pptxgenjs ..."
 run_npm "$NODE_BIN_RESOLVED" install -g docx pptxgenjs --no-fund --no-audit

@@ -82,7 +82,9 @@ grep -q 'readonly: true' ~/.cursor/agents/security-auditor.md
 cd skills/_shared/office-tools && uv run python3 office_tools.py --help >/dev/null
 command -v soffice >/dev/null
 command -v pdftoppm >/dev/null
-npm list -g docx pptxgenjs --depth=0 >/dev/null || echo "WARN: npm docx/pptxgenjs missing (Word: python-docx fallback; PPT: template-only)"
+source scripts/architect_env.sh
+command -v npm >/dev/null && echo "OK: npm CLI" || echo "WARN: npm CLI missing"
+test -d ~/.npm-global/lib/node_modules/docx && test -d ~/.npm-global/lib/node_modules/pptxgenjs && echo "OK: docx/pptxgenjs on disk"
 cd skills/_shared/office-tools && uv run python3 -c "import docx" && echo "OK: python-docx"
 bash scripts/runtime_readiness.sh
 ```

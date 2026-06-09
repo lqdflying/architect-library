@@ -6,7 +6,6 @@ set -euo pipefail
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 # shellcheck source=architect_env.sh
 source "$REPO/scripts/architect_env.sh"
-architect_apply_env
 
 SKILL_BUNDLE="excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document verification-before-completion api-and-interface-design deprecation-and-migration _shared"
 AGENT_BUNDLE="code-review security-auditor"

@@ -13,7 +13,6 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 # shellcheck source=architect_env.sh
 source "$ROOT_DIR/scripts/architect_env.sh"
-architect_apply_env
 TARGET="${1:-all}"
 
 run_excalidraw() {

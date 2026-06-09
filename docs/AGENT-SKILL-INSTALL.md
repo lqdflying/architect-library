@@ -175,7 +175,9 @@ grep -q 'readonly: true' ~/.cursor/agents/security-auditor.md && echo "OK: secur
 find ~/.cursor/skills -maxdepth 2 -name .git -type d   # expect no output
 cd /path/to/architect-library/skills/_shared/office-tools && uv run python3 office_tools.py --help >/dev/null && echo "OK: office tools"
 command -v soffice >/dev/null && command -v pdftoppm >/dev/null && echo "OK: office-system"
-npm list -g docx pptxgenjs --depth=0 >/dev/null && echo "OK: npm docx/pptxgenjs" || echo "WARN: npm docx/pptxgenjs missing"
+source /path/to/architect-library/scripts/architect_env.sh
+command -v npm >/dev/null && echo "OK: npm CLI" || echo "WARN: npm CLI missing"
+test -d ~/.npm-global/lib/node_modules/docx && test -d ~/.npm-global/lib/node_modules/pptxgenjs && echo "OK: docx/pptxgenjs on disk"
 cd /path/to/architect-library/skills/_shared/office-tools && uv run python3 -c "import docx" && echo "OK: python-docx"
 bash /path/to/architect-library/scripts/runtime_readiness.sh
 ```
@@ -193,7 +195,9 @@ test -f ~/.copilot/agents/security-auditor.agent.md && echo "OK: security-audito
 grep -q 'disallowedTools: edit' ~/.copilot/agents/security-auditor.agent.md && echo "OK: security-auditor readonly"
 cd /path/to/architect-library/skills/_shared/office-tools && uv run python3 office_tools.py --help >/dev/null && echo "OK: office tools"
 command -v soffice >/dev/null && command -v pdftoppm >/dev/null && echo "OK: office-system"
-npm list -g docx pptxgenjs --depth=0 >/dev/null && echo "OK: npm docx/pptxgenjs" || echo "WARN: npm docx/pptxgenjs missing"
+source /path/to/architect-library/scripts/architect_env.sh
+command -v npm >/dev/null && echo "OK: npm CLI" || echo "WARN: npm CLI missing"
+test -d ~/.npm-global/lib/node_modules/docx && test -d ~/.npm-global/lib/node_modules/pptxgenjs && echo "OK: docx/pptxgenjs on disk"
 cd /path/to/architect-library/skills/_shared/office-tools && uv run python3 -c "import docx" && echo "OK: python-docx"
 bash /path/to/architect-library/scripts/runtime_readiness.sh
 ```

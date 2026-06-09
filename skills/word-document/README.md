@@ -10,18 +10,30 @@ Create, edit, and validate Microsoft Word architecture documents.
 
 ## Setup
 
-Install the shared Office toolkit dependencies from the installed skills root:
+### Installed skill layout (`~/.cursor/skills/` or `~/.copilot/skills/`)
+
+Office Python toolkit (validate, unpack, pack, comments):
 
 ```bash
 cd ../_shared/office-tools
 bash install_deps.sh
 ```
 
-For creating DOCX files from scratch:
+For PDF conversion and accepting tracked changes:
 
 ```bash
+bash install_deps.sh --with-system
+```
+
+### Repository clone (Node / full runtime install)
+
+From the **architect-library repo root** (not from the installed skill folder):
+
+```bash
+cd /path/to/architect-library
 bash scripts/install_deps.sh node    # docx-js (preferred)
 # Without npm: bash scripts/install_deps.sh office — python-docx fallback
+source scripts/architect_env.sh      # before manual docx-js generators in a shell
 ```
 
 ## References

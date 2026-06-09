@@ -34,7 +34,7 @@ bash scripts/install_deps.sh office-system
 ```
 
 - `install_deps.sh` (target `all`) runs **`install_node.sh`**: finds Node (PATH, Cursor-server bundle, or `sudo dnf`/`apt`), bootstraps npm if needed, installs global `docx` and `pptxgenjs` under `$HOME/.npm-global`.
-- **`install_node.sh` writes** `~/.config/architect-library/env.sh` (PATH, `NODE_PATH`, optional `NODE_BIN`) and adds a guarded hook to `~/.bashrc` / `~/.profile`. **`install_deps.sh`**, **`install_library.sh`**, and **`runtime_readiness.sh`** source `scripts/architect_env.sh` automatically — no manual `export` needed inside those scripts.
+- **`install_node.sh` writes** `~/.config/architect-library/env.sh` (idempotent PATH/`NODE_PATH`, optional `NODE_BIN`) and a bootstrapped **`npm` shim** at `~/.npm-global/bin/npm` when system npm is missing. Adds a guarded hook to `~/.bashrc` / `~/.profile`. **`install_deps.sh`**, **`install_library.sh`**, and **`runtime_readiness.sh`** source `scripts/architect_env.sh` automatically — no manual `export` needed inside those scripts.
 - Before **manual** Node/docx-js/pptxgenjs work in an agent shell (outside install scripts): `source /path/to/architect-library/scripts/architect_env.sh`
 - Re-run only Node step: `bash scripts/install_deps.sh node`
 - If Node still unavailable after the script tries: **do not** improvisationally install nvm/fnm unless the user asks — report incomplete runtime; still run `install_library.sh` (skills/agents work without Node).

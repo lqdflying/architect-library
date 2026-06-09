@@ -10,22 +10,30 @@ Create, edit, and validate Microsoft PowerPoint architecture presentations.
 
 ## Setup
 
-Install Office Python deps **and** system deps (layout preview is required on every deck):
+### Installed skill layout (`~/.cursor/skills/` or `~/.copilot/skills/`)
+
+Office Python toolkit and **mandatory** layout-preview system deps:
 
 ```bash
 cd ../_shared/office-tools
 bash install_deps.sh
 bash install_deps.sh --with-system
-# or from repo root: bash scripts/install_deps.sh office-system
 ```
 
-For creating PPTX files from scratch (no python fallback — template/XML path only without Node):
+### Repository clone (Node / full runtime install)
+
+From the **architect-library repo root** (not from the installed skill folder):
 
 ```bash
+cd /path/to/architect-library
 bash scripts/install_deps.sh node
+bash scripts/install_deps.sh office-system   # LibreOffice + Poppler for thumbnail preview
+source scripts/architect_env.sh              # before manual pptxgenjs generators in a shell
 ```
 
-Optional icon generation support:
+New PPTX decks from scratch need **pptxgenjs** (no python greenfield fallback). Without Node, use template/XML editing only.
+
+Optional icon generation (after `source scripts/architect_env.sh` so `npm` is on PATH):
 
 ```bash
 npm install -g react-icons react react-dom sharp

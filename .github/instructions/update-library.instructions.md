@@ -62,7 +62,9 @@ test -f ~/.copilot/agents/security-auditor.agent.md && echo "OK: security-audito
 grep -q 'disallowedTools: edit' ~/.copilot/agents/security-auditor.agent.md && echo "OK: security-auditor readonly"
 cd /home/opc/architect-library/skills/_shared/office-tools && uv run python3 office_tools.py --help >/dev/null && echo "OK: office tools"
 command -v soffice >/dev/null && command -v pdftoppm >/dev/null && echo "OK: office-system"
-npm list -g docx pptxgenjs --depth=0 >/dev/null && echo "OK: npm docx/pptxgenjs" || echo "WARN: npm docx/pptxgenjs missing"
+source /home/opc/architect-library/scripts/architect_env.sh
+command -v npm >/dev/null && echo "OK: npm CLI" || echo "WARN: npm CLI missing"
+test -d ~/.npm-global/lib/node_modules/docx && test -d ~/.npm-global/lib/node_modules/pptxgenjs && echo "OK: docx/pptxgenjs on disk"
 cd /home/opc/architect-library/skills/_shared/office-tools && uv run python3 -c "import docx" && echo "OK: python-docx"
 bash /home/opc/architect-library/scripts/runtime_readiness.sh
 ```

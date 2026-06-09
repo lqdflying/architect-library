@@ -7,7 +7,6 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 # shellcheck source=architect_env.sh
 source "$ROOT_DIR/scripts/architect_env.sh"
-architect_apply_env
 NPM_PREFIX="${NPM_CONFIG_PREFIX:-$HOME/.npm-global}"
 OFFICE_DIR="$ROOT_DIR/skills/_shared/office-tools"
 
@@ -51,10 +50,15 @@ has_python_docx() {
   )
 }
 
+npm_cli_status="MISSING"
 node_status="MISSING"
 docx_npm_status="MISSING"
 pptx_npm_status="MISSING"
 python_docx_status="MISSING"
+
+if command -v npm &>/dev/null; then
+  npm_cli_status="OK"
+fi
 
 if has_node; then
   node_status="OK"
@@ -72,6 +76,7 @@ fi
 echo ""
 echo "=== Runtime readiness (artifact skills) ==="
 printf "  Node.js:              %s\n" "$node_status"
+printf "  npm CLI:              %s\n" "$npm_cli_status"
 printf "  npm global docx:      %s  (Word — new DOCX via docx-js)\n" "$docx_npm_status"
 printf "  npm global pptxgenjs: %s  (PowerPoint — new decks from scratch)\n" "$pptx_npm_status"
 printf "  python-docx (uv):     %s  (Word fallback when npm/docx missing)\n" "$python_docx_status"

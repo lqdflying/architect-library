@@ -15,7 +15,6 @@ SRC_DIR="$ROOT_DIR/scripts/vendor_excalidraw"
 source "$ROOT_DIR/scripts/npm_bootstrap_common.sh"
 # shellcheck source=architect_env.sh
 source "$ROOT_DIR/scripts/architect_env.sh"
-architect_apply_env
 BUILD_DIR="$(architect_vendor_excalidraw_build_dir)"
 OUT_DIR="$ROOT_DIR/skills/excalidraw-diagram/references/vendor"
 OUT_FILE="$OUT_DIR/excalidraw.bundle.mjs"
