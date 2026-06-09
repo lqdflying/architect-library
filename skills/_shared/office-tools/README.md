@@ -136,7 +136,7 @@ See ../word-document/references/docx-guide.md and ../powerpoint-presentation/ref
 
 ## Dependencies
 
-- **Required:** Python 3.10+, `lxml`, `Pillow`, `defusedxml`
+- **Required:** Python 3.10+, `lxml`, `Pillow`, `defusedxml`, `python-docx` (Word fallback when npm/`docx` unavailable)
 - **Install (Python only):** `bash install_deps.sh` then `uv run python3 office_tools.py` from this directory
 - **Install (with layout preview / PDF):** `bash install_deps.sh --with-system` (from repo root: `bash scripts/install_deps.sh office-system`)
 
@@ -155,7 +155,10 @@ On RHEL/Oracle Linux, PPTX conversion needs `libreoffice-impress` (not `libreoff
 **PowerPoint skill:** system deps are required on every deck (mandatory `thumbnail` layout review). Install `--with-system` before PPT work.
 
 **Word-only / docx-js:** agents can deliver without system deps if they skip PDF conversion and accept-changes.
-- **Node.js:** `docx` (create DOCX), `pptxgenjs` (create PPTX)
+
+**Without npm:** Word new DOCX via **python-docx** (`uv sync` includes it). PowerPoint new decks still need **pptxgenjs** — template/XML path only without Node.
+
+- **Node.js:** `docx` (create DOCX), `pptxgenjs` (create PPTX) — `bash scripts/install_deps.sh node` from repo root
 
 ## License
 

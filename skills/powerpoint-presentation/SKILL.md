@@ -47,11 +47,21 @@ bash ../_shared/office-tools/install_deps.sh --with-system
 
 Do not mark a PowerPoint task complete without running layout preview. If `soffice` or `pdftoppm` is missing, run `install_deps.sh --with-system` (may need sudo on Linux) and retry—not only note it in the reply.
 
-For **new** decks (pptxgenjs workflow), install Node.js and pptxgenjs:
+For **new** decks (pptxgenjs workflow), from repo root:
 
 ```bash
-npm install -g pptxgenjs
+bash scripts/install_deps.sh node
 ```
+
+(`install_deps.sh all` includes this step. Do not use bare `npm install -g` before trying `install_deps.sh node` — it handles Cursor-server Node and npm bootstrap. Before running pptxgenjs generators manually: `source scripts/architect_env.sh` from repo root.)
+
+## Without npm (no pptxgenjs)
+
+There is **no** python-pptx greenfield fallback in this library (unlike Word’s python-docx path).
+
+- **Cannot** use the New PPTX Workflow below for a deck built entirely from scratch.
+- **Can:** populate or edit an **existing template** (unpack → analyze → edit XML → pack), use `slide`, `validate`, and **mandatory** `thumbnail` layout preview.
+- Tell the user: new decks need `bash scripts/install_deps.sh node`, or provide a `.pptx` template to populate.
 
 After `install_deps.sh`, prefer the uv environment for Office toolkit commands:
 
@@ -68,8 +78,9 @@ First decide which path fits the request.
 
 | Task | Primary tool |
 |------|--------------|
-| Create a new deck from scratch | `pptxgenjs` |
-| Populate or edit a template | Unpack, analyze, edit XML, pack |
+| Create a new deck from scratch | `pptxgenjs` (requires `bash scripts/install_deps.sh node`) |
+| New deck without npm | **Not supported** — user must supply a template or install Node |
+| Populate or edit a template | Unpack, analyze, edit XML, pack (works without npm) |
 | Inspect template placeholders | `office_tools.py analyze` |
 | Layout preview (grid + per-slide JPEGs) | `office_tools.py thumbnail` |
 | Duplicate or create slides | `office_tools.py slide` |

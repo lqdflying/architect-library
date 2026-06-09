@@ -18,7 +18,7 @@ Update **agent guidance** (all that apply):
 - [ ] [AGENT-SKILL-INSTALL.md](AGENT-SKILL-INSTALL.md) — skill table, execution rules
 - [ ] [README.md](../README.md) — Skills table, documentation map
 - [ ] [scripts/install_library.sh](../scripts/install_library.sh) — add to `SKILL_BUNDLE`
-- [ ] Run full Cursor readiness: `bash scripts/install_deps.sh`, `bash scripts/install_deps.sh office-system`, `npm install -g docx pptxgenjs`, then `bash scripts/install_library.sh all cursor`
+- [ ] Run full Cursor readiness: `bash scripts/install_deps.sh`, `bash scripts/install_deps.sh office-system`, then `bash scripts/install_library.sh all cursor`
 
 If the skill uses Office tools:
 
@@ -42,7 +42,7 @@ Update **agent guidance**:
 - [ ] [README.md](../README.md) — Custom agents table
 - [ ] `.cursor/rules/architect-library-execution.mdc` — completion row if applicable
 - [ ] Optional deep dive: `docs/<AGENT-NAME>-AGENT.md`
-- [ ] Run full Cursor readiness: `bash scripts/install_deps.sh`, `bash scripts/install_deps.sh office-system`, `npm install -g docx pptxgenjs`, then `bash scripts/install_library.sh all cursor`
+- [ ] Run full Cursor readiness: `bash scripts/install_deps.sh`, `bash scripts/install_deps.sh office-system`, then `bash scripts/install_library.sh all cursor`
 
 **Do not** add agents under `skills/` or to `SKILL_BUNDLE`.
 
@@ -58,8 +58,10 @@ Update **agent guidance**:
 - [ ] [install_deps.sh](../scripts/install_deps.sh) and/or skill-specific installers
 - [ ] `SKILL.md` Setup section
 - [ ] [README.md](../README.md) Prerequisites table
+- [ ] [AGENTS.md](../AGENTS.md) § Runtime capability matrix (if artifact delivery affected)
 - [ ] `.cursor/rules/architect-library-execution.mdc` — dependency matrix
 - [ ] **`SKILL.md` `description`** if the dep blocks delivery
+- [ ] After install script changes: `bash scripts/runtime_readiness.sh` reflects new deps
 
 ## New `office_tools.py` command
 

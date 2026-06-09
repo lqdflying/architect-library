@@ -40,11 +40,10 @@ For PDF conversion and accepting tracked changes, install optional system packag
 bash ../_shared/office-tools/install_deps.sh --with-system
 ```
 
-For **new** DOCX files (docx-js workflow), install Node.js and the `docx` package globally:
+For **new** DOCX files:
 
-```bash
-npm install -g docx
-```
+1. **Prefer docx-js:** from repo root, `bash scripts/install_deps.sh node` (or `bash scripts/install_deps.sh` which includes it). Installs global `docx` under `$HOME/.npm-global` when Node is available. Before running docx-js generators manually in a shell: `source /path/to/architect-library/scripts/architect_env.sh`.
+2. **No npm:** `bash scripts/install_deps.sh office` installs **python-docx** in the Office uv env. Follow `references/python-docx-patterns.md` and document the fallback in your reply.
 
 After `install_deps.sh`, prefer the uv environment for Office toolkit commands:
 
@@ -61,7 +60,8 @@ First decide which path fits the request.
 
 | Task | Primary tool |
 |------|--------------|
-| Create a new DOCX from scratch | `docx` npm package (if no npm: python-docx per `python-docx-patterns.md`) |
+| Create a new DOCX from scratch | `docx` npm package (primary) |
+| Create a new DOCX without npm | python-docx per `python-docx-patterns.md` (`bash scripts/install_deps.sh office`) |
 | Edit an existing DOCX | Unpack, edit XML, pack |
 | Add comments | `office_tools.py comment` |
 | Accept tracked changes | `office_tools.py accept` |

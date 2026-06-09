@@ -19,10 +19,10 @@ bash install_deps.sh --with-system
 # or from repo root: bash scripts/install_deps.sh office-system
 ```
 
-For creating PPTX files from scratch, install the Node package used by the guide:
+For creating PPTX files from scratch (no python fallback — template/XML path only without Node):
 
 ```bash
-npm install -g pptxgenjs
+bash scripts/install_deps.sh node
 ```
 
 Optional icon generation support:

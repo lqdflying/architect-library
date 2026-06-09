@@ -31,7 +31,7 @@ Compliance readers scan by section shape, not only prose.
 
 | | docx-js (preferred) | python-docx (fallback) |
 |--|---------------------|-------------------------|
-| Requires | `npm install -g docx` | `pip install python-docx` |
+| Requires | `bash scripts/install_deps.sh node` | `bash scripts/install_deps.sh office` (python-docx in uv env) |
 | Table theme | Explicit shading in JS | Built-in style + `tblHeader`, or explicit OXML fills |
 | Validation | Usually cleaner | `office_tools.py validate` may warn on some XML; file may still open fine in Word |
 | After generate | Run validator | Run validator; **confirm visually in Word** |

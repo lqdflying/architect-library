@@ -8,7 +8,8 @@
 
 | Task | Tool |
 |------|------|
-| Create new .pptx from scratch | `pptxgenjs` |
+| Create new .pptx from scratch | `pptxgenjs` (`bash scripts/install_deps.sh node` from repo root) |
+| Create new deck without npm | **Not supported** — use template/XML path (Part 2) or install Node |
 | Edit/populate an existing template | Unzip -> edit XML -> rezip |
 | Read / extract text | `pandoc` or unzip + parse XML |
 | Convert .pptx to PDF | LibreOffice headless |
@@ -21,7 +22,7 @@
 ### Install
 
 ```bash
-npm install -g pptxgenjs
+bash scripts/install_deps.sh node   # from architect-library repo root; installs pptxgenjs globally
 # For icons (optional):
 npm install -g react-icons react react-dom sharp
 ```

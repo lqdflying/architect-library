@@ -23,9 +23,12 @@ Run these steps **once** on each computer (or CI image) where you want rendering
 |-------------|------------|
 | Python 3.11+ | Excalidraw renderer, Office toolkit (`uv` installs deps) |
 | [uv](https://docs.astral.sh/uv/) | Installed automatically by `install_deps.sh` if missing |
-| Node.js + npm | `npm install -g docx` / `pptxgenjs`; `scripts/vendor_excalidraw.sh` (bootstraps npm if absent) |
+| Node.js + npm | `bash scripts/install_deps.sh node` (or included in `install_deps.sh` `all`); offline Excalidraw vendor uses same npm bootstrap pattern |
+| python-docx | Included in `bash scripts/install_deps.sh office` — Word fallback when npm/`docx` unavailable |
 | sudo (Linux only) | Optional OS libraries for headless Chromium (`install_deps.sh`) and LibreOffice/Poppler (`office-system`) |
 | LibreOffice + Poppler | **Optional** for Word-only / XML tooling; **required for every PowerPoint delivery** (mandatory layout preview). Also needed for DOCX/PPTX→PDF and `accept` tracked changes. Install once: `bash scripts/install_deps.sh office-system` |
+
+**Artifact capability without npm:** Word new DOCX → python-docx; PowerPoint new deck → **not supported** (template/XML edit only). Run `bash scripts/runtime_readiness.sh` after install to see status.
 
 ### All-in-one (recommended)
 
@@ -33,9 +36,8 @@ From the repository root (after `git clone`):
 
 ```bash
 cd architect-library   # or your clone path
-bash scripts/install_deps.sh              # Excalidraw + Office + PDF Python deps (no LibreOffice)
+bash scripts/install_deps.sh              # Excalidraw + Office + PDF + Node/npm (docx, pptxgenjs)
 bash scripts/install_deps.sh office-system   # add LibreOffice Impress + Poppler (PPT layout preview, XLSX recalc, accept changes)
-npm install -g docx pptxgenjs             # new DOCX/PPTX generation
 bash scripts/install_library.sh all cursor   # or: all copilot — skills + agents for your editor
 ```
 
@@ -77,14 +79,19 @@ bash scripts/vendor_excalidraw.sh
 
 Details: [`skills/excalidraw-diagram/README.md`](skills/excalidraw-diagram/README.md) → **Offline rendering**.
 
-### Node.js (first-time, for new DOCX / PPTX only)
+### Node.js (new DOCX / new PPTX decks)
 
-Not installed by `install_deps.sh`:
+Included in `bash scripts/install_deps.sh` (target `all` or `node`). Installs global `docx` and `pptxgenjs` under `$HOME/.npm-global` when Node is available.
 
 ```bash
-npm install -g docx        # Word — new DOCX via docx-js
-npm install -g pptxgenjs   # PowerPoint — new PPTX decks
+bash scripts/install_deps.sh node   # re-run Node step only
+bash scripts/runtime_readiness.sh   # summary: Node, npm globals, python-docx
+source scripts/architect_env.sh     # manual agent shell: PATH + NODE_PATH for docx/pptxgenjs
 ```
+
+`install_node.sh` writes `~/.config/architect-library/env.sh` and adds a hook to `~/.bashrc` so new login shells pick up `~/.npm-global/bin` and `NODE_PATH` automatically.
+
+**Without npm:** Word → `bash scripts/install_deps.sh office` (python-docx). PowerPoint → edit/populate templates only; no greenfield deck.
 
 Optional for PPTX icon workflows (see [`skills/powerpoint-presentation/README.md`](skills/powerpoint-presentation/README.md)):
 
@@ -286,7 +293,6 @@ From the repo root — installs **runtime dependencies, skills, and custom agent
 cd /path/to/architect-library
 bash scripts/install_deps.sh
 bash scripts/install_deps.sh office-system
-npm install -g docx pptxgenjs
 bash scripts/install_library.sh all cursor    # Cursor
 bash scripts/install_library.sh all copilot   # VS Code Copilot
 bash scripts/install_library.sh all claude    # Claude Code

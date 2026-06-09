@@ -16,11 +16,12 @@ Default means **runtimes + skills + agents** for Cursor only. Do **not** ask whi
 ```bash
 bash scripts/install_deps.sh
 bash scripts/install_deps.sh office-system
-npm install -g docx pptxgenjs
 bash scripts/install_library.sh all cursor
 ```
 
-If a runtime command fails because of missing permissions, sudo, network, or npm, report the exact failing command and error. Do not claim full readiness until all runtime commands finish successfully.
+(`install_deps.sh` includes Node/npm + global `docx`/`pptxgenjs` via `install_node.sh`; re-run `bash scripts/install_deps.sh node` if that step warned.)
+
+If a runtime command fails because of missing permissions, sudo, network, or npm, report the exact failing command and error. Run `bash scripts/runtime_readiness.sh` — skills/agents still install; Word may work via python-docx; new PPT decks need pptxgenjs or a template. Do not claim full artifact readiness until runtimes succeed or you state partial capability per [AGENTS.md](../../AGENTS.md) matrix.
 
 Use partial installs **only** when the user explicitly asks:
 
@@ -63,7 +64,6 @@ REPO=/path/to/architect-library
 cd "$REPO"
 bash scripts/install_deps.sh
 bash scripts/install_deps.sh office-system
-npm install -g docx pptxgenjs
 bash scripts/install_library.sh all cursor
 ```
 
@@ -82,10 +82,12 @@ grep -q 'readonly: true' ~/.cursor/agents/security-auditor.md
 cd skills/_shared/office-tools && uv run python3 office_tools.py --help >/dev/null
 command -v soffice >/dev/null
 command -v pdftoppm >/dev/null
-npm list -g docx pptxgenjs --depth=0 >/dev/null
+npm list -g docx pptxgenjs --depth=0 >/dev/null || echo "WARN: npm docx/pptxgenjs missing (Word: python-docx fallback; PPT: template-only)"
+cd skills/_shared/office-tools && uv run python3 -c "import docx" && echo "OK: python-docx"
+bash scripts/runtime_readiness.sh
 ```
 
-The install script runs these checks automatically when `EDITOR=cursor`.
+The install script runs skill/agent checks automatically when `EDITOR=cursor`. npm and python-docx are optional for library copy; see `runtime_readiness.sh` for artifact capability.
 
 ## After patching
 

@@ -11,7 +11,9 @@ Task is **not** complete until:
 |-------|-----------|
 | **excalidraw-diagram** | `.excalidraw` → PNG rendered, images **viewed**, layout fixed |
 | **word-document** | DOCX validates; explicit table styling (docx-js) or one python-docx path; deliver **`.docx` only** (no generator beside deliverable unless user asks) |
+| **word-document (no npm)** | python-docx + `validate`; note fallback in reply; `bash scripts/install_deps.sh office` |
 | **powerpoint-presentation** | PPTX validates; **`thumbnail` every deck** (grid + `--per-slide` 150 DPI), images **viewed**, overflow fixed; `office-system` installed if missing |
+| **powerpoint-presentation (no npm)** | Template/XML path only — **no** greenfield deck; do not claim new-deck delivery without pptxgenjs or user template; preview still mandatory if `.pptx` delivered |
 | **spreadsheet-document** | `.xlsx` delivered; if formulas used: `office_tools.py recalc` → JSON `status: success` (zero formula errors); `office-system` for recalc |
 | **pdf-document** | Deliver requested `.pdf`; form fills: run validation scripts per `references/forms.md` |
 | **verification-before-completion** | No completion/success claim without fresh verification command output in the same message |
@@ -23,7 +25,8 @@ Task is **not** complete until:
 Artifact skills (Word, PPT, XLSX, PDF) require **verification-before-completion** before delivery claims.
 
 - **PPT:** LibreOffice Impress + Poppler every delivery → `bash scripts/install_deps.sh office-system`
-- **Word (new):** npm `docx`; LibreOffice only for PDF / `accept`
+- **Word (new):** `bash scripts/install_deps.sh node` for docx-js; without npm → python-docx via `bash scripts/install_deps.sh office`
+- **PPT (new):** `bash scripts/install_deps.sh node` for pptxgenjs only — no python greenfield fallback
 - **Excalidraw:** Playwright via `bash scripts/install_deps.sh excalidraw`
 
 ## Custom agents (installed library)
@@ -45,7 +48,8 @@ After editing `agents/`, run `bash scripts/install_library.sh agents cursor` so 
 | Excalidraw | `bash scripts/install_deps.sh excalidraw` | PNG render |
 | LibreOffice + Poppler | `bash scripts/install_deps.sh office-system` | **all PPT deliveries**, XLSX `recalc`, DOCX `accept`, conversions |
 | PDF Python (pypdf, etc.) | `bash scripts/install_deps.sh pdf` | pdf-document scripts |
-| npm `docx` / `pptxgenjs` | manual | new Word / new PPT |
+| Node + npm globals | `bash scripts/install_deps.sh node` | new Word (docx-js) / new PPT (pptxgenjs) |
+| python-docx | `bash scripts/install_deps.sh office` | Word fallback when npm missing |
 
 ## Office toolkit
 

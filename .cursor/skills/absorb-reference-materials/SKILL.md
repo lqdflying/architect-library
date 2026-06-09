@@ -141,7 +141,7 @@ Run runtime setup first:
 ```bash
 bash scripts/install_deps.sh
 bash scripts/install_deps.sh office-system
-npm install -g docx pptxgenjs
+bash scripts/runtime_readiness.sh
 ```
 
 | Session | Command only | Targets |

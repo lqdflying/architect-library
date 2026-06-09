@@ -17,10 +17,11 @@ cd ../_shared/office-tools
 bash install_deps.sh
 ```
 
-For creating DOCX files from scratch, install the Node package used by the guide:
+For creating DOCX files from scratch:
 
 ```bash
-npm install -g docx
+bash scripts/install_deps.sh node    # docx-js (preferred)
+# Without npm: bash scripts/install_deps.sh office — python-docx fallback
 ```
 
 ## References

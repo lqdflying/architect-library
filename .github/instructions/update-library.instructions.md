@@ -37,10 +37,9 @@ REPO=/home/opc/architect-library
 cd "$REPO"
 bash scripts/install_deps.sh
 bash scripts/install_deps.sh office-system
-npm install -g docx pptxgenjs
 ```
 
-If a runtime command fails because of missing permissions, sudo, network, or npm, report the exact failing command and error. Do not claim full readiness until all runtime commands finish successfully.
+If a runtime command fails because of missing permissions, sudo, network, or npm, report the exact failing command and error. Run `bash scripts/runtime_readiness.sh` — library install can still proceed; Word may work via python-docx; new PPT decks need pptxgenjs or a user template. See [AGENTS.md](../../AGENTS.md) capability matrix.
 
 4. **Install both libraries globally (Copilot only):**
 
@@ -63,10 +62,14 @@ test -f ~/.copilot/agents/security-auditor.agent.md && echo "OK: security-audito
 grep -q 'disallowedTools: edit' ~/.copilot/agents/security-auditor.agent.md && echo "OK: security-auditor readonly"
 cd /home/opc/architect-library/skills/_shared/office-tools && uv run python3 office_tools.py --help >/dev/null && echo "OK: office tools"
 command -v soffice >/dev/null && command -v pdftoppm >/dev/null && echo "OK: office-system"
-npm list -g docx pptxgenjs --depth=0 >/dev/null && echo "OK: npm docx/pptxgenjs"
+npm list -g docx pptxgenjs --depth=0 >/dev/null && echo "OK: npm docx/pptxgenjs" || echo "WARN: npm docx/pptxgenjs missing"
+cd /home/opc/architect-library/skills/_shared/office-tools && uv run python3 -c "import docx" && echo "OK: python-docx"
+bash /home/opc/architect-library/scripts/runtime_readiness.sh
 ```
 
-6. **Tell user:** "Library ready under ~/.copilot/ with runtimes installed. Reload VS Code (new agent chat)." If any runtime command failed, say "Library instructions were installed, but runtime readiness is incomplete" and include the failing command.
+6. **Tell user:** "Library ready under ~/.copilot/ with runtimes installed. Reload VS Code (new agent chat)." If any runtime command failed, say "Library instructions were installed, but artifact runtime readiness is incomplete" and include the failing command plus `runtime_readiness.sh` output.
+
+**PATH / npm globals:** `install_deps.sh` sources `scripts/architect_env.sh` and `install_node.sh` writes `~/.config/architect-library/env.sh` (+ `~/.bashrc` hook). Do **not** tell users pptxgenjs works via python-docx — only **Word** has that fallback; **new PPT decks** need pptxgenjs or a template. For manual Node in a shell: `source "$REPO/scripts/architect_env.sh"`.
 
 ## Source of truth
 

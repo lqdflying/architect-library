@@ -26,7 +26,7 @@ Skill library + custom agent library for Cursor and Copilot. Work in this clone 
 | `skills/pdf-document/` | PDF read/create/merge/forms |
 | `skills/_shared/` | `architecture-document-principles.md`, `office-tools/` |
 | `scripts/install_library.sh` | Install/patch both libraries (global default) |
-| `scripts/install_deps.sh` | Runtimes only (`all` \| `excalidraw` \| `office` \| `office-system` \| `pdf`) |
+| `scripts/install_deps.sh` | Runtimes only (`all` \| `excalidraw` \| `office` \| `office-system` \| `pdf` \| `node`) |
 | `.cursor/rules/` | **Maintainer rules for this repo** — not copied to users |
 | `.cursor/skills/absorb-reference-materials/` | **Maintainer skill** — triage `tmp/` ref material (not in `SKILL_BUNDLE`) |
 | `tmp/` | Staging for external ref skills/agents — review before import; ignored items stay here |

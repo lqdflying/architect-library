@@ -10,3 +10,5 @@ dist/
 skills/excalidraw-diagram/references/vendor/
 scripts/vendor_excalidraw/node_modules/
 scripts/vendor_excalidraw/.npm-bootstrap/
+scripts/.npm-bootstrap/
+# legacy in-repo npm bootstrap (now ~/.cache/architect-library/npm-bootstrap)

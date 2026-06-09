@@ -10,10 +10,16 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-BUILD_DIR="$ROOT_DIR/scripts/vendor_excalidraw"
+SRC_DIR="$ROOT_DIR/scripts/vendor_excalidraw"
+# shellcheck source=npm_bootstrap_common.sh
+source "$ROOT_DIR/scripts/npm_bootstrap_common.sh"
+# shellcheck source=architect_env.sh
+source "$ROOT_DIR/scripts/architect_env.sh"
+architect_apply_env
+BUILD_DIR="$(architect_vendor_excalidraw_build_dir)"
 OUT_DIR="$ROOT_DIR/skills/excalidraw-diagram/references/vendor"
 OUT_FILE="$OUT_DIR/excalidraw.bundle.mjs"
-NPM_BOOTSTRAP="$BUILD_DIR/.npm-bootstrap"
+NPM_BOOTSTRAP="$(architect_npm_bootstrap_dir)"
 
 find_node() {
   if [[ -n "${NODE_BIN:-}" ]] && [[ -x "$NODE_BIN" ]]; then
@@ -40,6 +46,7 @@ NODE_BIN_RESOLVED="$(find_node)" || {
   echo "Install Node.js (https://nodejs.org/) or set NODE_BIN to your node binary."
   exit 1
 }
+export PATH="$(dirname "$NODE_BIN_RESOLVED"):$PATH"
 
 run_npm() {
   if command -v npm &>/dev/null; then
@@ -68,9 +75,10 @@ run_npx() {
   fi
 }
 
-mkdir -p "$OUT_DIR"
+mkdir -p "$OUT_DIR" "$BUILD_DIR"
+cp -f "$SRC_DIR/package.json" "$SRC_DIR/package-lock.json" "$SRC_DIR/entry.mjs" "$BUILD_DIR/"
 
-echo "Installing vendor build dependencies..."
+echo "Installing vendor build dependencies (cache: $BUILD_DIR)..."
 (cd "$BUILD_DIR" && run_npm install --no-fund --no-audit)
 
 echo "Bundling @excalidraw/excalidraw@0.17.6..."

@@ -9,6 +9,7 @@
 | Task | Tool |
 |------|------|
 | Create new .docx from scratch | `docx` npm package (docx-js) |
+| Create new .docx without npm | python-docx — `bash scripts/install_deps.sh office`; see `python-docx-patterns.md` |
 | Edit existing .docx | Unzip -> edit XML -> rezip |
 | Read / extract text | `pandoc` or unzip + parse XML |
 | Convert .doc (legacy) to .docx | LibreOffice headless |
@@ -22,7 +23,7 @@
 ### Install
 
 ```bash
-npm install -g docx
+bash scripts/install_deps.sh node   # from architect-library repo root; installs docx globally
 ```
 
 ### Minimal Skeleton

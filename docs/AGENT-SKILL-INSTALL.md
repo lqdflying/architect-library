@@ -21,7 +21,6 @@ Run these runtime commands first:
 ```bash
 bash scripts/install_deps.sh
 bash scripts/install_deps.sh office-system
-npm install -g docx pptxgenjs
 ```
 
 Then run the editor-scoped library command:
@@ -113,11 +112,10 @@ REPO=/path/to/architect-library
 cd "$REPO"
 bash scripts/install_deps.sh
 bash scripts/install_deps.sh office-system
-npm install -g docx pptxgenjs
 bash scripts/install_library.sh all cursor
 ```
 
-If a runtime command fails because of missing permissions, sudo, network, or npm, report the exact failing command and error. Do not claim full readiness until all runtime commands finish successfully.
+If a runtime command fails because of missing permissions, sudo, network, or npm, report the exact failing command and error. Run `bash scripts/runtime_readiness.sh` and state partial capability per [AGENTS.md](../AGENTS.md) — **library copy can succeed without Node**; Word may still work via python-docx; new PPT decks need pptxgenjs or a user template.
 
 | Action | Result (Cursor example) |
 |--------|-------------------------|
@@ -147,7 +145,20 @@ Copilot rule: [`.github/instructions/update-library.instructions.md`](../.github
 
 ---
 
+## Runtime capability (artifact skills)
+
+See [AGENTS.md](../AGENTS.md) § Runtime capability matrix. Summary:
+
+| Without npm | Word | PowerPoint |
+|-------------|------|------------|
+| New artifact from scratch | python-docx (`install_deps.sh office`) | **Not supported** — template/XML only |
+| Edit, validate, preview | `office_tools` | `office_tools` + `office-system` for `thumbnail` |
+
+`bash scripts/runtime_readiness.sh` prints Node, npm globals, and python-docx status after `install_deps.sh`.
+
 ## Step 4: Verify installation
+
+**Library copy** (required) — skills and agents paths. **Artifact runtimes** (optional for install, required for delivery) — npm globals, python-docx, LibreOffice.
 
 **Cursor:**
 
@@ -164,7 +175,9 @@ grep -q 'readonly: true' ~/.cursor/agents/security-auditor.md && echo "OK: secur
 find ~/.cursor/skills -maxdepth 2 -name .git -type d   # expect no output
 cd /path/to/architect-library/skills/_shared/office-tools && uv run python3 office_tools.py --help >/dev/null && echo "OK: office tools"
 command -v soffice >/dev/null && command -v pdftoppm >/dev/null && echo "OK: office-system"
-npm list -g docx pptxgenjs --depth=0 >/dev/null && echo "OK: npm docx/pptxgenjs"
+npm list -g docx pptxgenjs --depth=0 >/dev/null && echo "OK: npm docx/pptxgenjs" || echo "WARN: npm docx/pptxgenjs missing"
+cd /path/to/architect-library/skills/_shared/office-tools && uv run python3 -c "import docx" && echo "OK: python-docx"
+bash /path/to/architect-library/scripts/runtime_readiness.sh
 ```
 
 **VS Code Copilot:**
@@ -180,10 +193,12 @@ test -f ~/.copilot/agents/security-auditor.agent.md && echo "OK: security-audito
 grep -q 'disallowedTools: edit' ~/.copilot/agents/security-auditor.agent.md && echo "OK: security-auditor readonly"
 cd /path/to/architect-library/skills/_shared/office-tools && uv run python3 office_tools.py --help >/dev/null && echo "OK: office tools"
 command -v soffice >/dev/null && command -v pdftoppm >/dev/null && echo "OK: office-system"
-npm list -g docx pptxgenjs --depth=0 >/dev/null && echo "OK: npm docx/pptxgenjs"
+npm list -g docx pptxgenjs --depth=0 >/dev/null && echo "OK: npm docx/pptxgenjs" || echo "WARN: npm docx/pptxgenjs missing"
+cd /path/to/architect-library/skills/_shared/office-tools && uv run python3 -c "import docx" && echo "OK: python-docx"
+bash /path/to/architect-library/scripts/runtime_readiness.sh
 ```
 
-The install script runs similar checks automatically for the `EDITOR` you pass.
+The install script runs **library** checks automatically for the `EDITOR` you pass. npm/python-docx/LibreOffice are artifact runtimes — use the commands above or `runtime_readiness.sh`.
 
 ---
 
@@ -230,7 +245,13 @@ See [CODE-REVIEW-AGENT.md](CODE-REVIEW-AGENT.md) and [SECURITY-AUDITOR-AGENT.md]
 | Core runtimes | `bash scripts/install_deps.sh` |
 | LibreOffice + Poppler (PPT) | `bash scripts/install_deps.sh office-system` |
 | Offline Excalidraw | `bash scripts/vendor_excalidraw.sh` |
-| New DOCX / PPTX via Node | `npm install -g docx` / `pptxgenjs` |
+| New DOCX / PPTX via Node | `bash scripts/install_deps.sh node` (included in `install_deps.sh all`) |
+| Word fallback (no npm) | `bash scripts/install_deps.sh office` (python-docx in uv env) |
+| Readiness summary | `bash scripts/runtime_readiness.sh` |
+| Shell env (manual Node) | `source /path/to/architect-library/scripts/architect_env.sh` |
+| Persistent env file | `~/.config/architect-library/env.sh` (written by `install_node.sh`; hooked from `~/.bashrc`) |
+
+Install scripts source `architect_env.sh` automatically. Agents doing docx-js/pptxgenjs **outside** those scripts must source it first so `NODE_PATH` includes `~/.npm-global/lib/node_modules`.
 
 Do not run `install_deps.sh` inside `~/.cursor/skills/` — run from the **repository clone**.
 
