@@ -63,7 +63,25 @@ else
   echo "Not needed for: validate, extract, unpack/pack, or creating new files via docx-js/pptxgenjs."
 fi
 
+install_build_deps() {
+  # C headers required by lxml (libxml2/libxslt) to build from source
+  if command -v apt-get &>/dev/null; then
+    sudo apt-get update -qq
+    sudo apt-get install -y --no-install-recommends libxml2-dev libxslt-dev
+  elif command -v dnf &>/dev/null; then
+    sudo dnf install -y libxml2-devel libxslt-devel
+  elif command -v yum &>/dev/null; then
+    sudo yum install -y libxml2-devel libxslt-devel
+  elif command -v pacman &>/dev/null; then
+    sudo pacman -S --needed --noconfirm libxml2 libxslt
+  elif command -v zypper &>/dev/null; then
+    sudo zypper install -y libxml2-devel libxslt-devel
+  fi
+}
+
 cd "$SCRIPT_DIR"
+echo "Installing lxml build dependencies (C headers)..."
+install_build_deps
 echo "Installing Python dependencies..."
 uv sync
 
