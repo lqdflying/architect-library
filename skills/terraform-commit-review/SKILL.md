@@ -105,12 +105,14 @@ Structure the output as:
 |---|----------|-------|------|--------|
 | 1 | CRITICAL | ... | ... | Open |
 
-**4. Summarization to Vendor** — For every issue in **Issues Found** with `Status = Open`, provide a vendor-ready comment block using the mandatory format below. This section is meant to be copied into GitHub review comments.
+**4. Summarization to Vendor** — For every issue in **Issues Found** with `Status = Open`, provide a vendor-ready comment block using the mandatory wrapper format below. This section is meant to be copied into GitHub review comments.
+
+> **Hard requirement:** Never collapse this section into a normal review comment or a standalone GitHub comment body. Every open issue must include the rendered title, clickable `Code position:` line, exact source snippet, `Comment in GitHub as follows:`, and fenced `text` copy block. If any of those wrapper elements are missing, the report is incomplete.
 
 For each issue, include:
 
 1. A rendered Markdown title outside the copy block so the reviewer can quickly identify the issue.
-2. A `Code position:` line with the workspace-relative file path, Terraform resource/module/symbol name, and approximate line range.
+2. A `Code position:` line with a clickable workspace-relative file link anchored to the exact starting line, the Terraform resource/module/symbol name, and the line range.
 3. A short source snippet from the reviewed file so the reviewer can cross-check the exact code being discussed.
 4. The line `Comment in GitHub as follows:`.
 5. A fenced `text` block containing the Markdown comment body to paste into GitHub. Use a `text` fence so Copilot Chat does not render the Markdown comment prematurely.
@@ -120,7 +122,7 @@ Mandatory per-issue vendor format:
 `````markdown
 ## <Concise Issue Title>
 
-Code position: `<workspace-relative/path.tf>`, `<terraform_resource_or_symbol>`, around lines <start>-<end>
+Code position: [<filename>](<workspace-relative/path.tf>#L<start>), `<terraform_resource_or_symbol>`, around lines <start>-<end>
 
 Source snippet to cross-check:
 
@@ -157,9 +159,21 @@ Docs:
 Vendor-summary rules:
 - Keep wording direct and short; do not include long explanations.
 - Do not include `vscode-file://`, `file://`, local absolute paths, or editor-generated links.
+- The `Code position:` file reference outside the GitHub-copy block MUST be a clickable Markdown link with a workspace-relative path and `#LNN` anchor. Do not wrap that file link in backticks.
+- The `Code position:` display text MUST be the filename only (for example, `[main.tf](apex_phase1_networking/main.tf#L942)`), while the target contains the full workspace-relative path and exact line anchor.
+- The `Code position:` line number MUST be exact. Before writing the vendor section, run `grep_search` for each issue's resource/symbol/key line and use the returned 1-based line number. Do not guess or use only approximate line ranges.
 - Use only official source URLs already consulted for the finding.
 - If the issue is not a Terraform apply blocker, state that clearly and label the impact as runtime/security/promotion risk.
 - If the issue has no concrete suggested config, replace `Suggested config:` with `Acceptance criteria:` and list what the fix must satisfy.
+
+Vendor-summary self-check before finalizing:
+- [ ] Every open issue in **Issues Found** has a matching vendor block.
+- [ ] Every vendor block starts with `## <Concise Issue Title>` outside the copy block.
+- [ ] Every vendor block has `Code position: [filename](workspace-relative/path#LNN), ...` outside the copy block.
+- [ ] Every `Code position:` link jumps to an exact line returned by `grep_search`.
+- [ ] Every vendor block has `Source snippet to cross-check:` followed by a fenced `hcl` snippet.
+- [ ] Every vendor block has `Comment in GitHub as follows:` followed by a fenced `text` block.
+- [ ] The fenced `text` block contains the GitHub comment body only; the outer wrapper stays outside the copy block.
 
 ### Linking Policy for Tables (MANDATORY)
 
