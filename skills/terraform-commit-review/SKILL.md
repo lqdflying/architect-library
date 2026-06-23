@@ -101,9 +101,18 @@ Structure the output as:
 
 **3. Issues Found** — Ordered by severity:
 
-| # | Severity | Issue | File | Status |
-|---|----------|-------|------|--------|
-| 1 | CRITICAL | ... | ... | Open |
+| # | Severity | Issue | File | Blocks Terraform Apply? | Status |
+|---|----------|-------|------|-------------------------|--------|
+| 1 | CRITICAL | ... | ... | Yes — validation/plan/apply blocker | Open |
+
+For **Blocks Terraform Apply?**, use one of these direct forms:
+- `Yes — validation blocker`
+- `Yes — plan/apply blocker`
+- `No — runtime risk`
+- `No — security/promotion risk`
+- `No — code quality / maintainability risk`
+
+Do not leave apply impact implicit in the severity or prose. The user must be able to scan the table and immediately know whether Terraform can continue.
 
 **4. Summarization to Vendor** — For every issue in **Issues Found** with `Status = Open`, provide a vendor-ready comment block using the mandatory wrapper format below. This section is meant to be copied into GitHub review comments.
 
@@ -112,15 +121,18 @@ Structure the output as:
 For each issue, include:
 
 1. A rendered Markdown title outside the copy block so the reviewer can quickly identify the issue.
-2. A `Code position:` line with a clickable workspace-relative file link anchored to the exact starting line, the Terraform resource/module/symbol name, and the line range.
-3. A short source snippet from the reviewed file so the reviewer can cross-check the exact code being discussed.
-4. The line `Comment in GitHub as follows:`.
-5. A fenced `text` block containing the Markdown comment body to paste into GitHub. Use a `text` fence so Copilot Chat does not render the Markdown comment prematurely.
+2. A `Blocks Terraform Apply?` line outside the copy block, using the same value as the **Issues Found** table.
+3. A `Code position:` line with a clickable workspace-relative file link anchored to the exact starting line, the Terraform resource/module/symbol name, and the line range.
+4. A short source snippet from the reviewed file so the reviewer can cross-check the exact code being discussed.
+5. The line `Comment in GitHub as follows:`.
+6. A fenced `text` block containing the Markdown comment body to paste into GitHub. Use a `text` fence so Copilot Chat does not render the Markdown comment prematurely.
 
 Mandatory per-issue vendor format:
 
 `````markdown
 ## <Concise Issue Title>
+
+Blocks Terraform Apply? **<Yes/No — exact value matching Issues Found table>**
 
 Code position: [<filename>](<workspace-relative/path.tf>#L<start>), `<terraform_resource_or_symbol>`, around lines <start>-<end>
 
@@ -160,8 +172,10 @@ Vendor-summary rules:
 - Keep wording direct and short; do not include long explanations.
 - Do not include `vscode-file://`, `file://`, local absolute paths, or editor-generated links.
 - The `Code position:` file reference outside the GitHub-copy block MUST be a clickable Markdown link with a workspace-relative path and `#LNN` anchor. Do not wrap that file link in backticks.
+- The `Blocks Terraform Apply?` line outside the GitHub-copy block MUST appear in every vendor block and MUST match the issue's **Issues Found** table value.
 - The `Code position:` display text MUST be the filename only (for example, `[main.tf](apex_phase1_networking/main.tf#L942)`), while the target contains the full workspace-relative path and exact line anchor.
 - The `Code position:` line number MUST be exact. Before writing the vendor section, run `grep_search` for each issue's resource/symbol/key line and use the returned 1-based line number. Do not guess or use only approximate line ranges.
+- The `Impact:` line inside each GitHub-copy block MUST explicitly say whether the issue blocks Terraform validation/plan/apply. Use phrasing like `Impact: This blocks Terraform validation/plan/apply for Phase 1.` or `Impact: This does not block Terraform apply; it is a runtime/security/promotion risk.`
 - Use only official source URLs already consulted for the finding.
 - If the issue is not a Terraform apply blocker, state that clearly and label the impact as runtime/security/promotion risk.
 - If the issue has no concrete suggested config, replace `Suggested config:` with `Acceptance criteria:` and list what the fix must satisfy.
@@ -169,11 +183,14 @@ Vendor-summary rules:
 Vendor-summary self-check before finalizing:
 - [ ] Every open issue in **Issues Found** has a matching vendor block.
 - [ ] Every vendor block starts with `## <Concise Issue Title>` outside the copy block.
+- [ ] Every vendor block has `Blocks Terraform Apply? **<value>**` outside the copy block, matching the table.
 - [ ] Every vendor block has `Code position: [filename](workspace-relative/path#LNN), ...` outside the copy block.
 - [ ] Every `Code position:` link jumps to an exact line returned by `grep_search`.
 - [ ] Every vendor block has `Source snippet to cross-check:` followed by a fenced `hcl` snippet.
 - [ ] Every vendor block has `Comment in GitHub as follows:` followed by a fenced `text` block.
 - [ ] The fenced `text` block contains the GitHub comment body only; the outer wrapper stays outside the copy block.
+- [ ] Every row in **Issues Found** has a `Blocks Terraform Apply?` value.
+- [ ] Every vendor-block `Impact:` line explicitly says whether Terraform validation/plan/apply is blocked.
 
 ### Linking Policy for Tables (MANDATORY)
 
