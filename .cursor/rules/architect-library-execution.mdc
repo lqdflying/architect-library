@@ -19,6 +19,7 @@ Task is **not** complete until:
 | **verification-before-completion** | No completion/success claim without fresh verification command output in the same message |
 | **api-and-interface-design** | Contract defined before implementation; consistent errors; validation at boundaries; pagination on lists; cross-check against `deprecation-and-migration` when changing public interfaces |
 | **deprecation-and-migration** | Replacement exists before deprecation; migration guide with concrete steps; usage verified at zero before removal; formal deliverables use `word-document` when requested |
+| **terraform-commit-review** | Commit range established; every changed file read; provider docs verified via MCP (Context7 + Microsoft Learn); all 6 checklist sections applied (correctness, security/RBAC, destructive changes, naming, cross-phase, code quality); structured report with intent summary, per-phase table, issues by severity, vendor-ready comments, and source URLs |
 
 **PowerPoint is not done** when the `.pptx` exists—only after layout preview (or user waives visual QA).
 

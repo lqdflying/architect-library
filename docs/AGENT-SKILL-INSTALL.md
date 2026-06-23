@@ -53,6 +53,7 @@ Architect Library publishes **two libraries**:
 | `verification-before-completion` | Cursor/Copilot skill | Evidence before completion claims; required by artifact skills at delivery |
 | `api-and-interface-design` | Cursor/Copilot skill | API and module boundary design workflow |
 | `deprecation-and-migration` | Cursor/Copilot skill | Deprecation and migration planning workflow |
+| `terraform-commit-review` | Cursor/Copilot skill | Terraform IaC commit-range review (correctness, security, destructive changes) |
 | `_shared` | Support files (not a standalone skill) | **Yes** whenever Word, PowerPoint, or spreadsheet skills are installed |
 
 Word, PowerPoint, and spreadsheet skills reference Office tools via `../_shared/office-tools/`. If `_shared` is missing or not a **sibling** of those folders, paths break.
@@ -225,6 +226,7 @@ The install script runs **library** checks automatically for the `EDITOR` you pa
 | **verification-before-completion** | Fresh verification command output in same message before any completion/success claim |
 | **api-and-interface-design** | Contract before implementation; consistent errors; boundary validation; list pagination; deprecation cross-check when changing public interfaces |
 | **deprecation-and-migration** | Replacement before deprecation; migration guide; zero-usage verified before removal |
+| **terraform-commit-review** | Commit range established; all changed files read; provider docs verified via MCP; 6-section checklist applied; structured report with intent summary, per-phase table, issues, vendor comments, source URLs |
 
 **PowerPoint is not done** when the `.pptx` exists — only after layout preview (or user waives).
 
