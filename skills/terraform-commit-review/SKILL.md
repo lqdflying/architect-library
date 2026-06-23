@@ -1,6 +1,6 @@
 ---
 name: terraform-commit-review
-description: "Comprehensive Terraform IaC code review across a git commit range. Use when asked to review commits, summarize changes, audit what a vendor did, or find issues in Terraform changes. Triggers: 'review commits', 'review changes', 'what did vendor change', 'review from commit X to HEAD', 'audit PR', 'cross-phase review'. Covers: correctness, security (OWASP/RBAC), naming conventions, destructive changes, provider argument validation, missing trailing newlines, and cross-phase dependency consistency."
+description: "Comprehensive Terraform IaC and documentation review across a git commit range. Use when asked to review commits, summarize changes, audit what a vendor did, or find issues in Terraform changes. Triggers: 'review commits', 'review changes', 'what did vendor change', 'review from commit X to HEAD', 'audit PR', 'cross-phase review'. Covers: correctness, security (OWASP/RBAC), naming conventions, destructive changes, provider argument validation, missing trailing newlines, cross-phase dependency consistency, documentation/runbook accuracy, and apply execution summaries."
 argument-hint: "<from-commit>..<to-commit> or just <from-commit> (defaults to HEAD). The from-commit itself is always included in the review."
 ---
 
@@ -26,10 +26,15 @@ git diff <from-commit>..HEAD --stat
 The `<from-commit>` itself **must also be reviewed** — run `git show <from-commit>` to read its full diff. Then review all commits after it. Understand the full scope before diving in.
 
 ### Step 2 — Read Each Changed File in Parallel
-Group files by phase/module and read them concurrently:
+Group files by phase/module/docs and read them concurrently:
 - `modules/*/main.tf`, `variables.tf`, `outputs.tf`, `versions.tf`
 - `phase*/main.tf`, `provider.tf`, `variables.tf`, `terraform.tfvars`
 - `phase*/rbac_*.json`, `phase*/rbac_*.json`
+- Documentation and runbooks changed in the same range: `README.md`, `docs/**/*.md`, `changes/**/*.md`, phase/module `README.md`, and any `*.example` files that document variables or apply steps
+
+> **Documentation parity rule:** Reviews must not only check whether Terraform code is correct. They must also diff all related vendor-provided documentation and runbooks, then verify that the docs accurately describe the code, required environment variables, apply order, phase ownership, prerequisites, outputs, post-deployment steps, and known pending work. If a document is wrong, stale, incomplete, or contradicts code, include it as a normal review issue in the output.
+
+> **Example tfvars classification rule:** `*.tfvars.example`, `*.tfvars.oa.example`, `*.tfvars.prod.example`, and similar example/template files are documentation aids, not the deployed Terraform variable files. Missing or stale values in these files are documentation/template issues by default. Do **not** classify them as `CRITICAL`, and do **not** mark them as blocking Terraform validation/plan/apply unless the same missing value also affects a real deployable file such as `terraform.tfvars`, `*.auto.tfvars`, module inputs, or root module configuration.
 
 ### Step 3 — Verify Against Official Docs (MANDATORY)
 
@@ -79,13 +84,22 @@ Check resource names against the project's naming convention. Define a conventio
 - [ ] New outputs added in Phase N that are consumed in Phase N+1/N+2 exist in the correct `outputs.tf`
 - [ ] `terraform_remote_state` keys match the backend state keys defined in `provider.tf`
 - [ ] Variables added to modules are passed from the phase that calls the module
-- [ ] `terraform.tfvars.example` updated to include any new required variables (especially sensitive ones with `export TF_VAR_...` instructions)
+- [ ] `terraform.tfvars.example` updated to include any new required variables (especially sensitive ones with `export TF_VAR_...` instructions). If this is missing only from example files, report it as documentation/template drift, not as an apply blocker.
 
 #### F. Code Quality
 - [ ] All files end with a trailing newline (POSIX requirement, causes noisy diffs if missing)
 - [ ] No placeholder values left that must be replaced before apply (backend.tfvars documented correctly)
 - [ ] Comments are accurate and not misleading
 - [ ] Hardcoded versions that could be managed by data sources (e.g. `spark_version`, `node_type_id`)
+
+#### G. Documentation / Runbook Consistency
+- [ ] Every changed Terraform behavior is reflected in related docs (`README.md`, `docs/**`, `changes/**`, phase READMEs)
+- [ ] Vendor change logs list the same affected phases/modules as the actual diff
+- [ ] Apply order in docs matches cross-phase dependencies and remote-state consumption
+- [ ] New required variables are documented in `.tfvars.example`, READMEs, and runbooks, including whether they are set in `.tfvars` or via `TF_VAR_*`
+- [ ] Sensitive values are documented as environment variables and are not shown as hardcoded committed values
+- [ ] Post-deployment TODOs are accurate, scoped, and not presented as completed work
+- [ ] Documentation issues are added to **Issues Found** and **Summarization to Vendor** like code issues, with clickable file links and exact line anchors
 
 ### Step 5 — Produce the Summary
 
@@ -133,7 +147,7 @@ For each issue, include:
 1. The matching issue ID from the **Issues Found** table (for example, `Issue ID: #1`) outside the copy block.
 2. A rendered Markdown title outside the copy block so the reviewer can quickly identify the issue.
 3. A `Blocks Terraform Apply?` line outside the copy block, using the same value as the **Issues Found** table.
-4. A `Code position:` line with a clickable workspace-relative file link anchored to the exact starting line, the Terraform resource/module/symbol name, and the line range.
+4. A `Code position:` line with a clickable workspace-relative file link anchored to the exact starting line, the Terraform resource/module/symbol name (or documentation section/key), and the line range.
 5. A short source snippet from the reviewed file so the reviewer can cross-check the exact code being discussed.
 6. The line `Comment in GitHub as follows:`.
 7. A fenced `text` block containing the Markdown comment body to paste into GitHub. Use a `text` fence so Copilot Chat does not render the Markdown comment prematurely.
@@ -147,13 +161,15 @@ Issue ID: **#<issue_number>**
 
 Blocks Terraform Apply? **<Yes/No — exact value matching Issues Found table>**
 
-Code position: [<filename>](<workspace-relative/path.tf>#L<start>), `<terraform_resource_or_symbol>`, around lines <start>-<end>
+Code position: [<filename>](<workspace-relative/path.tf>#L<start>), `<terraform_resource_or_symbol_or_doc_section>`, around lines <start>-<end>
 
 Source snippet to cross-check:
 
 ```hcl
 <small exact snippet from the file>
 ```
+
+Use `hcl` for Terraform snippets, `json` for RBAC JSON snippets, and `markdown` for documentation/runbook snippets.
 
 Comment in GitHub as follows:
 
@@ -204,13 +220,15 @@ Vendor-summary self-check before finalizing:
 - [ ] Every vendor block has `Blocks Terraform Apply? **<value>**` outside the copy block, matching the table.
 - [ ] Every vendor block has a clickable `Code position:` file link with a workspace-relative `#LNN` anchor outside the copy block.
 - [ ] Every `Code position:` link jumps to an exact line returned by `grep_search`.
-- [ ] Every vendor block has `Source snippet to cross-check:` followed by a fenced `hcl` snippet.
+- [ ] Every vendor block has `Source snippet to cross-check:` followed by a fenced snippet using the correct language (`hcl`, `json`, `markdown`, etc.).
 - [ ] Every vendor block has `Comment in GitHub as follows:` followed by a fenced `text` block.
 - [ ] The fenced `text` block contains the GitHub comment body only; the outer wrapper stays outside the copy block.
 - [ ] The fenced `text` block title starts with `### #<issue_number> — ...`, matching the outer issue ID and the **Issues Found** table row.
 - [ ] Every row in **Issues Found** has a `Blocks Terraform Apply?` value.
 - [ ] Every vendor-block `Impact:` line explicitly says whether Terraform validation/plan/apply is blocked.
-- [ ] Top-level report sections use `## 1. Intent Summary`, `## 2. Per-Phase Change Table`, `## 3. Issues Found`, `## 4. Summarization to Vendor`, `## 5. New Issues Discovered`, and `## 6. Source URLs`.
+- [ ] Documentation/runbook issues are included as normal issues when found, not only mentioned in prose.
+- [ ] If there are no open apply-blocking issues, the report includes `## 7. Execution Summary` with apply status, environment-variable prerequisites before any apply-order command block, phase order, apply commands, validation checks, and vendor-doc tally.
+- [ ] Top-level report sections use `## 1. Intent Summary`, `## 2. Per-Phase Change Table`, `## 3. Issues Found`, `## 4. Summarization to Vendor`, `## 5. New Issues Discovered`, `## 6. Source URLs`, and, when applicable, `## 7. Execution Summary`.
 
 ### Linking Policy for Tables (MANDATORY)
 
@@ -220,7 +238,7 @@ Every row in the **Per-Phase Change Table** and the **Issues Found** table MUST 
 
 2. **Link format** — use a workspace-relative path with a line anchor:
    ```
-   [filename](relative/path/to/file.tf#LNN)
+   [filename](relative/path/to/file.ext#LNN)
    ```
    - Display text: **filename only** (e.g. `main.tf`), NOT the full path.
    - Target: workspace-relative path + `#LNN` (1-based line number).
@@ -244,6 +262,8 @@ Severity levels:
 - **MEDIUM**: Security risk or will cause problems when promoted to OA/PROD
 - **LOW**: Code quality, maintainability, best practice violations
 
+`*.tfvars.example` and other example/template file issues must normally be **LOW** documentation/template issues with `Blocks Terraform Apply? = No — code quality / maintainability risk`. Escalate above LOW only when the example-file defect also proves a real deployable configuration, module interface, or runbook command will fail or create a security/runtime risk.
+
 ## 5. New Issues Discovered
 
 Any issues found during the deep review that weren't in the original report.
@@ -251,6 +271,23 @@ Any issues found during the deep review that weren't in the original report.
 ## 6. Source URLs
 
 List all official documentation URLs consulted.
+
+## 7. Execution Summary
+
+Include this section whenever there are **no open issues** whose **Blocks Terraform Apply?** value starts with `Yes —`.
+
+Keep it concise and operational. It must answer:
+- Whether Terraform apply is blocked or can proceed with non-blocking risks accepted
+- Environment-variable prerequisites **before** any apply-order command block:
+   - New environment variables introduced by the reviewed range
+   - Existing environment variables still required for the affected phases
+   - Phase-specific object IDs or sensitive `TF_VAR_*` values required by affected phases
+- Which phases need to be applied, in exact order, and which phases do **not** need apply
+- Recommended operations-VM commands (`init -backend-config=backend.tfvars`, `plan -out=tfplan`, `apply tfplan`)
+- Post-apply validation checks and any documented runtime follow-ups
+- Whether the execution summary tallies with vendor-provided docs/change logs; if not, name the doc issue and include it in **Issues Found**
+
+> **Prerequisites ordering rule:** Treat required `ARM_*` and `TF_VAR_*` values as deployment prerequisites. In the execution summary, list them before the apply-order or operations-VM command block, not after it.
 
 ## General Terraform Review Principles
 
@@ -274,7 +311,7 @@ Common Azure resources with immutable fields that force destroy/recreate if chan
 ### Cross-Module/Phase Consistency
 - Every new `output` added in a lower phase must be consumed correctly by the higher phase referencing it via `terraform_remote_state`
 - Every new `variable` added to a module must be passed from the calling phase
-- `terraform.tfvars.example` must document every new required variable, especially sensitive ones with `export TF_VAR_...` instructions
+- `terraform.tfvars.example` must document every new required variable, especially sensitive ones with `export TF_VAR_...` instructions. Missing entries in example tfvars files alone are documentation/template drift and should not be marked as blocking Terraform apply.
 
 ### Code Quality
 - All files must end with a trailing newline (POSIX standard)
