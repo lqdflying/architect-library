@@ -91,15 +91,23 @@ Check resource names against the project's naming convention. Define a conventio
 
 Structure the output as:
 
-**1. Intent Summary** — What did the changes set out to do? (2–4 sentences per major feature)
+> **Heading requirement:** Every top-level report section must be a level-2 Markdown heading (`##`). Do not use bold-only labels for the main sections.
 
-**2. Per-Phase Change Table** — For each phase/module changed:
+## 1. Intent Summary
+
+What did the changes set out to do? (2–4 sentences per major feature)
+
+## 2. Per-Phase Change Table
+
+For each phase/module changed:
 
 | Change | Correct? | Notes |
 |--------|----------|-------|
 | ... | ✅ / ⚠️ / ❌ | ... |
 
-**3. Issues Found** — Ordered by severity:
+## 3. Issues Found
+
+Ordered by severity:
 
 | # | Severity | Issue | File | Blocks Terraform Apply? | Status |
 |---|----------|-------|------|-------------------------|--------|
@@ -114,23 +122,28 @@ For **Blocks Terraform Apply?**, use one of these direct forms:
 
 Do not leave apply impact implicit in the severity or prose. The user must be able to scan the table and immediately know whether Terraform can continue.
 
-**4. Summarization to Vendor** — For every issue in **Issues Found** with `Status = Open`, provide a vendor-ready comment block using the mandatory wrapper format below. This section is meant to be copied into GitHub review comments.
+## 4. Summarization to Vendor
+
+For every issue in **Issues Found** with `Status = Open`, provide a vendor-ready comment block using the mandatory wrapper format below. This section is meant to be copied into GitHub review comments.
 
 > **Hard requirement:** Never collapse this section into a normal review comment or a standalone GitHub comment body. Every open issue must include the rendered title, clickable `Code position:` line, exact source snippet, `Comment in GitHub as follows:`, and fenced `text` copy block. If any of those wrapper elements are missing, the report is incomplete.
 
 For each issue, include:
 
-1. A rendered Markdown title outside the copy block so the reviewer can quickly identify the issue.
-2. A `Blocks Terraform Apply?` line outside the copy block, using the same value as the **Issues Found** table.
-3. A `Code position:` line with a clickable workspace-relative file link anchored to the exact starting line, the Terraform resource/module/symbol name, and the line range.
-4. A short source snippet from the reviewed file so the reviewer can cross-check the exact code being discussed.
-5. The line `Comment in GitHub as follows:`.
-6. A fenced `text` block containing the Markdown comment body to paste into GitHub. Use a `text` fence so Copilot Chat does not render the Markdown comment prematurely.
+1. The matching issue ID from the **Issues Found** table (for example, `Issue ID: #1`) outside the copy block.
+2. A rendered Markdown title outside the copy block so the reviewer can quickly identify the issue.
+3. A `Blocks Terraform Apply?` line outside the copy block, using the same value as the **Issues Found** table.
+4. A `Code position:` line with a clickable workspace-relative file link anchored to the exact starting line, the Terraform resource/module/symbol name, and the line range.
+5. A short source snippet from the reviewed file so the reviewer can cross-check the exact code being discussed.
+6. The line `Comment in GitHub as follows:`.
+7. A fenced `text` block containing the Markdown comment body to paste into GitHub. Use a `text` fence so Copilot Chat does not render the Markdown comment prematurely.
 
 Mandatory per-issue vendor format:
 
 `````markdown
-## <Concise Issue Title>
+## #<issue_number> — <Concise Issue Title>
+
+Issue ID: **#<issue_number>**
 
 Blocks Terraform Apply? **<Yes/No — exact value matching Issues Found table>**
 
@@ -145,7 +158,7 @@ Source snippet to cross-check:
 Comment in GitHub as follows:
 
 ````text
-### <Concise Issue Title>
+### #<issue_number> — <Concise Issue Title>
 
 In `<workspace-relative/path.tf>`, <state the problem in one or two clear sentences>.
 
@@ -169,6 +182,10 @@ Docs:
 `````
 
 Vendor-summary rules:
+- The issue number in each vendor block MUST match the `#` value from the **Issues Found** table. Do not renumber, omit, or infer issue IDs from section order.
+- The rendered title outside the copy block MUST start with `## #<issue_number> — ...`.
+- The `Issue ID: **#<issue_number>**` line outside the copy block MUST appear in every vendor block.
+- The GitHub-copy block title MUST start with `### #<issue_number> — ...`.
 - Keep wording direct and short; do not include long explanations.
 - Do not include `vscode-file://`, `file://`, local absolute paths, or editor-generated links.
 - The `Code position:` file reference outside the GitHub-copy block MUST be a clickable Markdown link with a workspace-relative path and `#LNN` anchor. Do not wrap that file link in backticks.
@@ -182,15 +199,18 @@ Vendor-summary rules:
 
 Vendor-summary self-check before finalizing:
 - [ ] Every open issue in **Issues Found** has a matching vendor block.
-- [ ] Every vendor block starts with `## <Concise Issue Title>` outside the copy block.
+- [ ] Every vendor block starts with `## #<issue_number> — <Concise Issue Title>` outside the copy block.
+- [ ] Every vendor block has `Issue ID: **#<issue_number>**` outside the copy block, matching the **Issues Found** table row.
 - [ ] Every vendor block has `Blocks Terraform Apply? **<value>**` outside the copy block, matching the table.
-- [ ] Every vendor block has `Code position: [filename](workspace-relative/path#LNN), ...` outside the copy block.
+- [ ] Every vendor block has a clickable `Code position:` file link with a workspace-relative `#LNN` anchor outside the copy block.
 - [ ] Every `Code position:` link jumps to an exact line returned by `grep_search`.
 - [ ] Every vendor block has `Source snippet to cross-check:` followed by a fenced `hcl` snippet.
 - [ ] Every vendor block has `Comment in GitHub as follows:` followed by a fenced `text` block.
 - [ ] The fenced `text` block contains the GitHub comment body only; the outer wrapper stays outside the copy block.
+- [ ] The fenced `text` block title starts with `### #<issue_number> — ...`, matching the outer issue ID and the **Issues Found** table row.
 - [ ] Every row in **Issues Found** has a `Blocks Terraform Apply?` value.
 - [ ] Every vendor-block `Impact:` line explicitly says whether Terraform validation/plan/apply is blocked.
+- [ ] Top-level report sections use `## 1. Intent Summary`, `## 2. Per-Phase Change Table`, `## 3. Issues Found`, `## 4. Summarization to Vendor`, `## 5. New Issues Discovered`, and `## 6. Source URLs`.
 
 ### Linking Policy for Tables (MANDATORY)
 
@@ -224,9 +244,13 @@ Severity levels:
 - **MEDIUM**: Security risk or will cause problems when promoted to OA/PROD
 - **LOW**: Code quality, maintainability, best practice violations
 
-**5. New Issues Discovered** — Any issues found during the deep review that weren't in the original report.
+## 5. New Issues Discovered
 
-**6. Source URLs** — List all official documentation URLs consulted.
+Any issues found during the deep review that weren't in the original report.
+
+## 6. Source URLs
+
+List all official documentation URLs consulted.
 
 ## General Terraform Review Principles
 
