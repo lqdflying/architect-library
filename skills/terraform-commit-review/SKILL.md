@@ -34,6 +34,10 @@ Group files by phase/module/docs and read them concurrently:
 
 > **Documentation parity rule:** Reviews must not only check whether Terraform code is correct. They must also diff all related vendor-provided documentation and runbooks, then verify that the docs accurately describe the code, required environment variables, apply order, phase ownership, prerequisites, outputs, post-deployment steps, and known pending work. If a document is wrong, stale, incomplete, or contradicts code, include it as a normal review issue in the output.
 
+> **Markdown documentation classification rule:** Markdown files (`*.md`) such as installation guides, runbooks, README files, architecture docs, and changelogs are guidance only. A defect that exists only in Markdown **must not** be marked as blocking Terraform validation/plan/apply. Classify it as documentation drift with `Blocks Terraform Apply? = No — code quality / maintainability risk` by default, or `No — runtime risk` / `No — security/promotion risk` if following the stale guidance would create operational or security risk. Escalate to `Yes — validation blocker` or `Yes — plan/apply blocker` only when the same issue is proven in real deployable Terraform inputs/code/state dependencies such as `terraform.tfvars`, `*.auto.tfvars`, root/module HCL, provider/backend config, RBAC JSON consumed by Terraform, or required remote-state outputs.
+
+> **Apply guidance source rule:** Do not treat vendor Markdown runbooks or installation guides as the source of truth for whether apply can proceed. Review them for drift, but produce final apply guidance from your own evaluation of the Terraform code, real deployable inputs, remote-state dependencies, provider constraints, Azure service constraints, and verified prerequisites. If vendor docs give a wrong apply order, list it as a documentation issue and still provide the corrected evaluated apply order in the execution summary when there are no code/config apply blockers.
+
 > **Example tfvars classification rule:** `*.tfvars.example`, `*.tfvars.oa.example`, `*.tfvars.prod.example`, and similar example/template files are documentation aids, not the deployed Terraform variable files. Missing or stale values in these files are documentation/template issues by default. Do **not** classify them as `CRITICAL`, and do **not** mark them as blocking Terraform validation/plan/apply unless the same missing value also affects a real deployable file such as `terraform.tfvars`, `*.auto.tfvars`, module inputs, or root module configuration.
 
 ### Step 3 — Verify Against Official Docs (MANDATORY)
@@ -100,6 +104,8 @@ Check resource names against the project's naming convention. Define a conventio
 - [ ] Sensitive values are documented as environment variables and are not shown as hardcoded committed values
 - [ ] Post-deployment TODOs are accurate, scoped, and not presented as completed work
 - [ ] Documentation issues are added to **Issues Found** and **Summarization to Vendor** like code issues, with clickable file links and exact line anchors
+- [ ] Markdown-only documentation/runbook issues are not marked as Terraform apply blockers unless the same defect is also present in real deployable Terraform code/config/state dependencies
+- [ ] Final apply guidance is based on the reviewer's evaluated apply path, not copied from vendor Markdown
 
 ### Step 5 — Produce the Summary
 
@@ -135,6 +141,8 @@ For **Blocks Terraform Apply?**, use one of these direct forms:
 - `No — code quality / maintainability risk`
 
 Do not leave apply impact implicit in the severity or prose. The user must be able to scan the table and immediately know whether Terraform can continue.
+
+For Markdown-only documentation/runbook findings, do not use a `Yes — ... blocker` value. Use `No — code quality / maintainability risk`, `No — runtime risk`, or `No — security/promotion risk` according to the consequence of the stale guidance. Only use `Yes — ... blocker` when the underlying Terraform code, real deployable input files, backend/provider configuration, state dependency, or consumed JSON actually blocks validation/plan/apply.
 
 ## 4. Summarization to Vendor
 
@@ -227,7 +235,8 @@ Vendor-summary self-check before finalizing:
 - [ ] Every row in **Issues Found** has a `Blocks Terraform Apply?` value.
 - [ ] Every vendor-block `Impact:` line explicitly says whether Terraform validation/plan/apply is blocked.
 - [ ] Documentation/runbook issues are included as normal issues when found, not only mentioned in prose.
-- [ ] If there are no open apply-blocking issues, the report includes `## 7. Execution Summary` with apply status, environment-variable prerequisites before any apply-order command block, phase order, apply commands, validation checks, and vendor-doc tally.
+- [ ] Markdown-only documentation/runbook issues are not marked as apply blockers; the vendor block states that Terraform apply is not blocked by the document itself.
+- [ ] If there are no open code/config/state apply-blocking issues, the report includes `## 7. Execution Summary` with apply status, environment-variable prerequisites before any apply-order command block, evaluated phase order, apply commands, validation checks, and vendor-doc tally.
 - [ ] Top-level report sections use `## 1. Intent Summary`, `## 2. Per-Phase Change Table`, `## 3. Issues Found`, `## 4. Summarization to Vendor`, `## 5. New Issues Discovered`, `## 6. Source URLs`, and, when applicable, `## 7. Execution Summary`.
 
 ### Linking Policy for Tables (MANDATORY)
@@ -262,7 +271,9 @@ Severity levels:
 - **MEDIUM**: Security risk or will cause problems when promoted to OA/PROD
 - **LOW**: Code quality, maintainability, best practice violations
 
-`*.tfvars.example` and other example/template file issues must normally be **LOW** documentation/template issues with `Blocks Terraform Apply? = No — code quality / maintainability risk`. Escalate above LOW only when the example-file defect also proves a real deployable configuration, module interface, or runbook command will fail or create a security/runtime risk.
+`*.tfvars.example` and other example/template file issues must normally be **LOW** documentation/template issues with `Blocks Terraform Apply? = No — code quality / maintainability risk`. Escalate above LOW only when the example-file defect also proves a real deployable configuration, module interface, or evaluated deployment path will fail or create a security/runtime risk.
+
+Markdown-only issues (`README.md`, `docs/**/*.md`, `changes/**/*.md`, installation guides, runbooks, architecture docs, changelogs) must normally be documentation drift and **never** apply blockers by themselves. They can be MEDIUM/HIGH if following them would create serious operational/security risk, but `Blocks Terraform Apply?` remains a `No — ... risk` value unless a real Terraform code/config/state dependency has the same blocker.
 
 ## 5. New Issues Discovered
 
@@ -274,7 +285,7 @@ List all official documentation URLs consulted.
 
 ## 7. Execution Summary
 
-Include this section whenever there are **no open issues** whose **Blocks Terraform Apply?** value starts with `Yes —`.
+Include this section whenever there are **no open code/config/state issues** whose **Blocks Terraform Apply?** value starts with `Yes —`. Markdown-only documentation/runbook issues do not suppress the execution summary; instead, mention the doc drift and provide the corrected evaluated apply guidance.
 
 Keep it concise and operational. It must answer:
 - Whether Terraform apply is blocked or can proceed with non-blocking risks accepted
@@ -282,10 +293,10 @@ Keep it concise and operational. It must answer:
    - New environment variables introduced by the reviewed range
    - Existing environment variables still required for the affected phases
    - Phase-specific object IDs or sensitive `TF_VAR_*` values required by affected phases
-- Which phases need to be applied, in exact order, and which phases do **not** need apply
+- Which phases need to be applied, in exact evaluated order, and which phases do **not** need apply
 - Recommended operations-VM commands (`init -backend-config=backend.tfvars`, `plan -out=tfplan`, `apply tfplan`)
 - Post-apply validation checks and any documented runtime follow-ups
-- Whether the execution summary tallies with vendor-provided docs/change logs; if not, name the doc issue and include it in **Issues Found**
+- Whether the execution summary tallies with vendor-provided docs/change logs; if not, name the doc issue and include it in **Issues Found**, but keep the execution summary based on your evaluated apply path
 
 > **Prerequisites ordering rule:** Treat required `ARM_*` and `TF_VAR_*` values as deployment prerequisites. In the execution summary, list them before the apply-order or operations-VM command block, not after it.
 

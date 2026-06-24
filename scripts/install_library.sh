@@ -7,7 +7,7 @@ REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 # shellcheck source=architect_env.sh
 source "$REPO/scripts/architect_env.sh"
 
-SKILL_BUNDLE="excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document verification-before-completion api-and-interface-design deprecation-and-migration terraform-commit-review _shared"
+SKILL_BUNDLE="excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document verification-before-completion api-and-interface-design deprecation-and-migration terraform-commit-review terraform-apply-fix-review _shared"
 AGENT_BUNDLE="code-review security-auditor"
 
 LEGACY_SKILLS="docx pptx xlsx pdf"
@@ -182,6 +182,7 @@ verify_skills_at() {
   test -f "${dir}/api-and-interface-design/SKILL.md" || return 1
   test -f "${dir}/deprecation-and-migration/SKILL.md" || return 1
   test -f "${dir}/terraform-commit-review/SKILL.md" || return 1
+  test -f "${dir}/terraform-apply-fix-review/SKILL.md" || return 1
 }
 
 verify_cursor_agents() {

@@ -25,6 +25,7 @@ Skill library + custom agent library for Cursor and Copilot. Work in this clone 
 | `skills/spreadsheet-document/` | XLSX / spreadsheets; formula recalc via office-tools |
 | `skills/pdf-document/` | PDF read/create/merge/forms |
 | `skills/terraform-commit-review/` | Terraform IaC commit-range review |
+| `skills/terraform-apply-fix-review/` | Terraform apply fix and plan review |
 | `skills/_shared/` | `architecture-document-principles.md`, `office-tools/` |
 | `scripts/install_library.sh` | Install/patch both libraries (global default) |
 | `scripts/install_deps.sh` | Runtimes only (`all` \| `excalidraw` \| `office` \| `office-system` \| `pdf` \| `node`) |
