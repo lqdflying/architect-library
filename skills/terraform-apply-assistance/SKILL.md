@@ -1,7 +1,7 @@
 ---
-name: terraform-apply-fix-review
-description: "Use when fixing Terraform validation/plan/apply errors, creating a branch/commit/push for Terraform code fixes, or reviewing Terraform plan output to decide whether apply is OK. Triggers: terraform error, apply failed, plan output, provider error, invalid argument, missing variable, permission issue, destructive plan, replacement, branch commit push, compare new plan, is this plan safe, evaluate apply. Uses Context7 for Terraform provider docs and Microsoft Learn MCP for Azure/RBAC/service behavior."
-argument-hint: "Terraform error text, plan output, or commit/branch context"
+name: terraform-apply-assistance
+description: "Use when fixing Terraform validation/plan/apply errors, reviewing a commit hash through HEAD for the current apply scope, creating a branch/commit/push for Terraform fixes, or reviewing Terraform plan output to decide whether apply is OK. Triggers: terraform error, apply failed, plan output, provider error, invalid argument, missing variable, permission issue, destructive plan, replacement, branch commit push, compare new plan, is this plan safe, evaluate apply. Uses Context7 for Terraform provider docs and Microsoft Learn MCP for Azure/RBAC/service behavior."
+argument-hint: "<commit-hash optional> plus Terraform error text, plan output, or branch context"
 ---
 
 # Terraform Apply Fix And Plan Review
@@ -10,6 +10,7 @@ argument-hint: "Terraform error text, plan output, or commit/branch context"
 
 Use this skill when the user needs help to:
 - Fix a Terraform validation, plan, or apply error in this repo.
+- Review all code planned for this apply from a commit hash through `HEAD`, including the hash commit itself.
 - Create a branch, edit Terraform, commit, and push the fix.
 - Review a pasted `terraform plan` and say whether apply is OK.
 - Compare repeated plan outputs after fixes and confirm whether earlier risks disappeared.
@@ -36,7 +37,31 @@ Use official docs before making or defending a technical claim about provider sc
 
 ## Workflow
 
-### 1. Triage The Error Or Plan
+### 1. Establish Apply Scope
+
+If the user provides a commit hash, treat that hash as the start of the current apply scope and include that commit in the review through `HEAD`.
+
+Use these commands to understand the scope:
+
+```bash
+git show <commit-hash> --stat
+git log --oneline <commit-hash>^..HEAD
+git diff --stat <commit-hash>^..HEAD
+git diff --name-only <commit-hash>^..HEAD
+```
+
+Important: use `<commit-hash>^..HEAD`, not `<commit-hash>..HEAD`, because the start commit itself must be included.
+
+If no commit hash is provided, infer the apply scope from session history and current repo state:
+- Recent commits made in the session.
+- The active branch and its upstream.
+- The latest pushed commit(s) mentioned by the user.
+- The resources shown in pasted plan output.
+- Any prior plan-review context in the conversation.
+
+If inference is uncertain, say what scope you inferred and what evidence supports it. Ask only if the ambiguity changes whether apply is safe.
+
+### 2. Triage The Error Or Plan
 
 Start from the concrete anchor supplied by the user:
 - Terraform error resource address, file, and line.
@@ -56,7 +81,9 @@ If the user pasted a plan, classify it first:
 - `- destroy`: highest-risk bucket; identify why Terraform says it will destroy.
 - `-/+ replace`: highest-risk bucket; identify the force-replacement attribute.
 
-### 2. Create Or Confirm A Working Branch
+For apply-scope reviews, read the changed Terraform and documentation files from the inferred or provided range. Focus on deployable inputs and resource behavior first, then docs/runbooks that affect prerequisites or apply decisions.
+
+### 3. Create Or Confirm A Working Branch
 
 Before editing Terraform, inspect git state:
 
@@ -66,7 +93,9 @@ git branch --show-current
 git remote -v
 ```
 
-If the user has not already placed you on a suitable branch, create a focused branch:
+If this session already created or switched to a branch for the current Terraform plan/apply fix, continue using that branch. Do not create another branch for follow-up fixes, plan iterations, or vendor-requested tweaks in the same apply workflow unless the user explicitly asks for a separate branch.
+
+If no suitable branch exists yet, create a focused branch:
 
 ```bash
 git switch -c fix/<short-problem-name>
@@ -75,7 +104,7 @@ git push -u origin fix/<short-problem-name>
 
 If a branch already exists for the active fix, continue on it. Avoid creating stacked/unrelated branches unless the user asks.
 
-### 3. Diagnose With Docs And Local Evidence
+### 4. Diagnose With Docs And Local Evidence
 
 Use local code and official docs together:
 
@@ -89,7 +118,7 @@ Do not infer permissions, dependencies, or safety from resource names alone. Map
 - One side of a data movement flow does not automatically require the same permissions as the other side.
 - A deployment identity, runtime identity, and sync/automation identity may each need different permissions.
 
-### 4. Make The Smallest Correct Edit
+### 5. Make The Smallest Correct Edit
 
 Patch only the files needed for the apply blocker or confirmed plan risk.
 
@@ -100,7 +129,7 @@ Typical edit surfaces:
 
 Avoid unrelated refactors and broad formatting. Run `terraform fmt` only on touched `.tf` or real `.tfvars` files, not on `*.tfvars.example` files because Terraform fmt does not process those extensions.
 
-### 5. Validate Locally Without Plan/Apply
+### 6. Validate Locally Without Plan/Apply
 
 After the first substantive edit, immediately run the narrowest available checks:
 
@@ -114,7 +143,7 @@ If `terraform validate` cannot run because providers are not initialized on this
 
 Never claim the fix is complete until fresh validation output confirms it.
 
-### 6. Commit And Push The Fix
+### 7. Commit And Push The Fix
 
 When validation passes and the agent changed Terraform code, commit and push the fix unless the user explicitly says not to. Commit only intended files:
 
@@ -128,7 +157,7 @@ git status --short --branch
 
 Final git state should be clean and synced with the remote branch.
 
-### 7. Review The Next Terraform Plan
+### 8. Review The Next Terraform Plan
 
 When the user pastes a new plan, compare it against:
 - The previous plan output in the conversation.
@@ -175,31 +204,125 @@ Re-raise any unresolved risk every time. Do not stop mentioning a destructive ac
 
 ## Response Format For Plan Reviews
 
-Keep plan answers short but decisive:
+Use grouped tables so large plans stay readable. Do not put every resource into one giant table.
+
+When this skill is explicitly invoked, always include `## 7. Execution Summary` after the review tables, regardless of whether the user supplied a commit hash. If there are blockers, the execution summary must say apply is blocked and list what must be fixed first. If there are no blockers, it must provide the evaluated apply steps and prerequisites.
 
 ```markdown
 This plan is <OK / conditionally OK / not OK> for apply.
 
-Resolved since last plan:
-- ...
+## Summary
 
-Expected changes:
-- ...
+| Result | Assessment |
+|---|---|
+| Apply scope | <commit hash through HEAD, or inferred session scope> |
+| Terraform blocker | <none / present> |
+| Overall apply status | <OK / conditionally OK / not OK> |
+| Main risk | <short statement> |
+| Recommendation | <apply / do not apply / apply only after confirming X> |
 
-Risks to confirm before apply:
-- ...
+## Adds
 
-Blocking issues:
-- ...
+| Group | Action | What will be added | Risk / note |
+|---|---|---|---|
+| <DNS / Networking / Identity / App / Data / Docs / Other> | `+ create` | ... | ... |
 
-Recommendation: <apply / do not apply / apply only after confirming X>.
+## Changes
+
+| Group | Action | What will change | Risk / note |
+|---|---|---|---|
+| <group> | `~ update in-place` | ... | ... |
+
+## Destroys / Replacements
+
+| Group | Action | What will be removed or replaced | Risk / required confirmation |
+|---|---|---|---|
+| <group> | `- destroy` / `-/+ replace` | ... | ... |
+
+## Risks To Highlight
+
+| Risk | Why it matters | Required confirmation or fix |
+|---|---|---|
+| ... | ... | ... |
+
+## Conclusion
+
+<Short apply recommendation. If there is risk, highlight it directly and repeat the required confirmation.>
+
+## 7. Execution Summary
+
+<State whether there are open Terraform validation/plan/apply blockers. State whether apply can proceed, can proceed only with risks accepted, or is blocked. State that `terraform init/plan/apply/state` was not run locally because this host is review-only and Terraform operations belong on the operations VM.>
+
+Apply scope: <commit hash through HEAD, or inferred session scope with evidence>.
+
+Prerequisites before any apply:
+
+- [ ] `<required ARM_* or TF_VAR_* value>` — <why it is needed>
+- [ ] `<required object ID / identity / secret / certificate / DNS prerequisite>` — <why it is needed>
+- [ ] `<manual approval or readiness check>` — <why it is needed>
+
+Additional prerequisites:
+
+- <Manual dependency, certificate, DNS, external service, or runtime readiness item.>
+- <Security or operations approval needed before apply.>
+
+Evaluated apply order on the operations VM:
+
+- [ ] `cd <phase_dir>`
+- [ ] `terraform init -backend-config=backend.tfvars`
+- [ ] `terraform plan -out=tfplan`
+- [ ] `terraform apply tfplan`
+
+Phases needing apply: <Phase list and exact order>.
+Phases not needing apply: <Phase list and reason>.
+
+Post-apply validation:
+
+- [ ] `<terraform output / Azure resource / DNS / route / health probe / RBAC check>`
+- [ ] `<runtime or connectivity validation>`
+- [ ] `<follow-up plan should show no unexpected drift>`
+
+Docs alignment: <State whether vendor docs/change logs align with evaluated code and plan. If not, identify the drift and whether it is captured as a risk/finding.>
+
+Remaining risks: <None, accepted risks, or unresolved risks that must be raised again.>
 ```
 
-If the plan is broad, say so even when the immediate fix is correct.
+Recommended grouping categories:
+- DNS and name resolution.
+- Network security and routing.
+- Identity, RBAC, access policies, secrets, keys, and certificates.
+- Application Gateway, load balancers, Front Door, gateways, listeners, probes, origins, and routes.
+- Compute, AKS, Databricks, app services, and application backends.
+- Storage, databases, Event Hubs, data-plane services, and private endpoints.
+- Terraform wiring: providers, variables, outputs, remote state, backend, modules.
+- Documentation and runbooks.
+
+For small plans, omit empty sections. For broad plans, keep each table focused and summarize repeated resources by group instead of listing every low-value nested block.
+
+### Execution Summary Rules
+
+The execution summary is mandatory when this skill is explicitly called, even for a plan-only review and even when no commit hash is provided.
+
+It must answer:
+- Whether Terraform apply is blocked or can proceed with risks accepted.
+- The evaluated apply scope: provided hash through `HEAD`, or inferred session scope.
+- Environment-variable prerequisites before any apply command summary:
+	- New environment variables introduced by the apply scope.
+	- Existing environment variables still required for affected phases.
+	- Phase-specific object IDs or sensitive `TF_VAR_*` values required by affected phases.
+- Which phases need apply, in exact evaluated order, and which phases do not need apply.
+- Recommended operations-VM command sequence: `terraform init -backend-config=backend.tfvars`, `terraform plan -out=tfplan`, `terraform apply tfplan`, or state that commands should not run until blockers are fixed.
+- Post-apply validation checks and runtime follow-ups.
+- Whether docs/change logs align with the evaluated apply path; if not, mention the drift but keep the execution guidance based on code/config/plan evidence.
+
+If the apply is not OK, do not provide commands as if the user should run them. Instead, list the blocked command stage and the fix/confirmation needed before proceeding.
+
+Use task-list bullets (`- [ ]`) for prerequisites, operations-VM apply steps, and post-apply validation so the user can copy the section into a runbook.
 
 ## Completion Checks
 
 Before saying the task is done:
+- Apply scope is clear: either a provided commit hash through `HEAD`, or a stated scope inferred from session history.
 - A branch exists and is pushed to the remote when code was changed.
 - All intended edits are committed, unless the user explicitly asked not to commit.
 - `git status --short --branch` is clean or any remaining changes are explained.
@@ -207,10 +330,12 @@ Before saying the task is done:
 - Any pasted plan has been evaluated for create/update/destroy actions.
 - Any unresolved risk is explicitly raised again.
 - Official docs have been consulted for provider/Azure/RBAC claims.
+- The final answer includes `## 7. Execution Summary` with apply decision, prerequisites, phase order, operations-VM command guidance, post-apply checks, docs alignment, and remaining risks.
 
 ## Example Prompts
 
-- `/terraform-apply-fix-review Terraform apply failed with this error: ...`
-- `/terraform-apply-fix-review Review this Phase 1 plan and tell me if apply is OK: ...`
-- `/terraform-apply-fix-review Fix this AzureRM provider error, create a branch, commit, and push.`
-- `/terraform-apply-fix-review Compare this new plan with the previous one and tell me what risk remains.`
+- `/terraform-apply-assistance Terraform apply failed with this error: ...`
+- `/terraform-apply-assistance 10509e26872a539eee1dd7110e93d65efc238a0e Review this apply scope and plan.`
+- `/terraform-apply-assistance Review this Phase 1 plan and tell me if apply is OK: ...`
+- `/terraform-apply-assistance Fix this AzureRM provider error, create a branch, commit, and push.`
+- `/terraform-apply-assistance Compare this new plan with the previous one and tell me what risk remains.`

@@ -54,7 +54,7 @@ Architect Library publishes **two libraries**:
 | `api-and-interface-design` | Cursor/Copilot skill | API and module boundary design workflow |
 | `deprecation-and-migration` | Cursor/Copilot skill | Deprecation and migration planning workflow |
 | `terraform-commit-review` | Cursor/Copilot skill | Terraform IaC commit-range review (correctness, security, destructive changes) |
-| `terraform-apply-fix-review` | Cursor/Copilot skill | Fix Terraform errors, create fix branches, review plan output for apply safety |
+| `terraform-apply-assistance` | Cursor/Copilot skill | Fix Terraform errors, review apply scope from commit hash through HEAD, create fix branches, review plan output for apply safety |
 | `_shared` | Support files (not a standalone skill) | **Yes** whenever Word, PowerPoint, or spreadsheet skills are installed |
 
 Word, PowerPoint, and spreadsheet skills reference Office tools via `../_shared/office-tools/`. If `_shared` is missing or not a **sibling** of those folders, paths break.
@@ -228,7 +228,7 @@ The install script runs **library** checks automatically for the `EDITOR` you pa
 | **api-and-interface-design** | Contract before implementation; consistent errors; boundary validation; list pagination; deprecation cross-check when changing public interfaces |
 | **deprecation-and-migration** | Replacement before deprecation; migration guide; zero-usage verified before removal |
 | **terraform-commit-review** | Commit range established; all changed files read; provider docs verified via MCP; 7-section checklist applied; structured report with intent summary, per-phase table, issues, vendor comments, source URLs, and execution summary |
-| **terraform-apply-fix-review** | Error/plan triaged; branch created; diagnosis via MCP; smallest edit applied; local validation run; fix committed and pushed; plan evaluated with rubric; risks re-raised every iteration |
+| **terraform-apply-assistance** | Apply scope established (commit hash through HEAD or inferred); error/plan triaged; branch created; diagnosis via MCP; smallest edit applied; local validation run; fix committed and pushed; plan evaluated with rubric; risks re-raised every iteration; execution summary with apply decision, prerequisites, phase order, and post-apply checks |
 
 **PowerPoint is not done** when the `.pptx` exists — only after layout preview (or user waives).
 
