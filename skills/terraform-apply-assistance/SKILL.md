@@ -1,6 +1,6 @@
 ---
 name: terraform-apply-assistance
-description: "Use when fixing Terraform validation/plan/apply errors, reviewing a commit hash through HEAD for the current apply scope, creating a branch/commit/push for Terraform fixes, or reviewing Terraform plan output to decide whether apply is OK. Triggers: terraform error, apply failed, plan output, provider error, invalid argument, missing variable, permission issue, destructive plan, replacement, branch commit push, compare new plan, is this plan safe, evaluate apply. Uses Context7 for Terraform provider docs and Microsoft Learn MCP for Azure/RBAC/service behavior."
+description: "Use when fixing Terraform validation/plan/apply errors, reviewing a commit hash through HEAD for the current apply scope, creating a focused branch and preparing Terraform fixes for user review, or reviewing Terraform plan output to decide whether apply is OK. Triggers: terraform error, apply failed, plan output, provider error, invalid argument, missing variable, permission issue, destructive plan, replacement, branch workflow, compare new plan, is this plan safe, evaluate apply. Uses Context7 for Terraform provider docs and Microsoft Learn MCP for Azure/RBAC/service behavior."
 argument-hint: "<commit-hash optional> plus Terraform error text, plan output, or branch context"
 ---
 
@@ -11,7 +11,7 @@ argument-hint: "<commit-hash optional> plus Terraform error text, plan output, o
 Use this skill when the user needs help to:
 - Fix a Terraform validation, plan, or apply error in this repo.
 - Review all code planned for this apply from a commit hash through `HEAD`, including the hash commit itself.
-- Create a branch, edit Terraform, commit, and push the fix.
+- Create or switch to a focused branch, edit Terraform, validate the fix, then pause for user review before any commit or push.
 - Review a pasted `terraform plan` and say whether apply is OK.
 - Compare repeated plan outputs after fixes and confirm whether earlier risks disappeared.
 - Evaluate destructive Terraform actions, replacements, identity/RBAC changes, networking/routing changes, data-plane permissions, service configuration changes, cross-phase dependencies, and environment prerequisites.
@@ -23,7 +23,7 @@ This is an implementation-and-review workflow, not a broad commit audit. For ful
 - This host is a coding/review host only. Do not run `terraform init`, `terraform plan`, `terraform apply`, or `terraform state` locally.
 - Terraform plan/apply operations happen on the Terraform operations VM. Ask the user to paste output, then analyze it here.
 - Azure CLI may be used here only for read-only inspection when already authenticated and when needed.
-- Push project branches to the project remote (e.g. `origin`) unless the user explicitly asks for another remote.
+- Do not commit or push automatically. After editing and validation, pause and let the user review the diff; commit or push only after the user explicitly instructs you to proceed.
 - Do not revert unrelated user work. If the worktree has unrelated edits, preserve them and stage only intended files.
 
 ## Required Official Documentation Checks
@@ -103,10 +103,9 @@ If no suitable branch exists yet, create a focused branch:
 
 ```bash
 git switch -c fix/<short-problem-name>
-git push -u origin fix/<short-problem-name>
 ```
 
-If a branch already exists for the active fix, continue on it. Avoid creating stacked/unrelated branches unless the user asks.
+Do not push the new branch unless the user explicitly instructs you to push it. If a branch already exists for the active fix, continue on it. Avoid creating stacked/unrelated branches unless the user asks.
 
 ### 4. Diagnose With Docs And Local Evidence
 
@@ -147,9 +146,17 @@ If `terraform validate` cannot run because providers are not initialized on this
 
 Never claim the fix is complete until fresh validation output confirms it.
 
-### 7. Commit And Push The Fix
+### 7. Pause For User Review Before Commit Or Push
 
-When validation passes and the agent changed Terraform code, commit and push the fix unless the user explicitly says not to. Commit only intended files:
+When validation passes and the agent changed Terraform code, stop before committing or pushing. Give the user a concise review package:
+
+- Branch name.
+- Files changed.
+- Validation commands and results.
+- Short explanation of the fix and any remaining risks.
+- Suggested commit message, if useful.
+
+Do not run `git add`, `git commit`, or `git push` unless the user explicitly instructs you to do so after reviewing the changes. When the user does instruct you to commit or push, stage only intended files:
 
 ```bash
 git status --short --branch
@@ -159,7 +166,7 @@ git push
 git status --short --branch
 ```
 
-Final git state should be clean and synced with the remote branch.
+After a user-approved commit or push, report the final git state. If the user has not approved commit or push yet, final status should clearly show the uncommitted reviewable changes.
 
 ### 8. Review The Next Terraform Plan
 
@@ -330,9 +337,9 @@ Use the compact runbook style for `## 7. Execution Summary`: short conclusion pa
 
 Before saying the task is done:
 - Apply scope is clear: either a provided commit hash through `HEAD`, or a stated scope inferred from session history.
-- A branch exists and is pushed to the remote when code was changed.
-- All intended edits are committed, unless the user explicitly asked not to commit.
-- `git status --short --branch` is clean or any remaining changes are explained.
+- A focused branch exists when Terraform code was changed, unless the current branch was already the user-approved working branch.
+- Intended edits are validated and left for user review; no commit or push has been made unless the user explicitly instructed it after review.
+- `git status --short --branch` is reported, and any uncommitted reviewable changes are explained.
 - Fresh validation output has been run and checked.
 - Any pasted plan has been evaluated for create/update/destroy actions.
 - Any unresolved risk is explicitly raised again.
@@ -344,5 +351,5 @@ Before saying the task is done:
 - `/terraform-apply-assistance Terraform apply failed with this error: ...`
 - `/terraform-apply-assistance 10509e26872a539eee1dd7110e93d65efc238a0e Review this apply scope and plan.`
 - `/terraform-apply-assistance Review this Phase 1 plan and tell me if apply is OK: ...`
-- `/terraform-apply-assistance Fix this AzureRM provider error, create a branch, commit, and push.`
+- `/terraform-apply-assistance Fix this AzureRM provider error, create a branch, validate, and pause for my review before commit or push.`
 - `/terraform-apply-assistance Compare this new plan with the previous one and tell me what risk remains.`

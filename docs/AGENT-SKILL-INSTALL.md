@@ -228,7 +228,7 @@ The install script runs **library** checks automatically for the `EDITOR` you pa
 | **api-and-interface-design** | Contract before implementation; consistent errors; boundary validation; list pagination; deprecation cross-check when changing public interfaces |
 | **deprecation-and-migration** | Replacement before deprecation; migration guide; zero-usage verified before removal |
 | **terraform-commit-review** | Commit range established; all changed files read; provider docs verified via MCP; 7-section checklist applied; structured report with intent summary, per-phase table, issues, vendor comments, source URLs, and execution summary |
-| **terraform-apply-assistance** | Apply scope established (commit hash through HEAD or inferred); error/plan triaged; branch created; diagnosis via MCP; smallest edit applied; local validation run; fix committed and pushed; plan evaluated with rubric; risks re-raised every iteration; execution summary with apply decision, prerequisites, phase order, and post-apply checks |
+| **terraform-apply-assistance** | Apply scope established (commit hash through HEAD or inferred); error/plan triaged; focused branch created; diagnosis via MCP; smallest edit applied; local validation run; **paused for user review** — no commit/push unless user instructs; plan evaluated with rubric; risks re-raised every iteration; execution summary with apply decision, prerequisites, phase order, and post-apply checks |
 
 **PowerPoint is not done** when the `.pptx` exists — only after layout preview (or user waives).
 
