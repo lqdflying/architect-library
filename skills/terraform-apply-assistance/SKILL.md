@@ -251,36 +251,37 @@ This plan is <OK / conditionally OK / not OK> for apply.
 
 ## 7. Execution Summary
 
-<State whether there are open Terraform validation/plan/apply blockers. State whether apply can proceed, can proceed only with risks accepted, or is blocked. State that `terraform init/plan/apply/state` was not run locally because this host is review-only and Terraform operations belong on the operations VM.>
+Terraform apply is <blocked / not approved yet / conditionally OK / OK> because <short reason>. State whether `terraform init/plan/apply/state` was not run locally because this host is review-only and Terraform operations belong on the operations VM.
 
 Apply scope: <commit hash through HEAD, or inferred session scope with evidence>.
 
-Prerequisites before any apply:
+Environment prerequisites before apply:
 
-- [ ] `<required ARM_* or TF_VAR_* value>` — <why it is needed>
-- [ ] `<required object ID / identity / secret / certificate / DNS prerequisite>` — <why it is needed>
-- [ ] `<manual approval or readiness check>` — <why it is needed>
+- `<required ARM_* or TF_VAR_* value>` — <why it is needed>
+- `<required object ID / identity / secret / certificate / DNS prerequisite>` — <why it is needed>
+- `<manual approval or readiness check>` — <why it is needed>
 
-Additional prerequisites:
+Evaluated apply order:
 
-- <Manual dependency, certificate, DNS, external service, or runtime readiness item.>
-- <Security or operations approval needed before apply.>
+```bash
+cd <phase_dir>
+terraform init -backend-config=backend.tfvars
+terraform plan -out=tfplan
+terraform apply tfplan
 
-Evaluated apply order on the operations VM:
+cd ../<next_phase_dir>
+terraform init -backend-config=backend.tfvars
+terraform plan -out=tfplan
+terraform apply tfplan
+```
 
-- [ ] `cd <phase_dir>`
-- [ ] `terraform init -backend-config=backend.tfvars`
-- [ ] `terraform plan -out=tfplan`
-- [ ] `terraform apply tfplan`
+Phases that do not need apply: <Phase list and reason, or none known from code/plan review alone>.
 
-Phases needing apply: <Phase list and exact order>.
-Phases not needing apply: <Phase list and reason>.
+Post-apply validation checks:
 
-Post-apply validation:
-
-- [ ] `<terraform output / Azure resource / DNS / route / health probe / RBAC check>`
-- [ ] `<runtime or connectivity validation>`
-- [ ] `<follow-up plan should show no unexpected drift>`
+- <Terraform output / Azure resource / DNS / route / health probe / RBAC check>.
+- <Runtime or connectivity validation>.
+- <Follow-up plan should show no unexpected drift>.
 
 Docs alignment: <State whether vendor docs/change logs align with evaluated code and plan. If not, identify the drift and whether it is captured as a risk/finding.>
 
@@ -317,7 +318,7 @@ It must answer:
 
 If the apply is not OK, do not provide commands as if the user should run them. Instead, list the blocked command stage and the fix/confirmation needed before proceeding.
 
-Use task-list bullets (`- [ ]`) for prerequisites, operations-VM apply steps, and post-apply validation so the user can copy the section into a runbook.
+Use the compact runbook style for `## 7. Execution Summary`: short conclusion paragraph, plain bullets for prerequisites, a fenced `bash` command block for the evaluated apply order, then plain bullets for post-apply validation. Do not use task-list bullets (`- [ ]`) by default unless the user explicitly asks for a checklist.
 
 ## Completion Checks
 
