@@ -95,17 +95,17 @@ git branch --show-current
 git remote -v
 ```
 
-If this session already created or switched to a focused branch for the current Terraform plan/apply fix, continue using that branch. Do not create another branch for follow-up fixes, plan iterations, or vendor-requested tweaks in the same apply workflow unless the user explicitly asks for a separate branch.
+If this session already created or switched to a non-protected branch for Terraform apply assistance, continue using that same branch for subsequent blockers, follow-up fixes, plan iterations, or vendor-requested tweaks in the same apply workflow. Do not create a new branch just because the next error is in a different phase or resource. Treat the current session branch as the working branch unless the user explicitly asks for a separate branch or project instructions say the branch is protected/mainline.
 
-For a concrete Terraform validation, plan, or apply error that requires editing deployable Terraform inputs or code, create the focused fix branch before the first edit unless the current branch is already clearly a fix branch for that exact error. Treat branches named by project instructions as protected, mainline, release, apply, or integration branches as unsuitable working branches for error fixes. If project instructions do not identify which branches are protected/mainline and the current branch is not obviously a focused fix branch, ask the user to identify the correct base/working-branch policy before editing.
+For a concrete Terraform validation, plan, or apply error that requires editing deployable Terraform inputs or code, create the focused fix branch before the first edit only when the current branch is protected/mainline or no session apply-fix branch has been checked out yet. Treat branches named by project instructions as protected, mainline, release, apply, or integration branches as unsuitable working branches for error fixes. If project instructions do not identify which branches are protected/mainline and the current branch is not obviously a session apply-fix branch, ask the user to identify the correct base/working-branch policy before editing.
 
-If no suitable branch exists yet, create a focused branch:
+If no suitable branch exists yet, create one date-based session branch instead of a per-error branch. Prefer this naming pattern:
 
 ```bash
-git switch -c fix/<short-problem-name>
+git switch -c terraform-apply-fix-YYYYMMDD
 ```
 
-Do not push the new branch unless the user explicitly instructs you to push it. If a branch already exists for the active fix, continue on it. Avoid creating stacked/unrelated branches unless the user asks.
+If a branch with that date already exists, add a short suffix such as `terraform-apply-fix-YYYYMMDD-2` or `terraform-apply-fix-YYYYMMDD-<short-scope>`. Do not push the new branch unless the user explicitly instructs you to push it. If a non-protected session branch already exists for the active apply workflow, continue on it. Avoid creating stacked/unrelated branches unless the user asks.
 
 ### 4. Diagnose With Docs And Local Evidence
 
