@@ -83,6 +83,8 @@ If the user pasted a plan, classify it first:
 
 For apply-scope reviews, read the changed Terraform and documentation files from the inferred or provided range. Focus on deployable inputs and resource behavior first, then docs/runbooks that affect prerequisites or apply decisions.
 
+Always scan plan output and diffs for new Microsoft Entra service principal or Enterprise Application creation. Highlight these explicitly because some Terraform platform identities do not have directory privileges to create app registrations, service principals, or enterprise applications. Treat direct Entra resources such as `azuread_application`, `azuread_service_principal`, and related password/federated-credential resources as a likely apply blocker unless the required Entra privileges are confirmed. Also call out Azure-managed identities (`azurerm_user_assigned_identity` and `identity { type = "SystemAssigned" }`) because Microsoft documents managed identities as service-principal objects visible under Enterprise Applications; distinguish them from standalone app registrations, but still require the user to confirm the deployment identity is allowed to create those managed identity principals.
+
 ### 3. Create Or Confirm A Working Branch
 
 Before editing Terraform, inspect git state:
@@ -194,6 +196,7 @@ Re-raise any unresolved risk every time. Do not stop mentioning a destructive ac
 - Any change to remote-state outputs, module inputs, provider aliases, backend config, required variables, or cross-phase contracts.
 - Any broadening of access, public exposure, egress allowlists, admin privileges, or shared-service scope.
 - Any plan that includes placeholders, unknown operational readiness, manually managed resources, or resources shared by multiple environments.
+- Any new Microsoft Entra service principal or Enterprise Application, including standalone AzureAD app/SP resources and managed identities that will create service-principal objects behind the scenes.
 
 ### Not OK Until Fixed
 
@@ -203,6 +206,7 @@ Re-raise any unresolved risk every time. Do not stop mentioning a destructive ac
 - A live dependency will be destroyed or replaced without a verified migration, replacement, or rollback path.
 - Required inputs are missing: identity, role assignment, federated credential, provider alias, remote-state output, backend value, environment variable, secret, certificate, DNS prerequisite, or manually provisioned dependency.
 - The plan removes or weakens required access for a runtime/deployment identity, or grants broader access than the verified operation needs without explicit approval.
+- The plan explicitly creates Microsoft Entra app registrations, service principals, or Enterprise Applications and the Terraform platform identity's Entra privileges are not confirmed.
 
 ## Response Format For Plan Reviews
 

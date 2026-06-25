@@ -69,6 +69,7 @@ Always cite the source URL for every finding in the final report.
 - [ ] Least-privilege: verify each new role assignment is the minimum needed (check MS Learn for built-in role definitions)
 - [ ] UAMI vs SAMI appropriate for the use case
 - [ ] Comments/docs accurately describe what the code does — misleading comments near security config are flagged
+- [ ] New Microsoft Entra service principals or Enterprise Applications are explicitly highlighted. Direct resources such as `azuread_application`, `azuread_service_principal`, and related credentials are likely apply blockers unless the Terraform platform identity has confirmed Entra privileges. Managed identities (`azurerm_user_assigned_identity` or `identity { type = "SystemAssigned" }`) are service-principal objects visible under Enterprise Applications; distinguish them from standalone app registrations, but still call them out for privilege confirmation.
 
 #### C. Destructive Change Detection
 - [ ] `partition_count` changes on existing Event Hubs (Standard SKU — immutable, forces destroy/recreate)
@@ -318,6 +319,7 @@ Common Azure resources with immutable fields that force destroy/recreate if chan
 - Sensitive variables (`*_password`, `*_secret`, `*_key`, `*_token`) must be `sensitive = true` and set via env vars, not hardcoded in any committed file
 - `Contributor` at resource group scope is a high-privilege grant — flag if not clearly justified and env-guarded
 - RBAC follows least-privilege: always verify the minimum sufficient built-in role via Microsoft Learn MCP
+- Explicit Microsoft Entra app/SP/Enterprise Application creation must be highlighted because many Terraform platform identities do not have directory privileges to create those objects. Managed identities also create service-principal objects behind the scenes; report them separately from standalone app registrations and require privilege confirmation before apply guidance.
 
 ### Cross-Module/Phase Consistency
 - Every new `output` added in a lower phase must be consumed correctly by the higher phase referencing it via `terraform_remote_state`
