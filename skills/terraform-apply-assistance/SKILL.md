@@ -93,7 +93,9 @@ git branch --show-current
 git remote -v
 ```
 
-If this session already created or switched to a branch for the current Terraform plan/apply fix, continue using that branch. Do not create another branch for follow-up fixes, plan iterations, or vendor-requested tweaks in the same apply workflow unless the user explicitly asks for a separate branch.
+If this session already created or switched to a focused branch for the current Terraform plan/apply fix, continue using that branch. Do not create another branch for follow-up fixes, plan iterations, or vendor-requested tweaks in the same apply workflow unless the user explicitly asks for a separate branch.
+
+For a concrete Terraform validation, plan, or apply error that requires editing deployable Terraform inputs or code, create the focused fix branch before the first edit unless the current branch is already clearly a fix branch for that exact error. Treat branches named by project instructions as protected, mainline, release, apply, or integration branches as unsuitable working branches for error fixes. If project instructions do not identify which branches are protected/mainline and the current branch is not obviously a focused fix branch, ask the user to identify the correct base/working-branch policy before editing.
 
 If no suitable branch exists yet, create a focused branch:
 
