@@ -8,10 +8,10 @@ REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$REPO/scripts/architect_env.sh"
 
 SKILL_BUNDLE="excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document verification-before-completion api-and-interface-design deprecation-and-migration terraform-commit-review terraform-apply-assistance _shared"
-CURSOR_ONLY_SKILLS="mcp-tool-rules"
+EDITOR_VARIANT_SKILLS="mcp-tool-rules"
 AGENT_BUNDLE="code-review security-auditor"
 
-LEGACY_SKILLS="docx pptx xlsx pdf terraform-apply-fix-review"
+LEGACY_SKILLS="docx pptx xlsx pdf terraform-apply-fix-review mcp-tool-rules-copilot"
 
 usage() {
   cat <<'EOF'
@@ -99,7 +99,6 @@ claude_agents_dir() { echo "${BASE}/.claude/agents"; }
 
 install_skills_to() {
   local dest="$1"
-  local cursor_only="${2:-false}"
   mkdir -p "$dest"
   for legacy in $LEGACY_SKILLS; do
     rm -rf "${dest}/${legacy}"
@@ -108,12 +107,18 @@ install_skills_to() {
     rm -rf "${dest}/${name}"
     cp -a "${REPO}/skills/${name}" "${dest}/${name}"
   done
-  if [[ "$cursor_only" == "true" ]]; then
-    for name in $CURSOR_ONLY_SKILLS; do
-      rm -rf "${dest}/${name}"
-      cp -a "${REPO}/skills/${name}" "${dest}/${name}"
-    done
-  fi
+}
+
+install_editor_variants() {
+  local dest="$1"
+  local editor="$2"
+  for name in $EDITOR_VARIANT_SKILLS; do
+    rm -rf "${dest}/${name}"
+    cp -a "${REPO}/skills/${name}" "${dest}/${name}"
+    mv "${dest}/${name}/SKILL.${editor}.md" "${dest}/${name}/SKILL.md"
+    # Remove all remaining variant files (SKILL.*.md) so only SKILL.md stays
+    find "${dest}/${name}" -maxdepth 1 -name 'SKILL.*.md' -delete
+  done
 }
 
 install_agent_file() {
@@ -133,12 +138,21 @@ install_agent_file() {
 install_skills() {
   case "$EDITOR" in
     both)
-      install_skills_to "$(cursor_skills_dir)" true
+      install_skills_to "$(cursor_skills_dir)"
+      install_editor_variants "$(cursor_skills_dir)" cursor
       install_skills_to "$(copilot_skills_dir)"
+      install_editor_variants "$(copilot_skills_dir)" copilot
       install_skills_to "$(claude_skills_dir)"
       ;;
-    cursor) install_skills_to "$(cursor_skills_dir)" true ;;
-    copilot) install_skills_to "$(copilot_skills_dir)" ;;
+    cursor)
+      install_skills_to "$(cursor_skills_dir)"
+      install_editor_variants "$(cursor_skills_dir)" cursor
+      ;;
+    copilot)
+      install_skills_to "$(copilot_skills_dir)"
+      install_editor_variants "$(copilot_skills_dir)" copilot
+      ;;
+    # Claude gets shared skills only — no editor-variant skills (no SKILL.claude.md exists)
     claude) install_skills_to "$(claude_skills_dir)" ;;
   esac
 }
@@ -193,6 +207,16 @@ verify_skills_at() {
   test -f "${dir}/terraform-apply-assistance/SKILL.md" || return 1
 }
 
+verify_editor_variants_at() {
+  local dir="$1"
+  for name in $EDITOR_VARIANT_SKILLS; do
+    test -f "${dir}/${name}/SKILL.md" || return 1
+    # No leftover variant files at destination
+    test ! -f "${dir}/${name}/SKILL.cursor.md" || return 1
+    test ! -f "${dir}/${name}/SKILL.copilot.md" || return 1
+  done
+}
+
 verify_cursor_agents() {
   local dir="$1"
   test -f "${dir}/code-review.md" || return 1
@@ -222,9 +246,11 @@ verify() {
   if [[ "$WHAT" == "all" || "$WHAT" == "skills" ]]; then
     if [[ "$EDITOR" == "both" || "$EDITOR" == "cursor" ]]; then
       verify_skills_at "$(cursor_skills_dir)" || ok=1
+      verify_editor_variants_at "$(cursor_skills_dir)" || ok=1
     fi
     if [[ "$EDITOR" == "both" || "$EDITOR" == "copilot" ]]; then
       verify_skills_at "$(copilot_skills_dir)" || ok=1
+      verify_editor_variants_at "$(copilot_skills_dir)" || ok=1
     fi
     if [[ "$EDITOR" == "both" || "$EDITOR" == "claude" ]]; then
       verify_skills_at "$(claude_skills_dir)" || ok=1

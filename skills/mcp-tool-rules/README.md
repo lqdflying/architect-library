@@ -1,32 +1,41 @@
 # mcp-tool-rules
 
-Scans enabled MCP servers, discovers tool schemas, and generates `.cursor/rules/mcp-*.mdc` rule files that document the correct `CallMcpTool` arguments for each tool.
+Scans enabled MCP servers, discovers tool schemas, and generates editor-specific documentation files so the AI agent always calls each tool with correct arguments.
+
+This skill has two variants — one per supported editor:
+
+| Variant | File | Output |
+|---------|------|--------|
+| Cursor | `SKILL.cursor.md` | `.cursor/rules/mcp-*.mdc` |
+| VS Code Copilot | `SKILL.copilot.md` | `.github/instructions/mcp-*.instructions.md` |
+
+The install script activates the correct variant as `SKILL.md` at the destination.
 
 ## Why
 
-Cursor has a known bug where `CallMcpTool` exposes `properties: []` for the `arguments` field. Models that follow the schema strictly send empty `arguments: {}`, causing MCP calls to fail. The generated rule files teach the agent the correct arguments for every tool.
+MCP tool calls can fail or produce unexpected results when the model guesses argument names, types, or required fields incorrectly. Cursor has a specific bug where `CallMcpTool` exposes `properties: []` for the `arguments` field. The generated files document every tool's parameters so the agent never guesses.
 
 ## Usage
 
-In a Cursor agent chat:
+**Cursor:**
 
 ```
 /mcp-tool-rules
 ```
 
-Or describe what you need:
+**VS Code Copilot:**
 
 ```
-Generate MCP tool calling rules for all my servers
+Generate MCP tool calling instructions for all my servers
 ```
 
-The skill walks through four phases:
+Both variants walk through the same four phases:
 
-1. **Discover servers** — reads `.cursor/mcp.json` and `~/.cursor/mcp.json`, shows a summary table
-2. **Discover tools** — reads tool schemas from MCP descriptor files, source code, docs, or user input
-3. **Generate rules** — writes `.cursor/rules/mcp-tools.mdc` (or per-server files if >20 tools)
+1. **Discover servers** — reads editor-specific MCP config, shows a summary table
+2. **Discover tools** — reads tool schemas from descriptor files, source code, docs, or user input
+3. **Generate rules/instructions** — writes rule files (Cursor: `.mdc`, Copilot: `.instructions.md`)
 4. **Validate** — reads back generated files, checks server names, parameter tables, and examples
 
 ## Dependencies
 
-None. Uses only Cursor's built-in tools (Read, Write, Glob) and MCP filesystem access.
+None. Uses only built-in editor tools and MCP filesystem access.
