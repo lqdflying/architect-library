@@ -166,6 +166,7 @@ See [Installation](#installation) for Copilot / Claude Code paths, or [docs/AGEN
 | `deprecation-and-migration` | Deprecate and migrate systems safely — strangler pattern, migration guides, zero-usage removal. |
 | `terraform-commit-review` | Review Terraform IaC changes across a git commit range — correctness, security/RBAC, destructive changes, naming, cross-phase consistency, documentation/runbook accuracy. |
 | `terraform-apply-assistance` | Fix Terraform errors, review apply scope from commit hash through HEAD, create fix branches, review plan output for apply safety. |
+| `mcp-tool-rules` | Scan MCP servers, discover tool schemas, generate `.mdc` rule files with correct `CallMcpTool` arguments. **Cursor-only** — not installed for Copilot or Claude. |
 | `_shared` | Shared principles and Office tooling for Word, PowerPoint, and spreadsheet skills. **Must** be a sibling of those skills. |
 
 ## Custom agents
@@ -195,6 +196,7 @@ Catalog: [`docs/AGENTS.md`](docs/AGENTS.md). Deep dive: [`docs/CODE-REVIEW-AGENT
 | [`skills/deprecation-and-migration/SKILL.md`](skills/deprecation-and-migration/SKILL.md) | Deprecation and migration workflow |
 | [`skills/terraform-commit-review/SKILL.md`](skills/terraform-commit-review/SKILL.md) | Terraform commit-range review workflow |
 | [`skills/terraform-apply-assistance/SKILL.md`](skills/terraform-apply-assistance/SKILL.md) | Terraform apply fix, scope review, and plan evaluation workflow |
+| [`skills/mcp-tool-rules/SKILL.md`](skills/mcp-tool-rules/SKILL.md) | MCP tool calling rules generation workflow |
 | This README → [How to use](#how-to-use) | Using installed skills in Cursor, Copilot, or Claude Code chat |
 | [`skills/excalidraw-diagram/SKILL.md`](skills/excalidraw-diagram/SKILL.md) | Diagram design rules and agent workflow |
 | [`skills/excalidraw-diagram/README.md`](skills/excalidraw-diagram/README.md) | Render setup, offline bundle, PNG validation |
@@ -272,6 +274,9 @@ architect-library/
       README.md
     terraform-apply-assistance/
       SKILL.md
+    mcp-tool-rules/
+      SKILL.md
+      README.md
     _shared/
       architecture-document-principles.md
       office-tools/

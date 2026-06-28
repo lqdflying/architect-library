@@ -8,6 +8,7 @@ REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$REPO/scripts/architect_env.sh"
 
 SKILL_BUNDLE="excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document verification-before-completion api-and-interface-design deprecation-and-migration terraform-commit-review terraform-apply-assistance _shared"
+CURSOR_ONLY_SKILLS="mcp-tool-rules"
 AGENT_BUNDLE="code-review security-auditor"
 
 LEGACY_SKILLS="docx pptx xlsx pdf terraform-apply-fix-review"
@@ -98,6 +99,7 @@ claude_agents_dir() { echo "${BASE}/.claude/agents"; }
 
 install_skills_to() {
   local dest="$1"
+  local cursor_only="${2:-false}"
   mkdir -p "$dest"
   for legacy in $LEGACY_SKILLS; do
     rm -rf "${dest}/${legacy}"
@@ -106,6 +108,12 @@ install_skills_to() {
     rm -rf "${dest}/${name}"
     cp -a "${REPO}/skills/${name}" "${dest}/${name}"
   done
+  if [[ "$cursor_only" == "true" ]]; then
+    for name in $CURSOR_ONLY_SKILLS; do
+      rm -rf "${dest}/${name}"
+      cp -a "${REPO}/skills/${name}" "${dest}/${name}"
+    done
+  fi
 }
 
 install_agent_file() {
@@ -125,11 +133,11 @@ install_agent_file() {
 install_skills() {
   case "$EDITOR" in
     both)
-      install_skills_to "$(cursor_skills_dir)"
+      install_skills_to "$(cursor_skills_dir)" true
       install_skills_to "$(copilot_skills_dir)"
       install_skills_to "$(claude_skills_dir)"
       ;;
-    cursor) install_skills_to "$(cursor_skills_dir)" ;;
+    cursor) install_skills_to "$(cursor_skills_dir)" true ;;
     copilot) install_skills_to "$(copilot_skills_dir)" ;;
     claude) install_skills_to "$(claude_skills_dir)" ;;
   esac

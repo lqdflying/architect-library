@@ -49,6 +49,7 @@ Do **not** copy skills into `<repo>/.cursor/skills/` or agents into `<repo>/.cur
 
 ```
 SKILL_BUNDLE="excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document verification-before-completion api-and-interface-design deprecation-and-migration terraform-commit-review terraform-apply-assistance _shared"
+CURSOR_ONLY_SKILLS="mcp-tool-rules"
 AGENT_BUNDLE="code-review security-auditor"
 ```
 
