@@ -114,6 +114,46 @@ Acknowledge what was done well before listing issues.
 
 Do not speculate. If uncertain, label **Unverified** and state what would confirm it.
 
+### Per-issue format (GitHub-ready)
+
+For every issue, provide a numbered block with a fenced `text` code block that can be copied directly into a GitHub PR comment:
+
+````markdown
+#### #<n> — <Concise title> [<Severity>]
+
+File: [`<filename>`](<workspace-relative/path>#L<line>)
+
+Source snippet:
+
+```<lang>
+<exact lines from the file>
+```
+
+GitHub comment (copy-paste into PR):
+
+```text
+### <Severity>: <Concise title>
+
+In `<workspace-relative/path>` (line <N>), <state the problem clearly in 1-2 sentences>.
+
+Current code:
+- `<key line 1>`
+- `<key line 2>`
+
+Impact: <why this matters — bug, security, perf, maintainability>.
+
+Recommendation: <specific fix or acceptance criteria>.
+```
+````
+
+### Findings self-check (before finalizing report)
+
+- Every issue has a sequential `#N`
+- Every issue has the fenced `text` GitHub comment block
+- File links use workspace-relative paths with `#LNN`
+- Source snippet uses the correct language fence (`ts`, `py`, `go`, `hcl`, etc.)
+- No issues reported without file:line evidence
+
 ## 7. Cross-check technical points (mandatory when applicable)
 
 | Source | Use when |
@@ -151,14 +191,24 @@ Use this structure:
 <what is well done — be specific with file:line>
 
 ## Findings
+
 ### Critical
-- [file:line] issue — evidence — suggested fix (text only, no edits)
+
+#### #1 — <title> [Critical]
+File: [`filename`](path#LNN)
+<source snippet + GitHub comment block per Section 6 format>
 
 ### Warning
+
+#### #2 — <title> [Warning]
 ...
 
 ### Suggestion
+
+#### #3 — <title> [Suggestion]
 ...
+
+(Omit empty severity subsections. Number issues sequentially across all severities.)
 
 ## Technical verification
 | Claim | Status | Source |
