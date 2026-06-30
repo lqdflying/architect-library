@@ -166,6 +166,7 @@ See [Installation](#installation) for Copilot / Claude Code paths, or [docs/AGEN
 | `deprecation-and-migration` | Deprecate and migrate systems safely — strangler pattern, migration guides, zero-usage removal. |
 | `terraform-commit-review` | Review Terraform IaC changes across a git commit range — correctness, security/RBAC, destructive changes, naming, cross-phase consistency, documentation/runbook accuracy. |
 | `terraform-apply-assistance` | Fix Terraform errors, review apply scope from commit hash through HEAD, create fix branches, review plan output for apply safety. |
+| `security-audit` | Deep multi-phase codebase security audit — 6-phase workflow with parallel sub-agent hunting, adversarial validation, structured `findings.json` output. Full offensive audit, not a quick review. |
 | `mcp-tool-rules` | Scan MCP servers, discover tool schemas, generate rule/instruction files with correct tool arguments. Editor-specific variants: `.mdc` rules for Cursor, `.instructions.md` for Copilot. |
 | `_shared` | Shared principles and Office tooling for Word, PowerPoint, and spreadsheet skills. **Must** be a sibling of those skills. |
 
@@ -177,6 +178,18 @@ See [Installation](#installation) for Copilot / Claude Code paths, or [docs/AGEN
 | `security-auditor` | Read-only security review — STRIDE, OWASP, LLM security, CVE checks. Cursor: `/security-auditor`. Copilot: agents dropdown. |
 
 Catalog: [`docs/AGENTS.md`](docs/AGENTS.md). Deep dive: [`docs/CODE-REVIEW-AGENT.md`](docs/CODE-REVIEW-AGENT.md), [`docs/SECURITY-AUDITOR-AGENT.md`](docs/SECURITY-AUDITOR-AGENT.md).
+
+## Security and review tools — when to use which
+
+| You want to... | Use | Type | Output |
+|----------------|-----|------|--------|
+| General code quality review of a PR or diff | `code-review` agent | Readonly agent | Chat report with merge verdict |
+| Security-focused review of a PR, diff, or files | `security-auditor` agent | Readonly agent | Chat report with release verdict |
+| Deep offensive audit of an entire codebase | `security-audit` skill | Active skill | File artifacts (`REPORT.md`, `findings.json`) |
+
+- **`code-review`** answers: "Is this code good enough to merge?" — 5-axis review (correctness, design, maintainability, performance, security as one axis).
+- **`security-auditor`** answers: "Is this code safe to release?" — STRIDE threat modeling, OWASP checklist, trust boundaries, CVE cross-checks. Scoped to targeted changes.
+- **`security-audit`** answers: "What exploitable vulnerabilities exist in this codebase?" — 6-phase methodology (Recon, Hunt with parallel sub-agents, adversarial Validate, Report, structured JSON, independent Verify). Extended duration; produces file deliverables.
 
 ## Documentation map
 
@@ -196,6 +209,7 @@ Catalog: [`docs/AGENTS.md`](docs/AGENTS.md). Deep dive: [`docs/CODE-REVIEW-AGENT
 | [`skills/deprecation-and-migration/SKILL.md`](skills/deprecation-and-migration/SKILL.md) | Deprecation and migration workflow |
 | [`skills/terraform-commit-review/SKILL.md`](skills/terraform-commit-review/SKILL.md) | Terraform commit-range review workflow |
 | [`skills/terraform-apply-assistance/SKILL.md`](skills/terraform-apply-assistance/SKILL.md) | Terraform apply fix, scope review, and plan evaluation workflow |
+| [`skills/security-audit/SKILL.md`](skills/security-audit/SKILL.md) | Deep codebase security audit (6-phase, multi-agent, structured output) |
 | [`skills/mcp-tool-rules/SKILL.cursor.md`](skills/mcp-tool-rules/SKILL.cursor.md) | MCP tool calling rules generation (Cursor) |
 | [`skills/mcp-tool-rules/SKILL.copilot.md`](skills/mcp-tool-rules/SKILL.copilot.md) | MCP tool calling instructions generation (VS Code Copilot) |
 | This README → [How to use](#how-to-use) | Using installed skills in Cursor, Copilot, or Claude Code chat |
@@ -275,6 +289,15 @@ architect-library/
       README.md
     terraform-apply-assistance/
       SKILL.md
+    security-audit/
+      SKILL.md
+      references/
+        RECONNAISSANCE.md
+        HUNTING.md
+        ATTACK-CLASSES.md
+        VALIDATION-AND-REPORTING.md
+        report-schema.json
+        validate-findings.cjs
     mcp-tool-rules/
       SKILL.cursor.md
       SKILL.copilot.md

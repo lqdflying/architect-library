@@ -7,7 +7,7 @@ REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 # shellcheck source=architect_env.sh
 source "$REPO/scripts/architect_env.sh"
 
-SKILL_BUNDLE="excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document verification-before-completion api-and-interface-design deprecation-and-migration terraform-commit-review terraform-apply-assistance _shared"
+SKILL_BUNDLE="excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document verification-before-completion api-and-interface-design deprecation-and-migration terraform-commit-review terraform-apply-assistance security-audit _shared"
 EDITOR_VARIANT_SKILLS="mcp-tool-rules"
 AGENT_BUNDLE="code-review security-auditor"
 
@@ -205,6 +205,7 @@ verify_skills_at() {
   test -f "${dir}/deprecation-and-migration/SKILL.md" || return 1
   test -f "${dir}/terraform-commit-review/SKILL.md" || return 1
   test -f "${dir}/terraform-apply-assistance/SKILL.md" || return 1
+  test -f "${dir}/security-audit/SKILL.md" || return 1
 }
 
 verify_editor_variants_at() {

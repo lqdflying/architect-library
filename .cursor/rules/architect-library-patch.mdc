@@ -48,7 +48,7 @@ Do **not** copy skills into `<repo>/.cursor/skills/` or agents into `<repo>/.cur
 ## Bundles (in `scripts/install_library.sh`)
 
 ```
-SKILL_BUNDLE="excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document verification-before-completion api-and-interface-design deprecation-and-migration terraform-commit-review terraform-apply-assistance _shared"
+SKILL_BUNDLE="excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document verification-before-completion api-and-interface-design deprecation-and-migration terraform-commit-review terraform-apply-assistance security-audit _shared"
 EDITOR_VARIANT_SKILLS="mcp-tool-rules"
 AGENT_BUNDLE="code-review security-auditor"
 ```
@@ -76,6 +76,7 @@ test -f ~/.cursor/skills/word-document/SKILL.md
 test -f ~/.cursor/skills/verification-before-completion/SKILL.md
 test -f ~/.cursor/skills/api-and-interface-design/SKILL.md
 test -f ~/.cursor/skills/deprecation-and-migration/SKILL.md
+test -f ~/.cursor/skills/security-audit/SKILL.md
 test -f ~/.cursor/agents/code-review.md
 test -f ~/.cursor/agents/security-auditor.md
 grep -q 'readonly: true' ~/.cursor/agents/code-review.md

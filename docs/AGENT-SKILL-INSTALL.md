@@ -55,6 +55,7 @@ Architect Library publishes **two libraries**:
 | `deprecation-and-migration` | Cursor/Copilot skill | Deprecation and migration planning workflow |
 | `terraform-commit-review` | Cursor/Copilot skill | Terraform IaC commit-range review (correctness, security, destructive changes) |
 | `terraform-apply-assistance` | Cursor/Copilot skill | Fix Terraform errors, review apply scope from commit hash through HEAD, create fix branches, review plan output for apply safety |
+| `security-audit` | Cursor/Copilot skill | Deep multi-phase codebase security audit — parallel sub-agent hunting, adversarial validation, structured `findings.json` output |
 | `mcp-tool-rules` | Cursor + Copilot (editor variants) | Scan MCP servers and generate rule/instruction files with correct tool arguments (`.mdc` for Cursor, `.instructions.md` for Copilot) |
 | `_shared` | Support files (not a standalone skill) | **Yes** whenever Word, PowerPoint, or spreadsheet skills are installed |
 
@@ -171,6 +172,7 @@ test -f ~/.cursor/skills/word-document/SKILL.md && echo "OK: cursor skills"
 test -f ~/.cursor/skills/verification-before-completion/SKILL.md && echo "OK: verification skill"
 test -f ~/.cursor/skills/api-and-interface-design/SKILL.md && echo "OK: api skill"
 test -f ~/.cursor/skills/deprecation-and-migration/SKILL.md && echo "OK: deprecation skill"
+test -f ~/.cursor/skills/security-audit/SKILL.md && echo "OK: security-audit skill"
 test -f ~/.cursor/agents/code-review.md && echo "OK: cursor agents"
 grep -q 'readonly: true' ~/.cursor/agents/code-review.md && echo "OK: code-review"
 test -f ~/.cursor/agents/security-auditor.md && echo "OK: security-auditor"
@@ -193,6 +195,7 @@ test -f ~/.copilot/skills/word-document/SKILL.md && echo "OK: copilot skills"
 test -f ~/.copilot/skills/verification-before-completion/SKILL.md && echo "OK: verification skill"
 test -f ~/.copilot/skills/api-and-interface-design/SKILL.md && echo "OK: api skill"
 test -f ~/.copilot/skills/deprecation-and-migration/SKILL.md && echo "OK: deprecation skill"
+test -f ~/.copilot/skills/security-audit/SKILL.md && echo "OK: security-audit skill"
 test -f ~/.copilot/agents/code-review.agent.md && echo "OK: copilot agents"
 test -f ~/.copilot/agents/security-auditor.agent.md && echo "OK: security-auditor"
 grep -q 'disallowedTools: edit' ~/.copilot/agents/security-auditor.agent.md && echo "OK: security-auditor readonly"
@@ -230,6 +233,7 @@ The install script runs **library** checks automatically for the `EDITOR` you pa
 | **deprecation-and-migration** | Replacement before deprecation; migration guide; zero-usage verified before removal |
 | **terraform-commit-review** | Commit range established; all changed files read; provider docs verified via MCP; 7-section checklist applied; structured report with intent summary, per-phase table, issues, vendor comments, source URLs, and execution summary |
 | **terraform-apply-assistance** | Apply scope established (commit hash through HEAD or inferred); error/plan triaged; focused branch created; diagnosis via MCP; smallest edit applied; local validation run; **paused for user review** — no commit/push unless user instructs; plan evaluated with rubric; risks re-raised every iteration; execution summary with apply decision, prerequisites, phase order, and post-apply checks |
+| **security-audit** | All 6 phases completed (Recon → Hunt → Validate → Report → Structured output → Independent verification); `findings.json` validates against schema (`validate-findings.cjs`); `REPORT.md` and `FINDINGS-DETAIL.md` reconciled with `findings.json`; output directory contains all artifacts |
 | **mcp-tool-rules** | MCP config read; servers presented and confirmed; tools discovered per server; editor-appropriate files generated (Cursor: `.mdc` rules, Copilot: `.instructions.md`) with parameter tables and example calls; files validated (server names, tables, examples, frontmatter); report delivered |
 
 **PowerPoint is not done** when the `.pptx` exists — only after layout preview (or user waives).
