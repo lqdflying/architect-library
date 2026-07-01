@@ -2,6 +2,29 @@
 
 Use these patterns when mapping concepts to visuals. See `SKILL.md` → Design Process Step 2.
 
+**Server/MCP/backend architecture** uses a dedicated layout — see `layered-server-architecture.md` instead of the generic patterns below.
+
+## Layered Hub Architecture (Server / MCP)
+
+Vertical spine with client ellipses at top, auth/admin sidebars, and request-to-storage flow. Use for: MCP servers, API gateways, multi-client backends.
+
+```
+     (AI)     (Tool)     (Browser)
+        \        |        /
+         [==== Server ====]
+                |
+         ┌─ routes/tools ─┐
+         └────────────────┘
+                |
+         [ safety / merge ]  ← red bar
+                |
+         [ store / manager ]
+                |
+            (Database)
+```
+
+Full specification: `layered-server-architecture.md`.
+
 ## Fan-Out (One-to-Many)
 
 Central element with arrows radiating to multiple targets. Use for: sources, PRDs, root causes, central hubs.

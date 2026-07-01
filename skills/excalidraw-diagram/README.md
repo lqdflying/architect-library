@@ -57,5 +57,6 @@ The renderer writes a PNG next to the `.excalidraw` file. Inspect the PNG and it
 
 - `SKILL.md` - design methodology and workflow
 - `references/color-palette.md` - single source of truth for colors
+- `references/layered-server-architecture.md` - MCP/server architecture layout (vertical spine + sidebars)
 - `references/element-templates.md` - reusable Excalidraw JSON templates
 - `references/json-schema.md` - Excalidraw file format reference

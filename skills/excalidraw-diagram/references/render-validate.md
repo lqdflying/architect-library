@@ -82,3 +82,13 @@ After rendering, confirm:
 5. **Arrows land correctly**: Arrows connect to intended elements without crossing others
 6. **Readable at export size**: Text is legible in the rendered PNG
 7. **Balanced composition**: No large empty voids or overcrowded regions
+
+## Layered Server Architecture Checks
+
+When the diagram follows `layered-server-architecture.md`, also confirm:
+
+1. **Vertical spine**: Eye can trace server → routes → safety → store → DB without crossing confusion
+2. **Detail captions**: Every route/tool box has a 10px gray caption below with real names
+3. **Dashed boundaries**: Auth region (purple) and admin/route region (navy) are visibly grouped
+4. **Client color coding**: Purple = AI/MCP, orange = external tool, blue = browser/admin client
+5. **Red critical layer**: Safety, merge, or guardrail bar stands out on the spine with function names

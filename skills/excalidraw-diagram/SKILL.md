@@ -12,6 +12,7 @@ Generate `.excalidraw` JSON files that **argue visually**, not just display info
 ## Load First
 
 - `references/color-palette.md` — all colors and brand styles (read before every diagram)
+- `references/layered-server-architecture.md` — **MCP/server architecture layout** (read before any backend, MCP, or multi-client system diagram)
 - `references/visual-patterns.md` — fan-out, convergence, timeline, tree, and other patterns
 - `references/shape-and-layout.md` — shape meaning, color, layout, text rules
 - `references/element-templates.md` — copy-paste JSON templates per element type
@@ -56,6 +57,14 @@ Use concrete examples when:
 - You're showing how multiple technologies integrate
 
 **For technical diagrams, you MUST include evidence artifacts** (see below).
+
+### Layered Server Architecture
+Use the layout in `references/layered-server-architecture.md` when:
+- Diagramming an MCP server, API gateway, or multi-client backend
+- The system has external actors (AI, tools, browser), a central server, route/tool layers, and persistence
+- Auth and admin are cross-cutting sidebars, not part of the main request spine
+
+Read `layered-server-architecture.md` before generating JSON. Build section-by-section per that guide.
 
 ---
 
@@ -147,7 +156,8 @@ Read the content. For each concept, ask:
 - **What would someone need to SEE to understand this?** (not just read about)
 
 ### Step 2: Map Concepts to Patterns
-Read `references/visual-patterns.md` and match each concept to a visual pattern (fan-out, convergence, tree, timeline, spiral, cloud, assembly line, side-by-side, gap/break).
+- **Server/MCP/backend architecture** → `references/layered-server-architecture.md` (vertical spine + auth/admin sidebars)
+- **Everything else** → `references/visual-patterns.md` (fan-out, convergence, tree, timeline, spiral, cloud, assembly line, side-by-side, gap/break)
 
 ### Step 3: Ensure Variety
 For multi-concept diagrams: **each major concept must use a different visual pattern**. No uniform cards or grids.
@@ -241,5 +251,13 @@ See `references/json-schema.md` for additional schema details.
 19. **Opacity**: `opacity: 100` for all elements (no transparency)
 20. **Container ratio**: <30% of text elements should be inside containers
 
+### Layered Server Architecture (when applicable)
+28. **Vertical spine**: Request flow readable top-to-bottom through server → routes → safety → store → DB
+29. **Three-tier labels**: Route/tool boxes have 10px gray detail captions below with real names
+30. **Actor ellipses**: External clients at top are ellipses, color-coded (purple AI, orange tool, blue browser)
+31. **Dashed boundaries**: Auth (purple) and admin/route (navy) regions grouped by dashed rectangles
+32. **Spine arrow labels**: Major layer transitions have bound labels on vertical arrows
+33. **Red critical layer**: Safety, merge, or guardrail logic uses the red spine bar with real function names
+
 ### Visual Validation (Render Required)
-21–27: Complete the visual validation checklist in `references/render-validate.md`.
+34–40: Complete the visual validation checklist in `references/render-validate.md`.

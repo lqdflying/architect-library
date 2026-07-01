@@ -18,6 +18,8 @@ Colors encode meaning, not decoration. Each semantic purpose has a fill/stroke p
 | Warning/Reset | `#fee2e2` | `#dc2626` |
 | Decision | `#fef3c7` | `#b45309` |
 | AI/LLM | `#ddd6fe` | `#6d28d9` |
+| Browser / admin client | `#93c5fd` | `#1e3a5f` |
+| Sidebar ancillary panel | `#dbeafe` | `#1e3a5f` (use `strokeWidth: 1`) |
 | Inactive/Disabled | `#dbeafe` | `#1e40af` (use dashed stroke) |
 | Error | `#fecaca` | `#b91c1c` |
 
