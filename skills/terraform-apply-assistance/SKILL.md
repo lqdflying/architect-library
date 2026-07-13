@@ -81,9 +81,9 @@ If the user pasted a plan, classify it first:
 - `- destroy`: highest-risk bucket; identify why Terraform says it will destroy.
 - `-/+ replace`: highest-risk bucket; identify the force-replacement attribute.
 
-For apply-scope reviews, read the changed Terraform and documentation files from the inferred or provided range. Focus on deployable inputs and resource behavior first, then docs/runbooks that affect prerequisites or apply decisions.
-
 Always scan plan output and diffs for new Microsoft Entra service principal or Enterprise Application creation. Highlight these explicitly because some Terraform platform identities do not have directory privileges to create app registrations, service principals, or enterprise applications. Treat direct Entra resources such as `azuread_application`, `azuread_service_principal`, and related password/federated-credential resources as a likely apply blocker unless the required Entra privileges are confirmed. Also call out Azure-managed identities (`azurerm_user_assigned_identity` and `identity { type = "SystemAssigned" }`) because Microsoft documents managed identities as service-principal objects visible under Enterprise Applications; distinguish them from standalone app registrations, but still require the user to confirm the deployment identity is allowed to create those managed identity principals.
+
+For apply-scope reviews, read the changed Terraform and documentation files from the inferred or provided range. Focus on deployable inputs and resource behavior first, then docs/runbooks that affect prerequisites or apply decisions.
 
 ### 3. Create Or Confirm A Working Branch
 
@@ -200,10 +200,10 @@ Re-raise any unresolved risk every time. Do not stop mentioning a destructive ac
 - Any destroy or replacement, even if Terraform explains it as missing from configuration.
 - Any change to routing, DNS, firewall, NSG, private endpoint, load balancer, gateway, origin, listener, probe, backend, or path mapping behavior.
 - Any identity, RBAC, access policy, secret, certificate, key, public access, or private access change.
+- Any new Microsoft Entra service principal or Enterprise Application, including standalone AzureAD app/SP resources and managed identities that will create service-principal objects behind the scenes.
 - Any change to remote-state outputs, module inputs, provider aliases, backend config, required variables, or cross-phase contracts.
 - Any broadening of access, public exposure, egress allowlists, admin privileges, or shared-service scope.
 - Any plan that includes placeholders, unknown operational readiness, manually managed resources, or resources shared by multiple environments.
-- Any new Microsoft Entra service principal or Enterprise Application, including standalone AzureAD app/SP resources and managed identities that will create service-principal objects behind the scenes.
 
 ### Not OK Until Fixed
 
@@ -212,8 +212,8 @@ Re-raise any unresolved risk every time. Do not stop mentioning a destructive ac
 - Azure service docs show the change is unsupported, will cause unexpected replacement, or risks data loss.
 - A live dependency will be destroyed or replaced without a verified migration, replacement, or rollback path.
 - Required inputs are missing: identity, role assignment, federated credential, provider alias, remote-state output, backend value, environment variable, secret, certificate, DNS prerequisite, or manually provisioned dependency.
-- The plan removes or weakens required access for a runtime/deployment identity, or grants broader access than the verified operation needs without explicit approval.
 - The plan explicitly creates Microsoft Entra app registrations, service principals, or Enterprise Applications and the Terraform platform identity's Entra privileges are not confirmed.
+- The plan removes or weakens required access for a runtime/deployment identity, or grants broader access than the verified operation needs without explicit approval.
 
 ## Response Format For Plan Reviews
 
@@ -270,18 +270,41 @@ Apply scope: <commit hash through HEAD, or inferred session scope with evidence>
 
 Environment prerequisites before apply:
 
-- `<required ARM_* or TF_VAR_* value>` — <why it is needed>
-- `<required object ID / identity / secret / certificate / DNS prerequisite>` — <why it is needed>
-- `<manual approval or readiness check>` — <why it is needed>
+- Global prerequisites (set once for all phases):
 
-Evaluated apply order:
+```bash
+export ARM_TENANT_ID="..."
+export ARM_CLIENT_ID="..."
+export ARM_CLIENT_SECRET="..."
+```
+
+- Common prerequisite(s) shared by multiple phases (only list when needed):
+
+```bash
+export TF_VAR_default_subscription_id="..."
+```
+
+- Phase-specific prerequisites and evaluated apply order (split per phase, one command block each):
+
+## Phase 1: <phase_dir>
+
+Additional env vars for this phase (exclude global/common vars):
+- `<phase-specific TF_VAR_* or readiness prerequisite>`
 
 ```bash
 cd <phase_dir>
 terraform init -backend-config=backend.tfvars
 terraform plan -out=tfplan
 terraform apply tfplan
+```
 
+## Phase 2: <next_phase_dir>
+
+Additional env vars for this phase (exclude global/common vars):
+- `<phase-specific TF_VAR_* or readiness prerequisite>`
+- `None` if there are no additional env vars.
+
+```bash
 cd ../<next_phase_dir>
 terraform init -backend-config=backend.tfvars
 terraform plan -out=tfplan
@@ -321,17 +344,17 @@ It must answer:
 - Whether Terraform apply is blocked or can proceed with risks accepted.
 - The evaluated apply scope: provided hash through `HEAD`, or inferred session scope.
 - Environment-variable prerequisites before any apply command summary:
-	- New environment variables introduced by the apply scope.
-	- Existing environment variables still required for affected phases.
-	- Phase-specific object IDs or sensitive `TF_VAR_*` values required by affected phases.
+	- Global `ARM_*` prerequisites listed once at the beginning.
+	- Common prerequisites shared by multiple phases listed once (for example `TF_VAR_default_subscription_id`) when applicable.
+	- Phase-specific object IDs or sensitive `TF_VAR_*` values listed only under each affected phase.
 - Which phases need apply, in exact evaluated order, and which phases do not need apply.
-- Recommended operations-VM command sequence: `terraform init -backend-config=backend.tfvars`, `terraform plan -out=tfplan`, `terraform apply tfplan`, or state that commands should not run until blockers are fixed.
+- For each phase that needs apply, use a `## Phase N: <phase_dir>` heading, include an "Additional env vars" list for that phase, and provide one fenced `bash` command block with `terraform init -backend-config=backend.tfvars`, `terraform plan -out=tfplan`, and `terraform apply tfplan`.
 - Post-apply validation checks and runtime follow-ups.
 - Whether docs/change logs align with the evaluated apply path; if not, mention the drift but keep the execution guidance based on code/config/plan evidence.
 
 If the apply is not OK, do not provide commands as if the user should run them. Instead, list the blocked command stage and the fix/confirmation needed before proceeding.
 
-Use the compact runbook style for `## 7. Execution Summary`: short conclusion paragraph, plain bullets for prerequisites, a fenced `bash` command block for the evaluated apply order, then plain bullets for post-apply validation. Do not use task-list bullets (`- [ ]`) by default unless the user explicitly asks for a checklist.
+Use the runbook style for `## 7. Execution Summary`: short conclusion paragraph, global prerequisite block first, optional common prerequisite block second, then per-phase sections titled `## Phase N: <phase_dir>` with additional env vars and per-phase fenced `bash` command blocks. Do not repeat global `ARM_*` vars in each phase section. Keep post-apply validation as plain bullets. Do not use task-list bullets (`- [ ]`) by default unless the user explicitly asks for a checklist.
 
 ## Completion Checks
 
