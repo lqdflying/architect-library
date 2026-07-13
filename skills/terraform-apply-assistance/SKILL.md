@@ -185,6 +185,19 @@ For every plan iteration, explicitly state:
 
 Re-raise any unresolved risk every time. Do not stop mentioning a destructive action just because it was already discussed. Mark it as accepted only if the user explicitly confirms the operational intent.
 
+### 9. Handle Recap And Runbook Requests (Strict Scope Lock)
+
+When the user asks for a recap, apply runbook, or "how to apply" guidance without pasting a fresh plan:
+
+- Still use this skill's structured response style and include `## 7. Execution Summary`.
+- Keep phase scope locked to the user's explicit constraints.
+	- If the user says "except phase10", do not include Phase 10 command blocks.
+	- Do not add extra phases beyond the requested scope.
+- If scope is ambiguous, state the inferred scope and evidence in the summary before listing commands.
+- Always include a `Phases that do not need apply` line that explicitly lists user-excluded phases and reason.
+- When no new plan output is provided, default apply status to `conditionally OK` and explicitly state that destroy/replace risk cannot be confirmed from this turn.
+- Provide operations-VM commands only; do not provide local-host apply commands.
+
 ## Plan Evaluation Rubric
 
 ### Usually OK
@@ -343,6 +356,7 @@ The execution summary is mandatory when this skill is explicitly called, even fo
 It must answer:
 - Whether Terraform apply is blocked or can proceed with risks accepted.
 - The evaluated apply scope: provided hash through `HEAD`, or inferred session scope.
+- User-requested phase inclusions/exclusions must be honored exactly in all command blocks.
 - Environment-variable prerequisites before any apply command summary:
 	- Global `ARM_*` prerequisites listed once at the beginning.
 	- Common prerequisites shared by multiple phases listed once (for example `TF_VAR_default_subscription_id`) when applicable.
@@ -360,6 +374,8 @@ Use the runbook style for `## 7. Execution Summary`: short conclusion paragraph,
 
 Before saying the task is done:
 - Apply scope is clear: either a provided commit hash through `HEAD`, or a stated scope inferred from session history.
+- Every phase shown in command blocks is within the requested scope.
+- Every user-excluded phase is absent from command blocks and listed under `Phases that do not need apply` with a reason.
 - A focused branch exists when Terraform code was changed, unless the current branch was already the user-approved working branch.
 - Intended edits are validated and left for user review; no commit or push has been made unless the user explicitly instructed it after review.
 - `git status --short --branch` is reported, and any uncommitted reviewable changes are explained.
