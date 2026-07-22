@@ -13,6 +13,16 @@ When the user asks to **install library**, **install the library**, **patch libr
 
 Default means **runtimes + skills + agents** for Cursor only. Do **not** ask which editor, scope, library subset, or runtime set to install for those trigger phrases.
 
+**Remote SSH:** commands run on the **remote host** — installs go to the remote `$HOME` or remote workspace, **not** the user’s laptop. Prefer **project** scope so Customize → Skills lists them:
+
+```bash
+bash scripts/install_deps.sh
+bash scripts/install_deps.sh office-system
+bash scripts/install_library.sh all cursor project   # Remote SSH — open workspace on remote
+```
+
+**Local Cursor** (no Remote SSH):
+
 ```bash
 bash scripts/install_deps.sh
 bash scripts/install_deps.sh office-system

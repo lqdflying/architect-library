@@ -19,9 +19,29 @@ Cross-editor guide for AI agents working **in this repository** (maintainers edi
 
 | You are in | Install **only** to |
 |------------|---------------------|
-| **Cursor** | `~/.cursor/skills/`, `~/.cursor/agents/` |
+| **Cursor** (local window) | `~/.cursor/skills/`, `~/.cursor/agents/` on **that machine** |
+| **Cursor Remote SSH** | Same paths, but on the **remote host** — not your laptop |
 | **VS Code Copilot** | `~/.copilot/skills/`, `~/.copilot/agents/` |
 | **Claude Code** | `~/.claude/skills/`, `~/.claude/agents/` |
+
+### Where `install library` writes files
+
+`install_library.sh` uses `$HOME` of the shell that runs it. It does **not** copy skills to your laptop when the command runs on a remote host.
+
+| You run install from… | Skills land at… | Laptop `~/.cursor/skills/` touched? |
+|------------------------|-----------------|-------------------------------------|
+| Local Cursor (no SSH) | Laptop `~/.cursor/skills/` | Yes |
+| Cursor Remote SSH terminal or agent | **Remote** `~/.cursor/skills/` (global) or **remote workspace** `.cursor/skills/` (project) | **No** |
+| Local laptop terminal while SSH folder is open in Cursor | Laptop `~/.cursor/skills/` | Yes — but Cursor over SSH **won’t see** those files |
+
+**Remote SSH default:** use **project** scope in the open workspace so skills show under Customize → Skills:
+
+```bash
+cd /path/to/open-workspace-on-remote
+bash /path/to/architect-library/scripts/install_library.sh all cursor project
+```
+
+Use **global** (`all cursor` with no `project`) only for local Cursor or when you explicitly want remote user-level paths (often invisible in Customize over SSH).
 
 **Never** write to other editors’ home paths unless the user explicitly asks for all editors.
 

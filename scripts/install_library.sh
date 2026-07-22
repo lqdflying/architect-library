@@ -187,6 +187,15 @@ install_agents() {
 echo "Architect Library install_library.sh"
 echo "  REPO=$REPO"
 echo "  WHAT=$WHAT EDITOR=$EDITOR SCOPE=$SCOPE"
+echo "  HOME=$HOME"
+if [[ "$SCOPE" == "global" ]]; then
+  echo "  Skills → ${HOME}/.cursor/skills/ (or .copilot/.claude per EDITOR)"
+  echo "  Agents → ${HOME}/.cursor/agents/ (or .copilot/.claude per EDITOR)"
+else
+  echo "  Skills → ${BASE}/.cursor/skills/ (or .github/.claude per EDITOR)"
+  echo "  Agents → ${BASE}/.cursor/agents/ (or .github/.claude per EDITOR)"
+fi
+echo "  (Install runs on this machine — Remote SSH does not write to your laptop.)"
 
 if [[ "$SCOPE" == "global" ]] && [[ "$EDITOR" == "cursor" || "$EDITOR" == "both" ]]; then
   if [[ -n "${SSH_CONNECTION:-}" || -n "${SSH_CLIENT:-}" || -n "${SSH_TTY:-}" ]]; then
