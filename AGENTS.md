@@ -81,6 +81,7 @@ Reload the editor or open a **new agent chat**. If any runtime step failed, say 
 | Say pptxgenjs works via python-docx | **Wrong** — PPT new decks need pptxgenjs or template/XML; Word only has python-docx fallback |
 | Manual Node without sourcing env | `source scripts/architect_env.sh` so `NODE_PATH` finds `docx` / `pptxgenjs` under `~/.npm-global` |
 | Copy `skills/` into `repo/.cursor/skills/` | Source is `skills/`; install via `install_library.sh` |
+| Global install over Cursor Remote SSH | Use `bash scripts/install_library.sh all cursor project` in the open remote workspace — global `~/.cursor/skills/` often missing from Customize |
 | Ask which editor on “install library” | Infer from the environment you are running in |
 
 ---

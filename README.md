@@ -360,6 +360,8 @@ bash scripts/install_library.sh all cursor project   # per-project copy
 
 Reload Cursor, VS Code, or Claude Code after installation. Skills appear as slash commands (`/word-document`, etc.). Custom agents appear in the agent picker (`code-review`, `security-auditor`, `/code-review` on Cursor).
 
+**Cursor Remote SSH:** Global install to `~/.cursor/skills/` often does not show under **Customize → Skills** on the remote host (known Cursor limitation). Install **project-level** on the remote workspace instead: `bash scripts/install_library.sh all cursor project` from your open project root. Details: [`docs/AGENT-SKILL-INSTALL.md`](docs/AGENT-SKILL-INSTALL.md) § Remote SSH.
+
 See [`docs/AGENT-SKILL-INSTALL.md`](docs/AGENT-SKILL-INSTALL.md) for verification steps and common mistakes.
 
 ## Office workflows (manual)

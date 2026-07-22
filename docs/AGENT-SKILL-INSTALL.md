@@ -103,7 +103,58 @@ echo "OK: repo layout valid"
 | Per project | `bash scripts/install_library.sh all cursor project` | `bash scripts/install_library.sh all copilot project` |
 | All editors (explicit ask) | `bash scripts/install_library.sh` | same |
 
-Prefer **global** unless the user explicitly wants project-local copies. Prefer **editor-scoped** unless the user explicitly wants all editors.
+Prefer **global** for local Cursor unless you use **Remote SSH** (see below). Prefer **editor-scoped** unless the user explicitly wants all editors.
+
+---
+
+## Remote SSH (Cursor)
+
+When Cursor connects to a remote host over **SSH**, the agent runs on the **remote machine**. Skills must exist on that host — local `~/.cursor/skills/` on your laptop is not used.
+
+### Known limitation: global skills often missing from Customize
+
+In recent Cursor versions, **user-level** skills installed to `~/.cursor/skills/` on the remote host are often **not listed** under **Customize → Skills**, even though the files are on disk. This matches [Cursor forum reports](https://forum.cursor.com/t/cursor-fails-to-locate-the-skills-module-feature-in-ssh-mode/151268) and Cursor staff guidance: use **project-level** skills on the remote workspace instead.
+
+| Install scope | Path on remote | Customize → Skills (SSH) |
+|---------------|----------------|----------------------------|
+| Global (default) | `~/.cursor/skills/<name>/` | Often **not shown** (known Cursor bug) |
+| Project | `<workspace>/.cursor/skills/<name>/` | **Reliable** workaround |
+
+The same limitation can affect global agents (`~/.cursor/agents/`). Project agents go to `<workspace>/.cursor/agents/`.
+
+### Recommended install on Remote SSH
+
+From the **remote** shell (Cursor integrated terminal or SSH), in the **workspace you have open** — not only in the architect-library clone unless that repo is your workspace:
+
+```bash
+REPO=/path/to/architect-library   # clone on the remote if needed
+cd /path/to/your-open-workspace    # project root Cursor has open over SSH
+bash "$REPO/scripts/install_deps.sh"
+bash "$REPO/scripts/install_deps.sh" office-system
+bash "$REPO/scripts/install_library.sh" all cursor project
+```
+
+Verify on the remote:
+
+```bash
+test -f .cursor/skills/word-document/SKILL.md && echo "OK: project skills"
+test -f .cursor/agents/code-review.md && echo "OK: project agents"
+```
+
+Then **reload the window** or open a **new agent chat**. Check **Customize → Skills** — skills should appear under the customised / Agent Decides section.
+
+### SSH checklist
+
+| Check | Detail |
+|-------|--------|
+| Install ran on **remote** | `echo $HOME` and `pwd` should be the remote user and your open workspace |
+| Path is lowercase | `.cursor/skills/` — not `Cursor/` or `./Cursor` |
+| Each skill is a folder | `word-document/SKILL.md`, not a lone `SKILL.md` at repo root |
+| `name` matches folder | Frontmatter `name: word-document` in folder `word-document/` |
+| Remote OS | Linux remote is most reliable; Windows SSH hosts have additional skills bugs |
+| Still empty UI | Use project scope; avoid relying on global `~/.cursor/skills/` until Cursor fixes SSH discovery |
+
+`install_library.sh` prints a reminder when it detects an SSH session and you chose global scope.
 
 ---
 
@@ -275,6 +326,8 @@ Do not run `install_deps.sh` inside `~/.cursor/skills/` — run from the **repos
 
 | Mistake | Why it fails |
 |---------|----------------|
+| Global install only, then Remote SSH | `~/.cursor/skills/` on remote often not shown in Customize — use `project` scope in the open workspace |
+| Install on laptop, work over SSH | Agent reads remote filesystem only — install on the remote host |
 | Copy only one skill folder | Word/PPT break; missing `_shared` |
 | Omit `_shared` | `../_shared/office-tools/` paths break |
 | Copy repo into `~/.cursor/skills/` | Wrong layout |

@@ -188,6 +188,23 @@ echo "Architect Library install_library.sh"
 echo "  REPO=$REPO"
 echo "  WHAT=$WHAT EDITOR=$EDITOR SCOPE=$SCOPE"
 
+if [[ "$SCOPE" == "global" ]] && [[ "$EDITOR" == "cursor" || "$EDITOR" == "both" ]]; then
+  if [[ -n "${SSH_CONNECTION:-}" || -n "${SSH_CLIENT:-}" || -n "${SSH_TTY:-}" ]]; then
+    cat <<'EOF' >&2
+
+NOTE: SSH session detected. Cursor Remote SSH often does not list global
+      skills from ~/.cursor/skills/ under Customize → Skills.
+
+      Workaround: install into the open workspace on this host:
+        cd /path/to/your-project
+        bash scripts/install_library.sh all cursor project
+
+      See docs/AGENT-SKILL-INSTALL.md § Remote SSH (Cursor).
+
+EOF
+  fi
+fi
+
 case "$WHAT" in
   all)
     install_skills

@@ -41,7 +41,7 @@ Use partial installs **only** when the user explicitly asks:
 | Skills | `~/.cursor/skills/<name>/` |
 | Agents | `~/.cursor/agents/<name>.md` |
 
-Use **per-project** `.cursor/skills/` only if the user explicitly wants project-local install (`install_library.sh all cursor project`).
+Use **per-project** `.cursor/skills/` when the user uses **Cursor Remote SSH** (global `~/.cursor/skills/` is often not listed under Customize → Skills on the remote host) or when they explicitly want project-local install (`install_library.sh all cursor project`).
 
 Do **not** copy skills into `<repo>/.cursor/skills/` or agents into `<repo>/.cursor/agents/` — that duplicates source and breaks the install model.
 
