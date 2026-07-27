@@ -24,6 +24,7 @@ Skill library + custom agent library for Cursor and Copilot. Work in this clone 
 | `skills/powerpoint-presentation/` | PPTX → **mandatory** layout preview |
 | `skills/spreadsheet-document/` | XLSX / spreadsheets; formula recalc via office-tools |
 | `skills/pdf-document/` | PDF read/create/merge/forms |
+| `skills/github-markdown/` | GitHub Flavored Markdown for READMEs, issues, PRs, discussions, wikis, repo docs |
 | `skills/terraform-commit-review/` | Terraform IaC commit-range review |
 | `skills/terraform-apply-assistance/` | Terraform apply fix, scope review, and plan evaluation |
 | `skills/_shared/` | `architecture-document-principles.md`, `office-tools/` |

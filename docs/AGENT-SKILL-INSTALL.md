@@ -52,6 +52,7 @@ Architect Library publishes **two libraries**:
 | `pdf-document` | Cursor/Copilot skill | If PDF work is needed |
 | `verification-before-completion` | Cursor/Copilot skill | Evidence before completion claims; required by artifact skills at delivery |
 | `api-and-interface-design` | Cursor/Copilot skill | API and module boundary design workflow |
+| `github-markdown` | Cursor/Copilot skill | GitHub Flavored Markdown for READMEs, issues, PRs, discussions, wikis, and repo docs |
 | `deprecation-and-migration` | Cursor/Copilot skill | Deprecation and migration planning workflow |
 | `terraform-commit-review` | Cursor/Copilot skill | Terraform IaC commit-range review (correctness, security, destructive changes) |
 | `terraform-apply-assistance` | Cursor/Copilot skill | Fix Terraform errors, review apply scope from commit hash through HEAD, create fix branches, review plan output for apply safety |
@@ -171,6 +172,7 @@ test -f ~/.cursor/skills/_shared/office-tools/office_tools.py && echo "OK: curso
 test -f ~/.cursor/skills/word-document/SKILL.md && echo "OK: cursor skills"
 test -f ~/.cursor/skills/verification-before-completion/SKILL.md && echo "OK: verification skill"
 test -f ~/.cursor/skills/api-and-interface-design/SKILL.md && echo "OK: api skill"
+test -f ~/.cursor/skills/github-markdown/SKILL.md && echo "OK: github-markdown skill"
 test -f ~/.cursor/skills/deprecation-and-migration/SKILL.md && echo "OK: deprecation skill"
 test -f ~/.cursor/skills/security-audit/SKILL.md && echo "OK: security-audit skill"
 test -f ~/.cursor/agents/code-review.md && echo "OK: cursor agents"
@@ -194,6 +196,7 @@ test -f ~/.copilot/skills/_shared/office-tools/office_tools.py && echo "OK: copi
 test -f ~/.copilot/skills/word-document/SKILL.md && echo "OK: copilot skills"
 test -f ~/.copilot/skills/verification-before-completion/SKILL.md && echo "OK: verification skill"
 test -f ~/.copilot/skills/api-and-interface-design/SKILL.md && echo "OK: api skill"
+test -f ~/.copilot/skills/github-markdown/SKILL.md && echo "OK: github-markdown skill"
 test -f ~/.copilot/skills/deprecation-and-migration/SKILL.md && echo "OK: deprecation skill"
 test -f ~/.copilot/skills/security-audit/SKILL.md && echo "OK: security-audit skill"
 test -f ~/.copilot/agents/code-review.agent.md && echo "OK: copilot agents"
@@ -230,6 +233,7 @@ The install script runs **library** checks automatically for the `EDITOR` you pa
 | **pdf-document** | Deliver `.pdf`; form fills per `references/forms.md` |
 | **verification-before-completion** | Fresh verification command output in same message before any completion/success claim |
 | **api-and-interface-design** | Contract before implementation; consistent errors; boundary validation; list pagination; deprecation cross-check when changing public interfaces |
+| **github-markdown** | Render context identified; valid GFM syntax; context-limited features avoided (e.g. no footnotes in wikis); relative in-repo links where applicable; delivery checklist in `SKILL.md` satisfied |
 | **deprecation-and-migration** | Replacement before deprecation; migration guide; zero-usage verified before removal |
 | **terraform-commit-review** | Commit range established; all changed files read; provider docs verified via MCP; 7-section checklist applied; structured report with intent summary, per-phase table, issues, vendor comments, source URLs, and execution summary |
 | **terraform-apply-assistance** | Apply scope established (commit hash through HEAD or inferred); error/plan triaged; focused branch created; diagnosis via MCP; smallest edit applied; local validation run; **paused for user review** — no commit/push unless user instructs; plan evaluated with rubric; recap/runbook requests honor phase scope exclusions; risks re-raised every iteration; execution summary with apply decision, global/common/phase-specific env prerequisites, per-phase `## Phase N` command blocks, and post-apply checks |
