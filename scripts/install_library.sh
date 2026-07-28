@@ -8,7 +8,7 @@ REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$REPO/scripts/architect_env.sh"
 
 SKILL_BUNDLE="excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document verification-before-completion api-and-interface-design deprecation-and-migration github-markdown terraform-commit-review terraform-apply-assistance security-audit _shared"
-EDITOR_VARIANT_SKILLS="mcp-tool-rules"
+EDITOR_VARIANT_SKILLS="mcp-tool-rules context7-docs"
 AGENT_BUNDLE="code-review security-auditor"
 
 LEGACY_SKILLS="docx pptx xlsx pdf terraform-apply-fix-review mcp-tool-rules-copilot"
