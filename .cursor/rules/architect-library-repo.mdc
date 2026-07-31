@@ -27,6 +27,7 @@ Skill library + custom agent library for Cursor and Copilot. Work in this clone 
 | `skills/github-markdown/` | GitHub Flavored Markdown for READMEs, issues, PRs, discussions, wikis, repo docs |
 | `skills/terraform-commit-review/` | Terraform IaC commit-range review |
 | `skills/terraform-apply-assistance/` | Terraform apply fix, scope review, and plan evaluation |
+| `skills/notion-mcp-ops/` | Notion MCP CRUD, formatting, fetch-before-write; editor variants for Cursor and Copilot |
 | `skills/_shared/` | `architecture-document-principles.md`, `office-tools/` |
 | `scripts/install_library.sh` | Install/patch both libraries (global default) |
 | `scripts/install_deps.sh` | Runtimes only (`all` \| `excalidraw` \| `office` \| `office-system` \| `pdf` \| `node`) |

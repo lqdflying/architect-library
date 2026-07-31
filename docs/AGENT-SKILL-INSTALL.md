@@ -59,6 +59,7 @@ Architect Library publishes **two libraries**:
 | `security-audit` | Cursor/Copilot skill | Deep multi-phase codebase security audit — parallel sub-agent hunting, adversarial validation, structured `findings.json` output |
 | `mcp-tool-rules` | Cursor + Copilot (editor variants) | Scan MCP servers and generate rule/instruction files with correct tool arguments (`.mdc` for Cursor, `.instructions.md` for Copilot) |
 | `context7-docs` | Cursor + Copilot (editor variants) | Fetch current library/framework documentation via Context7 MCP instead of training data; editor variants use correct MCP server name |
+| `notion-mcp-ops` | Cursor + Copilot (editor variants) | Notion MCP CRUD and formatting; fetch-before-write; failure-mode avoidance; editor variants use correct MCP server name (`plugin-notion-workspace-notion` in Cursor, `notion` in Copilot) |
 | `_shared` | Support files (not a standalone skill) | **Yes** whenever Word, PowerPoint, or spreadsheet skills are installed |
 
 Word, PowerPoint, and spreadsheet skills reference Office tools via `../_shared/office-tools/`. If `_shared` is missing or not a **sibling** of those folders, paths break.
@@ -178,6 +179,7 @@ test -f ~/.cursor/skills/deprecation-and-migration/SKILL.md && echo "OK: depreca
 test -f ~/.cursor/skills/security-audit/SKILL.md && echo "OK: security-audit skill"
 test -f ~/.cursor/skills/mcp-tool-rules/SKILL.md && echo "OK: mcp-tool-rules variant"
 test -f ~/.cursor/skills/context7-docs/SKILL.md && echo "OK: context7-docs variant"
+test -f ~/.cursor/skills/notion-mcp-ops/SKILL.md && echo "OK: notion-mcp-ops variant"
 test -f ~/.cursor/agents/code-review.md && echo "OK: cursor agents"
 grep -q 'readonly: true' ~/.cursor/agents/code-review.md && echo "OK: code-review"
 test -f ~/.cursor/agents/security-auditor.md && echo "OK: security-auditor"
@@ -204,6 +206,7 @@ test -f ~/.copilot/skills/deprecation-and-migration/SKILL.md && echo "OK: deprec
 test -f ~/.copilot/skills/security-audit/SKILL.md && echo "OK: security-audit skill"
 test -f ~/.copilot/skills/mcp-tool-rules/SKILL.md && echo "OK: mcp-tool-rules variant"
 test -f ~/.copilot/skills/context7-docs/SKILL.md && echo "OK: context7-docs variant"
+test -f ~/.copilot/skills/notion-mcp-ops/SKILL.md && echo "OK: notion-mcp-ops variant"
 test -f ~/.copilot/agents/code-review.agent.md && echo "OK: copilot agents"
 test -f ~/.copilot/agents/security-auditor.agent.md && echo "OK: security-auditor"
 grep -q 'disallowedTools: edit' ~/.copilot/agents/security-auditor.agent.md && echo "OK: security-auditor readonly"
@@ -245,6 +248,7 @@ The install script runs **library** checks automatically for the `EDITOR` you pa
 | **security-audit** | All 6 phases completed (Recon → Hunt → Validate → Report → Structured output → Independent verification); `findings.json` validates against schema (`validate-findings.cjs`); `REPORT.md` and `FINDINGS-DETAIL.md` reconciled with `findings.json`; output directory contains all artifacts |
 | **mcp-tool-rules** | MCP config read; servers presented and confirmed; tools discovered per server; editor-appropriate files generated (Cursor: `.mdc` rules, Copilot: `.instructions.md`) with parameter tables and example calls; files validated (server names, tables, examples, frontmatter); report delivered |
 | **context7-docs** | Library/framework docs fetched via Context7 MCP; version-specific library ID selected when applicable; query decomposed to one topic per call; source cited in response; fallback to web search or Microsoft Learn when Context7 lacks the library |
+| **notion-mcp-ops** | Notion MCP server discovered with correct editor server name; fetch before write on updates; anchors from fetched content; formatting rules applied (`<callout>`, HTML tables); post-update verify fetch for structural edits; property names from fetched schema |
 
 **PowerPoint is not done** when the `.pptx` exists — only after layout preview (or user waives).
 

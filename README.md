@@ -170,6 +170,7 @@ See [Installation](#installation) for Copilot / Claude Code paths, or [docs/AGEN
 | `security-audit` | Deep multi-phase codebase security audit — 6-phase workflow with parallel sub-agent hunting, adversarial validation, structured `findings.json` output. Full offensive audit, not a quick review. |
 | `mcp-tool-rules` | Scan MCP servers, discover tool schemas, generate rule/instruction files with correct tool arguments. Editor-specific variants: `.mdc` rules for Cursor, `.instructions.md` for Copilot. |
 | `context7-docs` | Fetch current library/framework documentation via Context7 MCP instead of training data. Editor variants use correct MCP server name (`user-context7` in Cursor, `context7` in Copilot). |
+| `notion-mcp-ops` | Notion MCP operations — fetch-before-write, CRUD, formatting (callouts/tables), failure avoidance. Editor variants: `plugin-notion-workspace-notion` in Cursor, `notion` in Copilot. |
 | `_shared` | Shared principles and Office tooling for Word, PowerPoint, and spreadsheet skills. **Must** be a sibling of those skills. |
 
 ## Custom agents
@@ -217,6 +218,8 @@ Catalog: [`docs/AGENTS.md`](docs/AGENTS.md). Deep dive: [`docs/CODE-REVIEW-AGENT
 | [`skills/mcp-tool-rules/SKILL.copilot.md`](skills/mcp-tool-rules/SKILL.copilot.md) | MCP tool calling instructions generation (VS Code Copilot) |
 | [`skills/context7-docs/SKILL.cursor.md`](skills/context7-docs/SKILL.cursor.md) | Context7 library docs lookup (Cursor) |
 | [`skills/context7-docs/SKILL.copilot.md`](skills/context7-docs/SKILL.copilot.md) | Context7 library docs lookup (VS Code Copilot) |
+| [`skills/notion-mcp-ops/SKILL.cursor.md`](skills/notion-mcp-ops/SKILL.cursor.md) | Notion MCP operations (Cursor) |
+| [`skills/notion-mcp-ops/SKILL.copilot.md`](skills/notion-mcp-ops/SKILL.copilot.md) | Notion MCP operations (VS Code Copilot) |
 | This README → [How to use](#how-to-use) | Using installed skills in Cursor, Copilot, or Claude Code chat |
 | [`skills/excalidraw-diagram/SKILL.md`](skills/excalidraw-diagram/SKILL.md) | Diagram design rules and agent workflow |
 | [`skills/excalidraw-diagram/README.md`](skills/excalidraw-diagram/README.md) | Render setup, offline bundle, PNG validation |
@@ -315,6 +318,11 @@ architect-library/
       SKILL.cursor.md
       SKILL.copilot.md
       README.md
+    notion-mcp-ops/
+      SKILL.cursor.md
+      SKILL.copilot.md
+      README.md
+      references/
     _shared/
       architecture-document-principles.md
       office-tools/

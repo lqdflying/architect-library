@@ -49,7 +49,7 @@ Do **not** copy skills into `<repo>/.cursor/skills/` or agents into `<repo>/.cur
 
 ```
 SKILL_BUNDLE="excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document verification-before-completion api-and-interface-design deprecation-and-migration github-markdown terraform-commit-review terraform-apply-assistance security-audit _shared"
-EDITOR_VARIANT_SKILLS="mcp-tool-rules context7-docs"
+EDITOR_VARIANT_SKILLS="mcp-tool-rules context7-docs notion-mcp-ops"
 AGENT_BUNDLE="code-review security-auditor"
 ```
 
