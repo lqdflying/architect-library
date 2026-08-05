@@ -46,8 +46,15 @@ For **any** finding, fix proposal, or design question — before flagging or con
 
 1. **Context7** (`mcp_context7_resolve-library-id` → `mcp_context7_query-docs`): Use for Terraform provider docs (AzureRM, Databricks, Kubernetes, etc.), provider resource arguments, resource constraints, and known library behaviour.
 2. **Microsoft Learn MCP** (`mcp_microsoftdocs_microsoft_docs_search` / `mcp_microsoftdocs_microsoft_docs_fetch`): Use for Azure service behaviour, Azure RBAC built-in roles, Azure Networking constraints, AKS, Databricks on Azure, and any Azure-specific limits or immutability requirements.
+3. **Installed provider schema (ground truth)**: Context7 returns top-K doc *snippets*, not the full argument reference — an argument absent from a snippet is **not** evidence it is valid. For every phase whose diff adds or modifies a resource, run `terraform validate` (and, if needed, `terraform providers schema -json`) against the installed provider. The installed provider is authoritative; doc snippets are only hints. When a resource is net-new or vendor-added, also consult the **major-version upgrade guide** for the provider version pinned in `versions.tf` (v3-era syntax, e.g. top-level `backup_type`/`backup_storage_redundancy` on `azurerm_cosmosdb_account`, is common in vendor code and is removed in v4).
 
 > **Rule:** Do not rely solely on training-data knowledge when answering questions about Terraform provider arguments, Azure service limits, or RBAC role definitions. Always verify against the official source first, then cite the source URL in the findings.
+
+> **Deprecation clustering rule:** Deprecated/removed arguments arrive in clusters at major-version boundaries. When one deprecated or removed argument is found in a resource block, sweep the **entire block** for sibling arguments removed in the same provider major version (e.g. finding `local_authentication_disabled` deprecated ⇒ also check `backup_type`, `backup_storage_redundancy`, `enable_*` forms on the same resource).
+
+> **Deprecation classification rule:** Distinguish two tiers. **(a) Removed in the pinned major version** — `terraform validate` fails → CRITICAL validation blocker (e.g. `backup_type`/`backup_storage_redundancy` in AzureRM v4). **(b) Deprecated but still accepted** — validate/plan pass, plan/apply emit a deprecation warning → LOW/MEDIUM with `Blocks Terraform Apply? = No — code quality / maintainability risk`, but the finding MUST state explicitly that a plan/apply deprecation warning is emitted, name the removal version, and note feature-flag gating (e.g. `local_authentication_disabled` is gated behind `features.FivePointOh()` in the provider source — a no-op under the 5.0 feature flag).
+
+> **Per-resource-type API capability rule:** `terraform validate`/`terraform plan` passing is **not** proof an argument is accepted by the Azure API — the provider schema validates argument *shape* only, not service acceptance. For every **net-new resource type** introduced by the diff (and for any argument that depends on service capabilities — diagnostic category groups, PE subresource names, SKU-dependent features), consult MS Learn for that service's capability matrix: supported diagnostic log categories and category-group support via the supported-logs index (`https://learn.microsoft.com/azure/azure-monitor/reference/supported-logs/logs-index`), private-endpoint subresources, SKU/immutability constraints. Known trap: `azurerm_monitor_diagnostic_setting` with `enabled_log { category_group = "allLogs" }` passes validate but is rejected at apply time with `400 Bad Request — CategoryGroup: 'allLogs' is not supported, supported ones are: ''` for resource types that expose no log categories (e.g. `Microsoft.Cache/redisEnterprise` — its logs live on the child type `.../databases`).
 
 > **Learning & Explanation Rule:** When the user asks a learning or explanation question (e.g. "how does X work", "what is Y", "why does Z happen"), also look up the topic via Context7 and/or Microsoft Learn MCP and **include the source URL(s) at the end of the answer** so the user can read further.
 
@@ -58,6 +65,11 @@ Always cite the source URL for every finding in the final report.
 #### A. Provider / HCL Correctness
 - [ ] Attribute types match the provider schema (scalar vs list/set, `destination_port_range` vs `destination_port_ranges`)
 - [ ] No deprecated arguments (check provider version constraints in `versions.tf`)
+- [ ] **`terraform validate` run in every phase owning a changed resource/module** — the installed provider schema is ground truth; doc snippets cannot prove an argument is valid
+- [ ] **New/vendor-added resources checked against the pinned major-version upgrade guide** for removed arguments (v3-era syntax is the most common vendor defect)
+- [ ] **Deprecation sweep**: when any deprecated argument is found in a resource block, the whole block is swept for sibling arguments removed in the same major version
+- [ ] **Diagnostic settings checked per resource type**: every `azurerm_monitor_diagnostic_setting` added/changed is checked against the supported-logs index for the exact target resource type — category groups (`allLogs`/`audit`) are only valid where the resource type supports them (child types like `.../databases` may hold the categories); unsupported category groups fail at apply with a 400 that validate cannot catch
+- [ ] **Net-new resource types checked against MS Learn capability matrix** (diagnostic categories/category-group support, PE subresources, SKU constraints) — schema-valid arguments can still be rejected by the Azure API at apply time
 - [ ] Resource attribute combinations are compatible (e.g. `data_security_mode = USER_ISOLATION` requires `num_workers >= 1`)
 - [ ] Cluster policies / SKU constraints respected (e.g. Event Hub `partition_count` is **immutable** on Standard SKU)
 - [ ] `depends_on` not used where implicit reference already exists
@@ -67,9 +79,9 @@ Always cite the source URL for every finding in the final report.
 - [ ] Sensitive variables (`*_password`, `*_secret`, `*_key`) are `sensitive = true` and set via env vars, not hardcoded in `.tfvars`
 - [ ] No credentials committed in any file (`*.tfvars`, `*.json`, `provider.tf`)
 - [ ] Least-privilege: verify each new role assignment is the minimum needed (check MS Learn for built-in role definitions)
+- [ ] New Microsoft Entra service principals or Enterprise Applications are explicitly highlighted. Direct resources such as `azuread_application`, `azuread_service_principal`, and related credentials are likely apply blockers unless the Terraform platform identity has confirmed Entra privileges. Managed identities (`azurerm_user_assigned_identity` or `identity { type = "SystemAssigned" }`) are service-principal objects visible under Enterprise Applications; distinguish them from standalone app registrations, but still call them out for privilege confirmation.
 - [ ] UAMI vs SAMI appropriate for the use case
 - [ ] Comments/docs accurately describe what the code does — misleading comments near security config are flagged
-- [ ] New Microsoft Entra service principals or Enterprise Applications are explicitly highlighted. Direct resources such as `azuread_application`, `azuread_service_principal`, and related credentials are likely apply blockers unless the Terraform platform identity has confirmed Entra privileges. Managed identities (`azurerm_user_assigned_identity` or `identity { type = "SystemAssigned" }`) are service-principal objects visible under Enterprise Applications; distinguish them from standalone app registrations, but still call them out for privilege confirmation.
 
 #### C. Destructive Change Detection
 - [ ] `partition_count` changes on existing Event Hubs (Standard SKU — immutable, forces destroy/recreate)
@@ -314,6 +326,13 @@ Common Azure resources with immutable fields that force destroy/recreate if chan
 - **Key Vault** (`azurerm_key_vault`): `sku_name`
 - **Subnet** (`azurerm_subnet`): changing `address_prefixes` may affect dependent resources
 - Any resource `name` change → destroy/recreate
+
+### API-Side Constraints Invisible to the Provider Schema
+- `terraform validate` and even `terraform plan` can pass while the Azure API rejects the request at apply time. Common cases:
+  - **Diagnostic category groups**: `category_group = "allLogs"` / `"audit"` in `azurerm_monitor_diagnostic_setting` is only accepted for resource types that expose log categories and support category groups. For types without log categories (e.g. `Microsoft.Cache/redisEnterprise`), apply fails with `400 CategoryGroup: 'allLogs' is not supported, supported ones are: ''`. Always check `https://learn.microsoft.com/azure/azure-monitor/reference/supported-logs/logs-index` for the exact resource type — categories may live on a child type (e.g. `Microsoft.Cache/redisEnterprise/databases` → `ConnectionEvents`/`REDConnectionEvents`), in which case the diagnostic setting must target the child resource or be metrics-only.
+  - **Private endpoint subresources**: `subresource_names` must match the PE service's subresource table (MS Learn private-endpoint-dns).
+  - **SKU-dependent features**: e.g. Event Hub `partition_count` immutability on Basic/Standard SKU.
+- For any net-new resource type in the diff, verify the service capability matrix before approving.
 
 ### Security Baselines
 - Sensitive variables (`*_password`, `*_secret`, `*_key`, `*_token`) must be `sensitive = true` and set via env vars, not hardcoded in any committed file

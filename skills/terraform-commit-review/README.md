@@ -1,6 +1,6 @@
 # terraform-commit-review
 
-Comprehensive Terraform IaC code review skill for auditing changes across a git commit range. Covers provider/HCL correctness, security & RBAC, destructive change detection, naming conventions, cross-phase consistency, and code quality.
+Comprehensive Terraform IaC code review skill for auditing changes across a git commit range. Covers provider/HCL correctness (including `terraform validate` and installed provider schema as ground truth), deprecation clustering/classification, per-resource-type API capability checks, security & RBAC, destructive change detection, naming conventions, cross-phase consistency, documentation/runbook parity, and apply execution summaries.
 
 ## Use when
 
