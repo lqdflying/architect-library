@@ -1,25 +1,25 @@
 # AGENTS.md — architect-library
 
-Cross-editor guide for AI agents working **in this repository** (maintainers editing `skills/`, `agents/`, scripts, docs).
+Cross-editor guide for AI agents working **in this repository** (maintainers editing `skills/`, `agents/`, `user-rules/`, scripts, docs).
 
 | Doc | Purpose |
 |-----|---------|
 | **This file** | Shared install contract, editor scope, anti-patterns |
 | [docs/AGENT-SKILL-INSTALL.md](docs/AGENT-SKILL-INSTALL.md) | Full install procedure + verification commands |
 | [docs/AGENTS.md](docs/AGENTS.md) | **Shipped custom agents catalog** (`code-review`, `security-auditor`) |
-| [docs/MAINTAINING-SKILLS.md](docs/MAINTAINING-SKILLS.md) | Maintainer checklist for new skills/agents |
+| [docs/MAINTAINING-SKILLS.md](docs/MAINTAINING-SKILLS.md) | Maintainer checklist for new skills/agents/user-global rules |
 
 ---
 
 ## Install library — follow this exactly
 
-**Trigger phrases:** install library, patch library, refresh library, update library, install skills and agents, sync library, update architect library — or after you change `skills/` or `agents/` in this repo.
+**Trigger phrases:** install library, patch library, refresh library, update library, install skills and agents, sync library, update architect library — or after you change `skills/`, `agents/`, or `user-rules/` in this repo.
 
 ### 1. Detect editor — do not ask the user
 
 | You are in | Install **only** to |
 |------------|---------------------|
-| **Cursor** | `~/.cursor/skills/`, `~/.cursor/agents/` |
+| **Cursor** | `~/.cursor/skills/`, `~/.cursor/agents/`, `~/.cursor/rules/` |
 | **VS Code Copilot** | `~/.copilot/skills/`, `~/.copilot/agents/` |
 | **Claude Code** | `~/.claude/skills/`, `~/.claude/agents/` |
 
@@ -37,7 +37,7 @@ bash scripts/install_deps.sh office-system
 - **`install_node.sh` writes** `~/.config/architect-library/env.sh` (idempotent PATH/`NODE_PATH`, optional `NODE_BIN`) and a bootstrapped **`npm` shim** at `~/.npm-global/bin/npm` when system npm is missing. Adds a guarded hook to `~/.bashrc` / `~/.profile`. **`install_deps.sh`**, **`install_library.sh`**, and **`runtime_readiness.sh`** source `scripts/architect_env.sh` automatically — no manual `export` needed inside those scripts.
 - Before **manual** Node/docx-js/pptxgenjs work in an agent shell (outside install scripts): `source /path/to/architect-library/scripts/architect_env.sh`
 - Re-run only Node step: `bash scripts/install_deps.sh node`
-- If Node still unavailable after the script tries: **do not** improvisationally install nvm/fnm unless the user asks — report incomplete runtime; still run `install_library.sh` (skills/agents work without Node).
+- If Node still unavailable after the script tries: **do not** improvisationally install nvm/fnm unless the user asks — report incomplete runtime; still run `install_library.sh` (skills/agents/rules copy without Node).
 - If `npm` global install fails: skills/agents can still be installed; say runtime readiness is **incomplete** for Node-based generation. After install, `bash scripts/runtime_readiness.sh` summarizes what artifact work is still possible.
 - **Library installed** ≠ **all artifact runtimes ready**. Skills/agents copy without Node; Word may still deliver via python-docx; new PPT decks need pptxgenjs or a user-supplied template.
 
@@ -52,7 +52,7 @@ bash scripts/install_deps.sh office-system
 
 **Without npm:** Word → python-docx per `word-document` skill; PowerPoint → template/XML path only (no greenfield deck); layout preview still mandatory when delivering `.pptx`.
 
-### 3. Copy skills + agents — editor-scoped command
+### 3. Copy skills, agents, and Cursor user-global rules — editor-scoped command
 
 | Editor | Command |
 |--------|---------|
@@ -63,7 +63,7 @@ bash scripts/install_deps.sh office-system
 
 **Do not** run bare `bash scripts/install_library.sh` by default — it uses `EDITOR=both` and installs to Cursor + Copilot + Claude.
 
-Partial installs only when the user explicitly asks (still editor-scoped), e.g. `bash scripts/install_library.sh agents copilot`.
+Partial installs only when the user explicitly asks (still editor-scoped), e.g. `bash scripts/install_library.sh agents copilot` or `bash scripts/install_library.sh rules cursor`.
 
 ### 4. Tell the user
 
@@ -81,6 +81,7 @@ Reload the editor or open a **new agent chat**. If any runtime step failed, say 
 | Say pptxgenjs works via python-docx | **Wrong** — PPT new decks need pptxgenjs or template/XML; Word only has python-docx fallback |
 | Manual Node without sourcing env | `source scripts/architect_env.sh` so `NODE_PATH` finds `docx` / `pptxgenjs` under `~/.npm-global` |
 | Copy `skills/` into `repo/.cursor/skills/` | Source is `skills/`; install via `install_library.sh` |
+| Copy `user-rules/` into `repo/.cursor/rules/` | Source is `user-rules/cursor/`; install to `~/.cursor/rules/` |
 | Ask which editor on “install library” | Infer from the environment you are running in |
 
 ---
@@ -89,7 +90,8 @@ Reload the editor or open a **new agent chat**. If any runtime step failed, say 
 
 - **Skills:** `skills/<name>/` → bundled in `SKILL_BUNDLE` in `scripts/install_library.sh`
 - **Custom agents:** `agents/<name>/` → `AGENT_BUNDLE`; assembled from `cursor.header.md` / `copilot.header.md` / `claude.header.md` + `INSTRUCTIONS.md`
-- **End-user skills/agents** live in the user’s home directory after install — not in this repo’s `.cursor/skills/` (except maintainer-only `.cursor/skills/absorb-reference-materials/`)
+- **Cursor user-global rules:** `user-rules/cursor/<name>.mdc` → `CURSOR_RULE_BUNDLE`; installed to `~/.cursor/rules/` (Cursor only). Distinct from this repo’s maintainer `.cursor/rules/`.
+- **End-user skills/agents/rules** live in the user’s home directory after install — not in this repo’s `.cursor/skills/` (except maintainer-only `.cursor/skills/absorb-reference-materials/`)
 
 ---
 

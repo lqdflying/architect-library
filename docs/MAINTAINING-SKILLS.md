@@ -1,6 +1,6 @@
-# Maintaining skills, agents, and agent guidance
+# Maintaining skills, agents, user-global rules, and agent guidance
 
-Use this checklist when adding or changing **skills**, **custom agents**, **workflow steps**, or **dependencies** in **architect-library**. Scripts and README alone are not enough—agents read `SKILL.md` frontmatter, **`.cursor/rules/`**, and `docs/AGENT-SKILL-INSTALL.md`.
+Use this checklist when adding or changing **skills**, **custom agents**, **Cursor user-global rules**, **workflow steps**, or **dependencies** in **architect-library**. Scripts and README alone are not enough—agents read `SKILL.md` frontmatter, **`.cursor/rules/`**, and `docs/AGENT-SKILL-INSTALL.md`.
 
 **Reviewing external ref material (`tmp/skills/`, etc.)?** Read [`.cursor/skills/absorb-reference-materials/SKILL.md`](../.cursor/skills/absorb-reference-materials/SKILL.md) first — ship only high-value install targets, harden existing skills/agents, ignore the rest. That skill is **not** in `SKILL_BUNDLE`. After absorb: audit [README.md](../README.md) per [readme-after-absorb.md](../.cursor/skills/absorb-reference-materials/references/readme-after-absorb.md) (skills/agents tables, documentation map, repository layout).
 
@@ -46,6 +46,25 @@ Update **agent guidance**:
 
 **Do not** add agents under `skills/` or to `SKILL_BUNDLE`.
 
+## New user-global Cursor rule
+
+Create `user-rules/cursor/<name>.mdc` with YAML frontmatter:
+
+- [ ] `description` — what the rule does
+- [ ] `alwaysApply: true` (user-global protocol) or `globs` + `alwaysApply: false` (file-triggered)
+- [ ] Body is the protocol agents must follow in **any** Cursor project after install
+
+Update **agent guidance**:
+
+- [ ] [scripts/install_library.sh](../scripts/install_library.sh) — add the filename (no `.mdc`) to `CURSOR_RULE_BUNDLE`
+- [ ] [README.md](../README.md) — layout + documentation map; distinguish from maintainer `.cursor/rules/`
+- [ ] [AGENT-SKILL-INSTALL.md](AGENT-SKILL-INSTALL.md) — user-global rules table + verify commands
+- [ ] [AGENTS.md](../AGENTS.md) — Cursor install target `~/.cursor/rules/`
+- [ ] `.cursor/rules/architect-library-repo.mdc` and `architect-library-patch.mdc` — layout + bundle string
+- [ ] Run `bash scripts/install_library.sh rules cursor` (or full `all cursor`)
+
+**Do not** copy `user-rules/cursor/` into this repo’s `.cursor/rules/` (those files are maintainer-only for architect-library). **Do not** add user-global rules to `SKILL_BUNDLE` or `AGENT_BUNDLE`. Cursor Settings → Customize → Rules is a different store — install does not write it.
+
 ## New workflow step (existing skill)
 
 - [ ] `skills/<skill>/SKILL.md` — numbered workflow + delivery checklist
@@ -78,4 +97,4 @@ Update `description` when completion rules change (PowerPoint layout preview, Ex
 
 1. Grep for `architect-doc` — zero stale hits in docs/rules/scripts.
 2. Confirm `.cursor/rules/` and `AGENT-SKILL-INSTALL.md` agree on execution rules.
-3. If skills or agents changed, run full editor-scoped readiness install and verify runtimes plus installed files.
+3. If skills, agents, or user-global rules changed, run full editor-scoped readiness install and verify runtimes plus installed files.

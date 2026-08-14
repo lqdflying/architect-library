@@ -1,17 +1,17 @@
 # Architect Library
 
-A **skill library** and **custom agent library** for Cursor and VS Code Copilot. Install once globally; use in any project.
+A **skill library**, **custom agent library**, and **Cursor user-global rules** for Cursor and VS Code Copilot. Install once globally; use in any project.
 
-**Skills** handle artifacts (Excalidraw, Word, PowerPoint, spreadsheets, PDFs) and architecture workflows (API design, deprecation/migration). **Custom agents** handle focused readonly tasks such as [code review](docs/CODE-REVIEW-AGENT.md) and [security audit](docs/SECURITY-AUDITOR-AGENT.md).
+**Skills** handle artifacts (Excalidraw, Word, PowerPoint, spreadsheets, PDFs) and architecture workflows (API design, deprecation/migration). **Custom agents** handle focused readonly tasks such as [code review](docs/CODE-REVIEW-AGENT.md) and [security audit](docs/SECURITY-AUDITOR-AGENT.md). **Cursor user-global rules** install to `~/.cursor/rules/` (review handoff and reconciliation) and apply in every Cursor project.
 
 Compatible with [Cursor](https://cursor.com), [VS Code + GitHub Copilot](https://code.visualstudio.com/docs/copilot/customization/agent-skills), [Claude Code](https://docs.anthropic.com/en/docs/claude-code), and OpenCode.
 
 **For coding agents:**
 
 - Working **in this repo**: [`.cursor/rules/`](.cursor/rules/) (maintainer rules, not installed globally) and [docs/MAINTAINING-SKILLS.md](docs/MAINTAINING-SKILLS.md).
-- **Installing** the full ready-to-use library: [docs/AGENT-SKILL-INSTALL.md](docs/AGENT-SKILL-INSTALL.md) — runtime dependencies + `bash scripts/install_library.sh all cursor` or `all copilot` (editor-scoped default).
+- **Installing** the full ready-to-use library: [docs/AGENT-SKILL-INSTALL.md](docs/AGENT-SKILL-INSTALL.md) — runtime dependencies + `bash scripts/install_library.sh all cursor` or `all copilot` (editor-scoped default). Cursor also copies [`user-rules/cursor/`](user-rules/cursor/) to `~/.cursor/rules/`.
 
-**Full install means instructions + runtimes:** When an agent handles **install library**, it should install the runtime dependencies first, then copy skills and agents for the active editor. Manual installs should follow the same order below.
+**Full install means instructions + runtimes:** When an agent handles **install library**, it should install the runtime dependencies first, then copy skills, agents, and (in Cursor) user-global rules for the active editor. Manual installs should follow the same order below.
 
 ## First-time preparation (one-time per machine)
 
@@ -38,7 +38,7 @@ From the repository root (after `git clone`):
 cd architect-library   # or your clone path
 bash scripts/install_deps.sh              # Excalidraw + Office + PDF + Node/npm (docx, pptxgenjs)
 bash scripts/install_deps.sh office-system   # add LibreOffice Impress + Poppler (PPT layout preview, XLSX recalc, accept changes)
-bash scripts/install_library.sh all cursor   # or: all copilot — skills + agents for your editor
+bash scripts/install_library.sh all cursor   # or: all copilot — skills + agents (+ Cursor user-global rules on cursor)
 ```
 
 **Is LibreOffice mandatory?** Not for creating `.docx` or building `.pptx` source (Node/python). **Yes for completing PowerPoint skill work**—every deck must go through layout preview (`thumbnail`), which needs LibreOffice Impress + Poppler. Word-only tasks can skip `office-system`. Install: `bash scripts/install_deps.sh office-system`.
@@ -137,7 +137,7 @@ After [first-time preparation](#first-time-preparation-one-time-per-machine) (sk
    cd architect-library
    ```
 
-2. **Install library globally** — skills and custom agents (pick your editor):
+2. **Install library globally** — skills, custom agents, and (Cursor) user-global rules (pick your editor):
 
    ```bash
    bash scripts/install_library.sh all cursor    # Cursor
@@ -182,6 +182,14 @@ See [Installation](#installation) for Copilot / Claude Code paths, or [docs/AGEN
 
 Catalog: [`docs/AGENTS.md`](docs/AGENTS.md). Deep dive: [`docs/CODE-REVIEW-AGENT.md`](docs/CODE-REVIEW-AGENT.md), [`docs/SECURITY-AUDITOR-AGENT.md`](docs/SECURITY-AUDITOR-AGENT.md).
 
+## Cursor user-global rules
+
+Source: [`user-rules/cursor/`](user-rules/cursor/). Installs to **`~/.cursor/rules/`** (not `~/.cursor`, and not Cursor Settings → Customize → Rules). Distinct from this repo’s maintainer [`.cursor/rules/`](.cursor/rules/).
+
+| Rule | Use when |
+|------|----------|
+| `review-handoff-reconciliation` | Code review produces `/tmp/<topic>-handoff.md`; the fixer validates, implements, and appends; rounds continue until both sides agree. |
+
 ## Security and review tools — when to use which
 
 | You want to... | Use | Type | Output |
@@ -200,11 +208,12 @@ Catalog: [`docs/AGENTS.md`](docs/AGENTS.md). Deep dive: [`docs/CODE-REVIEW-AGENT
 |-----------|----------------|
 | [`AGENTS.md`](AGENTS.md) | **Agent (Cursor + Copilot):** install library contract, editor scope, anti-patterns |
 | [`.cursor/`](.cursor/) | **Agent:** Cursor project rules and config (tracked in git) |
-| [`docs/MAINTAINING-SKILLS.md`](docs/MAINTAINING-SKILLS.md) | **Maintainer/agent:** checklist when adding skills, steps, or dependencies |
+| [`docs/MAINTAINING-SKILLS.md`](docs/MAINTAINING-SKILLS.md) | **Maintainer/agent:** checklist when adding skills, agents, user-global rules, steps, or dependencies |
+| [`user-rules/cursor/`](user-rules/cursor/) | **Cursor user-global rules source** — installed to `~/.cursor/rules/` (not this repo’s `.cursor/rules/`) |
 | [`tmp/README.md`](tmp/README.md) | **Maintainer:** staging area for external ref skills/agents before absorption |
 | [`.cursor/skills/absorb-reference-materials/SKILL.md`](.cursor/skills/absorb-reference-materials/SKILL.md) | **Maintainer:** triage `tmp/` ref material — ship, harden, or ignore (not in global install) |
 | [`.cursor/skills/absorb-reference-materials/references/readme-after-absorb.md`](.cursor/skills/absorb-reference-materials/references/readme-after-absorb.md) | **Maintainer:** README audit checklist after each absorb session |
-| [`docs/AGENT-SKILL-INSTALL.md`](docs/AGENT-SKILL-INSTALL.md) | **Agent:** install or refresh skills + custom agents (global) |
+| [`docs/AGENT-SKILL-INSTALL.md`](docs/AGENT-SKILL-INSTALL.md) | **Agent:** install or refresh skills + custom agents + Cursor user-global rules (global) |
 | [`docs/AGENTS.md`](docs/AGENTS.md) | Custom agent catalog |
 | [`docs/CODE-REVIEW-AGENT.md`](docs/CODE-REVIEW-AGENT.md) | code-review agent usage |
 | [`docs/SECURITY-AUDITOR-AGENT.md`](docs/SECURITY-AUDITOR-AGENT.md) | security-auditor agent usage |
@@ -248,6 +257,9 @@ architect-library/
     rules/                    # maintainer rules (not installed globally)
     skills/
       absorb-reference-materials/   # maintainer skill — triage tmp/ ref (not in SKILL_BUNDLE)
+  user-rules/
+    cursor/                   # Cursor user-global rules source → ~/.cursor/rules/
+      review-handoff-reconciliation.mdc
   agents/                     # custom agent library (source)
     code-review/
     security-auditor/
@@ -255,7 +267,7 @@ architect-library/
     AGENT-SKILL-INSTALL.md
     AGENTS.md
   scripts/
-    install_library.sh        # skills + agents → global Cursor / Copilot
+    install_library.sh        # skills + agents + Cursor user-global rules
     install_deps.sh           # all | excalidraw | office | office-system | pdf
     vendor_excalidraw.sh
     vendor_excalidraw/
@@ -347,7 +359,7 @@ git clone https://github.com/lqdflying/architect-library.git
 
 ### Install library (recommended)
 
-From the repo root — installs **runtime dependencies, skills, and custom agents** globally for **your editor**:
+From the repo root — installs **runtime dependencies, skills, custom agents**, and (Cursor) **user-global rules** globally for **your editor**:
 
 ```bash
 cd /path/to/architect-library
@@ -369,6 +381,7 @@ Partial installs (still editor-scoped):
 ```bash
 bash scripts/install_library.sh skills cursor    # skills only, Cursor
 bash scripts/install_library.sh agents copilot   # agents only, Copilot
+bash scripts/install_library.sh rules cursor     # Cursor user-global rules only
 bash scripts/install_library.sh all cursor project   # per-project copy
 ```
 
@@ -378,8 +391,9 @@ bash scripts/install_library.sh all cursor project   # per-project copy
 |---------|--------|---------|-------------|
 | Skills | `~/.cursor/skills/<name>/` | `~/.copilot/skills/<name>/` | `~/.claude/skills/<name>/` |
 | Agents | `~/.cursor/agents/<name>.md` | `~/.copilot/agents/<name>.agent.md` | `~/.claude/agents/<name>.md` |
+| User-global rules | `~/.cursor/rules/<name>.mdc` | — | — |
 
-Reload Cursor, VS Code, or Claude Code after installation. Skills appear as slash commands (`/word-document`, etc.). Custom agents appear in the agent picker (`code-review`, `security-auditor`, `/code-review` on Cursor).
+Reload Cursor, VS Code, or Claude Code after installation. Skills appear as slash commands (`/word-document`, etc.). Custom agents appear in the agent picker (`code-review`, `security-auditor`, `/code-review` on Cursor). Cursor user-global rules apply in new agent chats.
 
 See [`docs/AGENT-SKILL-INSTALL.md`](docs/AGENT-SKILL-INSTALL.md) for verification steps and common mistakes.
 

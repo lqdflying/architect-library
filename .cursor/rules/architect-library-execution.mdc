@@ -46,6 +46,7 @@ Applies when the user invokes a custom agent or you test agent behavior in this 
 | **security-auditor** | Scope established; trust boundaries + STRIDE; findings by severity with file:line evidence; PoC for Critical/High; MCP/web verification when applicable; release verdict (Yes/No/With fixes); **no source files edited** |
 
 After editing `agents/`, run `bash scripts/install_library.sh agents cursor` so global `~/.cursor/agents/` matches repo source.
+After editing `user-rules/cursor/`, run `bash scripts/install_library.sh rules cursor` so `~/.cursor/rules/` matches repo source.
 
 ## Dependencies
 

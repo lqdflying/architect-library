@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
-# Install Architect Library (skills + custom agents) to Cursor / Copilot / Claude.
-# Default: global install of both libraries to cursor + copilot home directories.
+# Install Architect Library (skills + custom agents + Cursor user-global rules)
+# to Cursor / Copilot / Claude.
+# Default: global install of skills and agents to cursor + copilot home directories;
+# Cursor user-global rules install only when EDITOR is cursor or both.
 set -euo pipefail
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -10,6 +12,7 @@ source "$REPO/scripts/architect_env.sh"
 SKILL_BUNDLE="excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document verification-before-completion api-and-interface-design deprecation-and-migration github-markdown terraform-commit-review terraform-apply-assistance security-audit _shared"
 EDITOR_VARIANT_SKILLS="mcp-tool-rules context7-docs notion-mcp-ops"
 AGENT_BUNDLE="code-review security-auditor"
+CURSOR_RULE_BUNDLE="review-handoff-reconciliation"
 
 LEGACY_SKILLS="docx pptx xlsx pdf terraform-apply-fix-review mcp-tool-rules-copilot"
 
@@ -18,12 +21,13 @@ usage() {
 Usage: install_library.sh [WHAT] [EDITOR] [SCOPE]
 
 WHAT (default: all):
-  all      Install skills and agents
+  all      Install skills, agents, and Cursor user-global rules (rules are Cursor-only)
   skills   Install skill library only
   agents   Install custom agent library only
+  rules    Install Cursor user-global rules only (~/.cursor/rules/)
 
 EDITOR (default: both):
-  both     Cursor + Copilot + Claude
+  both     Cursor + Copilot + Claude (rules still Cursor-only)
   cursor   Cursor paths only
   copilot  Copilot paths only
   claude   Claude Code paths only
@@ -36,6 +40,7 @@ Examples:
   bash scripts/install_library.sh
   bash scripts/install_library.sh skills
   bash scripts/install_library.sh agents cursor global
+  bash scripts/install_library.sh rules cursor
   bash scripts/install_library.sh all both project
 EOF
 }
@@ -45,7 +50,7 @@ EDITOR="${2:-both}"
 SCOPE="${3:-global}"
 
 case "$WHAT" in
-  all|skills|agents) ;;
+  all|skills|agents|rules) ;;
   -h|--help|help) usage; exit 0 ;;
   *) echo "Unknown WHAT: $WHAT" >&2; usage >&2; exit 1 ;;
 esac
@@ -79,6 +84,7 @@ else
 fi
 
 cursor_skills_dir() { echo "${BASE}/.cursor/skills"; }
+cursor_rules_dir() { echo "${BASE}/.cursor/rules"; }
 copilot_skills_dir() {
   if [[ "$SCOPE" == "project" ]]; then
     echo "${BASE}/.github/skills"
@@ -157,6 +163,25 @@ install_skills() {
   esac
 }
 
+install_cursor_rules() {
+  if [[ "$EDITOR" != "both" && "$EDITOR" != "cursor" ]]; then
+    echo "Skip Cursor user-global rules (EDITOR=$EDITOR)"
+    return 0
+  fi
+  local dest src
+  dest="$(cursor_rules_dir)"
+  mkdir -p "$dest"
+  for name in $CURSOR_RULE_BUNDLE; do
+    src="${REPO}/user-rules/cursor/${name}.mdc"
+    if [[ ! -f "$src" ]]; then
+      echo "Missing Cursor user-global rule: ${src}" >&2
+      exit 1
+    fi
+    rm -f "${dest}/${name}.mdc"
+    cp -a "$src" "${dest}/${name}.mdc"
+  done
+}
+
 install_agents() {
   for name in $AGENT_BUNDLE; do
     if [[ ! -d "${REPO}/agents/${name}" ]]; then
@@ -192,9 +217,11 @@ case "$WHAT" in
   all)
     install_skills
     install_agents
+    install_cursor_rules
     ;;
   skills) install_skills ;;
   agents) install_agents ;;
+  rules) install_cursor_rules ;;
 esac
 
 verify_skills_at() {
@@ -242,6 +269,15 @@ verify_claude_agents() {
   grep -q 'permissionMode: plan' "${dir}/security-auditor.md" || return 1
 }
 
+verify_cursor_rules() {
+  local dir="$1"
+  local name
+  for name in $CURSOR_RULE_BUNDLE; do
+    test -f "${dir}/${name}.mdc" || return 1
+    grep -q 'alwaysApply: true' "${dir}/${name}.mdc" || return 1
+  done
+}
+
 verify() {
   local ok=0
   if [[ "$WHAT" == "all" || "$WHAT" == "skills" ]]; then
@@ -266,6 +302,11 @@ verify() {
     fi
     if [[ "$EDITOR" == "both" || "$EDITOR" == "claude" ]]; then
       verify_claude_agents "$(claude_agents_dir)" || ok=1
+    fi
+  fi
+  if [[ "$WHAT" == "all" || "$WHAT" == "rules" ]]; then
+    if [[ "$EDITOR" == "both" || "$EDITOR" == "cursor" ]]; then
+      verify_cursor_rules "$(cursor_rules_dir)" || ok=1
     fi
   fi
   if [[ "$ok" -ne 0 ]]; then

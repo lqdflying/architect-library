@@ -1,14 +1,14 @@
 # Agent guide: install Architect Library (Cursor / Copilot)
 
-Use this document when the user asks to install, update, or fix **skills** or **custom agents** from the **architect-library** repository. Follow it literally; do not invent alternate paths.
+Use this document when the user asks to install, update, or fix **skills**, **custom agents**, or **Cursor user-global rules** from the **architect-library** repository. Follow it literally; do not invent alternate paths.
 
 **Cross-editor contract:** [AGENTS.md](../AGENTS.md) at the repo root — install trigger phrases, editor scope, and anti-patterns (both Cursor and Copilot should follow it).
 
-**Editing this repository?** Cursor loads [`.cursor/rules/`](../.cursor/rules/) automatically. Follow [MAINTAINING-SKILLS.md](MAINTAINING-SKILLS.md) whenever you add a skill, agent, workflow step, or dependency.
+**Editing this repository?** Cursor loads [`.cursor/rules/`](../.cursor/rules/) automatically (maintainer rules). Follow [MAINTAINING-SKILLS.md](MAINTAINING-SKILLS.md) whenever you add a skill, agent, user-global Cursor rule, workflow step, or dependency.
 
 ## User phrases (full readiness default)
 
-When the user says any of these, run a **full global readiness install** (runtimes + skills + agents) for **the editor you are running in**:
+When the user says any of these, run a **full global readiness install** (runtimes + skills + agents + Cursor user-global rules when you are in Cursor) for **the editor you are running in**:
 
 - **install library** | install the library | patch library | refresh library | update library
 - install skills and agents | sync library | update architect library
@@ -27,7 +27,7 @@ Then run the editor-scoped library command:
 
 | You are in | Library command | Targets |
 |------------|-----------------|---------|
-| **Cursor** | `bash scripts/install_library.sh all cursor` | `~/.cursor/skills/`, `~/.cursor/agents/` |
+| **Cursor** | `bash scripts/install_library.sh all cursor` | `~/.cursor/skills/`, `~/.cursor/agents/`, `~/.cursor/rules/` |
 | **VS Code Copilot** | `bash scripts/install_library.sh all copilot` | `~/.copilot/skills/`, `~/.copilot/agents/` |
 | **Claude Code** | `bash scripts/install_library.sh all claude` | `~/.claude/skills/`, `~/.claude/agents/` |
 
@@ -35,11 +35,11 @@ Do **not** ask which editor, scope, subset, or runtime set to install for these 
 
 Do **not** install to other editors unless the user explicitly asks (e.g. "install for all editors" → `bash scripts/install_library.sh` with no `EDITOR` arg, which uses `both` = Cursor + Copilot + Claude).
 
-Use **partial** installs (`skills` or `agents` only) **only** when the user explicitly asks — still scoped to your editor, e.g. `bash scripts/install_library.sh skills cursor`.
+Use **partial** installs (`skills`, `agents`, or `rules` only) **only** when the user explicitly asks — still scoped to your editor, e.g. `bash scripts/install_library.sh skills cursor` or `bash scripts/install_library.sh rules cursor`.
 
 ## What you are installing
 
-Architect Library publishes **two libraries**:
+Architect Library publishes **two libraries** plus **Cursor user-global rules**:
 
 ### Skill library (`skills/`)
 
@@ -73,8 +73,16 @@ Word, PowerPoint, and spreadsheet skills reference Office tools via `../_shared/
 
 Agents install as single `.md` files (assembled from header + `INSTRUCTIONS.md`). See [AGENTS.md](AGENTS.md).
 
-**Source of truth:** `<repo>/skills/<name>/` and `<repo>/agents/<name>/`  
-**Do not** copy into `<repo>/.cursor/skills/` or `<repo>/.cursor/agents/` — use `install_library.sh`.
+### Cursor user-global rules (`user-rules/cursor/`)
+
+Cursor-only. Installed to `~/.cursor/rules/<name>.mdc` (not the Cursor Settings → Customize → Rules text box, and not this repo’s maintainer `.cursor/rules/`).
+
+| File | Purpose |
+|------|---------|
+| `review-handoff-reconciliation.mdc` | Reviewer writes `/tmp/<topic>-handoff.md`; fixer validates and appends; reconciliation loop until both sides agree |
+
+**Source of truth:** `<repo>/skills/<name>/`, `<repo>/agents/<name>/`, and `<repo>/user-rules/cursor/<name>.mdc`  
+**Do not** copy into `<repo>/.cursor/skills/`, `<repo>/.cursor/agents/`, or `<repo>/.cursor/rules/` — use `install_library.sh`.
 
 ---
 
@@ -89,6 +97,7 @@ cd "$REPO"
 test -f "$REPO/skills/excalidraw-diagram/SKILL.md" && \
 test -f "$REPO/skills/word-document/SKILL.md" && \
 test -f "$REPO/agents/code-review/INSTRUCTIONS.md" && \
+test -f "$REPO/user-rules/cursor/review-handoff-reconciliation.mdc" && \
 test -f "$REPO/scripts/install_library.sh" && \
 test -f "$REPO/skills/_shared/office-tools/office_tools.py" && \
 echo "OK: repo layout valid"
@@ -103,6 +112,7 @@ echo "OK: repo layout valid"
 | Global full install (default) | `bash scripts/install_library.sh all cursor` | `bash scripts/install_library.sh all copilot` |
 | Skills only | `bash scripts/install_library.sh skills cursor` | `bash scripts/install_library.sh skills copilot` |
 | Agents only | `bash scripts/install_library.sh agents cursor` | `bash scripts/install_library.sh agents copilot` |
+| Cursor user-global rules only | `bash scripts/install_library.sh rules cursor` | n/a (Cursor-only) |
 | Per project | `bash scripts/install_library.sh all cursor project` | `bash scripts/install_library.sh all copilot project` |
 | All editors (explicit ask) | `bash scripts/install_library.sh` | same |
 
@@ -112,7 +122,7 @@ Prefer **global** unless the user explicitly wants project-local copies. Prefer 
 
 ## Step 2: Patch / upgrade (agent default)
 
-When the user says **install library** or any phrase in [User phrases](#user-phrases-full-readiness-default) — or you changed `skills/` or `agents/` — **run this** from the repo root (replace `cursor` with `copilot` or `claude` if that is your editor):
+When the user says **install library** or any phrase in [User phrases](#user-phrases-full-readiness-default) — or you changed `skills/`, `agents/`, or `user-rules/` — **run this** from the repo root (replace `cursor` with `copilot` or `claude` if that is your editor):
 
 ```bash
 REPO=/path/to/architect-library
@@ -130,6 +140,8 @@ If a runtime command fails because of missing permissions, sudo, network, or npm
 | **Existing** skill | Folder replaced (full refresh) |
 | **New** agent | Assembled to `~/.cursor/agents/` |
 | **Existing** agent | File replaced |
+| **New** user-global rule | Added under `~/.cursor/rules/` |
+| **Existing** user-global rule | File replaced |
 
 Repo rule (Cursor): [`.cursor/rules/architect-library-patch.mdc`](../.cursor/rules/architect-library-patch.mdc).  
 Copilot rule: [`.github/instructions/update-library.instructions.md`](../.github/instructions/update-library.instructions.md).
@@ -142,6 +154,7 @@ Copilot rule: [`.github/instructions/update-library.instructions.md`](../.github
 |---------|--------|---------|-------------------|
 | Skills | `~/.cursor/skills/<name>/` | `~/.copilot/skills/<name>/` | `~/.claude/skills/<name>/` |
 | Agents | `~/.cursor/agents/<name>.md` | `~/.copilot/agents/<name>.agent.md` | `~/.claude/agents/<name>.md` |
+| User-global rules | `~/.cursor/rules/<name>.mdc` | — | — |
 
 ### Per project (only when asked)
 
@@ -149,6 +162,7 @@ Copilot rule: [`.github/instructions/update-library.instructions.md`](../.github
 |---------|--------|---------|
 | Skills | `.cursor/skills/<name>/` | `.github/skills/<name>/` |
 | Agents | `.cursor/agents/<name>.md` | `.github/agents/<name>.agent.md` |
+| User-global rules | `.cursor/rules/<name>.mdc` | — |
 
 ---
 
@@ -184,6 +198,8 @@ test -f ~/.cursor/agents/code-review.md && echo "OK: cursor agents"
 grep -q 'readonly: true' ~/.cursor/agents/code-review.md && echo "OK: code-review"
 test -f ~/.cursor/agents/security-auditor.md && echo "OK: security-auditor"
 grep -q 'readonly: true' ~/.cursor/agents/security-auditor.md && echo "OK: security-auditor readonly"
+test -f ~/.cursor/rules/review-handoff-reconciliation.mdc && echo "OK: cursor user-global rules"
+grep -q 'alwaysApply: true' ~/.cursor/rules/review-handoff-reconciliation.mdc && echo "OK: review-handoff alwaysApply"
 find ~/.cursor/skills -maxdepth 2 -name .git -type d   # expect no output
 cd /path/to/architect-library/skills/_shared/office-tools && uv run python3 office_tools.py --help >/dev/null && echo "OK: office tools"
 command -v soffice >/dev/null && command -v pdftoppm >/dev/null && echo "OK: office-system"
@@ -225,7 +241,7 @@ The install script runs **library** checks automatically for the `EDITOR` you pa
 
 ## Step 5: Reload the editor
 
-- **Cursor:** new agent chat or reload window (skills + agents reload).
+- **Cursor:** new agent chat or reload window (skills, agents, and user-global rules reload).
 - **VS Code:** reload window.
 
 ---
@@ -268,6 +284,7 @@ See [CODE-REVIEW-AGENT.md](CODE-REVIEW-AGENT.md) and [SECURITY-AUDITOR-AGENT.md]
 | Task | Command (from repo root) |
 |------|---------------------------|
 | Library copy (Cursor) | `bash scripts/install_library.sh all cursor` |
+| Cursor user-global rules only | `bash scripts/install_library.sh rules cursor` |
 | Library copy (Copilot) | `bash scripts/install_library.sh all copilot` |
 | Library copy (all editors) | `bash scripts/install_library.sh` |
 | Core runtimes | `bash scripts/install_deps.sh` |
@@ -292,8 +309,10 @@ Do not run `install_deps.sh` inside `~/.cursor/skills/` — run from the **repos
 | Copy only one skill folder | Word/PPT break; missing `_shared` |
 | Omit `_shared` | `../_shared/office-tools/` paths break |
 | Copy repo into `~/.cursor/skills/` | Wrong layout |
+| Copy `user-rules/` into `repo/.cursor/rules/` | Maintainer rules and user-global rules are different sources |
 | Install to all editors from one agent | Pollutes unused paths — scope to your editor |
 | Edit `agents/` without running install | Global agents stale |
+| Edit `user-rules/` without running install | `~/.cursor/rules/` stale |
 | Add agents to `skills/` bundle | Wrong library — use `AGENT_BUNDLE` in `install_library.sh` |
 | Deliver PPTX without `thumbnail` | Violates powerpoint-presentation completion rules |
 

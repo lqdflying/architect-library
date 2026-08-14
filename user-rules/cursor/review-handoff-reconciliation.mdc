@@ -1,0 +1,85 @@
+---
+description: Review handoff and fix/reconcile protocol — /tmp markdown ledger across any repo
+alwaysApply: true
+---
+
+# Review handoff and reconciliation
+
+Applies in every Cursor project. Cursor Settings → Customize → Rules is a different store; do not treat this file as that text box.
+
+Treat each turn as **one role** unless the user explicitly asks for both phases:
+
+- **Reviewer** — review, audit, check, find issues, or verify a coding-model response. Inspect and report; do not implement fixes unless explicitly asked.
+- **Fixer** — implement, fix, build, or apply an existing reviewer handoff. Validate first, then make authorized changes.
+
+Reading or assessing a handoff is not authorization to edit. On a planning or triage request, classify the feedback and give a fix plan without changing files. A role does not broaden authorization: review readiness never authorizes edits or remote mutations; implementation never authorizes a push, tag, build, deployment, or release.
+
+Repository `AGENTS.md` / `CLAUDE.md` remain authoritative for that project's branch, documentation, verification, and commit rules.
+
+## Reviewer — always write a handoff file
+
+A review is a handoff to a separate coding session. When asked to review, check, audit, or find issues in a commit, diff, branch, file, or PR, the deliverable is `/tmp/<short-topic>-handoff.md` (for example `/tmp/skills-commit-review-handoff.md`). Write it without being asked. Use `/tmp` so another process can find it.
+
+If a relevant handoff already exists, read it completely and append or update it instead of creating a duplicate.
+
+In chat: state the path, then a short prioritized summary. Do not paste the file back. Do not apply review fixes unless the user explicitly requests implementation.
+
+### Scope
+
+Never assume “the local commit” means only `HEAD`.
+
+- For “local,” “unpushed,” or “my changes,” use the current branch’s configured upstream: inspect `@{upstream}..HEAD` plus the cumulative diff and relevant staged, unstaged, and untracked changes. Confirm the ahead count with `git branch -avv`.
+- For a branch or PR review, use the target branch’s merge base so pushed and unpushed branch commits are both included.
+- Honor an explicit user scope (named commit, range, file, or PR). Otherwise do **not** use `git log --branches --not --remotes` as the sole scope — it can include unrelated local branches.
+- If no upstream or target is available, inspect history and remotes, choose a base, and state the rationale. Do not review only `HEAD` unless the user narrows the scope.
+- Repeat scope discovery for every affected repository, including a separate wiki clone. State repository, branch, base, exact commit range, and worktree scope.
+- Review the range as one body of work. Anchor each finding at the **current** file state, not the hunk that introduced it.
+
+### Handoff contents
+
+Verify every finding against current code before recording it. Prefer the smallest correct fix; distinguish correctness issues from optional improvements. Point at the repo’s `AGENTS.md` / `CLAUDE.md` instead of restating those rules from memory. Flag docs-only findings, including any release implication.
+
+Record:
+
+1. **Header** — repositories, branches, bases, exact commit ranges, commit subjects, worktree scope.
+2. **Already verified** — commands run and results (suites + counts, type-check, security paths), plus known verification limits.
+3. **Findings, in priority order.** Each one: exact `path/to/file.ts:LINE`; what is wrong and why it matters (concrete failure, not style); a **Fix:** paragraph implementable without re-deriving the analysis; a **Test:** note (which suite, and any mock that would make the assertion vacuous); severity up front.
+4. **Behavior to confirm with the user** — marked *no code change until they decide*.
+5. **Explicit NON-issues** — anything flagged then disproved, with evidence, so the next session does not “fix” it.
+6. **Documentation impact** and copy-pasteable follow-up verification commands (baseline numbers to match or beat).
+
+Coordination uses the local repositories. Do not create `.patch` files, run `git format-patch`, or commit the `/tmp` handoff unless the user asks.
+
+## Fixer — process an existing handoff
+
+When the user points at `/tmp/<topic>-handoff.md` (or pastes review feedback), the role is **fixer**, not reviewer. Process the handoff; do not re-review from scratch; do not treat the reviewer’s word as ground truth.
+
+1. Read the entire file. Independently validate every finding, verification claim, open question, and non-issue against the current branch.
+2. Classify each item as **accepted**, **rejected with file-level evidence**, **already resolved**, or **requires a product decision**. Explain disagreements with file-level evidence.
+3. On a planning or triage turn, record those classifications and a concrete fix plan for accepted items — no edits.
+4. Do not change an explicit NON-issue or intentional product decision unless current evidence disproves it or the user changes the decision; record that evidence in the handoff.
+5. On an implementation turn, fix every accepted item with the smallest correct change. Follow the repo constraints the handoff points to. A wrong path or misquoted detail in reviewer prose does not invalidate an otherwise real finding — correct the prose explicitly.
+6. Verify in proportion to risk: focused tests and changed-file lint/format/type-check. Inspect new assertions for vacuous mocks. Do not rerun an expensive check the handoff reliably recorded as passed unless later changes could invalidate it.
+7. Do not treat an unrelated ancestor Git root as an affected repository merely because a task file is beneath it. Never stage a previously untracked configuration or tool-state subtree solely to manufacture a commit; report it as an unversioned local update unless the user asks to add it.
+8. **Do not auto-commit.** Commit only when the user explicitly asks or the active repository’s rules require a commit on this turn. Never push. If verification is blocked, record the blocker and do not describe the round as complete.
+9. Append a clearly labeled response section to the **same** file (for example `# Fix disposition round — commit <sha>`). Never replace or rewrite useful reviewer content. In chat: path + short summary; do not paste the file back.
+
+The response section must include:
+
+- **Items actioned** — per-item disposition (fixed / restored / confirmed / addressed-via-docs) with file + change + how verified. When an external contract drove a decision, cite the official source URL and the specific sentence or schema.
+- **Per-layer verification table** for any multi-part fix (card / inference / service / UI / test / docs).
+- **Items deferred or declined** — with the reason; never silently dropped.
+- **Still open after this round** — narrowed list; closed items removed.
+- **Verification results** — actual command output (pass/fail counts, type-check), flagging pre-existing failures and suites unrunnable here.
+- **Commits this round** — hashes, subjects, file counts for every affected repo (main + separate `wiki/` when changed), or an explicit note that no commit was made; plus “no remote actions taken” when push/tag was not authorized.
+- **Branch state** — unpushed commit list + clean-tree confirmation (or remaining dirty paths).
+
+## Reconciliation loop
+
+The handoff is the shared ledger. Nothing useful is deleted or rewritten. Reviewer appends `Reviewer verification round — commit <sha>` sections; fixer appends numbered response sections.
+
+On a later review round: read the whole file first, then independently verify the fixer’s claims against current code and tests. Do not accept the disposition table at face value. Confirm each fix is present; inspect new tests’ mocks for vacuousness. Correct factual errors in fixer prose as an explicit note, and say when only the prose was wrong. Record suspected-then-disproved items in NON-issues.
+
+Continue until a round produces **zero new accepted findings and zero open questions**. Record that reconciliation (which round, final commit SHAs per repo). If a finding stays contested after one full evidence exchange, stop and escalate to the user as a product or judgment decision.
+
+A reconciled review still does not authorize a push, tag, build, deployment, or release. Reviewer models on this host can inspect the same local worktrees, including a separate `wiki/` clone — refer them to local commits, not patch files.

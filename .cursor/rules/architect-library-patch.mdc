@@ -1,5 +1,5 @@
 ---
-description: After skill or agent changes, patch global library via install_library.sh (Cursor only)
+description: After skill, agent, or user-rule changes, patch global library via install_library.sh (Cursor only)
 alwaysApply: true
 ---
 
@@ -9,9 +9,9 @@ alwaysApply: true
 
 **Editor scope:** You are in **Cursor**. Install to **Cursor paths only** — do not write `~/.copilot/` or `~/.claude/` unless the user explicitly asks for all editors.
 
-When the user asks to **install library**, **install the library**, **patch library**, **refresh library**, **update library**, **install skills and agents**, **sync library**, **update architect library** — or **patch**, **upgrade**, **install**, or **refresh** skills or agents — or you finish adding/changing `skills/` or `agents/` in this repo — **run the Cursor readiness install yourself**.
+When the user asks to **install library**, **install the library**, **patch library**, **refresh library**, **update library**, **install skills and agents**, **sync library**, **update architect library** — or **patch**, **upgrade**, **install**, or **refresh** skills, agents, or Cursor user-global rules — or you finish adding/changing `skills/`, `agents/`, or `user-rules/` in this repo — **run the Cursor readiness install yourself**.
 
-Default means **runtimes + skills + agents** for Cursor only. Do **not** ask which editor, scope, library subset, or runtime set to install for those trigger phrases.
+Default means **runtimes + skills + agents + Cursor user-global rules** for Cursor only. Do **not** ask which editor, scope, library subset, or runtime set to install for those trigger phrases.
 
 ```bash
 bash scripts/install_deps.sh
@@ -27,12 +27,14 @@ Use partial installs **only** when the user explicitly asks:
 
 - Skills only: `bash scripts/install_library.sh skills cursor`
 - Agents only: `bash scripts/install_library.sh agents cursor`
+- Cursor user-global rules only: `bash scripts/install_library.sh rules cursor`
 - All editors (Cursor + Copilot + Claude): `bash scripts/install_library.sh` — **only** when user asks
 
 **Source of truth:**
 
 - Skills: `<repo>/skills/<name>/`
 - Agents: `<repo>/agents/<name>/` (assembled to a single `.md` at install)
+- Cursor user-global rules: `<repo>/user-rules/cursor/<name>.mdc`
 
 **Cursor global install targets:**
 
@@ -40,10 +42,11 @@ Use partial installs **only** when the user explicitly asks:
 |---------|------|
 | Skills | `~/.cursor/skills/<name>/` |
 | Agents | `~/.cursor/agents/<name>.md` |
+| User-global rules | `~/.cursor/rules/<name>.mdc` |
 
-Use **per-project** `.cursor/skills/` only if the user explicitly wants project-local install (`install_library.sh all cursor project`).
+Use **per-project** `.cursor/skills/` only if the user explicitly wants project-local install (`install_library.sh all cursor project`). Project-scope also copies bundled user-global rules into `<cwd>/.cursor/rules/` without wiping other `.mdc` files.
 
-Do **not** copy skills into `<repo>/.cursor/skills/` or agents into `<repo>/.cursor/agents/` — that duplicates source and breaks the install model.
+Do **not** copy skills into `<repo>/.cursor/skills/`, agents into `<repo>/.cursor/agents/`, or `user-rules/` into `<repo>/.cursor/rules/` — that duplicates source and breaks the install model.
 
 ## Bundles (in `scripts/install_library.sh`)
 
@@ -51,10 +54,11 @@ Do **not** copy skills into `<repo>/.cursor/skills/` or agents into `<repo>/.cur
 SKILL_BUNDLE="excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document verification-before-completion api-and-interface-design deprecation-and-migration github-markdown terraform-commit-review terraform-apply-assistance security-audit _shared"
 EDITOR_VARIANT_SKILLS="mcp-tool-rules context7-docs notion-mcp-ops"
 AGENT_BUNDLE="code-review security-auditor"
+CURSOR_RULE_BUNDLE="review-handoff-reconciliation"
 ```
 
-- **New** skill or agent → add to bundle and install target.
-- **Existing** entry → **replace** whole folder/file (`rm -rf` then fresh copy/assemble).
+- **New** skill, agent, or Cursor user-global rule → add to the matching bundle and install target.
+- **Existing** entry → **replace** whole folder/file (`rm -rf` then fresh copy/assemble; rules: `rm` then copy the `.mdc`).
 
 ## Patch procedure (Cursor)
 
@@ -81,6 +85,8 @@ test -f ~/.cursor/agents/code-review.md
 test -f ~/.cursor/agents/security-auditor.md
 grep -q 'readonly: true' ~/.cursor/agents/code-review.md
 grep -q 'readonly: true' ~/.cursor/agents/security-auditor.md
+test -f ~/.cursor/rules/review-handoff-reconciliation.mdc
+grep -q 'alwaysApply: true' ~/.cursor/rules/review-handoff-reconciliation.mdc
 cd skills/_shared/office-tools && uv run python3 office_tools.py --help >/dev/null
 command -v soffice >/dev/null
 command -v pdftoppm >/dev/null
@@ -91,12 +97,12 @@ cd skills/_shared/office-tools && uv run python3 -c "import docx" && echo "OK: p
 bash scripts/runtime_readiness.sh
 ```
 
-The install script runs skill/agent checks automatically when `EDITOR=cursor`. npm and python-docx are optional for library copy; see `runtime_readiness.sh` for artifact capability.
+The install script runs skill/agent/rule checks automatically when `EDITOR=cursor`. npm and python-docx are optional for library copy; see `runtime_readiness.sh` for artifact capability.
 
 ## After patching
 
-1. Tell the user skills, agents, and runtimes were updated for Cursor.
-2. Ask them to **open a new agent chat** (or reload the window) so skill descriptions and agents reload.
+1. Tell the user skills, agents, Cursor user-global rules, and runtimes were updated for Cursor.
+2. Ask them to **open a new agent chat** (or reload the window) so skill descriptions, agents, and user-global rules reload.
 3. If any runtime command failed, say readiness is incomplete and include the failing command.
 
 Full paths, Copilot/Claude variants, and mistakes to avoid: [docs/AGENT-SKILL-INSTALL.md](docs/AGENT-SKILL-INSTALL.md).
