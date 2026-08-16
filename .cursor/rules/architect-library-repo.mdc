@@ -15,7 +15,7 @@ Skill library + custom agent library + Cursor user-global rules. Work in this cl
 |------|------|
 | `skills/` | Skill library source → `~/.cursor/skills/`, `~/.copilot/skills/` |
 | `agents/` | Custom agent library source → `~/.cursor/agents/`, `~/.copilot/agents/` |
-| `user-rules/cursor/` | Cursor user-global rules source → `~/.cursor/rules/` (not this repo’s `.cursor/rules/`) |
+| `user-rules/cursor/` | Cursor user-global rules source → `~/.cursor/rules/` (not this repo’s `.cursor/rules/`). Canonical review-handoff protocol lives here only. |
 | `agents/<name>/INSTRUCTIONS.md` | Shared agent prompt body |
 | `agents/<name>/cursor.header.md` | Cursor frontmatter (assembled at install) |
 | `agents/<name>/copilot.header.md` | Copilot frontmatter (assembled at install) |
@@ -57,7 +57,7 @@ When the user asks to **review or absorb ref material under `tmp/`**, read `.cur
 
 - Copy distributable `skills/` into `repo/.cursor/skills/` (exception: maintainer skills under `.cursor/skills/` only).
 - Copy `agents/` into `repo/.cursor/agents/` or `repo/.github/agents/` as canonical source.
-- Copy `user-rules/cursor/` into `repo/.cursor/rules/` — maintainer rules and user-global rules are different sources.
+- Copy `user-rules/cursor/` into `repo/.cursor/rules/` — maintainer rules and user-global rules are different sources. Project-scope install from this clone (any cwd under the clone) skips rules so that copy cannot happen.
 - Add agents to `SKILL_BUNDLE`, skills to `AGENT_BUNDLE`, or user-global rules to either of those bundles.
 
 Install bundles for users: run runtime dependencies first, then `bash scripts/install_library.sh all cursor` in Cursor (or `all copilot` in VS Code Copilot). Use `bash scripts/install_library.sh` (all editors) only when the user asks.

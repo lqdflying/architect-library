@@ -48,6 +48,14 @@ Applies when the user invokes a custom agent or you test agent behavior in this 
 After editing `agents/`, run `bash scripts/install_library.sh agents cursor` so global `~/.cursor/agents/` matches repo source.
 After editing `user-rules/cursor/`, run `bash scripts/install_library.sh rules cursor` so `~/.cursor/rules/` matches repo source.
 
+## Review handoff (user-global protocol)
+
+Canonical source: `user-rules/cursor/review-handoff-reconciliation.mdc`. Install copies it to `~/.cursor/rules/` — not a second protocol. Do not duplicate the body here.
+
+| Work | Done when |
+|------|-----------|
+| **review-handoff** | `/tmp/<topic>-handoff.md` appended this turn; dispositions used (FIX / DEFER / KEEP / DO NOT APPLY / FIXED / RECONCILED); chat points at the path; reviewer does not mutate the review repo (only the `/tmp` handoff) |
+
 ## Dependencies
 
 | Target | Command | For |

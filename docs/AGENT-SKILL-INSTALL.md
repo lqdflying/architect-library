@@ -75,11 +75,11 @@ Agents install as single `.md` files (assembled from header + `INSTRUCTIONS.md`)
 
 ### Cursor user-global rules (`user-rules/cursor/`)
 
-Cursor-only. Installed to `~/.cursor/rules/<name>.mdc` (not the Cursor Settings → Customize → Rules text box, and not this repo’s maintainer `.cursor/rules/`).
+Cursor-only. Installed to `~/.cursor/rules/<name>.mdc` (not the Cursor Settings → Customize → Rules text box, and not this repo’s maintainer `.cursor/rules/`). One protocol: edit the repo file; the host file is an install copy. Install also removes leftover `code-review-handoff.mdc`.
 
 | File | Purpose |
 |------|---------|
-| `review-handoff-reconciliation.mdc` | Reviewer writes `/tmp/<topic>-handoff.md`; fixer validates and appends; reconciliation loop until both sides agree |
+| `review-handoff-reconciliation.mdc` | `/tmp/<topic>-handoff.md` ledger; dispositions FIX / DEFER / KEEP / DO NOT APPLY / FIXED / RECONCILED; reviewer writes, fixer validates and appends, loop until reconciled |
 
 **Source of truth:** `<repo>/skills/<name>/`, `<repo>/agents/<name>/`, and `<repo>/user-rules/cursor/<name>.mdc`  
 **Do not** copy into `<repo>/.cursor/skills/`, `<repo>/.cursor/agents/`, or `<repo>/.cursor/rules/` — use `install_library.sh`.
@@ -142,6 +142,7 @@ If a runtime command fails because of missing permissions, sudo, network, or npm
 | **Existing** agent | File replaced |
 | **New** user-global rule | Added under `~/.cursor/rules/` |
 | **Existing** user-global rule | File replaced |
+| **Legacy** user-global rule (`code-review-handoff.mdc`) | Removed from dest so two `alwaysApply` protocols cannot load |
 
 Repo rule (Cursor): [`.cursor/rules/architect-library-patch.mdc`](../.cursor/rules/architect-library-patch.mdc).  
 Copilot rule: [`.github/instructions/update-library.instructions.md`](../.github/instructions/update-library.instructions.md).
@@ -163,6 +164,8 @@ Copilot rule: [`.github/instructions/update-library.instructions.md`](../.github
 | Skills | `.cursor/skills/<name>/` | `.github/skills/<name>/` |
 | Agents | `.cursor/agents/<name>.md` | `.github/agents/<name>.agent.md` |
 | User-global rules | `.cursor/rules/<name>.mdc` | — |
+
+Project-scope from the **architect-library** clone (repo root or any subdirectory) skips user-global rules so they are not copied into maintainer `.cursor/rules/` or a nested `.cursor/rules/` under the clone.
 
 ---
 
@@ -200,6 +203,8 @@ test -f ~/.cursor/agents/security-auditor.md && echo "OK: security-auditor"
 grep -q 'readonly: true' ~/.cursor/agents/security-auditor.md && echo "OK: security-auditor readonly"
 test -f ~/.cursor/rules/review-handoff-reconciliation.mdc && echo "OK: cursor user-global rules"
 grep -q 'alwaysApply: true' ~/.cursor/rules/review-handoff-reconciliation.mdc && echo "OK: review-handoff alwaysApply"
+test ! -f ~/.cursor/rules/code-review-handoff.mdc && echo "OK: legacy code-review-handoff.mdc absent"
+cmp -s /path/to/architect-library/user-rules/cursor/review-handoff-reconciliation.mdc ~/.cursor/rules/review-handoff-reconciliation.mdc && echo "OK: host rule matches repo source"
 find ~/.cursor/skills -maxdepth 2 -name .git -type d   # expect no output
 cd /path/to/architect-library/skills/_shared/office-tools && uv run python3 office_tools.py --help >/dev/null && echo "OK: office tools"
 command -v soffice >/dev/null && command -v pdftoppm >/dev/null && echo "OK: office-system"
@@ -310,6 +315,7 @@ Do not run `install_deps.sh` inside `~/.cursor/skills/` — run from the **repos
 | Omit `_shared` | `../_shared/office-tools/` paths break |
 | Copy repo into `~/.cursor/skills/` | Wrong layout |
 | Copy `user-rules/` into `repo/.cursor/rules/` | Maintainer rules and user-global rules are different sources |
+| Leave `~/.cursor/rules/code-review-handoff.mdc` after install | Two `alwaysApply` review protocols load — install must delete the legacy name |
 | Install to all editors from one agent | Pollutes unused paths — scope to your editor |
 | Edit `agents/` without running install | Global agents stale |
 | Edit `user-rules/` without running install | `~/.cursor/rules/` stale |

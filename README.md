@@ -2,7 +2,7 @@
 
 A **skill library**, **custom agent library**, and **Cursor user-global rules** for Cursor and VS Code Copilot. Install once globally; use in any project.
 
-**Skills** handle artifacts (Excalidraw, Word, PowerPoint, spreadsheets, PDFs) and architecture workflows (API design, deprecation/migration). **Custom agents** handle focused readonly tasks such as [code review](docs/CODE-REVIEW-AGENT.md) and [security audit](docs/SECURITY-AUDITOR-AGENT.md). **Cursor user-global rules** install to `~/.cursor/rules/` (review handoff and reconciliation) and apply in every Cursor project.
+**Skills** handle artifacts (Excalidraw, Word, PowerPoint, spreadsheets, PDFs) and architecture workflows (API design, deprecation/migration). **Custom agents** handle focused readonly tasks such as [code review](docs/CODE-REVIEW-AGENT.md) and [security audit](docs/SECURITY-AUDITOR-AGENT.md). **Cursor user-global rules** install to `~/.cursor/rules/` (one review-handoff protocol; host file is an install copy) and apply in every Cursor project.
 
 Compatible with [Cursor](https://cursor.com), [VS Code + GitHub Copilot](https://code.visualstudio.com/docs/copilot/customization/agent-skills), [Claude Code](https://docs.anthropic.com/en/docs/claude-code), and OpenCode.
 
@@ -188,7 +188,7 @@ Source: [`user-rules/cursor/`](user-rules/cursor/). Installs to **`~/.cursor/rul
 
 | Rule | Use when |
 |------|----------|
-| `review-handoff-reconciliation` | Code review produces `/tmp/<topic>-handoff.md`; the fixer validates, implements, and appends; rounds continue until both sides agree. |
+| `review-handoff-reconciliation` | One protocol: `/tmp/<topic>-handoff.md` ledger with FIX / DEFER / KEEP / DO NOT APPLY / FIXED / RECONCILED. Edit the repo file only; install copies it to `~/.cursor/rules/` (not a second version). |
 
 ## Security and review tools — when to use which
 

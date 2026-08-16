@@ -15,6 +15,7 @@ AGENT_BUNDLE="code-review security-auditor"
 CURSOR_RULE_BUNDLE="review-handoff-reconciliation"
 
 LEGACY_SKILLS="docx pptx xlsx pdf terraform-apply-fix-review mcp-tool-rules-copilot"
+LEGACY_CURSOR_RULES="code-review-handoff"
 
 usage() {
   cat <<'EOF'
@@ -163,14 +164,34 @@ install_skills() {
   esac
 }
 
+# Project-scope from this clone (repo root or any subdirectory) would copy
+# user-global rules into a .cursor/rules/ under the maintainer tree. Skip.
+skip_cursor_rules_into_repo() {
+  [[ "$SCOPE" == "project" ]] || return 1
+  local here repo_root
+  here="$(pwd -P)"
+  repo_root="$(cd "$REPO" && pwd -P)"
+  case "$here" in
+    "$repo_root"|"$repo_root"/*) return 0 ;;
+  esac
+  return 1
+}
+
 install_cursor_rules() {
   if [[ "$EDITOR" != "both" && "$EDITOR" != "cursor" ]]; then
     echo "Skip Cursor user-global rules (EDITOR=$EDITOR)"
     return 0
   fi
-  local dest src
+  if skip_cursor_rules_into_repo; then
+    echo "Skip Cursor user-global rules (project-scope from architect-library clone would copy into maintainer .cursor/rules/)"
+    return 0
+  fi
+  local dest src name legacy
   dest="$(cursor_rules_dir)"
   mkdir -p "$dest"
+  for legacy in $LEGACY_CURSOR_RULES; do
+    rm -f "${dest}/${legacy}.mdc"
+  done
   for name in $CURSOR_RULE_BUNDLE; do
     src="${REPO}/user-rules/cursor/${name}.mdc"
     if [[ ! -f "$src" ]]; then
@@ -271,10 +292,13 @@ verify_claude_agents() {
 
 verify_cursor_rules() {
   local dir="$1"
-  local name
+  local name legacy
   for name in $CURSOR_RULE_BUNDLE; do
     test -f "${dir}/${name}.mdc" || return 1
     grep -q 'alwaysApply: true' "${dir}/${name}.mdc" || return 1
+  done
+  for legacy in $LEGACY_CURSOR_RULES; do
+    test ! -f "${dir}/${legacy}.mdc" || return 1
   done
 }
 
@@ -306,7 +330,11 @@ verify() {
   fi
   if [[ "$WHAT" == "all" || "$WHAT" == "rules" ]]; then
     if [[ "$EDITOR" == "both" || "$EDITOR" == "cursor" ]]; then
-      verify_cursor_rules "$(cursor_rules_dir)" || ok=1
+      if skip_cursor_rules_into_repo; then
+        :
+      else
+        verify_cursor_rules "$(cursor_rules_dir)" || ok=1
+      fi
     fi
   fi
   if [[ "$ok" -ne 0 ]]; then

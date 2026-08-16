@@ -63,7 +63,7 @@ Update **agent guidance**:
 - [ ] `.cursor/rules/architect-library-repo.mdc` and `architect-library-patch.mdc` — layout + bundle string
 - [ ] Run `bash scripts/install_library.sh rules cursor` (or full `all cursor`)
 
-**Do not** copy `user-rules/cursor/` into this repo’s `.cursor/rules/` (those files are maintainer-only for architect-library). **Do not** add user-global rules to `SKILL_BUNDLE` or `AGENT_BUNDLE`. Cursor Settings → Customize → Rules is a different store — install does not write it.
+**Do not** copy `user-rules/cursor/` into this repo’s `.cursor/rules/` (those files are maintainer-only for architect-library). **Do not** add user-global rules to `SKILL_BUNDLE` or `AGENT_BUNDLE`. Cursor Settings → Customize → Rules is a different store — install does not write it. One protocol only: edit `user-rules/cursor/<name>.mdc` and reinstall; add retired filenames to `LEGACY_CURSOR_RULES` so `~/.cursor/rules/` cannot keep a second copy.
 
 ## New workflow step (existing skill)
 

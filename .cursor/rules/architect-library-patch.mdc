@@ -44,9 +44,9 @@ Use partial installs **only** when the user explicitly asks:
 | Agents | `~/.cursor/agents/<name>.md` |
 | User-global rules | `~/.cursor/rules/<name>.mdc` |
 
-Use **per-project** `.cursor/skills/` only if the user explicitly wants project-local install (`install_library.sh all cursor project`). Project-scope also copies bundled user-global rules into `<cwd>/.cursor/rules/` without wiping other `.mdc` files.
+Use **per-project** `.cursor/skills/` only if the user explicitly wants project-local install (`install_library.sh all cursor project`). Project-scope also copies bundled user-global rules into `<cwd>/.cursor/rules/` without wiping other `.mdc` files — **except** when cwd is this clone (`architect-library`) **or any subdirectory of it**; then rules install is skipped so maintainer `.cursor/rules/` is not overwritten.
 
-Do **not** copy skills into `<repo>/.cursor/skills/`, agents into `<repo>/.cursor/agents/`, or `user-rules/` into `<repo>/.cursor/rules/` — that duplicates source and breaks the install model.
+Do **not** copy skills into `<repo>/.cursor/skills/`, agents into `<repo>/.cursor/agents/`, or `user-rules/` into `<repo>/.cursor/rules/` — that duplicates source and breaks the install model. One protocol only: edit `user-rules/cursor/`; the host file is an install copy.
 
 ## Bundles (in `scripts/install_library.sh`)
 
@@ -55,6 +55,7 @@ SKILL_BUNDLE="excalidraw-diagram word-document powerpoint-presentation spreadshe
 EDITOR_VARIANT_SKILLS="mcp-tool-rules context7-docs notion-mcp-ops"
 AGENT_BUNDLE="code-review security-auditor"
 CURSOR_RULE_BUNDLE="review-handoff-reconciliation"
+LEGACY_CURSOR_RULES="code-review-handoff"
 ```
 
 - **New** skill, agent, or Cursor user-global rule → add to the matching bundle and install target.
@@ -87,6 +88,8 @@ grep -q 'readonly: true' ~/.cursor/agents/code-review.md
 grep -q 'readonly: true' ~/.cursor/agents/security-auditor.md
 test -f ~/.cursor/rules/review-handoff-reconciliation.mdc
 grep -q 'alwaysApply: true' ~/.cursor/rules/review-handoff-reconciliation.mdc
+test ! -f ~/.cursor/rules/code-review-handoff.mdc
+cmp -s user-rules/cursor/review-handoff-reconciliation.mdc ~/.cursor/rules/review-handoff-reconciliation.mdc
 cd skills/_shared/office-tools && uv run python3 office_tools.py --help >/dev/null
 command -v soffice >/dev/null
 command -v pdftoppm >/dev/null

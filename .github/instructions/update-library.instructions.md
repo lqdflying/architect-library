@@ -23,6 +23,7 @@ REPO=/home/opc/architect-library
 test -f "$REPO/skills/excalidraw-diagram/SKILL.md" && \
 test -f "$REPO/skills/word-document/SKILL.md" && \
 test -f "$REPO/agents/code-review/INSTRUCTIONS.md" && \
+test -f "$REPO/user-rules/cursor/review-handoff-reconciliation.mdc" && \
 test -f "$REPO/scripts/install_library.sh" && \
 test -f "$REPO/skills/_shared/office-tools/office_tools.py" && \
 echo "OK: repo layout valid"
@@ -79,3 +80,4 @@ bash /home/opc/architect-library/scripts/runtime_readiness.sh
 - Install doc: `docs/AGENT-SKILL-INSTALL.md`
 - Skills: `skills/` → `~/.copilot/skills/`
 - Agents: `agents/` → `~/.copilot/agents/`
+- Cursor user-global rules (`user-rules/cursor/`) are Cursor-only — Copilot install does not copy them
