@@ -51,6 +51,7 @@ Architect Library publishes **two libraries** plus **Cursor user-global rules**:
 | `spreadsheet-document` | Cursor/Copilot skill | If XLSX/spreadsheet work is needed |
 | `pdf-document` | Cursor/Copilot skill | If PDF work is needed |
 | `verification-before-completion` | Cursor/Copilot skill | Evidence before completion claims; required by artifact skills at delivery |
+| `newagentlink` | Cursor/Copilot skill | One-shot `/tmp/<topic>-newagentlink.md` for a new agent chat; not the review ledger |
 | `api-and-interface-design` | Cursor/Copilot skill | API and module boundary design workflow |
 | `github-markdown` | Cursor/Copilot skill | GitHub Flavored Markdown for READMEs, issues, PRs, discussions, wikis, and repo docs |
 | `deprecation-and-migration` | Cursor/Copilot skill | Deprecation and migration planning workflow |
@@ -79,7 +80,7 @@ Cursor-only. Installed to `~/.cursor/rules/<name>.mdc` (not the Cursor Settings 
 
 | File | Purpose |
 |------|---------|
-| `review-handoff-reconciliation.mdc` | `/tmp/<topic>-handoff.md` ledger; dispositions FIX / DEFER / KEEP / DO NOT APPLY / FIXED / RECONCILED; reviewer writes, fixer validates and appends, loop until reconciled |
+| `review-handoff-reconciliation.mdc` | `/tmp/<topic>-handoff.md` ledger; dispositions FIX / DEFER / KEEP / DO NOT APPLY / FIXED / RECONCILED; reviewer writes, fixer validates and appends, loop until reconciled. Distinct from the `newagentlink` skill (`/tmp/<topic>-newagentlink.md`). |
 
 **Source of truth:** `<repo>/skills/<name>/`, `<repo>/agents/<name>/`, and `<repo>/user-rules/cursor/<name>.mdc`  
 **Do not** copy into `<repo>/.cursor/skills/`, `<repo>/.cursor/agents/`, or `<repo>/.cursor/rules/` — use `install_library.sh`.
@@ -143,6 +144,8 @@ If a runtime command fails because of missing permissions, sudo, network, or npm
 | **New** user-global rule | Added under `~/.cursor/rules/` |
 | **Existing** user-global rule | File replaced |
 | **Legacy** user-global rule (`code-review-handoff.mdc`) | Removed from dest so two `alwaysApply` protocols cannot load |
+| **Legacy** skill (`handoff`) | Removed from dest; replaced by `newagentlink` |
+| **Legacy** Cursor command (`~/.cursor/commands/handoff.md`) | Removed; replaced by `~/.cursor/commands/newagentlink.md` |
 
 Repo rule (Cursor): [`.cursor/rules/architect-library-patch.mdc`](../.cursor/rules/architect-library-patch.mdc).  
 Copilot rule: [`.github/instructions/update-library.instructions.md`](../.github/instructions/update-library.instructions.md).
@@ -190,6 +193,12 @@ See [AGENTS.md](../AGENTS.md) § Runtime capability matrix. Summary:
 test -f ~/.cursor/skills/_shared/office-tools/office_tools.py && echo "OK: cursor skills"
 test -f ~/.cursor/skills/word-document/SKILL.md && echo "OK: cursor skills"
 test -f ~/.cursor/skills/verification-before-completion/SKILL.md && echo "OK: verification skill"
+test -f ~/.cursor/skills/newagentlink/SKILL.md && echo "OK: newagentlink skill"
+grep -q 'disable-model-invocation: true' ~/.cursor/skills/newagentlink/SKILL.md && echo "OK: newagentlink disable-model-invocation"
+test ! -d ~/.cursor/skills/handoff && echo "OK: legacy handoff skill absent"
+test ! -f ~/.cursor/commands/handoff.md && echo "OK: leftover commands/handoff.md absent"
+test -f ~/.cursor/commands/newagentlink.md && echo "OK: newagentlink Cursor command"
+cmp -s /path/to/architect-library/skills/newagentlink/cursor.command.md ~/.cursor/commands/newagentlink.md && echo "OK: command matches repo source"
 test -f ~/.cursor/skills/api-and-interface-design/SKILL.md && echo "OK: api skill"
 test -f ~/.cursor/skills/github-markdown/SKILL.md && echo "OK: github-markdown skill"
 test -f ~/.cursor/skills/deprecation-and-migration/SKILL.md && echo "OK: deprecation skill"
@@ -221,6 +230,8 @@ bash /path/to/architect-library/scripts/runtime_readiness.sh
 test -f ~/.copilot/skills/_shared/office-tools/office_tools.py && echo "OK: copilot skills"
 test -f ~/.copilot/skills/word-document/SKILL.md && echo "OK: copilot skills"
 test -f ~/.copilot/skills/verification-before-completion/SKILL.md && echo "OK: verification skill"
+test -f ~/.copilot/skills/newagentlink/SKILL.md && echo "OK: newagentlink skill"
+test ! -d ~/.copilot/skills/handoff && echo "OK: legacy handoff skill absent"
 test -f ~/.copilot/skills/api-and-interface-design/SKILL.md && echo "OK: api skill"
 test -f ~/.copilot/skills/github-markdown/SKILL.md && echo "OK: github-markdown skill"
 test -f ~/.copilot/skills/deprecation-and-migration/SKILL.md && echo "OK: deprecation skill"
@@ -261,6 +272,7 @@ The install script runs **library** checks automatically for the `EDITOR` you pa
 | **spreadsheet-document** | Deliver `.xlsx`; `recalc` until zero formula errors if formulas used |
 | **pdf-document** | Deliver `.pdf`; form fills per `references/forms.md` |
 | **verification-before-completion** | Fresh verification command output in same message before any completion/success claim |
+| **newagentlink** | `/tmp/<topic>-newagentlink.md` written once this turn; one-shot banner present; live git gathered; chat returns path + starter prompt only; never writes `/tmp/<topic>-handoff.md` |
 | **api-and-interface-design** | Contract before implementation; consistent errors; boundary validation; list pagination; deprecation cross-check when changing public interfaces |
 | **github-markdown** | Render context identified; valid GFM syntax; context-limited features avoided (e.g. no footnotes in wikis); relative in-repo links where applicable; delivery checklist in `SKILL.md` satisfied |
 | **deprecation-and-migration** | Replacement before deprecation; migration guide; zero-usage verified before removal |
@@ -316,6 +328,7 @@ Do not run `install_deps.sh` inside `~/.cursor/skills/` — run from the **repos
 | Copy repo into `~/.cursor/skills/` | Wrong layout |
 | Copy `user-rules/` into `repo/.cursor/rules/` | Maintainer rules and user-global rules are different sources |
 | Leave `~/.cursor/rules/code-review-handoff.mdc` after install | Two `alwaysApply` review protocols load — install must delete the legacy name |
+| Leave `~/.cursor/skills/handoff` or `~/.cursor/commands/handoff.md` after install | Old continuation skill/command collides with `newagentlink` — install must delete both and install `~/.cursor/commands/newagentlink.md` |
 | Install to all editors from one agent | Pollutes unused paths — scope to your editor |
 | Edit `agents/` without running install | Global agents stale |
 | Edit `user-rules/` without running install | `~/.cursor/rules/` stale |

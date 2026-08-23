@@ -51,10 +51,11 @@ Do **not** copy skills into `<repo>/.cursor/skills/`, agents into `<repo>/.curso
 ## Bundles (in `scripts/install_library.sh`)
 
 ```
-SKILL_BUNDLE="excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document verification-before-completion api-and-interface-design deprecation-and-migration github-markdown terraform-commit-review terraform-apply-assistance security-audit _shared"
+SKILL_BUNDLE="excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document verification-before-completion newagentlink api-and-interface-design deprecation-and-migration github-markdown terraform-commit-review terraform-apply-assistance security-audit _shared"
 EDITOR_VARIANT_SKILLS="mcp-tool-rules context7-docs notion-mcp-ops"
 AGENT_BUNDLE="code-review security-auditor"
 CURSOR_RULE_BUNDLE="review-handoff-reconciliation"
+LEGACY_SKILLS="docx pptx xlsx pdf terraform-apply-fix-review mcp-tool-rules-copilot handoff"
 LEGACY_CURSOR_RULES="code-review-handoff"
 ```
 
@@ -79,6 +80,12 @@ bash scripts/install_library.sh all cursor
 test -f ~/.cursor/skills/_shared/office-tools/office_tools.py
 test -f ~/.cursor/skills/word-document/SKILL.md
 test -f ~/.cursor/skills/verification-before-completion/SKILL.md
+test -f ~/.cursor/skills/newagentlink/SKILL.md
+grep -q 'disable-model-invocation: true' ~/.cursor/skills/newagentlink/SKILL.md
+test ! -d ~/.cursor/skills/handoff
+test ! -f ~/.cursor/commands/handoff.md
+test -f ~/.cursor/commands/newagentlink.md
+cmp -s skills/newagentlink/cursor.command.md ~/.cursor/commands/newagentlink.md
 test -f ~/.cursor/skills/api-and-interface-design/SKILL.md
 test -f ~/.cursor/skills/deprecation-and-migration/SKILL.md
 test -f ~/.cursor/skills/security-audit/SKILL.md

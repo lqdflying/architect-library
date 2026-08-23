@@ -56,6 +56,7 @@ bash scripts/install_library.sh all copilot
 test -f ~/.copilot/skills/_shared/office-tools/office_tools.py && echo "OK: copilot skills"
 test -f ~/.copilot/skills/word-document/SKILL.md && echo "OK: copilot skills"
 test -f ~/.copilot/skills/verification-before-completion/SKILL.md && echo "OK: verification skill"
+test -f ~/.copilot/skills/newagentlink/SKILL.md && echo "OK: newagentlink skill"
 test -f ~/.copilot/skills/api-and-interface-design/SKILL.md && echo "OK: api skill"
 test -f ~/.copilot/skills/deprecation-and-migration/SKILL.md && echo "OK: deprecation skill"
 test -f ~/.copilot/agents/code-review.agent.md && echo "OK: copilot agents"

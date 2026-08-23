@@ -17,6 +17,7 @@ Task is **not** complete until:
 | **spreadsheet-document** | `.xlsx` delivered; if formulas used: `office_tools.py recalc` → JSON `status: success` (zero formula errors); `office-system` for recalc |
 | **pdf-document** | Deliver requested `.pdf`; form fills: run validation scripts per `references/forms.md` |
 | **verification-before-completion** | No completion/success claim without fresh verification command output in the same message |
+| **newagentlink** | `/tmp/<topic>-newagentlink.md` written once this turn; one-shot banner present; live git gathered; chat returns path + starter prompt only; never writes `/tmp/<topic>-handoff.md` |
 | **api-and-interface-design** | Contract defined before implementation; consistent errors; validation at boundaries; pagination on lists; cross-check against `deprecation-and-migration` when changing public interfaces |
 | **github-markdown** | Render context identified; valid GFM syntax; context-limited features avoided (e.g. no footnotes in wikis); relative in-repo links where applicable; delivery checklist in `SKILL.md` satisfied |
 | **deprecation-and-migration** | Replacement exists before deprecation; migration guide with concrete steps; usage verified at zero before removal; formal deliverables use `word-document` when requested |
@@ -54,7 +55,7 @@ Canonical source: `user-rules/cursor/review-handoff-reconciliation.mdc`. Install
 
 | Work | Done when |
 |------|-----------|
-| **review-handoff** | `/tmp/<topic>-handoff.md` appended this turn; dispositions used (FIX / DEFER / KEEP / DO NOT APPLY / FIXED / RECONCILED); chat points at the path; reviewer does not mutate the review repo (only the `/tmp` handoff) |
+| **review-handoff** | `/tmp/<topic>-handoff.md` appended this turn; dispositions used (FIX / DEFER / KEEP / DO NOT APPLY / FIXED / RECONCILED); chat points at the path; reviewer does not mutate the review repo (only the `/tmp` handoff). Distinct from `newagentlink` (`/tmp/<topic>-newagentlink.md`). |
 
 ## Dependencies
 

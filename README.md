@@ -2,7 +2,7 @@
 
 A **skill library**, **custom agent library**, and **Cursor user-global rules** for Cursor and VS Code Copilot. Install once globally; use in any project.
 
-**Skills** handle artifacts (Excalidraw, Word, PowerPoint, spreadsheets, PDFs) and architecture workflows (API design, deprecation/migration). **Custom agents** handle focused readonly tasks such as [code review](docs/CODE-REVIEW-AGENT.md) and [security audit](docs/SECURITY-AUDITOR-AGENT.md). **Cursor user-global rules** install to `~/.cursor/rules/` (one review-handoff protocol; host file is an install copy) and apply in every Cursor project.
+**Skills** handle artifacts (Excalidraw, Word, PowerPoint, spreadsheets, PDFs) and architecture workflows (API design, deprecation/migration). **Custom agents** handle focused readonly tasks such as [code review](docs/CODE-REVIEW-AGENT.md) and [security audit](docs/SECURITY-AUDITOR-AGENT.md). **Cursor user-global rules** install to `~/.cursor/rules/` (one review-handoff ledger protocol; host file is an install copy) and apply in every Cursor project. The `newagentlink` skill is a separate one-shot snapshot for starting a new agent chat — not that ledger.
 
 Compatible with [Cursor](https://cursor.com), [VS Code + GitHub Copilot](https://code.visualstudio.com/docs/copilot/customization/agent-skills), [Claude Code](https://docs.anthropic.com/en/docs/claude-code), and OpenCode.
 
@@ -162,6 +162,7 @@ See [Installation](#installation) for Copilot / Claude Code paths, or [docs/AGEN
 | `spreadsheet-document` | Create or edit `.xlsx`; formula recalc via `office_tools.py recalc` (LibreOffice). |
 | `pdf-document` | Read, create, merge, split, and fill PDFs. |
 | `verification-before-completion` | Fresh verification evidence before any completion or delivery claim. |
+| `newagentlink` | One-shot `/tmp/<topic>-newagentlink.md` so a new agent can continue without the old transcript. Not the review ledger. |
 | `api-and-interface-design` | Design stable APIs and module boundaries — contract-first, error semantics, pagination, Hyrum's Law. |
 | `github-markdown` | Write correct GitHub Flavored Markdown for READMEs, issues, PRs, discussions, wikis, and repo docs. |
 | `deprecation-and-migration` | Deprecate and migrate systems safely — strangler pattern, migration guides, zero-usage removal. |
@@ -188,7 +189,7 @@ Source: [`user-rules/cursor/`](user-rules/cursor/). Installs to **`~/.cursor/rul
 
 | Rule | Use when |
 |------|----------|
-| `review-handoff-reconciliation` | One protocol: `/tmp/<topic>-handoff.md` ledger with FIX / DEFER / KEEP / DO NOT APPLY / FIXED / RECONCILED. Edit the repo file only; install copies it to `~/.cursor/rules/` (not a second version). |
+| `review-handoff-reconciliation` | One protocol: `/tmp/<topic>-handoff.md` ledger with FIX / DEFER / KEEP / DO NOT APPLY / FIXED / RECONCILED. Distinct from `newagentlink` (`/tmp/<topic>-newagentlink.md`). Edit the repo file only; install copies it to `~/.cursor/rules/` (not a second version). |
 
 ## Security and review tools — when to use which
 
@@ -219,6 +220,8 @@ Source: [`user-rules/cursor/`](user-rules/cursor/). Installs to **`~/.cursor/rul
 | [`docs/SECURITY-AUDITOR-AGENT.md`](docs/SECURITY-AUDITOR-AGENT.md) | security-auditor agent usage |
 | [`skills/api-and-interface-design/SKILL.md`](skills/api-and-interface-design/SKILL.md) | API and interface design workflow |
 | [`skills/github-markdown/SKILL.md`](skills/github-markdown/SKILL.md) | GitHub Flavored Markdown writing workflow |
+| [`skills/newagentlink/SKILL.md`](skills/newagentlink/SKILL.md) | One-shot new-agent continuation snapshot |
+| [`skills/newagentlink/cursor.command.md`](skills/newagentlink/cursor.command.md) | Cursor `/newagentlink` command (install copy: `~/.cursor/commands/newagentlink.md`) |
 | [`skills/deprecation-and-migration/SKILL.md`](skills/deprecation-and-migration/SKILL.md) | Deprecation and migration workflow |
 | [`skills/terraform-commit-review/SKILL.md`](skills/terraform-commit-review/SKILL.md) | Terraform commit-range review workflow |
 | [`skills/terraform-apply-assistance/SKILL.md`](skills/terraform-apply-assistance/SKILL.md) | Terraform apply fix, scope review, and plan evaluation workflow |
@@ -298,6 +301,10 @@ architect-library/
     verification-before-completion/
       SKILL.md
       README.md
+    newagentlink/
+      SKILL.md
+      README.md
+      cursor.command.md         # Cursor /newagentlink → ~/.cursor/commands/
     api-and-interface-design/
       SKILL.md
       README.md
@@ -449,6 +456,7 @@ Runtime setup ([first-time preparation](#first-time-preparation-one-time-per-mac
    | `/excalidraw-diagram` | Excalidraw | Diagrams, workflows, system maps |
    | `/word-document` | Word | HLD, LLD, ADR, DOCX edit/validate |
    | `/powerpoint-presentation` | PowerPoint | Executive decks, migration/roadmap slides |
+   | `/newagentlink` | New agent link | One-shot continuation file for a new agent chat |
 
    `_shared` has no slash command — it is loaded automatically when Word or PowerPoint skills need Office tools.
 
@@ -493,6 +501,7 @@ Requires [GitHub Copilot](https://github.com/features/copilot) and [Agent Skills
    | `/excalidraw-diagram` | Excalidraw | Diagrams, workflows, system maps |
    | `/word-document` | Word | HLD, LLD, ADR, DOCX edit/validate |
    | `/powerpoint-presentation` | PowerPoint | Executive decks, migration/roadmap slides |
+   | `/newagentlink` | New agent link | One-shot continuation file for a new agent chat |
 
    Pick one command, then add your task on the **same message** (recommended):
 

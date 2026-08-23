@@ -9,12 +9,12 @@ REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 # shellcheck source=architect_env.sh
 source "$REPO/scripts/architect_env.sh"
 
-SKILL_BUNDLE="excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document verification-before-completion api-and-interface-design deprecation-and-migration github-markdown terraform-commit-review terraform-apply-assistance security-audit _shared"
+SKILL_BUNDLE="excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document verification-before-completion newagentlink api-and-interface-design deprecation-and-migration github-markdown terraform-commit-review terraform-apply-assistance security-audit _shared"
 EDITOR_VARIANT_SKILLS="mcp-tool-rules context7-docs notion-mcp-ops"
 AGENT_BUNDLE="code-review security-auditor"
 CURSOR_RULE_BUNDLE="review-handoff-reconciliation"
 
-LEGACY_SKILLS="docx pptx xlsx pdf terraform-apply-fix-review mcp-tool-rules-copilot"
+LEGACY_SKILLS="docx pptx xlsx pdf terraform-apply-fix-review mcp-tool-rules-copilot handoff"
 LEGACY_CURSOR_RULES="code-review-handoff"
 
 usage() {
@@ -142,6 +142,35 @@ install_agent_file() {
   cat "${agent_dir}/${header}" "${agent_dir}/INSTRUCTIONS.md" > "$dest"
 }
 
+# Retired original continuation skill + slash command (replaced by newagentlink).
+# Removal only — does not install to other editors.
+remove_legacy_handoff() {
+  rm -rf "${HOME}/.cursor/skills/handoff"
+  rm -rf "${HOME}/.copilot/skills/handoff"
+  rm -rf "${HOME}/.claude/skills/handoff"
+  rm -f "${HOME}/.cursor/commands/handoff.md"
+}
+
+install_cursor_newagentlink_command() {
+  if [[ "$EDITOR" != "both" && "$EDITOR" != "cursor" ]]; then
+    return 0
+  fi
+  if [[ "$SCOPE" != "global" ]]; then
+    return 0
+  fi
+  local src dest_dir dest
+  src="${REPO}/skills/newagentlink/cursor.command.md"
+  dest_dir="${HOME}/.cursor/commands"
+  dest="${dest_dir}/newagentlink.md"
+  if [[ ! -f "$src" ]]; then
+    echo "Missing Cursor command source: ${src}" >&2
+    exit 1
+  fi
+  mkdir -p "$dest_dir"
+  rm -f "${dest_dir}/handoff.md"
+  cp -a "$src" "$dest"
+}
+
 install_skills() {
   case "$EDITOR" in
     both)
@@ -162,6 +191,8 @@ install_skills() {
     # Claude gets shared skills only — no editor-variant skills (no SKILL.claude.md exists)
     claude) install_skills_to "$(claude_skills_dir)" ;;
   esac
+  remove_legacy_handoff
+  install_cursor_newagentlink_command
 }
 
 # Project-scope from this clone (repo root or any subdirectory) would copy
@@ -254,6 +285,9 @@ verify_skills_at() {
   test -f "${dir}/terraform-commit-review/SKILL.md" || return 1
   test -f "${dir}/terraform-apply-assistance/SKILL.md" || return 1
   test -f "${dir}/security-audit/SKILL.md" || return 1
+  test -f "${dir}/newagentlink/SKILL.md" || return 1
+  grep -q 'disable-model-invocation: true' "${dir}/newagentlink/SKILL.md" || return 1
+  test ! -d "${dir}/handoff" || return 1
 }
 
 verify_editor_variants_at() {
@@ -308,6 +342,14 @@ verify() {
     if [[ "$EDITOR" == "both" || "$EDITOR" == "cursor" ]]; then
       verify_skills_at "$(cursor_skills_dir)" || ok=1
       verify_editor_variants_at "$(cursor_skills_dir)" || ok=1
+      if [[ "$SCOPE" == "global" ]]; then
+        test ! -d "${HOME}/.cursor/skills/handoff" || ok=1
+        test ! -d "${HOME}/.copilot/skills/handoff" || ok=1
+        test ! -d "${HOME}/.claude/skills/handoff" || ok=1
+        test ! -f "${HOME}/.cursor/commands/handoff.md" || ok=1
+        test -f "${HOME}/.cursor/commands/newagentlink.md" || ok=1
+        cmp -s "${REPO}/skills/newagentlink/cursor.command.md" "${HOME}/.cursor/commands/newagentlink.md" || ok=1
+      fi
     fi
     if [[ "$EDITOR" == "both" || "$EDITOR" == "copilot" ]]; then
       verify_skills_at "$(copilot_skills_dir)" || ok=1

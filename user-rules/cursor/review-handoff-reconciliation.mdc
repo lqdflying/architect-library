@@ -7,6 +7,8 @@ alwaysApply: true
 
 Applies in every Cursor project. Cursor Settings → Customize → Rules is a different store; do not treat this file as that text box.
 
+This protocol is the living review ledger at `/tmp/<topic>-handoff.md` (append across reviewer/fixer rounds). It is **not** the `newagentlink` skill, which writes a one-shot `/tmp/<topic>-newagentlink.md` for a new chat. Do not overwrite a review ledger. Do not append to a newagentlink file.
+
 Treat each turn as **one role** unless the user explicitly asks for both phases:
 
 - **Reviewer** — review, audit, check, find issues, or verify a coding-model response. Inspect and report; do not implement fixes unless explicitly asked.
