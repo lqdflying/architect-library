@@ -9,7 +9,7 @@ Task is **not** complete until:
 
 | Skill | Done when |
 |-------|-----------|
-| **excalidraw-diagram** | `.excalidraw` → PNG rendered, images **viewed**, layout fixed |
+| **excalidraw-diagram** | `.excalidraw` → PNG rendered, images **viewed** (crop grown regions when editing), layout fixed; existing files: collision pass before first PNG |
 | **word-document** | DOCX validates; explicit table styling (docx-js) or one python-docx path; deliver **`.docx` only** (no generator beside deliverable unless user asks) |
 | **word-document (no npm)** | python-docx + `validate`; note fallback in reply; `bash scripts/install_deps.sh office` |
 | **powerpoint-presentation** | PPTX validates; **`thumbnail` every deck** (grid + `--per-slide` 150 DPI), images **viewed**, overflow fixed; `office-system` installed if missing |

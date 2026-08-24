@@ -2,6 +2,8 @@
 
 You cannot judge a diagram from JSON alone. After generating or editing the Excalidraw JSON, you MUST render it to PNG, view the image, and fix what you see — in a loop until it's right. This is a core part of the workflow, not a final check.
 
+**Editing an existing file:** run the geometric collision pass in `edit-existing.md` **before** this loop. Then crop the grown region and Read those PNGs. A full-page PNG summary often misses a local overlap.
+
 ## How to Render
 
 ```bash
@@ -14,7 +16,7 @@ This outputs a PNG next to the `.excalidraw` file. Then use the **Read tool** on
 
 After generating the initial JSON, run this cycle:
 
-**1. Render & View** — Run the render script, then Read the PNG.
+**1. Render & View** — Run the render script, then Read the PNG. Also crop the grown region (widened box, new leaves, identity/title stack, arrow band) and Read **those** crops. Full-page descriptions miss local overlap.
 
 **2. Audit against your original vision** — Before looking for bugs, compare the rendered result to what you designed in Steps 1-4. Ask:
 
@@ -27,7 +29,8 @@ After generating the initial JSON, run this cycle:
 **3. Check for visual defects:**
 
 - Text clipped by or overflowing its container
-- Text or shapes overlapping other elements
+- Text or shapes overlapping other elements (fail if two non-connected boxes overlap, or a dashed/polyline arrow crosses a label it is not bound to)
+- JSON rewritten with `ensure_ascii=True` (em dashes become `\u2014` — rewrite with `ensure_ascii=False`)
 - Arrows crossing through elements instead of routing around them
 - Arrows landing on the wrong element or pointing into empty space
 - Labels floating ambiguously (not clearly anchored to what they describe)
@@ -77,7 +80,7 @@ After rendering, confirm:
 
 1. **Rendered to PNG**: Diagram has been rendered and visually inspected
 2. **No text overflow**: All text fits within its container
-3. **No overlapping elements**: Shapes and text don't overlap unintentionally
+3. **No overlapping elements**: Geometric (AABB + scene-space arrow points) and cropped PNG of the grown region; shapes and text don't overlap unintentionally
 4. **Even spacing**: Similar elements have consistent spacing
 5. **Arrows land correctly**: Arrows connect to intended elements without crossing others
 6. **Readable at export size**: Text is legible in the rendered PNG

@@ -116,6 +116,12 @@ Guide the eye: typically left→right or top→bottom for sequences, radial for 
 
 Position alone doesn't show relationships. If A relates to B, there must be an arrow.
 
+### Multi-section posters (reflow, don't insert in place)
+
+Inventory left, flow right, timeline below are **independent layers on one canvas**. Growing one layer is a **reflow of the occupied band**. Shift every element whose box intersects that band (or sits within the reserved gutter) — not only IDs that share a prefix. See `edit-existing.md`.
+
+Arrow `points` that go up (`negative y`) occupy a band **above** the start shape. After a column grows, that band may be a new title. Re-route through a clear gap or below the spine; do not keep the old relative waypoints.
+
 ## Text Rules
 
 **CRITICAL**: The JSON `text` property contains ONLY readable words.

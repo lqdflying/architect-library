@@ -266,7 +266,7 @@ The install script runs **library** checks automatically for the `EDITOR` you pa
 
 | Skill | Before marking the task complete |
 |-------|----------------------------------|
-| **excalidraw-diagram** | Render `.excalidraw` → PNG, **view** the image, fix in a loop |
+| **excalidraw-diagram** | Render `.excalidraw` → PNG, **view** the image (crop grown regions when editing), fix in a loop. Existing files: geometric collision pass before first PNG (`edit-existing.md`) |
 | **word-document** | Validate DOCX; explicit table styling; deliver `.docx` only |
 | **powerpoint-presentation** | Validate PPTX; **`thumbnail` every deck**; **view** images; `office-system` if missing |
 | **spreadsheet-document** | Deliver `.xlsx`; `recalc` until zero formula errors if formulas used |

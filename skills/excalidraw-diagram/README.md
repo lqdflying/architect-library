@@ -51,12 +51,19 @@ cd references
 uv run python render_excalidraw.py <path-to-file.excalidraw>
 ```
 
-The renderer writes a PNG next to the `.excalidraw` file. Inspect the PNG and iterate until the diagram is readable, balanced, and accurate.
+The renderer writes a PNG next to the `.excalidraw` file. Inspect the PNG and iterate until the diagram is readable, balanced, and accurate. When **editing** an existing file, run the collision pass in `references/edit-existing.md` before the first PNG, and crop the grown region when viewing.
+
+Shift a horizontal or vertical band (does not synthesize a diagram):
+
+```bash
+uv run python shift_region.py diagram.excalidraw --below 1075 --dy 108 --dry-run
+```
 
 ## Key References
 
 - `SKILL.md` - design methodology and workflow
 - `references/color-palette.md` - single source of truth for colors
 - `references/layered-server-architecture.md` - MCP/server architecture layout (vertical spine + sidebars)
+- `references/edit-existing.md` - collision pass when editing an existing diagram
 - `references/element-templates.md` - reusable Excalidraw JSON templates
 - `references/json-schema.md` - Excalidraw file format reference

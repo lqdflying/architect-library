@@ -235,6 +235,7 @@ Source: [`user-rules/cursor/`](user-rules/cursor/). Installs to **`~/.cursor/rul
 | This README → [How to use](#how-to-use) | Using installed skills in Cursor, Copilot, or Claude Code chat |
 | [`skills/excalidraw-diagram/SKILL.md`](skills/excalidraw-diagram/SKILL.md) | Diagram design rules and agent workflow |
 | [`skills/excalidraw-diagram/README.md`](skills/excalidraw-diagram/README.md) | Render setup, offline bundle, PNG validation |
+| [`skills/excalidraw-diagram/references/edit-existing.md`](skills/excalidraw-diagram/references/edit-existing.md) | Collision pass when editing an existing diagram |
 | [`skills/word-document/SKILL.md`](skills/word-document/SKILL.md) | DOCX agent workflow (new vs edit, comments, redlines) |
 | [`skills/word-document/README.md`](skills/word-document/README.md) | Word skill setup and pointers |
 | [`skills/word-document/references/docx-guide.md`](skills/word-document/references/docx-guide.md) | docx-js and XML editing patterns (explicit table theming) |

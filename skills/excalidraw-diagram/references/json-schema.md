@@ -47,7 +47,7 @@ All elements share these:
 
 | Property | Description |
 |----------|-------------|
-| `points` | Array of [x, y] coordinates |
+| `points` | Array of `[dx, dy]` **relative to the element's `x`,`y`**. Collision checks must use scene space (`x+dx`, `y+dy`). Negative `dy` occupies a band **above** the start shape. |
 | `startBinding` | Connection to start shape |
 | `endBinding` | Connection to end shape |
 | `startArrowhead` | null, "arrow", "bar", "dot", "triangle" |

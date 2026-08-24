@@ -1,6 +1,6 @@
 ---
 name: excalidraw-diagram
-description: Create Excalidraw diagram JSON files that make visual arguments. Use when the user wants to visualize workflows, architectures, or concepts.
+description: Create Excalidraw diagram JSON files that make visual arguments. Use when the user wants to visualize workflows, architectures, or concepts. When editing an existing .excalidraw, run the geometric collision pass before the first PNG.
 ---
 
 # Excalidraw Diagram Creator
@@ -15,6 +15,7 @@ Generate `.excalidraw` JSON files that **argue visually**, not just display info
 - `references/layered-server-architecture.md` — **MCP/server architecture layout** (read before any backend, MCP, or multi-client system diagram)
 - `references/visual-patterns.md` — fan-out, convergence, timeline, tree, and other patterns
 - `references/shape-and-layout.md` — shape meaning, color, layout, text rules
+- `references/edit-existing.md` — **editing an existing file**: geometric collision pass before the first PNG (load this when changing a diagram, not only when creating one)
 - `references/element-templates.md` — copy-paste JSON templates per element type
 - `references/json-schema.md` — Excalidraw JSON structure details
 - `references/render-validate.md` — mandatory render-view-fix loop and visual QA checklist
@@ -168,8 +169,11 @@ Before JSON, mentally trace how the eye moves through the diagram. There should 
 ### Step 5: Generate JSON
 Only now create the Excalidraw elements. Read `references/shape-and-layout.md` for shape, color, layout, and text rules. See `references/element-templates.md` for copy-paste templates. **See below for how to handle large diagrams.**
 
+### Step 5b: Collision pass (when editing an existing file)
+If the task changes an existing `.excalidraw`, read `references/edit-existing.md` and run the geometric collision pass **before** the first PNG. Shift the occupied band, not only IDs that share a prefix. A small `shift_region.py` helper is allowed for that pass.
+
 ### Step 6: Render & Validate (MANDATORY)
-After generating the JSON, you MUST run the render-view-fix loop until the diagram looks right. This is not optional — see `references/render-validate.md` for the full process.
+After generating or editing the JSON, you MUST run the render-view-fix loop until the diagram looks right. This is not optional — see `references/render-validate.md` for the full process. Crop and Read the grown region; a full-page PNG summary misses local overlap.
 
 ---
 
@@ -194,8 +198,10 @@ After generating the JSON, you MUST run the render-view-fix loop until the diagr
 ### What NOT to Do
 
 - **Don't generate the entire diagram in one response.**
-- **Don't use a coding agent** to generate the JSON.
-- **Don't write a Python generator script.**
+- **Don't use a coding agent** to generate the JSON from scratch.
+- **Don't write a Python generator** that synthesizes a whole poster.
+
+**Allowed:** a short collision/shift script when **editing** an existing file (AABB, band shift, rewrite with `ensure_ascii=False`). That is layout QA — see `references/edit-existing.md` and `references/shift_region.py`.
 
 ---
 
