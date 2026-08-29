@@ -80,7 +80,7 @@ Cursor-only. Installed to `~/.cursor/rules/<name>.mdc` (not the Cursor Settings 
 
 | File | Purpose |
 |------|---------|
-| `review-handoff-reconciliation.mdc` | `/tmp/<topic>-handoff.md` ledger; dispositions FIX / DEFER / KEEP / DO NOT APPLY / FIXED / RECONCILED; reviewer writes, fixer validates and appends, loop until reconciled. Distinct from the `newagentlink` skill (`/tmp/<topic>-newagentlink.md`). |
+| `review-handoff-reconciliation.mdc` | `/tmp/<topic>-handoff.md` ledger; dispositions FIX / DEFER / KEEP / DO NOT APPLY / FIXED / RECONCILED; reviewer writes, fixer validates and appends, loop until reconciled. **Append-only** — no full-file overwrite, truncate, or delete of prior rounds; surgical header Status/Must fix only. Distinct from the `newagentlink` skill (`/tmp/<topic>-newagentlink.md`). |
 
 **Source of truth:** `<repo>/skills/<name>/`, `<repo>/agents/<name>/`, and `<repo>/user-rules/cursor/<name>.mdc`  
 **Do not** copy into `<repo>/.cursor/skills/`, `<repo>/.cursor/agents/`, or `<repo>/.cursor/rules/` — use `install_library.sh`.

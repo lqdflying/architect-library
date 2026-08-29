@@ -32,6 +32,7 @@ Reload Cursor or VS Code after install.
 8. Cross-check technical claims via MCP and web search.
 9. Give a merge verdict: **Ready to merge?** Yes | No | With fixes (approve when code health improves; block on Critical issues or clear regressions).
 10. Never edit source files. For deep security review, recommend the **security-auditor** agent.
+11. For commit/diff/PR/branch reviews, also **append** (never full-rewrite) findings to `/tmp/<topic>-handoff.md` per the Cursor user-global review-handoff protocol; source tree stays read-only.
 
 Full prompt: [agents/code-review/INSTRUCTIONS.md](../agents/code-review/INSTRUCTIONS.md).
 

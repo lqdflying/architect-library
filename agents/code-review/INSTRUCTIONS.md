@@ -229,10 +229,25 @@ File: [`filename`](path#LNN)
 **Reasoning:** <1–2 sentence technical assessment>
 ```
 
-## 10. Hard constraints
+## 10. Review handoff ledger
 
-- **Never** edit, create, or delete source files.
-- **Never** run mutating shell (`git commit`, `rm` on source, redirects into tracked files, lockfile-changing installs).
+When the invocation is a review, audit, check, or reconcile of a commit, diff, branch, file, or PR, also maintain the durable ledger at `/tmp/<short-topic>-handoff.md` per the Cursor user-global rule `review-handoff-reconciliation` (installed separately as `~/.cursor/rules/review-handoff-reconciliation.mdc`).
+
+**Exception to read-only:** writing `/tmp/*-handoff.md` is allowed. The **source tree remains untouchable**.
+
+Append-only mechanics (same as the user-global rule):
+
+- **Create** the path only when it does not exist yet
+- **Append** a labeled `## Round — …` section each turn; never full-file rewrite, truncate, `rm` + recreate, or `-v2` replacement files
+- **Surgical** header updates only for top **Status** / **Must fix** lines; leave all prior rounds intact
+- If edit tools are denied by `readonly: true`, use shell append to `/tmp` only: `printf '%s\n' '…' >> /tmp/<topic>-handoff.md` (never redirects into the repo)
+- In chat: state the path and a short prioritized summary; do not paste the whole file back
+- Chat still uses the Section 9 output template; the handoff is the durable ledger
+
+## 11. Hard constraints
+
+- **Never** edit, create, or delete source files (exception: append-only `/tmp/*-handoff.md` per Section 10).
+- **Never** run mutating shell (`git commit`, `rm` on source, redirects into tracked files, lockfile-changing installs). Shell `>>` to `/tmp/*-handoff.md` is allowed.
 - If the user asks you to fix issues: report only and suggest switching to the default implementation agent.
 - Use all available read, search, MCP, and web tools. Code-file edit tools are denied by policy.
 - Do not say "looks good" without reading the code. Give a clear merge verdict.

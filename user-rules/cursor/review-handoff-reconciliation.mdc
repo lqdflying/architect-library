@@ -38,6 +38,26 @@ In chat: state the path, then a short prioritized summary. Do not paste the file
 
 Chat-only review without a handoff update is not done.
 
+## Append-only file discipline
+
+The handoff is a growing ledger. **Never delete, truncate, or full-file rewrite** an existing `/tmp/<topic>-handoff.md`.
+
+**Forbidden** once the file exists:
+
+- Full-file overwrite (`Write` of the whole path, `cat > file`, truncate, `rm` + recreate)
+- Deleting prior rounds, findings, fixer responses, or any historical body text
+- “Restoring” by rewriting a shorter file from memory (that still loses history)
+- Creating `-v2` or parallel files to replace the ledger
+
+**Allowed:**
+
+- **Create** only when the path does not exist yet
+- **Append** a new labeled section each turn (`## Round — …` or fixer response)
+- **Surgical** in-place edit of the top header **Status** / **Must fix** lines only — never the historical body
+- Prefer shell append after reading the file: `printf '%s\n' '…' >> /tmp/<topic>-handoff.md`
+
+**If content was already wiped this turn:** stop further rewrites; recover prior text from chat/transcript if available; write recovered body + the new append in one reconstruction **once**; then resume append-only. Record the incident under **Already verified**.
+
 ## Dispositions (both sides)
 
 - **FIX** — must change before calling the work done. Highlight at the top ("Must fix").
@@ -78,9 +98,9 @@ Review does **not** change the repository under review. The only allowed write i
 
 Verify every finding against current code before recording it. Prefer the smallest correct fix. Distinguish correctness issues from optional improvements. Point at the repo's `AGENTS.md` / `CLAUDE.md` instead of restating them. Flag docs-only findings.
 
-Keep a header at the top: **Status**, **Must fix**, repositories/branches/bases/ranges, worktree scope.
+On first create, put a header at the top: **Status**, **Must fix**, repositories/branches/bases/ranges, worktree scope. On later turns, surgically update only those **Status** / **Must fix** lines; leave every prior round intact.
 
-Then:
+Then (in the first create, and again inside each appended round as needed):
 
 1. **Already verified** — commands run and results, plus known limits.
 2. **Findings, in priority order.** Each: exact `path/to/file.ts:LINE`; what is wrong and why (concrete failure); a **Fix:** paragraph; a **Test:** note; severity up front; disposition.
@@ -88,7 +108,7 @@ Then:
 4. **Explicit NON-issues** — flagged then disproved, with evidence.
 5. **Documentation impact** and copy-pasteable follow-up verification commands.
 
-On every review turn, **append** a labeled round (for example `## Round — <date or commit>`). Do not replace prior rounds.
+On every review turn, **append** a labeled round (for example `## Round — <date or commit>`). Do not replace, rewrite, or delete prior rounds.
 
 Do not create `.patch` files, run `git format-patch`, or commit the `/tmp` handoff unless the user asks.
 
@@ -104,7 +124,7 @@ When the user points at `/tmp/<topic>-handoff.md` (or pastes review feedback), t
 6. Verify in proportion to risk. Inspect new assertions for vacuous mocks. Do not rerun an expensive check the handoff recorded as passed unless later changes could invalidate it.
 7. Do not treat an unrelated ancestor Git root as an affected repository merely because a task file is beneath it. Never stage a previously untracked configuration or tool-state subtree solely to manufacture a commit.
 8. **Do not auto-commit.** Commit only when the user explicitly asks or the active repository's rules require a commit on this turn. Never push. If verification is blocked, record the blocker and do not describe the round as complete.
-9. Append a labeled response section to the **same** file. Never replace useful reviewer content.
+9. Append a labeled response section to the **same** file. Never replace, rewrite, or delete reviewer content or prior rounds. Surgical header **Status** / **Must fix** updates only.
 
 The response section must include:
 
@@ -118,7 +138,7 @@ The response section must include:
 
 ## Reconciliation loop
 
-The handoff is the shared ledger. Nothing useful is deleted. Reviewer appends `## Round — <date or commit>`; fixer appends labeled response sections.
+The handoff is the shared ledger. Nothing useful is deleted. Reviewer appends `## Round — <date or commit>`; fixer appends labeled response sections. Do not full-file rewrite to “refresh” status — append the body and surgically edit header **Status** / **Must fix** only.
 
 On a later review round: read the whole file first, then independently verify fixer claims against current code. Confirm each **FIXED** is present. Record suspected-then-disproved items as NON-issues.
 
@@ -132,7 +152,7 @@ When the user asks to review after another model fixed **FIX** items:
 
 1. Re-read the session handoff and the current tree (`git status`, `git diff`). Do not trust a prior **RECONCILED** label without re-checking.
 2. Independently validate every open **FIX**, every claimed **FIXED**, and any diffs since the last round.
-3. Append `## Round — <date> post-fix re-review`; update header **Status** and **Must fix**.
+3. Append `## Round — <date> post-fix re-review`; surgically update header **Status** and **Must fix** only (do not rewrite the file).
 4. Chat session summary (required):
    - If any **FIX** remains: heading **Remaining FIX** with numbered items.
    - If none: heading **All reconciled**.

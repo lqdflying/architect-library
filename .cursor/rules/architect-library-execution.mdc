@@ -55,7 +55,7 @@ Canonical source: `user-rules/cursor/review-handoff-reconciliation.mdc`. Install
 
 | Work | Done when |
 |------|-----------|
-| **review-handoff** | `/tmp/<topic>-handoff.md` appended this turn; dispositions used (FIX / DEFER / KEEP / DO NOT APPLY / FIXED / RECONCILED); chat points at the path; reviewer does not mutate the review repo (only the `/tmp` handoff). Distinct from `newagentlink` (`/tmp/<topic>-newagentlink.md`). |
+| **review-handoff** | `/tmp/<topic>-handoff.md` **appended** this turn (no full-file overwrite, truncate, or delete of prior rounds; surgical header Status/Must fix only); dispositions used (FIX / DEFER / KEEP / DO NOT APPLY / FIXED / RECONCILED); chat points at the path; reviewer does not mutate the review repo (only the `/tmp` handoff). Distinct from `newagentlink` (`/tmp/<topic>-newagentlink.md`). |
 
 ## Dependencies
 

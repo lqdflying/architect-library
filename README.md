@@ -189,7 +189,7 @@ Source: [`user-rules/cursor/`](user-rules/cursor/). Installs to **`~/.cursor/rul
 
 | Rule | Use when |
 |------|----------|
-| `review-handoff-reconciliation` | One protocol: `/tmp/<topic>-handoff.md` ledger with FIX / DEFER / KEEP / DO NOT APPLY / FIXED / RECONCILED. Distinct from `newagentlink` (`/tmp/<topic>-newagentlink.md`). Edit the repo file only; install copies it to `~/.cursor/rules/` (not a second version). |
+| `review-handoff-reconciliation` | One protocol: `/tmp/<topic>-handoff.md` ledger with FIX / DEFER / KEEP / DO NOT APPLY / FIXED / RECONCILED. **Append-only** (no full-file rewrite/truncate/delete of prior rounds; surgical header Status/Must fix only). Distinct from `newagentlink` (`/tmp/<topic>-newagentlink.md`). Edit the repo file only; install copies it to `~/.cursor/rules/` (not a second version). |
 
 ## Security and review tools — when to use which
 
