@@ -1,6 +1,6 @@
 ---
 name: terraform-apply-assistance
-description: "Use when fixing Terraform validation/plan/apply errors, reviewing a commit hash through HEAD for the current apply scope, creating a focused branch and preparing Terraform fixes for user review, or reviewing Terraform plan output to decide whether apply is OK. Triggers: terraform error, apply failed, plan output, provider error, invalid argument, missing variable, permission issue, destructive plan, replacement, branch workflow, compare new plan, is this plan safe, evaluate apply. Uses Context7 for Terraform provider docs and Microsoft Learn MCP for Azure/RBAC/service behavior."
+description: "Use when fixing Terraform validation/plan/apply errors, reviewing a commit hash through HEAD for the current apply scope, staying on the current working branch and preparing Terraform fixes for user review, or reviewing Terraform plan output to decide whether apply is OK. Triggers: terraform error, apply failed, plan output, provider error, invalid argument, missing variable, permission issue, destructive plan, replacement, branch workflow, compare new plan, is this plan safe, evaluate apply. Uses Context7 for Terraform provider docs and Microsoft Learn MCP for Azure/RBAC/service behavior."
 argument-hint: "<commit-hash optional> plus Terraform error text, plan output, or branch context"
 ---
 
@@ -11,7 +11,7 @@ argument-hint: "<commit-hash optional> plus Terraform error text, plan output, o
 Use this skill when the user needs help to:
 - Fix a Terraform validation, plan, or apply error in this repo.
 - Review all code planned for this apply from a commit hash through `HEAD`, including the hash commit itself.
-- Create or switch to a focused branch, edit Terraform, validate the fix, then pause for user review before any commit or push.
+- Stay on the current working branch, edit Terraform, validate the fix, then pause for user review before any commit or push.
 - Review a pasted `terraform plan` and say whether apply is OK.
 - Compare repeated plan outputs after fixes and confirm whether earlier risks disappeared.
 - Evaluate destructive Terraform actions, replacements, identity/RBAC changes, networking/routing changes, data-plane permissions, service configuration changes, cross-phase dependencies, and environment prerequisites.
@@ -85,9 +85,9 @@ Always scan plan output and diffs for new Microsoft Entra service principal or E
 
 For apply-scope reviews, read the changed Terraform and documentation files from the inferred or provided range. Focus on deployable inputs and resource behavior first, then docs/runbooks that affect prerequisites or apply decisions.
 
-### 3. Create Or Confirm A Working Branch
+### 3. Stay On The Current Working Branch
 
-Before editing Terraform, inspect git state:
+Before editing, inspect git state. Do not check out or create a branch first.
 
 ```bash
 git status --short --branch
@@ -95,17 +95,17 @@ git branch --show-current
 git remote -v
 ```
 
-If this session already created or switched to a non-protected branch for Terraform apply assistance, continue using that same branch for subsequent blockers, follow-up fixes, plan iterations, or vendor-requested tweaks in the same apply workflow. Do not create a new branch just because the next error is in a different phase or resource. Treat the current session branch as the working branch unless the user explicitly asks for a separate branch or project instructions say the branch is protected/mainline.
+One working branch at a time. If the current branch is not `main`, it is the working branch. Stay on it for the fix already in progress and for every later fix or new task in the session, including a different phase, resource, or topic. Do not run `git switch`, `git checkout`, or `git switch -c`.
 
-For a concrete Terraform validation, plan, or apply error that requires editing deployable Terraform inputs or code, create the focused fix branch before the first edit only when the current branch is protected/mainline or no session apply-fix branch has been checked out yet. Treat branches named by project instructions as protected, mainline, release, apply, or integration branches as unsuitable working branches for error fixes. If project instructions do not identify which branches are protected/mainline and the current branch is not obviously a session apply-fix branch, ask the user to identify the correct base/working-branch policy before editing.
+Local commits and uncommitted files are a hard stop. Never check out a new branch over them. That splits the branch from the commits and from the dirty tree. Keep the work where it is.
 
-If no suitable branch exists yet, create one date-based session branch instead of a per-error branch. Prefer this naming pattern:
+The only time a new branch is allowed is when the current branch is `main`, or when the user explicitly asks for one. Off `main`, use one feature branch and then stay on it:
 
 ```bash
-git switch -c terraform-apply-fix-YYYYMMDD
+git switch -c <feature-branch>
 ```
 
-If a branch with that date already exists, add a short suffix such as `terraform-apply-fix-YYYYMMDD-2` or `terraform-apply-fix-YYYYMMDD-<short-scope>`. Do not push the new branch unless the user explicitly instructs you to push it. If a non-protected session branch already exists for the active apply workflow, continue on it. Avoid creating stacked/unrelated branches unless the user asks.
+Do not use a date-stamped apply-fix branch, and do not stack a second branch for the next error. Do not push unless the user explicitly instructs you to push.
 
 ### 4. Diagnose With Docs And Local Evidence
 
@@ -376,7 +376,7 @@ Before saying the task is done:
 - Apply scope is clear: either a provided commit hash through `HEAD`, or a stated scope inferred from session history.
 - Every phase shown in command blocks is within the requested scope.
 - Every user-excluded phase is absent from command blocks and listed under `Phases that do not need apply` with a reason.
-- A focused branch exists when Terraform code was changed, unless the current branch was already the user-approved working branch.
+- Edits are on the current working branch. A new branch was created only when the starting branch was `main`, or because the user explicitly asked for one. No checkout was made over local commits or uncommitted files.
 - Intended edits are validated and left for user review; no commit or push has been made unless the user explicitly instructed it after review.
 - `git status --short --branch` is reported, and any uncommitted reviewable changes are explained.
 - Fresh validation output has been run and checked.
@@ -390,5 +390,5 @@ Before saying the task is done:
 - `/terraform-apply-assistance Terraform apply failed with this error: ...`
 - `/terraform-apply-assistance 10509e26872a539eee1dd7110e93d65efc238a0e Review this apply scope and plan.`
 - `/terraform-apply-assistance Review this Phase 1 plan and tell me if apply is OK: ...`
-- `/terraform-apply-assistance Fix this AzureRM provider error, create a branch, validate, and pause for my review before commit or push.`
+- `/terraform-apply-assistance Fix this AzureRM provider error on the current branch, validate, and pause for my review before commit or push.`
 - `/terraform-apply-assistance Compare this new plan with the previous one and tell me what risk remains.`
