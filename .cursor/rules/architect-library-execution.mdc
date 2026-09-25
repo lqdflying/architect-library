@@ -48,10 +48,11 @@ Applies when the user invokes a custom agent or you test agent behavior in this 
 
 After editing `agents/`, run `bash scripts/install_library.sh agents cursor` so global `~/.cursor/agents/` matches repo source.
 After editing `user-rules/cursor/`, run `bash scripts/install_library.sh rules cursor` so `~/.cursor/rules/` matches repo source.
+After editing `user-rules/copilot/`, run `bash scripts/install_library.sh rules copilot` so `~/.copilot/copilot-instructions.md` matches repo source.
 
 ## Review handoff (user-global protocol)
 
-Canonical source: `user-rules/cursor/review-handoff-reconciliation.mdc`. Install copies it to `~/.cursor/rules/` — not a second protocol. Do not duplicate the body here.
+Canonical sources: `user-rules/cursor/review-handoff-reconciliation.mdc` (installs to `~/.cursor/rules/`) and `user-rules/copilot/copilot-instructions.md` (installs to `~/.copilot/copilot-instructions.md`). Do not duplicate the body here.
 
 | Work | Done when |
 |------|-----------|

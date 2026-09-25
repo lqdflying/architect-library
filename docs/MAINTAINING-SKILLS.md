@@ -65,6 +65,16 @@ Update **agent guidance**:
 
 **Do not** copy `user-rules/cursor/` into this repo’s `.cursor/rules/` (those files are maintainer-only for architect-library). **Do not** add user-global rules to `SKILL_BUNDLE` or `AGENT_BUNDLE`. Cursor Settings → Customize → Rules is a different store — install does not write it. One protocol only: edit `user-rules/cursor/<name>.mdc` and reinstall; add retired filenames to `LEGACY_CURSOR_RULES` so `~/.cursor/rules/` cannot keep a second copy.
 
+## Copilot always-on instruction
+
+Source: `user-rules/copilot/copilot-instructions.md`. Plain Markdown. No `alwaysApply` frontmatter — `~/.copilot/copilot-instructions.md` is the always-on path for Copilot Agent Host chats.
+
+- [ ] Keep the ledger protocol aligned with `user-rules/cursor/review-handoff-reconciliation.mdc`
+- [ ] Opening line says it applies in every VS Code Copilot chat
+- [ ] [scripts/install_library.sh](../scripts/install_library.sh) copies that file on global `copilot` or `both` rules install
+- [ ] Project scope does not write `.github/copilot-instructions.md`
+- [ ] Run `bash scripts/install_library.sh rules copilot`
+
 ## New workflow step (existing skill)
 
 - [ ] `skills/<skill>/SKILL.md` — numbered workflow + delivery checklist

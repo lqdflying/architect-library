@@ -1,11 +1,6 @@
----
-description: Review handoff and fix/reconcile protocol — /tmp markdown ledger across any repo
-alwaysApply: true
----
-
 # Review handoff and reconciliation
 
-Applies in every Cursor project. Cursor Settings → Customize → Rules is a different store; do not treat this file as that text box.
+Applies in every VS Code Copilot chat.
 
 This protocol is the living review ledger at `/tmp/<topic>-handoff.md` (append across reviewer/fixer rounds). It is **not** the `newagentlink` skill, which writes a one-shot `/tmp/<topic>-newagentlink.md` for a new chat. Do not overwrite a review ledger. Do not append to a newagentlink file.
 

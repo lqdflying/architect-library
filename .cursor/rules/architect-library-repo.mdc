@@ -15,7 +15,8 @@ Skill library + custom agent library + Cursor user-global rules. Work in this cl
 |------|------|
 | `skills/` | Skill library source → `~/.cursor/skills/`, `~/.copilot/skills/` |
 | `agents/` | Custom agent library source → `~/.cursor/agents/`, `~/.copilot/agents/` |
-| `user-rules/cursor/` | Cursor user-global rules source → `~/.cursor/rules/` (not this repo’s `.cursor/rules/`). Canonical review-handoff protocol lives here only. |
+| `user-rules/cursor/` | Cursor user-global rules source → `~/.cursor/rules/` (not this repo’s `.cursor/rules/`). |
+| `user-rules/copilot/` | Copilot always-on instruction source → `~/.copilot/copilot-instructions.md`. Same review-handoff ledger as the Cursor rule. |
 | `agents/<name>/INSTRUCTIONS.md` | Shared agent prompt body |
 | `agents/<name>/cursor.header.md` | Cursor frontmatter (assembled at install) |
 | `agents/<name>/copilot.header.md` | Copilot frontmatter (assembled at install) |
@@ -31,7 +32,7 @@ Skill library + custom agent library + Cursor user-global rules. Work in this cl
 | `skills/terraform-apply-assistance/` | Terraform apply fix, scope review, and plan evaluation |
 | `skills/notion-mcp-ops/` | Notion MCP CRUD, formatting, fetch-before-write; editor variants for Cursor and Copilot |
 | `skills/_shared/` | `architecture-document-principles.md`, `office-tools/` |
-| `scripts/install_library.sh` | Install/patch skills, agents, and Cursor user-global rules (global default) |
+| `scripts/install_library.sh` | Install/patch skills, agents, Cursor user-global rules, and the Copilot always-on instruction |
 | `scripts/install_deps.sh` | Runtimes only (`all` \| `excalidraw` \| `office` \| `office-system` \| `pdf` \| `node`) |
 | `.cursor/rules/` | **Maintainer rules for this repo** — not copied to users |
 | `.cursor/skills/absorb-reference-materials/` | **Maintainer skill** — triage `tmp/` ref material (not in `SKILL_BUNDLE`) |
@@ -50,7 +51,8 @@ Do **not** update only scripts or README. When adding or changing a skill, agent
 2. **Skill change** → update `skills/*/SKILL.md`, execution rule row, `SKILL_BUNDLE` in `install_library.sh` if new skill, run `bash scripts/install_library.sh skills cursor`.
 3. **Agent change** → update `agents/<name>/`, [docs/AGENTS.md](docs/AGENTS.md), `AGENT_BUNDLE` in `install_library.sh` if new agent, run `bash scripts/install_library.sh agents cursor`.
 4. **Cursor user-global rule change** → update `user-rules/cursor/<name>.mdc`, `CURSOR_RULE_BUNDLE` in `install_library.sh` if new, run `bash scripts/install_library.sh rules cursor`.
-5. Always update `README.md`, `docs/AGENT-SKILL-INSTALL.md`, and relevant `.cursor/rules/*.mdc`.
+5. **Copilot always-on instruction change** → update `user-rules/copilot/copilot-instructions.md`, run `bash scripts/install_library.sh rules copilot`.
+6. Always update `README.md`, `docs/AGENT-SKILL-INSTALL.md`, and relevant `.cursor/rules/*.mdc`.
 
 When the user asks to **review or absorb ref material under `tmp/`**, read `.cursor/skills/absorb-reference-materials/SKILL.md` first — ship only high-value skills/agents, harden existing installs, ignore the rest. After absorb: update `README.md` when catalog or layout changes (see `absorb-reference-materials/references/readme-after-absorb.md`).
 

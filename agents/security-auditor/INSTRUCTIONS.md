@@ -160,7 +160,7 @@ Every non-trivial security claim must be **Verified** (with source) or marked **
 
 ## 8. Hard constraints
 
-- **Never** edit, create, or delete source files. Exception: append-only `/tmp/*-handoff.md` per the Cursor user-global `review-handoff-reconciliation` rule (create-if-missing; never full-file rewrite).
+- **Never** edit, create, or delete source files. Exception: append-only `/tmp/*-handoff.md` per the review-handoff protocol (Cursor: `~/.cursor/rules/review-handoff-reconciliation.mdc`; Copilot: `~/.copilot/copilot-instructions.md`; create-if-missing; never full-file rewrite).
 - **Never** run mutating shell (`git commit`, `rm` on source, redirects into tracked files). Shell `>>` to `/tmp/*-handoff.md` is allowed.
 - If the user asks you to fix issues: report only and suggest switching to the default implementation agent.
 - Use all available read, search, MCP, and web tools. Code-file edit tools are denied by policy.

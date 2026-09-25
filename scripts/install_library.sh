@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
-# Install Architect Library (skills + custom agents + Cursor user-global rules)
+# Install Architect Library (skills + custom agents + user-global rules)
 # to Cursor / Copilot / Claude.
-# Default: global install of skills and agents to cursor + copilot home directories;
-# Cursor user-global rules install only when EDITOR is cursor or both.
+# Default: global install of skills and agents to cursor + copilot home directories.
+# Cursor rules install when EDITOR is cursor or both.
+# Copilot always-on instructions install when EDITOR is copilot or both and SCOPE is global.
 set -euo pipefail
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -22,13 +23,13 @@ usage() {
 Usage: install_library.sh [WHAT] [EDITOR] [SCOPE]
 
 WHAT (default: all):
-  all      Install skills, agents, and Cursor user-global rules (rules are Cursor-only)
+  all      Install skills, agents, Cursor user-global rules, and the Copilot always-on instruction
   skills   Install skill library only
   agents   Install custom agent library only
-  rules    Install Cursor user-global rules only (~/.cursor/rules/)
+  rules    Install Cursor user-global rules and the Copilot always-on instruction
 
 EDITOR (default: both):
-  both     Cursor + Copilot + Claude (rules still Cursor-only)
+  both     Cursor + Copilot + Claude (Claude gets skills and agents only)
   cursor   Cursor paths only
   copilot  Copilot paths only
   claude   Claude Code paths only
@@ -42,6 +43,7 @@ Examples:
   bash scripts/install_library.sh skills
   bash scripts/install_library.sh agents cursor global
   bash scripts/install_library.sh rules cursor
+  bash scripts/install_library.sh rules copilot
   bash scripts/install_library.sh all both project
 EOF
 }
@@ -234,6 +236,27 @@ install_cursor_rules() {
   done
 }
 
+install_copilot_instructions() {
+  if [[ "$EDITOR" != "both" && "$EDITOR" != "copilot" ]]; then
+    echo "Skip Copilot always-on instructions (EDITOR=$EDITOR)"
+    return 0
+  fi
+  if [[ "$SCOPE" != "global" ]]; then
+    echo "Skip Copilot always-on instructions (project scope does not write .github/copilot-instructions.md)"
+    return 0
+  fi
+  local src dest
+  src="${REPO}/user-rules/copilot/copilot-instructions.md"
+  dest="${HOME}/.copilot/copilot-instructions.md"
+  if [[ ! -f "$src" ]]; then
+    echo "Missing Copilot always-on source: ${src}" >&2
+    exit 1
+  fi
+  mkdir -p "${HOME}/.copilot"
+  rm -f "$dest"
+  cp -a "$src" "$dest"
+}
+
 install_agents() {
   for name in $AGENT_BUNDLE; do
     if [[ ! -d "${REPO}/agents/${name}" ]]; then
@@ -270,10 +293,14 @@ case "$WHAT" in
     install_skills
     install_agents
     install_cursor_rules
+    install_copilot_instructions
     ;;
   skills) install_skills ;;
   agents) install_agents ;;
-  rules) install_cursor_rules ;;
+  rules)
+    install_cursor_rules
+    install_copilot_instructions
+    ;;
 esac
 
 verify_skills_at() {
@@ -322,6 +349,19 @@ verify_claude_agents() {
   test -f "${dir}/security-auditor.md" || return 1
   grep -q 'permissionMode: plan' "${dir}/code-review.md" || return 1
   grep -q 'permissionMode: plan' "${dir}/security-auditor.md" || return 1
+}
+
+verify_copilot_instructions() {
+  local dest src
+  dest="${HOME}/.copilot/copilot-instructions.md"
+  src="${REPO}/user-rules/copilot/copilot-instructions.md"
+  test -f "$dest" || return 1
+  cmp -s "$src" "$dest" || return 1
+  grep -q '/tmp/<topic>-handoff.md' "$dest" || return 1
+  grep -q 'Applies in every VS Code Copilot chat.' "$dest" || return 1
+  if grep -q 'alwaysApply' "$dest"; then
+    return 1
+  fi
 }
 
 verify_cursor_rules() {
@@ -376,6 +416,11 @@ verify() {
         :
       else
         verify_cursor_rules "$(cursor_rules_dir)" || ok=1
+      fi
+    fi
+    if [[ "$EDITOR" == "both" || "$EDITOR" == "copilot" ]]; then
+      if [[ "$SCOPE" == "global" ]]; then
+        verify_copilot_instructions || ok=1
       fi
     fi
   fi
