@@ -35,7 +35,7 @@ Use partial installs **only** when the user explicitly asks:
 - Skills: `<repo>/skills/<name>/`
 - Agents: `<repo>/agents/<name>/` (assembled to a single `.md` at install)
 - Cursor user-global rules: `<repo>/user-rules/cursor/<name>.mdc`
-- Copilot always-on instruction: `<repo>/user-rules/copilot/copilot-instructions.md`
+- Copilot always-on fragments: `<repo>/user-rules/copilot/{response-style,edit-scope,review-handoff}.md` (concatenated to `~/.copilot/copilot-instructions.md`)
 
 **Cursor global install targets:**
 
@@ -55,9 +55,10 @@ Do **not** copy skills into `<repo>/.cursor/skills/`, agents into `<repo>/.curso
 SKILL_BUNDLE="excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document verification-before-completion newagentlink api-and-interface-design deprecation-and-migration github-markdown terraform-commit-review terraform-apply-assistance security-audit _shared"
 EDITOR_VARIANT_SKILLS="mcp-tool-rules context7-docs notion-mcp-ops"
 AGENT_BUNDLE="code-review security-auditor"
-CURSOR_RULE_BUNDLE="review-handoff-reconciliation response-and-edit-scope"
+CURSOR_RULE_BUNDLE="review-handoff-reconciliation response-style edit-scope"
+COPILOT_INSTRUCTION_FRAGMENTS="response-style edit-scope review-handoff"
 LEGACY_SKILLS="docx pptx xlsx pdf terraform-apply-fix-review mcp-tool-rules-copilot handoff"
-LEGACY_CURSOR_RULES="code-review-handoff"
+LEGACY_CURSOR_RULES="code-review-handoff response-and-edit-scope"
 ```
 
 - **New** skill, agent, or Cursor user-global rule → add to the matching bundle and install target.
@@ -96,17 +97,23 @@ grep -q 'readonly: true' ~/.cursor/agents/code-review.md
 grep -q 'readonly: true' ~/.cursor/agents/security-auditor.md
 test -f ~/.cursor/rules/review-handoff-reconciliation.mdc
 grep -q 'alwaysApply: true' ~/.cursor/rules/review-handoff-reconciliation.mdc
-test -f ~/.cursor/rules/response-and-edit-scope.mdc
-grep -q 'alwaysApply: true' ~/.cursor/rules/response-and-edit-scope.mdc
+test -f ~/.cursor/rules/response-style.mdc
+grep -q 'alwaysApply: true' ~/.cursor/rules/response-style.mdc
+test -f ~/.cursor/rules/edit-scope.mdc
+grep -q 'alwaysApply: true' ~/.cursor/rules/edit-scope.mdc
 test ! -f ~/.cursor/rules/code-review-handoff.mdc
+test ! -f ~/.cursor/rules/response-and-edit-scope.mdc
 cmp -s user-rules/cursor/review-handoff-reconciliation.mdc ~/.cursor/rules/review-handoff-reconciliation.mdc
-cmp -s user-rules/cursor/response-and-edit-scope.mdc ~/.cursor/rules/response-and-edit-scope.mdc
+cmp -s user-rules/cursor/response-style.mdc ~/.cursor/rules/response-style.mdc
+cmp -s user-rules/cursor/edit-scope.mdc ~/.cursor/rules/edit-scope.mdc
 test -f ~/.copilot/copilot-instructions.md
 grep -q 'Applies in every VS Code Copilot chat.' ~/.copilot/copilot-instructions.md
 grep -q '/tmp/<topic>-handoff.md' ~/.copilot/copilot-instructions.md
-grep -q '## R1. Response format' ~/.copilot/copilot-instructions.md
+grep -q '# Response style' ~/.copilot/copilot-instructions.md
+grep -q '# Edit scope' ~/.copilot/copilot-instructions.md
+grep -q '# Review handoff' ~/.copilot/copilot-instructions.md
 ! grep -q 'alwaysApply' ~/.copilot/copilot-instructions.md
-cmp -s user-rules/copilot/copilot-instructions.md ~/.copilot/copilot-instructions.md
+cmp -s <(printf '%s\n\n%s\n\n%s\n' "$(cat user-rules/copilot/response-style.md)" "$(cat user-rules/copilot/edit-scope.md)" "$(cat user-rules/copilot/review-handoff.md)") ~/.copilot/copilot-instructions.md
 cd skills/_shared/office-tools && uv run python3 office_tools.py --help >/dev/null
 command -v soffice >/dev/null
 command -v pdftoppm >/dev/null

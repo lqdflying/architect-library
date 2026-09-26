@@ -24,8 +24,11 @@ test -f "$REPO/skills/excalidraw-diagram/SKILL.md" && \
 test -f "$REPO/skills/word-document/SKILL.md" && \
 test -f "$REPO/agents/code-review/INSTRUCTIONS.md" && \
 test -f "$REPO/user-rules/cursor/review-handoff-reconciliation.mdc" && \
-test -f "$REPO/user-rules/cursor/response-and-edit-scope.mdc" && \
-test -f "$REPO/user-rules/copilot/copilot-instructions.md" && \
+test -f "$REPO/user-rules/cursor/response-style.mdc" && \
+test -f "$REPO/user-rules/cursor/edit-scope.mdc" && \
+test -f "$REPO/user-rules/copilot/response-style.md" && \
+test -f "$REPO/user-rules/copilot/edit-scope.md" && \
+test -f "$REPO/user-rules/copilot/review-handoff.md" && \
 test -f "$REPO/scripts/install_library.sh" && \
 test -f "$REPO/skills/_shared/office-tools/office_tools.py" && \
 echo "OK: repo layout valid"
@@ -84,4 +87,4 @@ bash /home/opc/architect-library/scripts/runtime_readiness.sh
 - Skills: `skills/` → `~/.copilot/skills/`
 - Agents: `agents/` → `~/.copilot/agents/`
 - Cursor user-global rules (`user-rules/cursor/`) install to `~/.cursor/rules/`
-- Copilot always-on instructions (`user-rules/copilot/copilot-instructions.md`) install to `~/.copilot/copilot-instructions.md` on a global Copilot install
+- Copilot always-on fragments (`user-rules/copilot/{response-style,edit-scope,review-handoff}.md`) concatenate to `~/.copilot/copilot-instructions.md` on a global Copilot install

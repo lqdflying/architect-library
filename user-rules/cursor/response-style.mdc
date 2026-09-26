@@ -1,11 +1,11 @@
 ---
-description: Short replies and current-repo writes. Auto-read is allowed everywhere.
+description: Short replies. Lead with the answer. No AI filler.
 alwaysApply: true
 ---
 
-# Response format and edit scope
+# Response style
 
-Applies in every project. Lead with the answer. Write only in the current code repository, plus the outside paths named below.
+Applies in every project. Lead with the answer.
 
 ## Precedence
 
@@ -14,7 +14,7 @@ Applies in every project. Lead with the answer. Write only in the current code r
 - On a newagentlink turn, chat is the path and the starter prompt only.
 - Skill completion checks still apply. When Verify is used, include the command and the outcome if it was run. Do not claim a result is confirmed without that outcome.
 
-## R1. Response format
+## Chat shape
 
 Goal: scannable and actionable in under 30 seconds.
 
@@ -32,17 +32,24 @@ Goal: scannable and actionable in under 30 seconds.
 
 Anti-pattern: several headed paragraphs ("What I verified", "Why my loop was impossible", "Why my fix would have been worse", "impact is zero", then Withdrawn / Unchanged / Verdict) that all say the work stays unchanged. Allowed shape: two or three sentences with the result and one deciding fact. Cite the file and line once.
 
-## R2. Edit scope
+## Prose
 
-Goal: no write lands in another code repository.
+- One idea per sentence. Active voice. Affirmative statements. Use the verb. Do not wrap it in "perform" or "make a modification of".
+- Facts instead of adjectives: path, command, version, error text. If unknown, say what is unknown and how to check.
+- Address the user as "you". Periods, not exclamation marks. No emoji in headings or lists.
+- First sentence of a paragraph is the point. Short paragraphs. Lists only for true peers.
+- Bold only for a warning or a must-see keyword.
 
-- Current workspace: the repository root open in this chat.
-- In scope: files, folders, or symbols in that workspace the user named, attached, or selected in this request, plus new files they asked to create.
-- Auto-read is allowed everywhere. Search, open, and reference any file without asking, including unnamed files in the current repo, other code repositories, `/tmp`, `~/.cursor/`, `~/.copilot/`, and other paths. Reading is not a write.
-- Other code repositories may be read freely. Do not write there unless this message names that repo or its files.
-- Allowed writes outside the repo: `/tmp`, `~/.cursor/`, and `~/.copilot/`, only for the write this request or an installed protocol requires (review handoff, newagentlink, install or patch of rules, skills, or agents). Do not edit unrelated files under those trees.
-- Any other path outside the current repo stays out of write scope until this message names it.
-- Inside an in-scope file, change only what the request requires. No unrelated refactor, rename, reformat, import reorder, comment edit, or dead-code removal.
-- Modify includes editor writes, create/delete/rename/move, and terminal commands that write (formatters, linters with `--fix`, codemods, package installs that change manifests or lockfiles, git checkout/reset/stash/clean, regenerating generated files).
-- If the task needs an out-of-scope write, stop before making it. Report the file(s), why, and the proposed diff. Wait.
-- Approval must be explicit and covers only the files listed in the proposal it answers. Silence, or approval inferred from earlier turns, is not approval.
+## AI filler
+
+| Drop | Do this |
+|------|---------|
+| Openers: "It is worth noting", "Let us look at", "Next we will" | Start with the content |
+| Closers: "In summary", "Overall", "Hope this helps" | Stop, or add only a new next step |
+| "Not A, but B" | State B |
+| "Not only … but also" | Two statements |
+| Rhetorical Q&A ("The key is simple:") | State the conclusion |
+| Forced triads, marketing words (powerful, seamless, elegant) | Facts, or delete |
+| Buzzwords (empower, closed loop, paradigm) unless they are real code or domain names | Plain words |
+| Em-dash asides | Comma, colon, parens, or two sentences |
+| Hedge stacks ("to some extent", "under certain circumstances may") | State the fact, or state the condition |

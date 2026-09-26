@@ -16,7 +16,7 @@ Write **one** markdown file a **new** agent can read **once** and then discard.
 This is **not** a living ledger. It is **not** the review protocol in
 `user-rules/cursor/review-handoff-reconciliation.mdc` (installed as
 `~/.cursor/rules/review-handoff-reconciliation.mdc`) or
-`user-rules/copilot/copilot-instructions.md` (installed as
+`user-rules/copilot/review-handoff.md` (concatenated into
 `~/.copilot/copilot-instructions.md`). Those files are updated
 across reviewer/fixer rounds and write `/tmp/<topic>-handoff.md`.
 `/newagentlink` is a **single snapshot** for starting a new session.

@@ -67,11 +67,11 @@ Update **agent guidance**:
 
 ## Copilot always-on instruction
 
-Source: `user-rules/copilot/copilot-instructions.md`. Plain Markdown. No `alwaysApply` frontmatter — `~/.copilot/copilot-instructions.md` is the always-on path for Copilot Agent Host chats.
+Sources: `user-rules/copilot/response-style.md`, `user-rules/copilot/edit-scope.md`, and `user-rules/copilot/review-handoff.md`. Plain Markdown. No `alwaysApply` frontmatter. Install concatenates them, in that order, to `~/.copilot/copilot-instructions.md`.
 
 - [ ] Keep the ledger protocol aligned with `user-rules/cursor/review-handoff-reconciliation.mdc`
-- [ ] Opening line says it applies in every VS Code Copilot chat
-- [ ] [scripts/install_library.sh](../scripts/install_library.sh) copies that file on global `copilot` or `both` rules install
+- [ ] Each fragment says it applies in every VS Code Copilot chat
+- [ ] [scripts/install_library.sh](../scripts/install_library.sh) concatenates the fragments on global `copilot` or `both` rules install
 - [ ] Project scope does not write `.github/copilot-instructions.md`
 - [ ] Run `bash scripts/install_library.sh rules copilot`
 

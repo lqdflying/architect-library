@@ -13,10 +13,11 @@ source "$REPO/scripts/architect_env.sh"
 SKILL_BUNDLE="excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document verification-before-completion newagentlink api-and-interface-design deprecation-and-migration github-markdown terraform-commit-review terraform-apply-assistance security-audit _shared"
 EDITOR_VARIANT_SKILLS="mcp-tool-rules context7-docs notion-mcp-ops"
 AGENT_BUNDLE="code-review security-auditor"
-CURSOR_RULE_BUNDLE="review-handoff-reconciliation response-and-edit-scope"
+CURSOR_RULE_BUNDLE="review-handoff-reconciliation response-style edit-scope"
+COPILOT_INSTRUCTION_FRAGMENTS="response-style edit-scope review-handoff"
 
 LEGACY_SKILLS="docx pptx xlsx pdf terraform-apply-fix-review mcp-tool-rules-copilot handoff"
-LEGACY_CURSOR_RULES="code-review-handoff"
+LEGACY_CURSOR_RULES="code-review-handoff response-and-edit-scope"
 
 usage() {
   cat <<'EOF'
@@ -236,6 +237,25 @@ install_cursor_rules() {
   done
 }
 
+assemble_copilot_instructions() {
+  local dest="$1"
+  local name src first=1
+  for name in $COPILOT_INSTRUCTION_FRAGMENTS; do
+    src="${REPO}/user-rules/copilot/${name}.md"
+    if [[ ! -f "$src" ]]; then
+      echo "Missing Copilot instruction fragment: ${src}" >&2
+      return 1
+    fi
+    if [[ "$first" -eq 1 ]]; then
+      cat "$src" > "$dest"
+      first=0
+    else
+      printf '\n' >> "$dest"
+      cat "$src" >> "$dest"
+    fi
+  done
+}
+
 install_copilot_instructions() {
   if [[ "$EDITOR" != "both" && "$EDITOR" != "copilot" ]]; then
     echo "Skip Copilot always-on instructions (EDITOR=$EDITOR)"
@@ -245,16 +265,11 @@ install_copilot_instructions() {
     echo "Skip Copilot always-on instructions (project scope does not write .github/copilot-instructions.md)"
     return 0
   fi
-  local src dest
-  src="${REPO}/user-rules/copilot/copilot-instructions.md"
+  local dest
   dest="${HOME}/.copilot/copilot-instructions.md"
-  if [[ ! -f "$src" ]]; then
-    echo "Missing Copilot always-on source: ${src}" >&2
-    exit 1
-  fi
   mkdir -p "${HOME}/.copilot"
   rm -f "$dest"
-  cp -a "$src" "$dest"
+  assemble_copilot_instructions "$dest" || exit 1
 }
 
 install_agents() {
@@ -352,14 +367,21 @@ verify_claude_agents() {
 }
 
 verify_copilot_instructions() {
-  local dest src
+  local dest expected name
   dest="${HOME}/.copilot/copilot-instructions.md"
-  src="${REPO}/user-rules/copilot/copilot-instructions.md"
-  test -f "$dest" || return 1
-  cmp -s "$src" "$dest" || return 1
+  expected="$(mktemp)"
+  assemble_copilot_instructions "$expected" || { rm -f "$expected"; return 1; }
+  test -f "$dest" || { rm -f "$expected"; return 1; }
+  cmp -s "$expected" "$dest" || { rm -f "$expected"; return 1; }
+  rm -f "$expected"
+  for name in $COPILOT_INSTRUCTION_FRAGMENTS; do
+    test -f "${REPO}/user-rules/copilot/${name}.md" || return 1
+  done
   grep -q '/tmp/<topic>-handoff.md' "$dest" || return 1
   grep -q 'Applies in every VS Code Copilot chat.' "$dest" || return 1
-  grep -q '## R1. Response format' "$dest" || return 1
+  grep -q '# Response style' "$dest" || return 1
+  grep -q '# Edit scope' "$dest" || return 1
+  grep -q '# Review handoff' "$dest" || return 1
   if grep -q 'alwaysApply' "$dest"; then
     return 1
   fi

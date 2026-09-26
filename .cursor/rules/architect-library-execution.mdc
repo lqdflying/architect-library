@@ -48,23 +48,31 @@ Applies when the user invokes a custom agent or you test agent behavior in this 
 
 After editing `agents/`, run `bash scripts/install_library.sh agents cursor` so global `~/.cursor/agents/` matches repo source.
 After editing `user-rules/cursor/`, run `bash scripts/install_library.sh rules cursor` so `~/.cursor/rules/` matches repo source.
-After editing `user-rules/copilot/`, run `bash scripts/install_library.sh rules copilot` so `~/.copilot/copilot-instructions.md` matches repo source.
+After editing `user-rules/copilot/`, run `bash scripts/install_library.sh rules copilot` so `~/.copilot/copilot-instructions.md` is rebuilt from the Copilot fragments.
 
 ## Review handoff (user-global protocol)
 
-Canonical sources: `user-rules/cursor/review-handoff-reconciliation.mdc` (installs to `~/.cursor/rules/`) and `user-rules/copilot/copilot-instructions.md` (installs to `~/.copilot/copilot-instructions.md`). Do not duplicate the body here.
+Canonical sources: `user-rules/cursor/review-handoff-reconciliation.mdc` (installs to `~/.cursor/rules/`) and `user-rules/copilot/review-handoff.md` (concatenated into `~/.copilot/copilot-instructions.md`). Do not duplicate the body here.
 
 | Work | Done when |
 |------|-----------|
 | **review-handoff** | `/tmp/<topic>-handoff.md` **appended** this turn (no full-file overwrite, truncate, or delete of prior rounds; surgical header Status/Must fix only); dispositions used (FIX / DEFER / KEEP / DO NOT APPLY / FIXED / RECONCILED); chat points at the path; reviewer does not mutate the review repo (only the `/tmp` handoff). Distinct from `newagentlink` (`/tmp/<topic>-newagentlink.md`). |
 
-## Response format and edit scope (user-global protocol)
+## Response style (user-global protocol)
 
-Canonical sources: `user-rules/cursor/response-and-edit-scope.mdc` (installs to `~/.cursor/rules/`) and the matching section at the top of `user-rules/copilot/copilot-instructions.md`. Do not duplicate the body here.
+Canonical sources: `user-rules/cursor/response-style.mdc` (installs to `~/.cursor/rules/`) and `user-rules/copilot/response-style.md` (concatenated into `~/.copilot/copilot-instructions.md`). Do not duplicate the body here.
 
 | Work | Done when |
 |------|-----------|
-| **response-and-edit-scope** | Reply uses only Result, Changes, Verify, and Open Items that have content; one conclusion; writes stay in the current repo except `/tmp`, `~/.cursor/`, and `~/.copilot/` when this request or an installed protocol requires that write. |
+| **response-style** | Reply uses only Result, Changes, Verify, and Open Items that have content; one conclusion; no AI filler. |
+
+## Edit scope (user-global protocol)
+
+Canonical sources: `user-rules/cursor/edit-scope.mdc` (installs to `~/.cursor/rules/`) and `user-rules/copilot/edit-scope.md` (concatenated into `~/.copilot/copilot-instructions.md`). Do not duplicate the body here.
+
+| Work | Done when |
+|------|-----------|
+| **edit-scope** | Writes stay in the current repo except `/tmp`, `~/.cursor/`, and `~/.copilot/` when this request or an installed protocol requires that write. |
 
 ## Dependencies
 

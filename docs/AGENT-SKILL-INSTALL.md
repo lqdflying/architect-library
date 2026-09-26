@@ -76,18 +76,19 @@ Agents install as single `.md` files (assembled from header + `INSTRUCTIONS.md`)
 
 ### Cursor user-global rules (`user-rules/cursor/`)
 
-Installed to `~/.cursor/rules/<name>.mdc` (not the Cursor Settings → Customize → Rules text box, and not this repo’s maintainer `.cursor/rules/`). One protocol: edit the repo file; the host file is an install copy. Install also removes leftover `code-review-handoff.mdc`.
+Installed to `~/.cursor/rules/<name>.mdc` (not the Cursor Settings → Customize → Rules text box, and not this repo’s maintainer `.cursor/rules/`). One protocol: edit the repo file; the host file is an install copy. Install also removes leftover `code-review-handoff.mdc` and `response-and-edit-scope.mdc`.
 
 | File | Purpose |
 |------|---------|
 | `review-handoff-reconciliation.mdc` | `/tmp/<topic>-handoff.md` ledger; dispositions FIX / DEFER / KEEP / DO NOT APPLY / FIXED / RECONCILED; reviewer writes, fixer validates and appends, loop until reconciled. **Append-only** — no full-file overwrite, truncate, or delete of prior rounds; surgical header Status/Must fix only. Distinct from the `newagentlink` skill (`/tmp/<topic>-newagentlink.md`). |
-| `response-and-edit-scope.mdc` | Short replies (Result, Changes, Verify, Open Items only when they have content; one conclusion). Writes stay in the current repo. Auto-read is allowed everywhere. `/tmp`, `~/.cursor/`, and `~/.copilot/` may be written when this request or an installed protocol requires that write. The same rules are the opening section of `user-rules/copilot/copilot-instructions.md`. |
+| `response-style.mdc` | Short replies (Result, Changes, Verify, Open Items only when they have content; one conclusion; no AI filler). Matching Copilot fragment: `user-rules/copilot/response-style.md`. |
+| `edit-scope.mdc` | Writes stay in the current repo. Auto-read is allowed everywhere. `/tmp`, `~/.cursor/`, and `~/.copilot/` may be written when this request or an installed protocol requires that write. Matching Copilot fragment: `user-rules/copilot/edit-scope.md`. |
 
 ### Copilot always-on instruction (`user-rules/copilot/`)
 
-Global Copilot install copies `user-rules/copilot/copilot-instructions.md` to `~/.copilot/copilot-instructions.md`. That path is the personal always-on file for Copilot Agent Host chats. It has no `alwaysApply` frontmatter. Project-scope install does not write `.github/copilot-instructions.md`.
+Global Copilot install concatenates `response-style.md`, `edit-scope.md`, and `review-handoff.md` into `~/.copilot/copilot-instructions.md`. That path is the personal always-on file for Copilot Agent Host chats. Fragments have no `alwaysApply` frontmatter. Project-scope install does not write `.github/copilot-instructions.md`.
 
-**Source of truth:** `<repo>/skills/<name>/`, `<repo>/agents/<name>/`, `<repo>/user-rules/cursor/<name>.mdc`, and `<repo>/user-rules/copilot/copilot-instructions.md`  
+**Source of truth:** `<repo>/skills/<name>/`, `<repo>/agents/<name>/`, `<repo>/user-rules/cursor/<name>.mdc`, and `<repo>/user-rules/copilot/{response-style,edit-scope,review-handoff}.md`  
 **Do not** copy into `<repo>/.cursor/skills/`, `<repo>/.cursor/agents/`, or `<repo>/.cursor/rules/` — use `install_library.sh`.
 
 ---
@@ -104,8 +105,11 @@ test -f "$REPO/skills/excalidraw-diagram/SKILL.md" && \
 test -f "$REPO/skills/word-document/SKILL.md" && \
 test -f "$REPO/agents/code-review/INSTRUCTIONS.md" && \
 test -f "$REPO/user-rules/cursor/review-handoff-reconciliation.mdc" && \
-test -f "$REPO/user-rules/cursor/response-and-edit-scope.mdc" && \
-test -f "$REPO/user-rules/copilot/copilot-instructions.md" && \
+test -f "$REPO/user-rules/cursor/response-style.mdc" && \
+test -f "$REPO/user-rules/cursor/edit-scope.mdc" && \
+test -f "$REPO/user-rules/copilot/response-style.md" && \
+test -f "$REPO/user-rules/copilot/edit-scope.md" && \
+test -f "$REPO/user-rules/copilot/review-handoff.md" && \
 test -f "$REPO/scripts/install_library.sh" && \
 test -f "$REPO/skills/_shared/office-tools/office_tools.py" && \
 echo "OK: repo layout valid"
@@ -219,17 +223,23 @@ test -f ~/.cursor/agents/security-auditor.md && echo "OK: security-auditor"
 grep -q 'readonly: true' ~/.cursor/agents/security-auditor.md && echo "OK: security-auditor readonly"
 test -f ~/.cursor/rules/review-handoff-reconciliation.mdc && echo "OK: cursor user-global rules"
 grep -q 'alwaysApply: true' ~/.cursor/rules/review-handoff-reconciliation.mdc && echo "OK: review-handoff alwaysApply"
-test -f ~/.cursor/rules/response-and-edit-scope.mdc && echo "OK: response-and-edit-scope"
-grep -q 'alwaysApply: true' ~/.cursor/rules/response-and-edit-scope.mdc && echo "OK: response-and-edit-scope alwaysApply"
+test -f ~/.cursor/rules/response-style.mdc && echo "OK: response-style"
+grep -q 'alwaysApply: true' ~/.cursor/rules/response-style.mdc && echo "OK: response-style alwaysApply"
+test -f ~/.cursor/rules/edit-scope.mdc && echo "OK: edit-scope"
+grep -q 'alwaysApply: true' ~/.cursor/rules/edit-scope.mdc && echo "OK: edit-scope alwaysApply"
 test ! -f ~/.cursor/rules/code-review-handoff.mdc && echo "OK: legacy code-review-handoff.mdc absent"
+test ! -f ~/.cursor/rules/response-and-edit-scope.mdc && echo "OK: legacy response-and-edit-scope.mdc absent"
 cmp -s /path/to/architect-library/user-rules/cursor/review-handoff-reconciliation.mdc ~/.cursor/rules/review-handoff-reconciliation.mdc && echo "OK: host rule matches repo source"
-cmp -s /path/to/architect-library/user-rules/cursor/response-and-edit-scope.mdc ~/.cursor/rules/response-and-edit-scope.mdc && echo "OK: response-and-edit-scope matches repo source"
+cmp -s /path/to/architect-library/user-rules/cursor/response-style.mdc ~/.cursor/rules/response-style.mdc && echo "OK: response-style matches repo source"
+cmp -s /path/to/architect-library/user-rules/cursor/edit-scope.mdc ~/.cursor/rules/edit-scope.mdc && echo "OK: edit-scope matches repo source"
 test -f ~/.copilot/copilot-instructions.md && echo "OK: copilot always-on instruction"
 grep -q 'Applies in every VS Code Copilot chat.' ~/.copilot/copilot-instructions.md && echo "OK: copilot handoff opening"
 grep -q '/tmp/<topic>-handoff.md' ~/.copilot/copilot-instructions.md && echo "OK: copilot handoff ledger path"
-grep -q '## R1. Response format' ~/.copilot/copilot-instructions.md && echo "OK: copilot response format"
+grep -q '# Response style' ~/.copilot/copilot-instructions.md && echo "OK: copilot response style"
+grep -q '# Edit scope' ~/.copilot/copilot-instructions.md && echo "OK: copilot edit scope"
+grep -q '# Review handoff' ~/.copilot/copilot-instructions.md && echo "OK: copilot review handoff"
 ! grep -q 'alwaysApply' ~/.copilot/copilot-instructions.md && echo "OK: copilot file has no alwaysApply"
-cmp -s /path/to/architect-library/user-rules/copilot/copilot-instructions.md ~/.copilot/copilot-instructions.md && echo "OK: copilot instruction matches repo source"
+cmp -s <(printf '%s\n\n%s\n\n%s\n' "$(cat /path/to/architect-library/user-rules/copilot/response-style.md)" "$(cat /path/to/architect-library/user-rules/copilot/edit-scope.md)" "$(cat /path/to/architect-library/user-rules/copilot/review-handoff.md)") ~/.copilot/copilot-instructions.md && echo "OK: copilot instruction matches fragments"
 find ~/.cursor/skills -maxdepth 2 -name .git -type d   # expect no output
 cd /path/to/architect-library/skills/_shared/office-tools && uv run python3 office_tools.py --help >/dev/null && echo "OK: office tools"
 command -v soffice >/dev/null && command -v pdftoppm >/dev/null && echo "OK: office-system"
@@ -345,6 +355,7 @@ Do not run `install_deps.sh` inside `~/.cursor/skills/` — run from the **repos
 | Copy repo into `~/.cursor/skills/` | Wrong layout |
 | Copy `user-rules/` into `repo/.cursor/rules/` | Maintainer rules and user-global rules are different sources |
 | Leave `~/.cursor/rules/code-review-handoff.mdc` after install | Two `alwaysApply` review protocols load — install must delete the legacy name |
+| Leave `~/.cursor/rules/response-and-edit-scope.mdc` after install | Old combined rule overlaps `response-style.mdc` and `edit-scope.mdc` — install must delete the legacy name |
 | Leave `~/.cursor/skills/handoff` or `~/.cursor/commands/handoff.md` after install | Old continuation skill/command collides with `newagentlink` — install must delete both and install `~/.cursor/commands/newagentlink.md` |
 | Install to all editors from one agent | Pollutes unused paths — scope to your editor |
 | Edit `agents/` without running install | Global agents stale |
