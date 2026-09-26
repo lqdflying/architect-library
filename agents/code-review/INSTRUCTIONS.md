@@ -231,11 +231,11 @@ File: [`filename`](path#LNN)
 
 ## 10. Review handoff ledger
 
-When the invocation is a review, audit, check, or reconcile of a commit, diff, branch, file, or PR, also maintain the durable ledger at `/tmp/<short-topic>-handoff.md` per the review-handoff protocol. Cursor loads it from `~/.cursor/rules/review-handoff-reconciliation.mdc`. VS Code Copilot loads it from `~/.copilot/copilot-instructions.md`.
+When the invocation is a review, audit, check, or reconcile of a commit, diff, branch, file, or PR, also maintain the durable ledger at `/tmp/<short-topic>-handoff.md` per the `review-handoff` skill (`~/.cursor/skills/review-handoff/SKILL.md` in Cursor, `~/.copilot/skills/review-handoff/SKILL.md` in VS Code Copilot). Read that skill before writing the ledger.
 
 **Exception to read-only:** writing `/tmp/*-handoff.md` is allowed. The **source tree remains untouchable**.
 
-Append-only mechanics (same as the user-global rule):
+Append-only mechanics (same as the `review-handoff` skill):
 
 - **Create** the path only when it does not exist yet
 - **Append** a labeled `## Round — …` section each turn; never full-file rewrite, truncate, `rm` + recreate, or `-v2` replacement files

@@ -67,9 +67,12 @@ Update **agent guidance**:
 
 ## Copilot always-on instruction
 
-Sources: `user-rules/copilot/response-style.md`, `user-rules/copilot/edit-scope.md`, and `user-rules/copilot/review-handoff.md`. Plain Markdown. No `alwaysApply` frontmatter. Install concatenates them, in that order, to `~/.copilot/copilot-instructions.md`.
+Fragments: `user-rules/copilot/response-style.md`, `user-rules/copilot/edit-scope.md`, and `user-rules/copilot/review-handoff.md`. Plain Markdown. No `alwaysApply` frontmatter. Install concatenates them, in that order, to `~/.copilot/copilot-instructions.md`.
 
-- [ ] Keep the ledger protocol aligned with `user-rules/cursor/review-handoff-reconciliation.mdc`
+The fragments are generated. Edit the Cursor source in `user-rules/cursor/`, then run `bash scripts/sync_copilot_rules.sh`. Install verify runs `--check` and fails on drift.
+
+- [ ] New fragment: add the `cursor:copilot` name pair to `PAIRS` in [scripts/sync_copilot_rules.sh](../scripts/sync_copilot_rules.sh) and the name to `COPILOT_INSTRUCTION_FRAGMENTS`
+- [ ] Review handoff: edit the protocol in `skills/review-handoff/SKILL.md`; `review-handoff-reconciliation.mdc` stays a short trigger that points at it
 - [ ] Each fragment says it applies in every VS Code Copilot chat
 - [ ] [scripts/install_library.sh](../scripts/install_library.sh) concatenates the fragments on global `copilot` or `both` rules install
 - [ ] Project scope does not write `.github/copilot-instructions.md`

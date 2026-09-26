@@ -11,7 +11,8 @@ REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$REPO/scripts/architect_env.sh"
 
 SKILL_BUNDLE="excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document verification-before-completion newagentlink api-and-interface-design deprecation-and-migration github-markdown terraform-commit-review terraform-apply-assistance security-audit _shared"
-EDITOR_VARIANT_SKILLS="mcp-tool-rules context7-docs notion-mcp-ops"
+# Cursor + Copilot only (never Claude). SKILL.<editor>.md wins; otherwise the shared SKILL.md ships.
+EDITOR_VARIANT_SKILLS="mcp-tool-rules context7-docs notion-mcp-ops review-handoff"
 AGENT_BUNDLE="code-review security-auditor"
 CURSOR_RULE_BUNDLE="review-handoff-reconciliation response-style edit-scope"
 COPILOT_INSTRUCTION_FRAGMENTS="response-style edit-scope review-handoff"
@@ -125,7 +126,9 @@ install_editor_variants() {
   for name in $EDITOR_VARIANT_SKILLS; do
     rm -rf "${dest}/${name}"
     cp -a "${REPO}/skills/${name}" "${dest}/${name}"
-    mv "${dest}/${name}/SKILL.${editor}.md" "${dest}/${name}/SKILL.md"
+    if [[ -f "${dest}/${name}/SKILL.${editor}.md" ]]; then
+      mv "${dest}/${name}/SKILL.${editor}.md" "${dest}/${name}/SKILL.md"
+    fi
     # Remove all remaining variant files (SKILL.*.md) so only SKILL.md stays
     find "${dest}/${name}" -maxdepth 1 -name 'SKILL.*.md' -delete
   done
@@ -387,6 +390,16 @@ verify_copilot_instructions() {
   fi
 }
 
+# The always-on review-handoff trigger points at this skill; a rules-only install needs it present.
+verify_review_handoff_skill() {
+  local dir="$1"
+  local editor="$2"
+  if [[ ! -f "${dir}/review-handoff/SKILL.md" ]]; then
+    echo "Missing ${dir}/review-handoff/SKILL.md (run: bash scripts/install_library.sh skills ${editor})" >&2
+    return 1
+  fi
+}
+
 verify_cursor_rules() {
   local dir="$1"
   local name legacy
@@ -434,16 +447,19 @@ verify() {
     fi
   fi
   if [[ "$WHAT" == "all" || "$WHAT" == "rules" ]]; then
+    bash "${REPO}/scripts/sync_copilot_rules.sh" --check || ok=1
     if [[ "$EDITOR" == "both" || "$EDITOR" == "cursor" ]]; then
       if skip_cursor_rules_into_repo; then
         :
       else
         verify_cursor_rules "$(cursor_rules_dir)" || ok=1
+        verify_review_handoff_skill "$(cursor_skills_dir)" cursor || ok=1
       fi
     fi
     if [[ "$EDITOR" == "both" || "$EDITOR" == "copilot" ]]; then
       if [[ "$SCOPE" == "global" ]]; then
         verify_copilot_instructions || ok=1
+        verify_review_handoff_skill "$(copilot_skills_dir)" copilot || ok=1
       fi
     fi
   fi

@@ -52,6 +52,7 @@ Architect Library publishes **two libraries** plus **Cursor user-global rules**:
 | `pdf-document` | Cursor/Copilot skill | If PDF work is needed |
 | `verification-before-completion` | Cursor/Copilot skill | Evidence before completion claims; required by artifact skills at delivery |
 | `newagentlink` | Cursor/Copilot skill | One-shot `/tmp/<topic>-newagentlink.md` for a new agent chat; not the review ledger |
+| `review-handoff` | Cursor + Copilot only (on demand) | Review and fix ledger protocol at `/tmp/<topic>-handoff.md`; read when the always-on `review-handoff` trigger fires |
 | `api-and-interface-design` | Cursor/Copilot skill | API and module boundary design workflow |
 | `github-markdown` | Cursor/Copilot skill | GitHub Flavored Markdown for READMEs, issues, PRs, discussions, wikis, and repo docs |
 | `deprecation-and-migration` | Cursor/Copilot skill | Deprecation and migration planning workflow |
@@ -80,13 +81,13 @@ Installed to `~/.cursor/rules/<name>.mdc` (not the Cursor Settings → Customize
 
 | File | Purpose |
 |------|---------|
-| `review-handoff-reconciliation.mdc` | `/tmp/<topic>-handoff.md` ledger; dispositions FIX / DEFER / KEEP / DO NOT APPLY / FIXED / RECONCILED; reviewer writes, fixer validates and appends, loop until reconciled. **Append-only** — no full-file overwrite, truncate, or delete of prior rounds; surgical header Status/Must fix only. Distinct from the `newagentlink` skill (`/tmp/<topic>-newagentlink.md`). |
-| `response-style.mdc` | Short replies (Result, Changes, Verify, Open Items only when they have content; one conclusion; no AI filler). Matching Copilot fragment: `user-rules/copilot/response-style.md`. |
+| `review-handoff-reconciliation.mdc` | Always-on trigger (about 1 KB): on review, audit, or fix-from-ledger turns, read the `review-handoff` skill first. The protocol (`/tmp/<topic>-handoff.md` ledger, FIX / DEFER / KEEP / DO NOT APPLY / FIXED / RECONCILED, **append-only**) lives in `skills/review-handoff/SKILL.md` and loads on demand. Distinct from the `newagentlink` skill (`/tmp/<topic>-newagentlink.md`). |
+| `response-style.mdc` | Short replies (result first; Changes, Verify, Open Items only on file-changing turns and only when they have content; one conclusion; no step narration, pasted logs, or AI filler). Matching Copilot fragment: `user-rules/copilot/response-style.md`. |
 | `edit-scope.mdc` | Writes stay in the current repo. Auto-read is allowed everywhere. `/tmp`, `~/.cursor/`, and `~/.copilot/` may be written when this request or an installed protocol requires that write. Matching Copilot fragment: `user-rules/copilot/edit-scope.md`. |
 
 ### Copilot always-on instruction (`user-rules/copilot/`)
 
-Global Copilot install concatenates `response-style.md`, `edit-scope.md`, and `review-handoff.md` into `~/.copilot/copilot-instructions.md`. That path is the personal always-on file for Copilot Agent Host chats. Fragments have no `alwaysApply` frontmatter. Project-scope install does not write `.github/copilot-instructions.md`.
+Global Copilot install concatenates `response-style.md`, `edit-scope.md`, and `review-handoff.md` into `~/.copilot/copilot-instructions.md`. That path is the personal always-on file for Copilot Agent Host chats. Fragments have no `alwaysApply` frontmatter. They are generated from `user-rules/cursor/` by `bash scripts/sync_copilot_rules.sh`; do not hand-edit them. Install verify fails when they drift from the Cursor sources. Project-scope install does not write `.github/copilot-instructions.md`.
 
 **Source of truth:** `<repo>/skills/<name>/`, `<repo>/agents/<name>/`, `<repo>/user-rules/cursor/<name>.mdc`, and `<repo>/user-rules/copilot/{response-style,edit-scope,review-handoff}.md`  
 **Do not** copy into `<repo>/.cursor/skills/`, `<repo>/.cursor/agents/`, or `<repo>/.cursor/rules/` — use `install_library.sh`.
@@ -110,6 +111,8 @@ test -f "$REPO/user-rules/cursor/edit-scope.mdc" && \
 test -f "$REPO/user-rules/copilot/response-style.md" && \
 test -f "$REPO/user-rules/copilot/edit-scope.md" && \
 test -f "$REPO/user-rules/copilot/review-handoff.md" && \
+test -f "$REPO/skills/review-handoff/SKILL.md" && \
+bash "$REPO/scripts/sync_copilot_rules.sh" --check && \
 test -f "$REPO/scripts/install_library.sh" && \
 test -f "$REPO/skills/_shared/office-tools/office_tools.py" && \
 echo "OK: repo layout valid"
@@ -217,6 +220,7 @@ test -f ~/.cursor/skills/security-audit/SKILL.md && echo "OK: security-audit ski
 test -f ~/.cursor/skills/mcp-tool-rules/SKILL.md && echo "OK: mcp-tool-rules variant"
 test -f ~/.cursor/skills/context7-docs/SKILL.md && echo "OK: context7-docs variant"
 test -f ~/.cursor/skills/notion-mcp-ops/SKILL.md && echo "OK: notion-mcp-ops variant"
+test -f ~/.cursor/skills/review-handoff/SKILL.md && echo "OK: review-handoff skill (trigger target)"
 test -f ~/.cursor/agents/code-review.md && echo "OK: cursor agents"
 grep -q 'readonly: true' ~/.cursor/agents/code-review.md && echo "OK: code-review"
 test -f ~/.cursor/agents/security-auditor.md && echo "OK: security-auditor"
@@ -233,6 +237,7 @@ cmp -s /path/to/architect-library/user-rules/cursor/review-handoff-reconciliatio
 cmp -s /path/to/architect-library/user-rules/cursor/response-style.mdc ~/.cursor/rules/response-style.mdc && echo "OK: response-style matches repo source"
 cmp -s /path/to/architect-library/user-rules/cursor/edit-scope.mdc ~/.cursor/rules/edit-scope.mdc && echo "OK: edit-scope matches repo source"
 test -f ~/.copilot/copilot-instructions.md && echo "OK: copilot always-on instruction"
+test -f ~/.copilot/skills/review-handoff/SKILL.md && echo "OK: copilot review-handoff skill (trigger target)"
 grep -q 'Applies in every VS Code Copilot chat.' ~/.copilot/copilot-instructions.md && echo "OK: copilot handoff opening"
 grep -q '/tmp/<topic>-handoff.md' ~/.copilot/copilot-instructions.md && echo "OK: copilot handoff ledger path"
 grep -q '# Response style' ~/.copilot/copilot-instructions.md && echo "OK: copilot response style"

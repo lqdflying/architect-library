@@ -48,11 +48,11 @@ Applies when the user invokes a custom agent or you test agent behavior in this 
 
 After editing `agents/`, run `bash scripts/install_library.sh agents cursor` so global `~/.cursor/agents/` matches repo source.
 After editing `user-rules/cursor/`, run `bash scripts/install_library.sh rules cursor` so `~/.cursor/rules/` matches repo source.
-After editing `user-rules/copilot/`, run `bash scripts/install_library.sh rules copilot` so `~/.copilot/copilot-instructions.md` is rebuilt from the Copilot fragments.
+Do not hand-edit `user-rules/copilot/`. After editing `user-rules/cursor/`, run `bash scripts/sync_copilot_rules.sh` to regenerate the Copilot fragments, then `bash scripts/install_library.sh rules copilot` so `~/.copilot/copilot-instructions.md` is rebuilt.
 
-## Review handoff (user-global protocol)
+## Review handoff (skill + always-on trigger)
 
-Canonical sources: `user-rules/cursor/review-handoff-reconciliation.mdc` (installs to `~/.cursor/rules/`) and `user-rules/copilot/review-handoff.md` (concatenated into `~/.copilot/copilot-instructions.md`). Do not duplicate the body here.
+Canonical protocol: `skills/review-handoff/SKILL.md` (Cursor and Copilot only, via `EDITOR_VARIANT_SKILLS`; loaded on demand). Always-on trigger: `user-rules/cursor/review-handoff-reconciliation.mdc` (installs to `~/.cursor/rules/`) and the generated `user-rules/copilot/review-handoff.md` (concatenated into `~/.copilot/copilot-instructions.md`). The trigger only tells the agent to read the skill. Do not duplicate the body here or in the trigger.
 
 | Work | Done when |
 |------|-----------|
@@ -64,7 +64,7 @@ Canonical sources: `user-rules/cursor/response-style.mdc` (installs to `~/.curso
 
 | Work | Done when |
 |------|-----------|
-| **response-style** | Reply uses only Result, Changes, Verify, and Open Items that have content; one conclusion; no AI filler. |
+| **response-style** | Reply leads with the result; Changes, Verify, and Open Items appear only on file-changing turns and only with content; one conclusion; no step narration, pasted logs, or AI filler. |
 
 ## Edit scope (user-global protocol)
 

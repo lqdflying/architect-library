@@ -16,7 +16,7 @@ Skill library + custom agent library + Cursor user-global rules. Work in this cl
 | `skills/` | Skill library source → `~/.cursor/skills/`, `~/.copilot/skills/` |
 | `agents/` | Custom agent library source → `~/.cursor/agents/`, `~/.copilot/agents/` |
 | `user-rules/cursor/` | Cursor user-global rules source → `~/.cursor/rules/` (not this repo’s `.cursor/rules/`). Includes `review-handoff-reconciliation.mdc`, `response-style.mdc`, and `edit-scope.mdc`. |
-| `user-rules/copilot/` | Copilot always-on fragments (`response-style.md`, `edit-scope.md`, `review-handoff.md`) concatenated to `~/.copilot/copilot-instructions.md`. |
+| `user-rules/copilot/` | Copilot always-on fragments (`response-style.md`, `edit-scope.md`, `review-handoff.md`) generated from `user-rules/cursor/` by `scripts/sync_copilot_rules.sh`, then concatenated to `~/.copilot/copilot-instructions.md`. Do not hand-edit. |
 | `agents/<name>/INSTRUCTIONS.md` | Shared agent prompt body |
 | `agents/<name>/cursor.header.md` | Cursor frontmatter (assembled at install) |
 | `agents/<name>/copilot.header.md` | Copilot frontmatter (assembled at install) |
@@ -51,8 +51,9 @@ Do **not** update only scripts or README. When adding or changing a skill, agent
 2. **Skill change** → update `skills/*/SKILL.md`, execution rule row, `SKILL_BUNDLE` in `install_library.sh` if new skill, run `bash scripts/install_library.sh skills cursor`.
 3. **Agent change** → update `agents/<name>/`, [docs/AGENTS.md](docs/AGENTS.md), `AGENT_BUNDLE` in `install_library.sh` if new agent, run `bash scripts/install_library.sh agents cursor`.
 4. **Cursor user-global rule change** → update `user-rules/cursor/<name>.mdc`, `CURSOR_RULE_BUNDLE` in `install_library.sh` if new, run `bash scripts/install_library.sh rules cursor`.
-5. **Copilot always-on instruction change** → update the matching file under `user-rules/copilot/` (`response-style.md`, `edit-scope.md`, or `review-handoff.md`), run `bash scripts/install_library.sh rules copilot`.
-6. Always update `README.md`, `docs/AGENT-SKILL-INSTALL.md`, and relevant `.cursor/rules/*.mdc`.
+5. **Copilot always-on instruction change** → edit the Cursor source under `user-rules/cursor/`, run `bash scripts/sync_copilot_rules.sh` to regenerate `user-rules/copilot/`, then `bash scripts/install_library.sh rules copilot`.
+6. **Review handoff protocol change** → edit `skills/review-handoff/SKILL.md` (not the trigger rule), run `bash scripts/install_library.sh skills cursor` and `skills copilot`.
+7. Always update `README.md`, `docs/AGENT-SKILL-INSTALL.md`, and relevant `.cursor/rules/*.mdc`.
 
 When the user asks to **review or absorb ref material under `tmp/`**, read `.cursor/skills/absorb-reference-materials/SKILL.md` first — ship only high-value skills/agents, harden existing installs, ignore the rest. After absorb: update `README.md` when catalog or layout changes (see `absorb-reference-materials/references/readme-after-absorb.md`).
 
