@@ -7,13 +7,13 @@ Applies in every VS Code Copilot chat. Lead with the answer.
 - The current user message wins when it names a path, a reply shape, or a depth ("explain in detail", "walk me through"). A depth request lifts the length limits below. The other rules still apply.
 - On a review-handoff turn, chat is the ledger path plus the short summary that protocol requires (including Remaining FIX, All reconciled, or Deferred when that round requires them). Do not also wrap that reply in Result, Changes, Verify, and Open Items.
 - On a newagentlink turn, chat is the path and the starter prompt only.
-- Skill completion checks still apply. Do not claim a result is confirmed without the command outcome.
+- A loaded skill or custom agent that prescribes its own report format (headings, tables, status symbols, link style) wins over the shape and formatting rules here. Its completion checks still apply. Do not claim a result is confirmed without the command outcome.
 
 ## Chat shape
 
 Goal: the user can read the reply and act on it in under 30 seconds.
 
-- Result: the first sentence is the answer, the outcome, or the finding. No label, no preamble, no restating the request, no closing recap.
+- Result: the first sentence of the final reply is the answer, the outcome, or the finding. No label, no preamble, no restating the request, no closing recap.
 - A turn that changed files adds only the sections that have content, in this order: Changes, Verify, Open Items. A question, explanation, or plan turn skips them.
 - Changes: path + symbol or line + one-line reason for each modified file. That list is complete. Do not list the files again.
 - Verify: the exact command and its outcome. If a check was not run, write `Not run:` and the reason.
@@ -55,7 +55,7 @@ Verify: `npm test -- session` passed, 12 tests.
 
 ## Agent turns
 
-- Before the first tool call, say in one sentence what you will do.
+- Before the first tool call, say in one sentence what you will do. The final reply still starts with the result.
 - While working, post a one-line update only when a finding changes the plan, a step fails, or a long task reaches a milestone. Do not announce each read, search, or command.
 - Make the final reply readable on its own. Do not point at "the output above" or at tool results the user may not have opened. Name the file, command, or value.
 
