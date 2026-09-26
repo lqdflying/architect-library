@@ -15,8 +15,8 @@ Skill library + custom agent library + Cursor user-global rules. Work in this cl
 |------|------|
 | `skills/` | Skill library source → `~/.cursor/skills/`, `~/.copilot/skills/` |
 | `agents/` | Custom agent library source → `~/.cursor/agents/`, `~/.copilot/agents/` |
-| `user-rules/cursor/` | Cursor user-global rules source → `~/.cursor/rules/` (not this repo’s `.cursor/rules/`). |
-| `user-rules/copilot/` | Copilot always-on instruction source → `~/.copilot/copilot-instructions.md`. Same review-handoff ledger as the Cursor rule. |
+| `user-rules/cursor/` | Cursor user-global rules source → `~/.cursor/rules/` (not this repo’s `.cursor/rules/`). Includes `review-handoff-reconciliation.mdc` and `response-and-edit-scope.mdc`. |
+| `user-rules/copilot/` | Copilot always-on instruction source → `~/.copilot/copilot-instructions.md`. Review-handoff ledger plus the response and edit-scope rules. |
 | `agents/<name>/INSTRUCTIONS.md` | Shared agent prompt body |
 | `agents/<name>/cursor.header.md` | Cursor frontmatter (assembled at install) |
 | `agents/<name>/copilot.header.md` | Copilot frontmatter (assembled at install) |

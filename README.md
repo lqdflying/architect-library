@@ -2,7 +2,7 @@
 
 A **skill library**, **custom agent library**, and **Cursor user-global rules** for Cursor and VS Code Copilot. Install once globally; use in any project.
 
-**Skills** handle artifacts (Excalidraw, Word, PowerPoint, spreadsheets, PDFs) and architecture workflows (API design, deprecation/migration). **Custom agents** handle focused readonly tasks such as [code review](docs/CODE-REVIEW-AGENT.md) and [security audit](docs/SECURITY-AUDITOR-AGENT.md). **Cursor user-global rules** install to `~/.cursor/rules/` and apply in every Cursor project. The same review-handoff ledger installs for VS Code Copilot as `~/.copilot/copilot-instructions.md`. Host files are install copies. The `newagentlink` skill is a separate one-shot snapshot for starting a new agent chat — not that ledger.
+**Skills** handle artifacts (Excalidraw, Word, PowerPoint, spreadsheets, PDFs) and architecture workflows (API design, deprecation/migration). **Custom agents** handle focused readonly tasks such as [code review](docs/CODE-REVIEW-AGENT.md) and [security audit](docs/SECURITY-AUDITOR-AGENT.md). **Cursor user-global rules** install to `~/.cursor/rules/` and apply in every Cursor project: the review-handoff ledger and the response and edit-scope rules. VS Code Copilot loads both from `~/.copilot/copilot-instructions.md`. Host files are install copies. The `newagentlink` skill is a separate one-shot snapshot for starting a new agent chat — not that ledger.
 
 Compatible with [Cursor](https://cursor.com), [VS Code + GitHub Copilot](https://code.visualstudio.com/docs/copilot/customization/agent-skills), [Claude Code](https://docs.anthropic.com/en/docs/claude-code), and OpenCode.
 
@@ -194,6 +194,17 @@ One ledger protocol, two install copies. Distinct from this repo’s maintainer 
 
 `/tmp/<topic>-handoff.md` is the ledger, with FIX / DEFER / KEEP / DO NOT APPLY / FIXED / RECONCILED. **Append-only** (no full-file rewrite/truncate/delete of prior rounds; surgical header Status/Must fix only). Distinct from `newagentlink` (`/tmp/<topic>-newagentlink.md`). Edit the repo source and reinstall; do not keep a second version in the home file.
 
+## Response format and edit scope (Cursor and Copilot)
+
+Short replies and current-repo writes. Auto-read is allowed everywhere, including other repositories.
+
+| Editor | Source | Installed file |
+|--------|--------|----------------|
+| Cursor | [`user-rules/cursor/response-and-edit-scope.mdc`](user-rules/cursor/response-and-edit-scope.mdc) | `~/.cursor/rules/response-and-edit-scope.mdc` (`alwaysApply: true`) |
+| Copilot | Opening section of [`user-rules/copilot/copilot-instructions.md`](user-rules/copilot/copilot-instructions.md) | `~/.copilot/copilot-instructions.md` |
+
+Replies use only Result, Changes, Verify, and Open Items when those sections have content, and state one conclusion. Writes stay in the open repository. `/tmp`, `~/.cursor/`, and `~/.copilot/` may be written when the current request or an installed protocol requires that write.
+
 ## Security and review tools — when to use which
 
 | You want to... | Use | Type | Output |
@@ -268,6 +279,7 @@ architect-library/
   user-rules/
     cursor/                   # Cursor user-global rules source → ~/.cursor/rules/
       review-handoff-reconciliation.mdc
+      response-and-edit-scope.mdc
     copilot/                  # Copilot always-on source → ~/.copilot/copilot-instructions.md
       copilot-instructions.md
   agents/                     # custom agent library (source)

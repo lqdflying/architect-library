@@ -55,7 +55,7 @@ Do **not** copy skills into `<repo>/.cursor/skills/`, agents into `<repo>/.curso
 SKILL_BUNDLE="excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document verification-before-completion newagentlink api-and-interface-design deprecation-and-migration github-markdown terraform-commit-review terraform-apply-assistance security-audit _shared"
 EDITOR_VARIANT_SKILLS="mcp-tool-rules context7-docs notion-mcp-ops"
 AGENT_BUNDLE="code-review security-auditor"
-CURSOR_RULE_BUNDLE="review-handoff-reconciliation"
+CURSOR_RULE_BUNDLE="review-handoff-reconciliation response-and-edit-scope"
 LEGACY_SKILLS="docx pptx xlsx pdf terraform-apply-fix-review mcp-tool-rules-copilot handoff"
 LEGACY_CURSOR_RULES="code-review-handoff"
 ```
@@ -96,11 +96,15 @@ grep -q 'readonly: true' ~/.cursor/agents/code-review.md
 grep -q 'readonly: true' ~/.cursor/agents/security-auditor.md
 test -f ~/.cursor/rules/review-handoff-reconciliation.mdc
 grep -q 'alwaysApply: true' ~/.cursor/rules/review-handoff-reconciliation.mdc
+test -f ~/.cursor/rules/response-and-edit-scope.mdc
+grep -q 'alwaysApply: true' ~/.cursor/rules/response-and-edit-scope.mdc
 test ! -f ~/.cursor/rules/code-review-handoff.mdc
 cmp -s user-rules/cursor/review-handoff-reconciliation.mdc ~/.cursor/rules/review-handoff-reconciliation.mdc
+cmp -s user-rules/cursor/response-and-edit-scope.mdc ~/.cursor/rules/response-and-edit-scope.mdc
 test -f ~/.copilot/copilot-instructions.md
 grep -q 'Applies in every VS Code Copilot chat.' ~/.copilot/copilot-instructions.md
 grep -q '/tmp/<topic>-handoff.md' ~/.copilot/copilot-instructions.md
+grep -q '## R1. Response format' ~/.copilot/copilot-instructions.md
 ! grep -q 'alwaysApply' ~/.copilot/copilot-instructions.md
 cmp -s user-rules/copilot/copilot-instructions.md ~/.copilot/copilot-instructions.md
 cd skills/_shared/office-tools && uv run python3 office_tools.py --help >/dev/null

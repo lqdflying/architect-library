@@ -90,8 +90,8 @@ Reload the editor or open a **new agent chat**. If any runtime step failed, say 
 
 - **Skills:** `skills/<name>/` → bundled in `SKILL_BUNDLE` in `scripts/install_library.sh`
 - **Custom agents:** `agents/<name>/` → `AGENT_BUNDLE`; assembled from `cursor.header.md` / `copilot.header.md` / `claude.header.md` + `INSTRUCTIONS.md`
-- **Cursor user-global rules:** `user-rules/cursor/<name>.mdc` → `CURSOR_RULE_BUNDLE`; installed to `~/.cursor/rules/`. Distinct from this repo’s maintainer `.cursor/rules/`.
-- **Copilot always-on instructions:** `user-rules/copilot/copilot-instructions.md` → `~/.copilot/copilot-instructions.md` on a global Copilot install. Project scope does not write `.github/copilot-instructions.md`.
+- **Cursor user-global rules:** `user-rules/cursor/<name>.mdc` → `CURSOR_RULE_BUNDLE` (`review-handoff-reconciliation`, `response-and-edit-scope`); installed to `~/.cursor/rules/`. Distinct from this repo’s maintainer `.cursor/rules/`.
+- **Copilot always-on instructions:** `user-rules/copilot/copilot-instructions.md` → `~/.copilot/copilot-instructions.md` on a global Copilot install. That file holds the review-handoff ledger and the response and edit-scope rules. Project scope does not write `.github/copilot-instructions.md`.
 - **End-user skills/agents/rules** live in the user’s home directory after install — not in this repo’s `.cursor/skills/` (except maintainer-only `.cursor/skills/absorb-reference-materials/`)
 
 ---

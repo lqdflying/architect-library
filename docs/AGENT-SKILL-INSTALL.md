@@ -81,6 +81,7 @@ Installed to `~/.cursor/rules/<name>.mdc` (not the Cursor Settings → Customize
 | File | Purpose |
 |------|---------|
 | `review-handoff-reconciliation.mdc` | `/tmp/<topic>-handoff.md` ledger; dispositions FIX / DEFER / KEEP / DO NOT APPLY / FIXED / RECONCILED; reviewer writes, fixer validates and appends, loop until reconciled. **Append-only** — no full-file overwrite, truncate, or delete of prior rounds; surgical header Status/Must fix only. Distinct from the `newagentlink` skill (`/tmp/<topic>-newagentlink.md`). |
+| `response-and-edit-scope.mdc` | Short replies (Result, Changes, Verify, Open Items only when they have content; one conclusion). Writes stay in the current repo. Auto-read is allowed everywhere. `/tmp`, `~/.cursor/`, and `~/.copilot/` may be written when this request or an installed protocol requires that write. The same rules are the opening section of `user-rules/copilot/copilot-instructions.md`. |
 
 ### Copilot always-on instruction (`user-rules/copilot/`)
 
@@ -103,6 +104,7 @@ test -f "$REPO/skills/excalidraw-diagram/SKILL.md" && \
 test -f "$REPO/skills/word-document/SKILL.md" && \
 test -f "$REPO/agents/code-review/INSTRUCTIONS.md" && \
 test -f "$REPO/user-rules/cursor/review-handoff-reconciliation.mdc" && \
+test -f "$REPO/user-rules/cursor/response-and-edit-scope.mdc" && \
 test -f "$REPO/user-rules/copilot/copilot-instructions.md" && \
 test -f "$REPO/scripts/install_library.sh" && \
 test -f "$REPO/skills/_shared/office-tools/office_tools.py" && \
@@ -217,11 +219,15 @@ test -f ~/.cursor/agents/security-auditor.md && echo "OK: security-auditor"
 grep -q 'readonly: true' ~/.cursor/agents/security-auditor.md && echo "OK: security-auditor readonly"
 test -f ~/.cursor/rules/review-handoff-reconciliation.mdc && echo "OK: cursor user-global rules"
 grep -q 'alwaysApply: true' ~/.cursor/rules/review-handoff-reconciliation.mdc && echo "OK: review-handoff alwaysApply"
+test -f ~/.cursor/rules/response-and-edit-scope.mdc && echo "OK: response-and-edit-scope"
+grep -q 'alwaysApply: true' ~/.cursor/rules/response-and-edit-scope.mdc && echo "OK: response-and-edit-scope alwaysApply"
 test ! -f ~/.cursor/rules/code-review-handoff.mdc && echo "OK: legacy code-review-handoff.mdc absent"
 cmp -s /path/to/architect-library/user-rules/cursor/review-handoff-reconciliation.mdc ~/.cursor/rules/review-handoff-reconciliation.mdc && echo "OK: host rule matches repo source"
+cmp -s /path/to/architect-library/user-rules/cursor/response-and-edit-scope.mdc ~/.cursor/rules/response-and-edit-scope.mdc && echo "OK: response-and-edit-scope matches repo source"
 test -f ~/.copilot/copilot-instructions.md && echo "OK: copilot always-on instruction"
 grep -q 'Applies in every VS Code Copilot chat.' ~/.copilot/copilot-instructions.md && echo "OK: copilot handoff opening"
 grep -q '/tmp/<topic>-handoff.md' ~/.copilot/copilot-instructions.md && echo "OK: copilot handoff ledger path"
+grep -q '## R1. Response format' ~/.copilot/copilot-instructions.md && echo "OK: copilot response format"
 ! grep -q 'alwaysApply' ~/.copilot/copilot-instructions.md && echo "OK: copilot file has no alwaysApply"
 cmp -s /path/to/architect-library/user-rules/copilot/copilot-instructions.md ~/.copilot/copilot-instructions.md && echo "OK: copilot instruction matches repo source"
 find ~/.cursor/skills -maxdepth 2 -name .git -type d   # expect no output

@@ -24,6 +24,7 @@ test -f "$REPO/skills/excalidraw-diagram/SKILL.md" && \
 test -f "$REPO/skills/word-document/SKILL.md" && \
 test -f "$REPO/agents/code-review/INSTRUCTIONS.md" && \
 test -f "$REPO/user-rules/cursor/review-handoff-reconciliation.mdc" && \
+test -f "$REPO/user-rules/cursor/response-and-edit-scope.mdc" && \
 test -f "$REPO/user-rules/copilot/copilot-instructions.md" && \
 test -f "$REPO/scripts/install_library.sh" && \
 test -f "$REPO/skills/_shared/office-tools/office_tools.py" && \

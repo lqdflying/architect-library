@@ -1,0 +1,48 @@
+---
+description: Short replies and current-repo writes. Auto-read is allowed everywhere.
+alwaysApply: true
+---
+
+# Response format and edit scope
+
+Applies in every project. Lead with the answer. Write only in the current code repository, plus the outside paths named below.
+
+## Precedence
+
+- The current user message wins when it names a path or a required reply shape.
+- On a review-handoff turn, chat is the ledger path plus the short summary that protocol requires (including Remaining FIX, All reconciled, or Deferred when that round requires them). Do not also wrap that reply in Result, Changes, Verify, and Open Items.
+- On a newagentlink turn, chat is the path and the starter prompt only.
+- Skill completion checks still apply. When Verify is used, include the command and the outcome if it was run. Do not claim a result is confirmed without that outcome.
+
+## R1. Response format
+
+Goal: scannable and actionable in under 30 seconds.
+
+- Lead with the result in 1–2 sentences. No preamble, no restating the request, no closing recap.
+- Use only sections that have content, in this order: Result, Changes, Verify, Open Items.
+- Changes: path + symbol or line + one-line reason for each modified file. That list is complete. Do not list the files again.
+- Verify: the exact command. If you ran it, include the outcome.
+- State each fact once. Use exact paths, symbols, commands, versions, and error text. Replace "some", "probably", "etc.", and "various" with a fact, or state what is unknown and how to check it.
+- Show only changed code. Do not reprint unchanged files or blocks.
+- Drop any sentence that does not change what the user will decide or do.
+- If the request is ambiguous or has multiple valid interpretations, ask up to 3 targeted questions before acting. Do not guess and proceed.
+- Default is the answer, not the investigation. Do not narrate the reasoning path, an earlier mistake, an apology, or what was checked, unless the user asked why or that check changes the next action.
+- One conclusion. Do not restate it under extra labels such as Withdrawn, Unchanged, and Verdict.
+- A correction is the corrected result plus the one deciding fact (path and line). Cut essays on why the earlier conclusion was wrong or why a fix would be worse.
+
+Anti-pattern: several headed paragraphs ("What I verified", "Why my loop was impossible", "Why my fix would have been worse", "impact is zero", then Withdrawn / Unchanged / Verdict) that all say the work stays unchanged. Allowed shape: two or three sentences with the result and one deciding fact. Cite the file and line once.
+
+## R2. Edit scope
+
+Goal: no write lands in another code repository.
+
+- Current workspace: the repository root open in this chat.
+- In scope: files, folders, or symbols in that workspace the user named, attached, or selected in this request, plus new files they asked to create.
+- Auto-read is allowed everywhere. Search, open, and reference any file without asking, including unnamed files in the current repo, other code repositories, `/tmp`, `~/.cursor/`, `~/.copilot/`, and other paths. Reading is not a write.
+- Other code repositories may be read freely. Do not write there unless this message names that repo or its files.
+- Allowed writes outside the repo: `/tmp`, `~/.cursor/`, and `~/.copilot/`, only for the write this request or an installed protocol requires (review handoff, newagentlink, install or patch of rules, skills, or agents). Do not edit unrelated files under those trees.
+- Any other path outside the current repo stays out of write scope until this message names it.
+- Inside an in-scope file, change only what the request requires. No unrelated refactor, rename, reformat, import reorder, comment edit, or dead-code removal.
+- Modify includes editor writes, create/delete/rename/move, and terminal commands that write (formatters, linters with `--fix`, codemods, package installs that change manifests or lockfiles, git checkout/reset/stash/clean, regenerating generated files).
+- If the task needs an out-of-scope write, stop before making it. Report the file(s), why, and the proposed diff. Wait.
+- Approval must be explicit and covers only the files listed in the proposal it answers. Silence, or approval inferred from earlier turns, is not approval.

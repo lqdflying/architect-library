@@ -13,7 +13,7 @@ source "$REPO/scripts/architect_env.sh"
 SKILL_BUNDLE="excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document verification-before-completion newagentlink api-and-interface-design deprecation-and-migration github-markdown terraform-commit-review terraform-apply-assistance security-audit _shared"
 EDITOR_VARIANT_SKILLS="mcp-tool-rules context7-docs notion-mcp-ops"
 AGENT_BUNDLE="code-review security-auditor"
-CURSOR_RULE_BUNDLE="review-handoff-reconciliation"
+CURSOR_RULE_BUNDLE="review-handoff-reconciliation response-and-edit-scope"
 
 LEGACY_SKILLS="docx pptx xlsx pdf terraform-apply-fix-review mcp-tool-rules-copilot handoff"
 LEGACY_CURSOR_RULES="code-review-handoff"
@@ -359,6 +359,7 @@ verify_copilot_instructions() {
   cmp -s "$src" "$dest" || return 1
   grep -q '/tmp/<topic>-handoff.md' "$dest" || return 1
   grep -q 'Applies in every VS Code Copilot chat.' "$dest" || return 1
+  grep -q '## R1. Response format' "$dest" || return 1
   if grep -q 'alwaysApply' "$dest"; then
     return 1
   fi
