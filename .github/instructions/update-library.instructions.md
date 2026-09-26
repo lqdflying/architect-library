@@ -29,6 +29,8 @@ test -f "$REPO/user-rules/cursor/edit-scope.mdc" && \
 test -f "$REPO/user-rules/copilot/response-style.md" && \
 test -f "$REPO/user-rules/copilot/edit-scope.md" && \
 test -f "$REPO/user-rules/copilot/review-handoff.md" && \
+test -f "$REPO/skills/review-handoff/SKILL.md" && \
+bash "$REPO/scripts/sync_copilot_rules.sh" --check && \
 test -f "$REPO/scripts/install_library.sh" && \
 test -f "$REPO/skills/_shared/office-tools/office_tools.py" && \
 echo "OK: repo layout valid"
@@ -87,4 +89,5 @@ bash /home/opc/architect-library/scripts/runtime_readiness.sh
 - Skills: `skills/` → `~/.copilot/skills/`
 - Agents: `agents/` → `~/.copilot/agents/`
 - Cursor user-global rules (`user-rules/cursor/`) install to `~/.cursor/rules/`
-- Copilot always-on fragments (`user-rules/copilot/{response-style,edit-scope,review-handoff}.md`) concatenate to `~/.copilot/copilot-instructions.md` on a global Copilot install
+- Copilot always-on fragments (`user-rules/copilot/{response-style,edit-scope,review-handoff}.md`, generated from `user-rules/cursor/` by `scripts/sync_copilot_rules.sh`) concatenate to `~/.copilot/copilot-instructions.md` on a global Copilot install
+- Review handoff protocol is the on-demand `review-handoff` skill (`~/.copilot/skills/review-handoff/`); the fragment is only its trigger

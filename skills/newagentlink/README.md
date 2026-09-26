@@ -5,7 +5,7 @@ the old transcript. The new agent reads `/tmp/<topic>-newagentlink.md` once
 on the first turn, then ignores it.
 
 This is **not** the review ledger (`/tmp/<topic>-handoff.md` from
-`review-handoff-reconciliation`). Invoke with `/newagentlink`.
+the `review-handoff` skill). Invoke with `/newagentlink`.
 
 On Cursor, install also copies `cursor.command.md` to
 `~/.cursor/commands/newagentlink.md` and removes leftover `/handoff`

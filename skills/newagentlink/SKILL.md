@@ -13,12 +13,10 @@ disable-model-invocation: true
 
 Write **one** markdown file a **new** agent can read **once** and then discard.
 
-This is **not** a living ledger. It is **not** the review protocol in
-`user-rules/cursor/review-handoff-reconciliation.mdc` (installed as
-`~/.cursor/rules/review-handoff-reconciliation.mdc`) or
-`user-rules/copilot/review-handoff.md` (concatenated into
-`~/.copilot/copilot-instructions.md`). Those files are updated
-across reviewer/fixer rounds and write `/tmp/<topic>-handoff.md`.
+This is **not** a living ledger. It is **not** the review protocol in the
+`review-handoff` skill (`skills/review-handoff/SKILL.md`, installed to
+`~/.cursor/skills/` and `~/.copilot/skills/`). That protocol is updated
+across reviewer/fixer rounds and writes `/tmp/<topic>-handoff.md`.
 `/newagentlink` is a **single snapshot** for starting a new session.
 
 Do not implement more product work in the same turn unless the user also asked.

@@ -35,7 +35,8 @@ Use partial installs **only** when the user explicitly asks:
 - Skills: `<repo>/skills/<name>/`
 - Agents: `<repo>/agents/<name>/` (assembled to a single `.md` at install)
 - Cursor user-global rules: `<repo>/user-rules/cursor/<name>.mdc`
-- Copilot always-on fragments: `<repo>/user-rules/copilot/{response-style,edit-scope,review-handoff}.md` (concatenated to `~/.copilot/copilot-instructions.md`)
+- Copilot always-on fragments: `<repo>/user-rules/copilot/{response-style,edit-scope,review-handoff}.md` (generated from `user-rules/cursor/` by `bash scripts/sync_copilot_rules.sh`; concatenated to `~/.copilot/copilot-instructions.md`)
+- Review handoff protocol: `<repo>/skills/review-handoff/SKILL.md` (on-demand skill; the `review-handoff` rule and fragment are only its always-on trigger)
 
 **Cursor global install targets:**
 
@@ -47,13 +48,13 @@ Use partial installs **only** when the user explicitly asks:
 
 Use **per-project** `.cursor/skills/` only if the user explicitly wants project-local install (`install_library.sh all cursor project`). Project-scope also copies bundled user-global rules into `<cwd>/.cursor/rules/` without wiping other `.mdc` files — **except** when cwd is this clone (`architect-library`) **or any subdirectory of it**; then rules install is skipped so maintainer `.cursor/rules/` is not overwritten.
 
-Do **not** copy skills into `<repo>/.cursor/skills/`, agents into `<repo>/.cursor/agents/`, or `user-rules/` into `<repo>/.cursor/rules/` — that duplicates source and breaks the install model. One protocol per editor: edit `user-rules/cursor/` or `user-rules/copilot/`; the host file is an install copy.
+Do **not** copy skills into `<repo>/.cursor/skills/`, agents into `<repo>/.cursor/agents/`, or `user-rules/` into `<repo>/.cursor/rules/` — that duplicates source and breaks the install model. One protocol per editor: edit `user-rules/cursor/`, then run `bash scripts/sync_copilot_rules.sh` to regenerate `user-rules/copilot/`; the host file is an install copy.
 
 ## Bundles (in `scripts/install_library.sh`)
 
 ```
 SKILL_BUNDLE="excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document verification-before-completion newagentlink api-and-interface-design deprecation-and-migration github-markdown terraform-commit-review terraform-apply-assistance security-audit _shared"
-EDITOR_VARIANT_SKILLS="mcp-tool-rules context7-docs notion-mcp-ops"
+EDITOR_VARIANT_SKILLS="mcp-tool-rules context7-docs notion-mcp-ops review-handoff"
 AGENT_BUNDLE="code-review security-auditor"
 CURSOR_RULE_BUNDLE="review-handoff-reconciliation response-style edit-scope"
 COPILOT_INSTRUCTION_FRAGMENTS="response-style edit-scope review-handoff"
@@ -88,6 +89,8 @@ test ! -d ~/.cursor/skills/handoff
 test ! -f ~/.cursor/commands/handoff.md
 test -f ~/.cursor/commands/newagentlink.md
 cmp -s skills/newagentlink/cursor.command.md ~/.cursor/commands/newagentlink.md
+test -f ~/.cursor/skills/review-handoff/SKILL.md
+bash scripts/sync_copilot_rules.sh --check
 test -f ~/.cursor/skills/api-and-interface-design/SKILL.md
 test -f ~/.cursor/skills/deprecation-and-migration/SKILL.md
 test -f ~/.cursor/skills/security-audit/SKILL.md
@@ -107,6 +110,7 @@ cmp -s user-rules/cursor/review-handoff-reconciliation.mdc ~/.cursor/rules/revie
 cmp -s user-rules/cursor/response-style.mdc ~/.cursor/rules/response-style.mdc
 cmp -s user-rules/cursor/edit-scope.mdc ~/.cursor/rules/edit-scope.mdc
 test -f ~/.copilot/copilot-instructions.md
+test -f ~/.copilot/skills/review-handoff/SKILL.md
 grep -q 'Applies in every VS Code Copilot chat.' ~/.copilot/copilot-instructions.md
 grep -q '/tmp/<topic>-handoff.md' ~/.copilot/copilot-instructions.md
 grep -q '# Response style' ~/.copilot/copilot-instructions.md

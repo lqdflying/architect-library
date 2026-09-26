@@ -2,7 +2,7 @@
 
 A **skill library**, **custom agent library**, and **Cursor user-global rules** for Cursor and VS Code Copilot. Install once globally; use in any project.
 
-**Skills** handle artifacts (Excalidraw, Word, PowerPoint, spreadsheets, PDFs) and architecture workflows (API design, deprecation/migration). **Custom agents** handle focused readonly tasks such as [code review](docs/CODE-REVIEW-AGENT.md) and [security audit](docs/SECURITY-AUDITOR-AGENT.md). **Cursor user-global rules** install to `~/.cursor/rules/` and apply in every Cursor project: the review-handoff ledger, response style, and edit-scope rules. VS Code Copilot concatenates the matching fragments from [`user-rules/copilot/`](user-rules/copilot/) into `~/.copilot/copilot-instructions.md`. Host files are install copies. The `newagentlink` skill is a separate one-shot snapshot for starting a new agent chat — not that ledger.
+**Skills** handle artifacts (Excalidraw, Word, PowerPoint, spreadsheets, PDFs) and architecture workflows (API design, deprecation/migration). **Custom agents** handle focused readonly tasks such as [code review](docs/CODE-REVIEW-AGENT.md) and [security audit](docs/SECURITY-AUDITOR-AGENT.md). **Cursor user-global rules** install to `~/.cursor/rules/` and apply in every Cursor project: response style, edit scope, and a short trigger that loads the on-demand `review-handoff` skill. VS Code Copilot concatenates the matching fragments from [`user-rules/copilot/`](user-rules/copilot/) (generated from the Cursor sources) into `~/.copilot/copilot-instructions.md`. Host files are install copies. The `newagentlink` skill is a separate one-shot snapshot for starting a new agent chat — not that ledger.
 
 Compatible with [Cursor](https://cursor.com), [VS Code + GitHub Copilot](https://code.visualstudio.com/docs/copilot/customization/agent-skills), [Claude Code](https://docs.anthropic.com/en/docs/claude-code), and OpenCode.
 
@@ -163,6 +163,7 @@ See [Installation](#installation) for Copilot / Claude Code paths, or [docs/AGEN
 | `pdf-document` | Read, create, merge, split, and fill PDFs. |
 | `verification-before-completion` | Fresh verification evidence before any completion or delivery claim. |
 | `newagentlink` | One-shot `/tmp/<topic>-newagentlink.md` so a new agent can continue without the old transcript. Not the review ledger. |
+| `review-handoff` | Review and fix ledger at `/tmp/<topic>-handoff.md` with FIX / DEFER / KEEP / DO NOT APPLY / FIXED / RECONCILED. Loaded on demand; Cursor and Copilot only. |
 | `api-and-interface-design` | Design stable APIs and module boundaries — contract-first, error semantics, pagination, Hyrum's Law. |
 | `github-markdown` | Write correct GitHub Flavored Markdown for READMEs, issues, PRs, discussions, wikis, and repo docs. |
 | `deprecation-and-migration` | Deprecate and migrate systems safely — strangler pattern, migration guides, zero-usage removal. |
@@ -185,14 +186,15 @@ Catalog: [`docs/AGENTS.md`](docs/AGENTS.md). Deep dive: [`docs/CODE-REVIEW-AGENT
 
 ## Review handoff (Cursor and Copilot)
 
-One ledger protocol, two install copies. Distinct from this repo’s maintainer [`.cursor/rules/`](.cursor/rules/).
+One ledger protocol in an on-demand skill, plus a short always-on trigger per editor. Only the trigger (about 1 KB) loads on every chat; the protocol loads on review, audit, and fix-from-ledger turns. Distinct from this repo’s maintainer [`.cursor/rules/`](.cursor/rules/).
 
-| Editor | Source | Installed file |
-|--------|--------|----------------|
-| Cursor | [`user-rules/cursor/review-handoff-reconciliation.mdc`](user-rules/cursor/review-handoff-reconciliation.mdc) | `~/.cursor/rules/review-handoff-reconciliation.mdc` (`alwaysApply: true`; not Cursor Settings → Customize → Rules) |
-| Copilot | [`user-rules/copilot/review-handoff.md`](user-rules/copilot/review-handoff.md) | Concatenated into `~/.copilot/copilot-instructions.md` (personal always-on file for Copilot Agent Host chats) |
+| Part | Source | Installed file |
+|------|--------|----------------|
+| Protocol (skill) | [`skills/review-handoff/SKILL.md`](skills/review-handoff/SKILL.md) | `~/.cursor/skills/review-handoff/` and `~/.copilot/skills/review-handoff/` (not Claude Code) |
+| Cursor trigger | [`user-rules/cursor/review-handoff-reconciliation.mdc`](user-rules/cursor/review-handoff-reconciliation.mdc) | `~/.cursor/rules/review-handoff-reconciliation.mdc` (`alwaysApply: true`; not Cursor Settings → Customize → Rules) |
+| Copilot trigger | [`user-rules/copilot/review-handoff.md`](user-rules/copilot/review-handoff.md) (generated) | Concatenated into `~/.copilot/copilot-instructions.md` (personal always-on file for Copilot Agent Host chats) |
 
-`/tmp/<topic>-handoff.md` is the ledger, with FIX / DEFER / KEEP / DO NOT APPLY / FIXED / RECONCILED. **Append-only** (no full-file rewrite/truncate/delete of prior rounds; surgical header Status/Must fix only). Distinct from `newagentlink` (`/tmp/<topic>-newagentlink.md`). Edit the repo source and reinstall; do not keep a second version in the home file.
+`/tmp/<topic>-handoff.md` is the ledger, with FIX / DEFER / KEEP / DO NOT APPLY / FIXED / RECONCILED. **Append-only** (no full-file rewrite/truncate/delete of prior rounds; surgical header Status/Must fix only). Distinct from `newagentlink` (`/tmp/<topic>-newagentlink.md`). Edit `skills/review-handoff/SKILL.md` and reinstall with `all cursor` or `all copilot`; do not keep a second version in the home file.
 
 ## Response style (Cursor and Copilot)
 
@@ -252,6 +254,7 @@ Writes stay in the open repository. Auto-read is allowed everywhere, including o
 | [`skills/terraform-commit-review/SKILL.md`](skills/terraform-commit-review/SKILL.md) | Terraform commit-range review workflow |
 | [`skills/terraform-apply-assistance/SKILL.md`](skills/terraform-apply-assistance/SKILL.md) | Terraform apply fix, scope review, and plan evaluation workflow |
 | [`skills/security-audit/SKILL.md`](skills/security-audit/SKILL.md) | Deep codebase security audit (6-phase, multi-agent, structured output) |
+| [`skills/review-handoff/SKILL.md`](skills/review-handoff/SKILL.md) | Review and fix ledger protocol (on demand; Cursor and Copilot) |
 | [`skills/mcp-tool-rules/SKILL.cursor.md`](skills/mcp-tool-rules/SKILL.cursor.md) | MCP tool calling rules generation (Cursor) |
 | [`skills/mcp-tool-rules/SKILL.copilot.md`](skills/mcp-tool-rules/SKILL.copilot.md) | MCP tool calling instructions generation (VS Code Copilot) |
 | [`skills/context7-docs/SKILL.cursor.md`](skills/context7-docs/SKILL.cursor.md) | Context7 library docs lookup (Cursor) |
@@ -292,7 +295,7 @@ architect-library/
       review-handoff-reconciliation.mdc
       response-style.mdc
       edit-scope.mdc
-    copilot/                  # Copilot fragments → concatenated ~/.copilot/copilot-instructions.md
+    copilot/                  # generated by scripts/sync_copilot_rules.sh → concatenated ~/.copilot/copilot-instructions.md
       response-style.md
       edit-scope.md
       review-handoff.md
@@ -304,6 +307,7 @@ architect-library/
     AGENTS.md
   scripts/
     install_library.sh        # skills + agents + Cursor rules + Copilot always-on instruction
+    sync_copilot_rules.sh     # regenerate user-rules/copilot/ from user-rules/cursor/ (--check for drift)
     install_deps.sh           # all | excalidraw | office | office-system | pdf
     vendor_excalidraw.sh
     vendor_excalidraw/
@@ -362,6 +366,9 @@ architect-library/
         VALIDATION-AND-REPORTING.md
         report-schema.json
         validate-findings.cjs
+    review-handoff/
+      SKILL.md
+      README.md
     mcp-tool-rules/
       SKILL.cursor.md
       SKILL.copilot.md
