@@ -203,7 +203,7 @@ Short replies. Lead with the answer. No AI filler.
 | Cursor | [`user-rules/cursor/response-style.mdc`](user-rules/cursor/response-style.mdc) | `~/.cursor/rules/response-style.mdc` (`alwaysApply: true`) |
 | Copilot | [`user-rules/copilot/response-style.md`](user-rules/copilot/response-style.md) | Concatenated into `~/.copilot/copilot-instructions.md` |
 
-Replies use only Result, Changes, Verify, and Open Items when those sections have content, and state one conclusion.
+The first sentence is the result. Turns that changed files add Changes, Verify, and Open Items only when those sections have content. One conclusion, no step-by-step narration, no pasted logs or reprinted code.
 
 ## Edit scope (Cursor and Copilot)
 

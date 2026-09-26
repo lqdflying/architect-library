@@ -81,7 +81,7 @@ Installed to `~/.cursor/rules/<name>.mdc` (not the Cursor Settings → Customize
 | File | Purpose |
 |------|---------|
 | `review-handoff-reconciliation.mdc` | `/tmp/<topic>-handoff.md` ledger; dispositions FIX / DEFER / KEEP / DO NOT APPLY / FIXED / RECONCILED; reviewer writes, fixer validates and appends, loop until reconciled. **Append-only** — no full-file overwrite, truncate, or delete of prior rounds; surgical header Status/Must fix only. Distinct from the `newagentlink` skill (`/tmp/<topic>-newagentlink.md`). |
-| `response-style.mdc` | Short replies (Result, Changes, Verify, Open Items only when they have content; one conclusion; no AI filler). Matching Copilot fragment: `user-rules/copilot/response-style.md`. |
+| `response-style.mdc` | Short replies (result first; Changes, Verify, Open Items only on file-changing turns and only when they have content; one conclusion; no step narration, pasted logs, or AI filler). Matching Copilot fragment: `user-rules/copilot/response-style.md`. |
 | `edit-scope.mdc` | Writes stay in the current repo. Auto-read is allowed everywhere. `/tmp`, `~/.cursor/`, and `~/.copilot/` may be written when this request or an installed protocol requires that write. Matching Copilot fragment: `user-rules/copilot/edit-scope.md`. |
 
 ### Copilot always-on instruction (`user-rules/copilot/`)
