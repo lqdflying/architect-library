@@ -84,12 +84,13 @@ Installed to `~/.cursor/rules/<name>.mdc` (not the Cursor Settings → Customize
 | `review-handoff-reconciliation.mdc` | Always-on trigger (about 1 KB): on review, audit, or fix-from-ledger turns, read the `review-handoff` skill first. The protocol (`/tmp/<topic>-handoff.md` ledger, FIX / DEFER / KEEP / DO NOT APPLY / FIXED / RECONCILED, **append-only**) lives in `skills/review-handoff/SKILL.md` and loads on demand. Distinct from the `newagentlink` skill (`/tmp/<topic>-newagentlink.md`). |
 | `response-style.mdc` | Short replies (result first; Changes, Verify, Open Items only on file-changing turns and only when they have content; one conclusion; no step narration, pasted logs, or AI filler). Matching Copilot fragment: `user-rules/copilot/response-style.md`. |
 | `edit-scope.mdc` | Writes stay in the current repo. Auto-read is allowed everywhere. `/tmp`, `~/.cursor/`, and `~/.copilot/` may be written when this request or an installed protocol requires that write. Matching Copilot fragment: `user-rules/copilot/edit-scope.md`. |
+| `branch-strategy.mdc` | One working branch at a time (the branch already checked out). No edit, commit, or push on `main`. No switch off a branch that still has unmerged commits or uncommitted files. A new branch only from `main`, when the current branch is `main` or the user asks. Mixed topics on one branch are expected. Pause before `git commit` or `git push`. Matching Copilot fragment: `user-rules/copilot/branch-strategy.md`. |
 
 ### Copilot always-on instruction (`user-rules/copilot/`)
 
-Global Copilot install concatenates `response-style.md`, `edit-scope.md`, and `review-handoff.md` into `~/.copilot/copilot-instructions.md`. That path is the personal always-on file for Copilot Agent Host chats. Fragments have no `alwaysApply` frontmatter. They are generated from `user-rules/cursor/` by `bash scripts/sync_copilot_rules.sh`; do not hand-edit them. Install verify fails when they drift from the Cursor sources. Project-scope install does not write `.github/copilot-instructions.md`.
+Global Copilot install concatenates `response-style.md`, `edit-scope.md`, `branch-strategy.md`, and `review-handoff.md` into `~/.copilot/copilot-instructions.md`. That path is the personal always-on file for Copilot Agent Host chats. Fragments have no `alwaysApply` frontmatter. They are generated from `user-rules/cursor/` by `bash scripts/sync_copilot_rules.sh`; do not hand-edit them. Install verify fails when they drift from the Cursor sources. Project-scope install does not write `.github/copilot-instructions.md`.
 
-**Source of truth:** `<repo>/skills/<name>/`, `<repo>/agents/<name>/`, `<repo>/user-rules/cursor/<name>.mdc`, and `<repo>/user-rules/copilot/{response-style,edit-scope,review-handoff}.md`  
+**Source of truth:** `<repo>/skills/<name>/`, `<repo>/agents/<name>/`, `<repo>/user-rules/cursor/<name>.mdc`, and `<repo>/user-rules/copilot/{response-style,edit-scope,branch-strategy,review-handoff}.md`  
 **Do not** copy into `<repo>/.cursor/skills/`, `<repo>/.cursor/agents/`, or `<repo>/.cursor/rules/` — use `install_library.sh`.
 
 ---
@@ -108,8 +109,10 @@ test -f "$REPO/agents/code-review/INSTRUCTIONS.md" && \
 test -f "$REPO/user-rules/cursor/review-handoff-reconciliation.mdc" && \
 test -f "$REPO/user-rules/cursor/response-style.mdc" && \
 test -f "$REPO/user-rules/cursor/edit-scope.mdc" && \
+test -f "$REPO/user-rules/cursor/branch-strategy.mdc" && \
 test -f "$REPO/user-rules/copilot/response-style.md" && \
 test -f "$REPO/user-rules/copilot/edit-scope.md" && \
+test -f "$REPO/user-rules/copilot/branch-strategy.md" && \
 test -f "$REPO/user-rules/copilot/review-handoff.md" && \
 test -f "$REPO/skills/review-handoff/SKILL.md" && \
 bash "$REPO/scripts/sync_copilot_rules.sh" --check && \
@@ -231,20 +234,24 @@ test -f ~/.cursor/rules/response-style.mdc && echo "OK: response-style"
 grep -q 'alwaysApply: true' ~/.cursor/rules/response-style.mdc && echo "OK: response-style alwaysApply"
 test -f ~/.cursor/rules/edit-scope.mdc && echo "OK: edit-scope"
 grep -q 'alwaysApply: true' ~/.cursor/rules/edit-scope.mdc && echo "OK: edit-scope alwaysApply"
+test -f ~/.cursor/rules/branch-strategy.mdc && echo "OK: branch-strategy"
+grep -q 'alwaysApply: true' ~/.cursor/rules/branch-strategy.mdc && echo "OK: branch-strategy alwaysApply"
 test ! -f ~/.cursor/rules/code-review-handoff.mdc && echo "OK: legacy code-review-handoff.mdc absent"
 test ! -f ~/.cursor/rules/response-and-edit-scope.mdc && echo "OK: legacy response-and-edit-scope.mdc absent"
 cmp -s /path/to/architect-library/user-rules/cursor/review-handoff-reconciliation.mdc ~/.cursor/rules/review-handoff-reconciliation.mdc && echo "OK: host rule matches repo source"
 cmp -s /path/to/architect-library/user-rules/cursor/response-style.mdc ~/.cursor/rules/response-style.mdc && echo "OK: response-style matches repo source"
 cmp -s /path/to/architect-library/user-rules/cursor/edit-scope.mdc ~/.cursor/rules/edit-scope.mdc && echo "OK: edit-scope matches repo source"
+cmp -s /path/to/architect-library/user-rules/cursor/branch-strategy.mdc ~/.cursor/rules/branch-strategy.mdc && echo "OK: branch-strategy matches repo source"
 test -f ~/.copilot/copilot-instructions.md && echo "OK: copilot always-on instruction"
 test -f ~/.copilot/skills/review-handoff/SKILL.md && echo "OK: copilot review-handoff skill (trigger target)"
 grep -q 'Applies in every VS Code Copilot chat.' ~/.copilot/copilot-instructions.md && echo "OK: copilot handoff opening"
 grep -q '/tmp/<topic>-handoff.md' ~/.copilot/copilot-instructions.md && echo "OK: copilot handoff ledger path"
 grep -q '# Response style' ~/.copilot/copilot-instructions.md && echo "OK: copilot response style"
 grep -q '# Edit scope' ~/.copilot/copilot-instructions.md && echo "OK: copilot edit scope"
+grep -q '# Branch strategy' ~/.copilot/copilot-instructions.md && echo "OK: copilot branch strategy"
 grep -q '# Review handoff' ~/.copilot/copilot-instructions.md && echo "OK: copilot review handoff"
 ! grep -q 'alwaysApply' ~/.copilot/copilot-instructions.md && echo "OK: copilot file has no alwaysApply"
-cmp -s <(printf '%s\n\n%s\n\n%s\n' "$(cat /path/to/architect-library/user-rules/copilot/response-style.md)" "$(cat /path/to/architect-library/user-rules/copilot/edit-scope.md)" "$(cat /path/to/architect-library/user-rules/copilot/review-handoff.md)") ~/.copilot/copilot-instructions.md && echo "OK: copilot instruction matches fragments"
+cmp -s <(printf '%s\n\n%s\n\n%s\n\n%s\n' "$(cat /path/to/architect-library/user-rules/copilot/response-style.md)" "$(cat /path/to/architect-library/user-rules/copilot/edit-scope.md)" "$(cat /path/to/architect-library/user-rules/copilot/branch-strategy.md)" "$(cat /path/to/architect-library/user-rules/copilot/review-handoff.md)") ~/.copilot/copilot-instructions.md && echo "OK: copilot instruction matches fragments"
 find ~/.cursor/skills -maxdepth 2 -name .git -type d   # expect no output
 cd /path/to/architect-library/skills/_shared/office-tools && uv run python3 office_tools.py --help >/dev/null && echo "OK: office tools"
 command -v soffice >/dev/null && command -v pdftoppm >/dev/null && echo "OK: office-system"
