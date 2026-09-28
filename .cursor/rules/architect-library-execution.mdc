@@ -74,6 +74,14 @@ Canonical sources: `user-rules/cursor/edit-scope.mdc` (installs to `~/.cursor/ru
 |------|-----------|
 | **edit-scope** | Writes stay in the current repo except `/tmp`, `~/.cursor/`, and `~/.copilot/` when this request or an installed protocol requires that write. |
 
+## Branch strategy (user-global protocol)
+
+Canonical sources: `user-rules/cursor/branch-strategy.mdc` (installs to `~/.cursor/rules/`) and `user-rules/copilot/branch-strategy.md` (concatenated into `~/.copilot/copilot-instructions.md`). Do not duplicate the body here.
+
+| Work | Done when |
+|------|-----------|
+| **branch-strategy** | One working branch at a time (the branch already checked out). No edit, commit, or push on `main`. No switch off a branch that still has unmerged commits or uncommitted files. A new branch only when the current branch is `main`, or the user asks, and it is created from `main`. Mixed topics on one branch are expected. Pause before `git commit` or `git push`. |
+
 ## Dependencies
 
 | Target | Command | For |

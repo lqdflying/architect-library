@@ -15,8 +15,8 @@ Skill library + custom agent library + Cursor user-global rules. Work in this cl
 |------|------|
 | `skills/` | Skill library source → `~/.cursor/skills/`, `~/.copilot/skills/` |
 | `agents/` | Custom agent library source → `~/.cursor/agents/`, `~/.copilot/agents/` |
-| `user-rules/cursor/` | Cursor user-global rules source → `~/.cursor/rules/` (not this repo’s `.cursor/rules/`). Includes `review-handoff-reconciliation.mdc`, `response-style.mdc`, and `edit-scope.mdc`. |
-| `user-rules/copilot/` | Copilot always-on fragments (`response-style.md`, `edit-scope.md`, `review-handoff.md`) generated from `user-rules/cursor/` by `scripts/sync_copilot_rules.sh`, then concatenated to `~/.copilot/copilot-instructions.md`. Do not hand-edit. |
+| `user-rules/cursor/` | Cursor user-global rules source → `~/.cursor/rules/` (not this repo’s `.cursor/rules/`). Includes `review-handoff-reconciliation.mdc`, `response-style.mdc`, `edit-scope.mdc`, and `branch-strategy.mdc`. |
+| `user-rules/copilot/` | Copilot always-on fragments (`response-style.md`, `edit-scope.md`, `branch-strategy.md`, `review-handoff.md`) generated from `user-rules/cursor/` by `scripts/sync_copilot_rules.sh`, then concatenated to `~/.copilot/copilot-instructions.md`. Do not hand-edit. |
 | `agents/<name>/INSTRUCTIONS.md` | Shared agent prompt body |
 | `agents/<name>/cursor.header.md` | Cursor frontmatter (assembled at install) |
 | `agents/<name>/copilot.header.md` | Copilot frontmatter (assembled at install) |
