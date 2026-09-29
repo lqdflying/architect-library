@@ -40,6 +40,8 @@ For PDF conversion and accepting tracked changes, install optional system packag
 bash ../_shared/office-tools/install_deps.sh --with-system
 ```
 
+DOCX conversion requires LibreOffice Writer; `soffice` alone is insufficient. From the repository root, `bash scripts/runtime_readiness.sh --require-office` verifies offline schemas, DOCX validation, and DOCX/PPTX previews. Schema-loading failures are tooling failures, not document errors to ignore or subtract with `--original`.
+
 For **new** DOCX files:
 
 1. **Prefer docx-js:** from repo root, `bash scripts/install_deps.sh node` (or `bash scripts/install_deps.sh` which includes it). Installs global `docx` under `$HOME/.npm-global` when Node is available. Before running docx-js generators manually in a shell: `source /path/to/architect-library/scripts/architect_env.sh`.

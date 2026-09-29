@@ -64,7 +64,10 @@ case "$TARGET" in
 esac
 
 case "$TARGET" in
-  all|office|office-system|node)
+  office-system)
+    bash "$ROOT_DIR/scripts/runtime_readiness.sh" --require-office
+    ;;
+  all|office|node)
     bash "$ROOT_DIR/scripts/runtime_readiness.sh" || true
     ;;
 esac

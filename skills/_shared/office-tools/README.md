@@ -147,10 +147,21 @@ See ../word-document/references/docx-guide.md and ../powerpoint-presentation/ref
 | Create new DOCX/PPTX (docx-js / pptxgenjs) | No | Node only |
 | `validate`, `extract`, `unpack`, `pack`, `analyze` | No | Python (`uv sync`) only |
 | **PPTX layout preview** (`thumbnail` grid / per-slide JPEGs) | **Yes** | LibreOffice **Impress**, Poppler |
-| DOCX/PPTX → PDF or images | Yes | LibreOffice, Poppler |
-| `accept` tracked changes on DOCX | Yes | LibreOffice |
+| DOCX → PDF or images | Yes | LibreOffice Writer, Poppler |
+| PPTX → PDF or images | Yes | LibreOffice Impress, Poppler |
+| `accept` tracked changes on DOCX | Yes | LibreOffice Writer |
 
-On RHEL/Oracle Linux, PPTX conversion needs `libreoffice-impress` (not `libreoffice-core` alone). `install_deps.sh --with-system` installs the correct set on dnf/yum.
+On RHEL/Oracle Linux, `install_deps.sh --with-system` installs `libreoffice-writer`, `libreoffice-impress`, headless support, and Poppler. Core alone cannot convert DOCX/PPTX. Calc is a separate requirement for spreadsheet recalculation and is not verified by the DOCX/PPTX checks.
+
+### Runtime Verification
+
+From the repository root, run `bash scripts/runtime_readiness.sh --require-office`. It fails if offline schema compilation, generated DOCX validation, generation, or DOCX/PPTX PDF/PNG preview fails. Conversion requires readable output, not just a successful exit code. Fixtures and LibreOffice profiles live in temporary directories. The default readiness command reports incomplete capabilities without blocking library copying.
+
+From this toolkit directory, run `uv run python3 office_readiness.py --schemas-only` for offline schema compilation, or `uv run python3 office_readiness.py` for all Office checks. The full check requires Node with `pptxgenjs` available through `NODE_PATH`; source the repository's `scripts/architect_env.sh` for manual runs.
+
+`setup_schemas.py` downloads ECMA schemas and the [Dublin Core schema set](https://www.dublincore.org/schemas/xmls/qdc/2003/04/02/), resolves XML/Dublin Core imports locally, and compiles supported roots before reporting success. Validation uses the bundled files without network access. Schema-loading failures are fatal even with `--original`; they are never treated as pre-existing document errors. Schema-validity errors exposed after a tool repair must be fixed in the document, not suppressed.
+
+Regression suite: `uv run python3 -B -m unittest discover -s . -p test_office_runtime.py -v`.
 
 **PowerPoint skill:** system deps are required on every deck (mandatory `thumbnail` layout review). Install `--with-system` before PPT work.
 

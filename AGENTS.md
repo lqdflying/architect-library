@@ -40,6 +40,7 @@ bash scripts/install_deps.sh office-system
 - If Node still unavailable after the script tries: **do not** improvisationally install nvm/fnm unless the user asks — report incomplete runtime; still run `install_library.sh` (skills/agents/rules copy without Node).
 - If `npm` global install fails: skills/agents can still be installed; say runtime readiness is **incomplete** for Node-based generation. After install, `bash scripts/runtime_readiness.sh` summarizes what artifact work is still possible.
 - **Library installed** ≠ **all artifact runtimes ready**. Skills/agents copy without Node; Word may still deliver via python-docx; new PPT decks need pptxgenjs or a user-supplied template.
+- **Office verification:** `bash scripts/runtime_readiness.sh --require-office` must pass before claiming DOCX/PPTX readiness. It compiles schemas offline, validates a generated DOCX, and checks generated DOCX/PPTX conversion through PDF and PNG using temporary profiles. `office-system` runs this gate and propagates failure. Writer is required for DOCX conversion; Impress for PPTX; Poppler for previews. Calc and spreadsheet recalculation are not checked by this gate.
 
 ### Runtime capability matrix (artifact skills)
 

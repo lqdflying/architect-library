@@ -779,8 +779,8 @@ def validate(
         if not xsd_passed:
             for msg in xsd_messages:
                 result.error(f"XSD: {msg}")
-    except ImportError:
-        pass  # xsd_validator not available, skip silently
+    except ImportError as error:
+        result.error(f"XSD validation unavailable: {error}")
 
     return result
 

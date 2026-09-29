@@ -198,7 +198,7 @@ See [AGENTS.md](../AGENTS.md) § Runtime capability matrix. Summary:
 | New artifact from scratch | python-docx (`install_deps.sh office`) | **Not supported** — template/XML only |
 | Edit, validate, preview | `office_tools` | `office_tools` + `office-system` for `thumbnail` |
 
-`bash scripts/runtime_readiness.sh` prints Node, npm globals, and python-docx status after `install_deps.sh`.
+`bash scripts/runtime_readiness.sh` reports Node/npm packages and tests offline schema compilation, generated DOCX validation, DOCX/PPTX generation, and PDF/PNG previews. `bash scripts/runtime_readiness.sh --require-office` returns nonzero if an Office check fails. `office-system` runs this required gate and propagates failure; library copying remains independent. DOCX conversion requires Writer, PPTX conversion requires Impress, and previews require Poppler. Calc and spreadsheet recalculation are not checked.
 
 ## Step 4: Verify installation
 
@@ -254,7 +254,7 @@ grep -q '# Review handoff' ~/.copilot/copilot-instructions.md && echo "OK: copil
 cmp -s <(printf '%s\n\n%s\n\n%s\n\n%s\n' "$(cat /path/to/architect-library/user-rules/copilot/response-style.md)" "$(cat /path/to/architect-library/user-rules/copilot/edit-scope.md)" "$(cat /path/to/architect-library/user-rules/copilot/branch-strategy.md)" "$(cat /path/to/architect-library/user-rules/copilot/review-handoff.md)") ~/.copilot/copilot-instructions.md && echo "OK: copilot instruction matches fragments"
 find ~/.cursor/skills -maxdepth 2 -name .git -type d   # expect no output
 cd /path/to/architect-library/skills/_shared/office-tools && uv run python3 office_tools.py --help >/dev/null && echo "OK: office tools"
-command -v soffice >/dev/null && command -v pdftoppm >/dev/null && echo "OK: office-system"
+bash /path/to/architect-library/scripts/runtime_readiness.sh --require-office
 source /path/to/architect-library/scripts/architect_env.sh
 command -v npm >/dev/null && echo "OK: npm CLI" || echo "WARN: npm CLI missing"
 test -d ~/.npm-global/lib/node_modules/docx && test -d ~/.npm-global/lib/node_modules/pptxgenjs && echo "OK: docx/pptxgenjs on disk"
@@ -281,7 +281,7 @@ test -f ~/.copilot/agents/code-review.agent.md && echo "OK: copilot agents"
 test -f ~/.copilot/agents/security-auditor.agent.md && echo "OK: security-auditor"
 grep -q 'disallowedTools: edit' ~/.copilot/agents/security-auditor.agent.md && echo "OK: security-auditor readonly"
 cd /path/to/architect-library/skills/_shared/office-tools && uv run python3 office_tools.py --help >/dev/null && echo "OK: office tools"
-command -v soffice >/dev/null && command -v pdftoppm >/dev/null && echo "OK: office-system"
+bash /path/to/architect-library/scripts/runtime_readiness.sh --require-office
 source /path/to/architect-library/scripts/architect_env.sh
 command -v npm >/dev/null && echo "OK: npm CLI" || echo "WARN: npm CLI missing"
 test -d ~/.npm-global/lib/node_modules/docx && test -d ~/.npm-global/lib/node_modules/pptxgenjs && echo "OK: docx/pptxgenjs on disk"
@@ -289,7 +289,7 @@ cd /path/to/architect-library/skills/_shared/office-tools && uv run python3 -c "
 bash /path/to/architect-library/scripts/runtime_readiness.sh
 ```
 
-The install script runs **library** checks automatically for the `EDITOR` you pass. npm/python-docx/LibreOffice are artifact runtimes — use the commands above or `runtime_readiness.sh`.
+The install script runs **library** checks automatically for the `EDITOR` you pass. Claim DOCX/PPTX runtime readiness only after the `--require-office` gate passes. Checks use temporary documents and isolated LibreOffice profiles, require readable nonempty PDFs and PNGs, and do not treat exit 0 without output as success.
 
 ---
 
@@ -344,11 +344,12 @@ See [CODE-REVIEW-AGENT.md](CODE-REVIEW-AGENT.md) and [SECURITY-AUDITOR-AGENT.md]
 | Library copy (Copilot) | `bash scripts/install_library.sh all copilot` |
 | Library copy (all editors) | `bash scripts/install_library.sh` |
 | Core runtimes | `bash scripts/install_deps.sh` |
-| LibreOffice + Poppler (PPT) | `bash scripts/install_deps.sh office-system` |
+| LibreOffice Writer + Impress + Poppler | `bash scripts/install_deps.sh office-system` |
 | Offline Excalidraw | `bash scripts/vendor_excalidraw.sh` |
 | New DOCX / PPTX via Node | `bash scripts/install_deps.sh node` (included in `install_deps.sh all`) |
 | Word fallback (no npm) | `bash scripts/install_deps.sh office` (python-docx in uv env) |
 | Readiness summary | `bash scripts/runtime_readiness.sh` |
+| Required DOCX/PPTX readiness gate | `bash scripts/runtime_readiness.sh --require-office` |
 | Shell env (manual Node) | `source /path/to/architect-library/scripts/architect_env.sh` |
 | Persistent env file | `~/.config/architect-library/env.sh` (written by `install_node.sh`; hooked from `~/.bashrc`) |
 

@@ -10,6 +10,12 @@ source "$ROOT_DIR/scripts/architect_env.sh"
 NPM_PREFIX="${NPM_CONFIG_PREFIX:-$HOME/.npm-global}"
 OFFICE_DIR="$ROOT_DIR/skills/_shared/office-tools"
 
+REQUIRE_OFFICE="${1:-}"
+case "$REQUIRE_OFFICE" in
+  ""|--require-office) ;;
+  *) echo "Usage: bash scripts/runtime_readiness.sh [--require-office]" >&2; exit 2 ;;
+esac
+
 status_ok() { echo "OK"; }
 status_miss() { echo "MISSING"; }
 
@@ -80,9 +86,18 @@ printf "  npm CLI:              %s\n" "$npm_cli_status"
 printf "  npm global docx:      %s  (Word — new DOCX via docx-js)\n" "$docx_npm_status"
 printf "  npm global pptxgenjs: %s  (PowerPoint — new decks from scratch)\n" "$pptx_npm_status"
 printf "  python-docx (uv):     %s  (Word fallback when npm/docx missing)\n" "$python_docx_status"
+office_status=0
+if ! uv run --offline --frozen --project "$OFFICE_DIR" python3 -B "$OFFICE_DIR/office_readiness.py"; then
+  office_status=1
+  echo "  Office artifact readiness: INCOMPLETE"
+fi
 echo ""
 echo "Capability without full Node/npm:"
 echo "  Word new DOCX:  docx-js if docx OK; else python-docx if python-docx OK"
 echo "  PPT new deck:   pptxgenjs only — if MISSING, use template/XML path or ask user to run: bash scripts/install_deps.sh node"
-echo "  PPT / Word edit, validate, preview: office_tools + office-system (LibreOffice for PPT thumbnail)"
+echo "  DOCX preview: Writer + Poppler; PPTX preview: Impress + Poppler. See checks above."
 echo ""
+
+if [[ "$REQUIRE_OFFICE" == "--require-office" ]]; then
+  exit "$office_status"
+fi

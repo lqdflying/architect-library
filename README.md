@@ -26,7 +26,7 @@ Run these steps **once** on each computer (or CI image) where you want rendering
 | Node.js + npm | `bash scripts/install_deps.sh node` (or included in `install_deps.sh` `all`); offline Excalidraw vendor uses same npm bootstrap pattern |
 | python-docx | Included in `bash scripts/install_deps.sh office` — Word fallback when npm/`docx` unavailable |
 | sudo (Linux only) | Optional OS libraries for headless Chromium (`install_deps.sh`) and LibreOffice/Poppler (`office-system`) |
-| LibreOffice + Poppler | **Optional** for Word-only / XML tooling; **required for every PowerPoint delivery** (mandatory layout preview). Also needed for DOCX/PPTX→PDF and `accept` tracked changes. Install once: `bash scripts/install_deps.sh office-system` |
+| LibreOffice Writer + Impress + Poppler | **Optional** for document generation / XML tooling; **required for previews**. Writer supports DOCX conversion and `accept`; Impress supports mandatory PPTX layout preview. Install once: `bash scripts/install_deps.sh office-system` |
 
 **Artifact capability without npm:** Word new DOCX → python-docx; PowerPoint new deck → **not supported** (template/XML edit only). Run `bash scripts/runtime_readiness.sh` after install to see status.
 
@@ -37,11 +37,13 @@ From the repository root (after `git clone`):
 ```bash
 cd architect-library   # or your clone path
 bash scripts/install_deps.sh              # Excalidraw + Office + PDF + Node/npm (docx, pptxgenjs)
-bash scripts/install_deps.sh office-system   # add LibreOffice Impress + Poppler (PPT layout preview, XLSX recalc, accept changes)
+bash scripts/install_deps.sh office-system   # Writer + Impress + Poppler, then required DOCX/PPTX checks
 bash scripts/install_library.sh all cursor   # or: all copilot — skills + agents + that editor's handoff instruction
 ```
 
 **Is LibreOffice mandatory?** Not for creating `.docx` or building `.pptx` source (Node/python). **Yes for completing PowerPoint skill work**—every deck must go through layout preview (`thumbnail`), which needs LibreOffice Impress + Poppler. Word-only tasks can skip `office-system`. Install: `bash scripts/install_deps.sh office-system`.
+
+Before claiming DOCX/PPTX readiness, run `bash scripts/runtime_readiness.sh --require-office`. It verifies offline schema compilation, generated DOCX validation, and real DOCX/PPTX conversion to readable PDF/PNG outputs. It returns nonzero on failure; library instructions can still be installed separately. Calc and spreadsheet recalculation are not covered by this gate.
 
 Install only one runtime:
 
@@ -85,7 +87,7 @@ Included in `bash scripts/install_deps.sh` (target `all` or `node`). Installs gl
 
 ```bash
 bash scripts/install_deps.sh node   # re-run Node step only
-bash scripts/runtime_readiness.sh   # summary: Node, npm globals, python-docx
+bash scripts/runtime_readiness.sh   # package status, schemas, validation, DOCX/PPTX previews
 source scripts/architect_env.sh     # manual agent shell: PATH + NODE_PATH for docx/pptxgenjs
 ```
 

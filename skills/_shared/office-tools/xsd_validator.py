@@ -74,8 +74,31 @@ OOXML_NAMESPACES = {
 
 IGNORED_PATTERNS = [
     "hyphenationZone",
-    "purl.org/dc/terms",
 ]
+
+
+class SchemaUnavailableError(RuntimeError):
+    pass
+
+
+def load_schema(schema_path: Path):
+    if not HAS_LXML:
+        raise SchemaUnavailableError("lxml is not available")
+    try:
+        schema_doc = etree.parse(str(schema_path), parser=etree.XMLParser(no_network=True))
+        return etree.XMLSchema(schema_doc)
+    except (OSError, etree.LxmlError) as error:
+        raise SchemaUnavailableError(f"Cannot load schema {schema_path}: {error}") from error
+
+
+def check_schemas(schemas_dir: Path) -> list[str]:
+    errors = []
+    for relative_path in sorted(set(SCHEMA_MAP.values())):
+        try:
+            load_schema(schemas_dir / relative_path)
+        except SchemaUnavailableError as error:
+            errors.append(str(error))
+    return errors
 
 
 def _get_schemas_dir() -> Path | None:
@@ -192,15 +215,11 @@ def validate_file_xsd(
         (False, errors) - invalid with error messages
     """
     schema_path = _get_schema_path(xml_file, schemas_dir)
-    if not schema_path or not schema_path.exists():
+    if not schema_path:
         return None, set()
 
+    schema = load_schema(schema_path)
     try:
-        xsd_doc = etree.parse(str(schema_path),
-                              parser=etree.XMLParser(),
-                              base_url=str(schema_path))
-        schema = etree.XMLSchema(xsd_doc)
-
         xml_doc = etree.parse(str(xml_file))
 
         # Preprocess: strip template tags and non-OOXML content
@@ -230,18 +249,21 @@ def validate_xsd(
     Returns (all_passed, error_messages).
     """
     if not HAS_LXML:
-        return True, ["Skipped: lxml not available"]
+        return False, ["XSD validation unavailable: lxml not available"]
 
     schemas_dir = _get_schemas_dir()
     if not schemas_dir:
-        return True, ["Skipped: schemas/ directory not found (run setup_schemas.py)"]
+        return False, ["XSD validation unavailable: schemas/ directory not found (run setup_schemas.py)"]
 
     xml_files = list(unpacked_dir.rglob("*.xml")) + list(unpacked_dir.rglob("*.rels"))
     new_errors = []
     stats = {"valid": 0, "skipped": 0, "with_original_errors": 0, "new_errors": 0}
 
     for xml_file in xml_files:
-        is_valid, current_errors = validate_file_xsd(xml_file, schemas_dir, unpacked_dir)
+        try:
+            is_valid, current_errors = validate_file_xsd(xml_file, schemas_dir, unpacked_dir)
+        except SchemaUnavailableError as error:
+            return False, [f"XSD validation unavailable: {error}"]
 
         if is_valid is None:
             stats["skipped"] += 1
@@ -253,9 +275,12 @@ def validate_xsd(
         # Get original file's errors to diff
         original_errors = set()
         if original_file and original_file.exists():
-            original_errors = _get_original_errors(
-                xml_file, unpacked_dir, original_file, schemas_dir
-            )
+            try:
+                original_errors = _get_original_errors(
+                    xml_file, unpacked_dir, original_file, schemas_dir
+                )
+            except SchemaUnavailableError as error:
+                return False, [f"XSD validation unavailable: {error}"]
 
         # Only report NEW errors
         errors_diff = current_errors - original_errors
@@ -295,6 +320,8 @@ def _get_original_errors(
                 return set()
             _, errors = validate_file_xsd(orig_xml, schemas_dir, Path(td))
             return errors or set()
+    except SchemaUnavailableError:
+        raise
     except Exception:
         return set()
 
