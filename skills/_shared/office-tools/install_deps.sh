@@ -34,9 +34,9 @@ install_system_deps() {
     sudo apt-get install -y --no-install-recommends libreoffice poppler-utils
   elif command -v dnf &>/dev/null; then
     # impress component required for PPTX→PDF; headless for server use
-    sudo dnf install -y libreoffice-impress libreoffice-headless poppler-utils
+    sudo dnf install -y libreoffice-writer libreoffice-impress libreoffice-headless poppler-utils
   elif command -v yum &>/dev/null; then
-    sudo yum install -y libreoffice-impress libreoffice-headless poppler-utils
+    sudo yum install -y libreoffice-writer libreoffice-impress libreoffice-headless poppler-utils
   elif command -v pacman &>/dev/null; then
     sudo pacman -S --needed --noconfirm libreoffice-still poppler
   elif command -v zypper &>/dev/null; then
@@ -48,7 +48,7 @@ install_system_deps() {
 }
 
 if [[ "$WITH_SYSTEM" == "--with-system" ]]; then
-  echo "Installing system dependencies (LibreOffice Impress + Poppler)..."
+  echo "Installing system dependencies (LibreOffice Writer + Impress + Poppler)..."
   install_system_deps
   echo "Installed for PPTX layout preview, PDF conversion, and DOCX accept-changes."
 elif [[ -n "$WITH_SYSTEM" ]]; then
@@ -84,6 +84,7 @@ echo "Installing lxml build dependencies (C headers)..."
 install_build_deps
 echo "Installing Python dependencies..."
 uv sync
+uv run python3 office_readiness.py --schemas-only
 
 echo "Office tools setup complete."
 echo "Test with: cd $SCRIPT_DIR && uv run python3 office_tools.py --help"

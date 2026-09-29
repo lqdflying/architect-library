@@ -1,24 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-  xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math"
-  xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"
-  xmlns:sl="http://schemas.openxmlformats.org/schemaLibrary/2006/main"
-  xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
-  xmlns="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
-  xmlns:s="http://schemas.openxmlformats.org/officeDocument/2006/sharedTypes"
-  elementFormDefault="qualified" attributeFormDefault="qualified" blockDefault="#all"
-  targetNamespace="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
-  <xsd:import namespace="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
-    schemaLocation="dml-wordprocessingDrawing.xsd"/>
-  <xsd:import namespace="http://schemas.openxmlformats.org/officeDocument/2006/math"
-    schemaLocation="shared-math.xsd"/>
-  <xsd:import namespace="http://schemas.openxmlformats.org/officeDocument/2006/relationships"
-    schemaLocation="shared-relationshipReference.xsd"/>
-  <xsd:import namespace="http://schemas.openxmlformats.org/officeDocument/2006/sharedTypes"
-    schemaLocation="shared-commonSimpleTypes.xsd"/>
-  <xsd:import namespace="http://schemas.openxmlformats.org/schemaLibrary/2006/main"
-    schemaLocation="shared-customXmlSchemaProperties.xsd"/>
-  <xsd:import namespace="http://www.w3.org/XML/1998/namespace"/>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:sl="http://schemas.openxmlformats.org/schemaLibrary/2006/main" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:s="http://schemas.openxmlformats.org/officeDocument/2006/sharedTypes" elementFormDefault="qualified" attributeFormDefault="qualified" blockDefault="#all" targetNamespace="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <xsd:import namespace="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" schemaLocation="dml-wordprocessingDrawing.xsd"/>
+  <xsd:import namespace="http://schemas.openxmlformats.org/officeDocument/2006/math" schemaLocation="shared-math.xsd"/>
+  <xsd:import namespace="http://schemas.openxmlformats.org/officeDocument/2006/relationships" schemaLocation="shared-relationshipReference.xsd"/>
+  <xsd:import namespace="http://schemas.openxmlformats.org/officeDocument/2006/sharedTypes" schemaLocation="shared-commonSimpleTypes.xsd"/>
+  <xsd:import namespace="http://schemas.openxmlformats.org/schemaLibrary/2006/main" schemaLocation="shared-customXmlSchemaProperties.xsd"/>
+  <xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml.xsd"/>
   <xsd:complexType name="CT_Empty"/>
   <xsd:complexType name="CT_OnOff">
     <xsd:attribute name="val" type="s:ST_OnOff"/>
@@ -1149,10 +1136,8 @@
   <xsd:complexType name="CT_Background">
     <xsd:sequence>
       <xsd:sequence maxOccurs="unbounded">
-        <xsd:any processContents="lax" namespace="urn:schemas-microsoft-com:vml" minOccurs="0"
-          maxOccurs="unbounded"/>
-        <xsd:any processContents="lax" namespace="urn:schemas-microsoft-com:office:office"
-          minOccurs="0" maxOccurs="unbounded"/>
+        <xsd:any processContents="lax" namespace="urn:schemas-microsoft-com:vml" minOccurs="0" maxOccurs="unbounded"/>
+        <xsd:any processContents="lax" namespace="urn:schemas-microsoft-com:office:office" minOccurs="0" maxOccurs="unbounded"/>
       </xsd:sequence>
       <xsd:element name="drawing" type="CT_Drawing" minOccurs="0"/>
     </xsd:sequence>
@@ -1167,10 +1152,8 @@
   <xsd:complexType name="CT_Object">
     <xsd:sequence>
       <xsd:sequence maxOccurs="unbounded">
-        <xsd:any processContents="lax" namespace="urn:schemas-microsoft-com:vml" minOccurs="0"
-          maxOccurs="unbounded"/>
-        <xsd:any processContents="lax" namespace="urn:schemas-microsoft-com:office:office"
-          minOccurs="0" maxOccurs="unbounded"/>
+        <xsd:any processContents="lax" namespace="urn:schemas-microsoft-com:vml" minOccurs="0" maxOccurs="unbounded"/>
+        <xsd:any processContents="lax" namespace="urn:schemas-microsoft-com:office:office" minOccurs="0" maxOccurs="unbounded"/>
       </xsd:sequence>
       <xsd:element name="drawing" type="CT_Drawing" minOccurs="0"/>
       <xsd:choice minOccurs="0">
@@ -1186,10 +1169,8 @@
   <xsd:complexType name="CT_Picture">
     <xsd:sequence>
       <xsd:sequence maxOccurs="unbounded">
-        <xsd:any processContents="lax" namespace="urn:schemas-microsoft-com:vml" minOccurs="0"
-          maxOccurs="unbounded"/>
-        <xsd:any processContents="lax" namespace="urn:schemas-microsoft-com:office:office"
-          minOccurs="0" maxOccurs="unbounded"/>
+        <xsd:any processContents="lax" namespace="urn:schemas-microsoft-com:vml" minOccurs="0" maxOccurs="unbounded"/>
+        <xsd:any processContents="lax" namespace="urn:schemas-microsoft-com:office:office" minOccurs="0" maxOccurs="unbounded"/>
       </xsd:sequence>
       <xsd:element name="movie" type="CT_Rel" minOccurs="0"/>
       <xsd:element name="control" type="CT_Control" minOccurs="0"/>
@@ -2642,8 +2623,7 @@
   </xsd:complexType>
   <xsd:complexType name="CT_Recipients">
     <xsd:sequence>
-      <xsd:element name="recipientData" type="CT_RecipientData" minOccurs="1" maxOccurs="unbounded"
-      />
+      <xsd:element name="recipientData" type="CT_RecipientData" minOccurs="1" maxOccurs="unbounded"/>
     </xsd:sequence>
   </xsd:complexType>
   <xsd:element name="recipients" type="CT_Recipients"/>
@@ -2681,8 +2661,7 @@
       <xsd:element name="colDelim" type="CT_DecimalNumber" minOccurs="0"/>
       <xsd:element name="type" type="CT_MailMergeSourceType" minOccurs="0"/>
       <xsd:element name="fHdr" type="CT_OnOff" minOccurs="0"/>
-      <xsd:element name="fieldMapData" type="CT_OdsoFieldMapData" minOccurs="0"
-        maxOccurs="unbounded"/>
+      <xsd:element name="fieldMapData" type="CT_OdsoFieldMapData" minOccurs="0" maxOccurs="unbounded"/>
       <xsd:element name="recipientData" type="CT_Rel" minOccurs="0" maxOccurs="unbounded"/>
     </xsd:sequence>
   </xsd:complexType>
@@ -2791,8 +2770,7 @@
       <xsd:element name="doNotVertAlignInTxbx" type="CT_OnOff" minOccurs="0"/>
       <xsd:element name="useAnsiKerningPairs" type="CT_OnOff" minOccurs="0"/>
       <xsd:element name="cachedColBalance" type="CT_OnOff" minOccurs="0"/>
-      <xsd:element name="compatSetting" type="CT_CompatSetting" minOccurs="0" maxOccurs="unbounded"
-      />
+      <xsd:element name="compatSetting" type="CT_CompatSetting" minOccurs="0" maxOccurs="unbounded"/>
     </xsd:sequence>
   </xsd:complexType>
   <xsd:complexType name="CT_CompatSetting">
@@ -2909,8 +2887,7 @@
       <xsd:element name="gutterAtTop" type="CT_OnOff" minOccurs="0"/>
       <xsd:element name="hideSpellingErrors" type="CT_OnOff" minOccurs="0"/>
       <xsd:element name="hideGrammaticalErrors" type="CT_OnOff" minOccurs="0"/>
-      <xsd:element name="activeWritingStyle" type="CT_WritingStyle" minOccurs="0"
-        maxOccurs="unbounded"/>
+      <xsd:element name="activeWritingStyle" type="CT_WritingStyle" minOccurs="0" maxOccurs="unbounded"/>
       <xsd:element name="proofState" type="CT_Proof" minOccurs="0"/>
       <xsd:element name="formsDesign" type="CT_OnOff" minOccurs="0"/>
       <xsd:element name="attachedTemplate" type="CT_Rel" minOccurs="0"/>
@@ -3415,8 +3392,7 @@
   </xsd:complexType>
   <xsd:complexType name="CT_ShapeDefaults">
     <xsd:choice maxOccurs="unbounded">
-      <xsd:any processContents="lax" namespace="urn:schemas-microsoft-com:office:office"
-        minOccurs="0" maxOccurs="unbounded"/>
+      <xsd:any processContents="lax" namespace="urn:schemas-microsoft-com:office:office" minOccurs="0" maxOccurs="unbounded"/>
     </xsd:choice>
   </xsd:complexType>
   <xsd:complexType name="CT_Comments">

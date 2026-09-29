@@ -11,10 +11,15 @@ Usage:
 
 import argparse
 import io
+import os
 import sys
 import zipfile
 from pathlib import Path
 from urllib.request import urlopen, Request
+
+from lxml import etree
+
+from xsd_validator import check_schemas
 
 ECMA_PART4_URL = (
     "https://ecma-international.org/wp-content/uploads/"
@@ -25,9 +30,18 @@ ECMA_PART2_URL = (
     "ECMA-376-2_5th_edition_december_2021.zip"
 )
 
+DUBLIN_CORE_URL = "https://www.dublincore.org/schemas/xmls/qdc/2003/04/02/"
+LOCAL_IMPORTS = {
+    "http://www.w3.org/XML/1998/namespace": "ooxml/xml.xsd",
+    "http://purl.org/dc/elements/1.1/": "opc/dc.xsd",
+    "http://purl.org/dc/terms/": "opc/dcterms.xsd",
+    "http://purl.org/dc/dcmitype/": "opc/dcmitype.xsd",
+}
+
 XML_XSD = """<?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  targetNamespace="http://www.w3.org/XML/1998/namespace" xml:lang="en">
+    targetNamespace="http://www.w3.org/XML/1998/namespace"
+    xml:lang="en">
   <xs:attribute name="lang" type="xs:language"/>
   <xs:attribute name="space">
     <xs:simpleType>
@@ -45,7 +59,8 @@ XML_XSD = """<?xml version="1.0" encoding="UTF-8"?>
     <xs:attribute ref="xml:space"/>
     <xs:attribute ref="xml:id"/>
   </xs:attributeGroup>
-</xs:schema>"""
+</xs:schema>
+"""
 
 
 def download(url: str) -> bytes:
@@ -66,6 +81,29 @@ def extract_nested_zip(outer_data: bytes, inner_name: str) -> dict[str, bytes]:
                     for name in inner.namelist()
                     if name.endswith(".xsd")
                 }
+
+
+def localize_imports(target_dir: Path):
+    for schema_path in target_dir.rglob("*.xsd"):
+        source = schema_path.read_bytes()
+        tree = etree.parse(str(schema_path), parser=etree.XMLParser(no_network=True))
+        changed = False
+        for element in tree.getroot().findall("{http://www.w3.org/2001/XMLSchema}import"):
+            relative_path = LOCAL_IMPORTS.get(element.get("namespace"))
+            if relative_path:
+                location = os.path.relpath(target_dir / relative_path, schema_path.parent)
+                if element.get("schemaLocation") != location:
+                    element.set("schemaLocation", location)
+                    changed = True
+        if changed:
+            content = etree.tostring(tree, encoding="UTF-8")
+            if source.startswith(b"<?xml"):
+                content = source.split(b"?>", 1)[0] + b"?>\n" + content
+            if source.endswith(b"\n"):
+                content += b"\n"
+            if b"\r\n" in source:
+                content = content.replace(b"\n", b"\r\n")
+            schema_path.write_bytes(content)
 
 
 def setup_schemas(target_dir: Path) -> bool:
@@ -100,7 +138,15 @@ def setup_schemas(target_dir: Path) -> bool:
         (ooxml_dir / "xml.xsd").write_text(XML_XSD)
         print("  Added xml.xsd (W3C XML namespace)")
 
-        total = len(ooxml_files) + len(opc_files) + 1
+        for name in ("dc.xsd", "dcterms.xsd", "dcmitype.xsd"):
+            (opc_dir / name).write_bytes(download(DUBLIN_CORE_URL + name))
+        localize_imports(target_dir)
+        errors = check_schemas(target_dir)
+        if errors:
+            raise RuntimeError("\n".join(errors))
+
+        total = len(ooxml_files) + len(opc_files) + 4
+        print("  All supported schema roots compile offline")
         print(f"\nDone: {total} schema files installed to {target_dir}/")
         return True
 

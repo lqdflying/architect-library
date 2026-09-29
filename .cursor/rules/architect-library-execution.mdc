@@ -33,6 +33,7 @@ Task is **not** complete until:
 Artifact skills (Word, PPT, XLSX, PDF) require **verification-before-completion** before delivery claims.
 
 - **PPT:** LibreOffice Impress + Poppler every delivery → `bash scripts/install_deps.sh office-system`
+- **DOCX preview:** LibreOffice Writer + Poppler. `bash scripts/runtime_readiness.sh --require-office` must pass for DOCX/PPTX readiness; it checks offline schemas, validation, and actual conversion outputs. Calc and spreadsheet recalculation are not checked.
 - **Word (new):** `bash scripts/install_deps.sh node` for docx-js; without npm → python-docx via `bash scripts/install_deps.sh office`
 - **PPT (new):** `bash scripts/install_deps.sh node` for pptxgenjs only — no python greenfield fallback
 - **Excalidraw:** Playwright via `bash scripts/install_deps.sh excalidraw`
@@ -88,7 +89,7 @@ Canonical sources: `user-rules/cursor/branch-strategy.mdc` (installs to `~/.curs
 |--------|---------|-----|
 | Office Python | `bash scripts/install_deps.sh office` | validate, extract, unpack/pack |
 | Excalidraw | `bash scripts/install_deps.sh excalidraw` | PNG render |
-| LibreOffice + Poppler | `bash scripts/install_deps.sh office-system` | **all PPT deliveries**, XLSX `recalc`, DOCX `accept`, conversions |
+| LibreOffice Writer + Impress + Poppler | `bash scripts/install_deps.sh office-system` | **all PPT deliveries**, DOCX `accept`, conversions; XLSX `recalc` additionally requires Calc |
 | PDF Python (pypdf, etc.) | `bash scripts/install_deps.sh pdf` | pdf-document scripts |
 | Node + npm globals | `bash scripts/install_deps.sh node` | new Word (docx-js) / new PPT (pptxgenjs) |
 | python-docx | `bash scripts/install_deps.sh office` | Word fallback when npm missing |

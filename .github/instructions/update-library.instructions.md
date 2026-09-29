@@ -72,7 +72,7 @@ test -f ~/.copilot/agents/code-review.agent.md && echo "OK: copilot agents"
 test -f ~/.copilot/agents/security-auditor.agent.md && echo "OK: security-auditor"
 grep -q 'disallowedTools: edit' ~/.copilot/agents/security-auditor.agent.md && echo "OK: security-auditor readonly"
 cd /home/opc/architect-library/skills/_shared/office-tools && uv run python3 office_tools.py --help >/dev/null && echo "OK: office tools"
-command -v soffice >/dev/null && command -v pdftoppm >/dev/null && echo "OK: office-system"
+bash /home/opc/architect-library/scripts/runtime_readiness.sh --require-office
 source /home/opc/architect-library/scripts/architect_env.sh
 command -v npm >/dev/null && echo "OK: npm CLI" || echo "WARN: npm CLI missing"
 test -d ~/.npm-global/lib/node_modules/docx && test -d ~/.npm-global/lib/node_modules/pptxgenjs && echo "OK: docx/pptxgenjs on disk"
@@ -80,7 +80,7 @@ cd /home/opc/architect-library/skills/_shared/office-tools && uv run python3 -c 
 bash /home/opc/architect-library/scripts/runtime_readiness.sh
 ```
 
-6. **Tell user:** "Library ready under ~/.copilot/ with runtimes installed. Reload VS Code (new agent chat)." If any runtime command failed, say "Library instructions were installed, but artifact runtime readiness is incomplete" and include the failing command plus `runtime_readiness.sh` output.
+6. **Tell user:** Report library-copy success separately from artifact readiness. Claim DOCX/PPTX readiness only when `bash scripts/runtime_readiness.sh --require-office` passes. This tests schema compilation, DOCX validation, Writer/Impress conversion, and Poppler rendering; `soffice` presence or exit 0 alone is insufficient. Calc and spreadsheet recalculation remain unverified. If a runtime command failed, say "Library instructions were installed, but artifact runtime readiness is incomplete" and include the failing command and failed capability. Reload VS Code or open a new agent chat.
 
 **PATH / npm globals:** `install_deps.sh` sources `scripts/architect_env.sh` and `install_node.sh` writes `~/.config/architect-library/env.sh` (+ `~/.bashrc` hook). Do **not** tell users pptxgenjs works via python-docx — only **Word** has that fallback; **new PPT decks** need pptxgenjs or a template. For manual Node in a shell: `source "$REPO/scripts/architect_env.sh"`.
 
