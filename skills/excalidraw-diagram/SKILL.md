@@ -1,6 +1,6 @@
 ---
 name: excalidraw-diagram
-description: Create Excalidraw diagram JSON files that make visual arguments. Use when the user wants to visualize workflows, architectures, or concepts. When editing an existing .excalidraw, run the geometric collision pass before the first PNG.
+description: Create Excalidraw diagram JSON files that make visual arguments. Use when the user wants to visualize workflows, architectures, or concepts. Validate connector bindings and rendered layout, not only collisions. When editing an existing .excalidraw, run the geometric collision pass before the first PNG.
 ---
 
 # Excalidraw Diagram Creator
@@ -166,6 +166,8 @@ For multi-concept diagrams: **each major concept must use a different visual pat
 ### Step 4: Sketch the Flow
 Before JSON, mentally trace how the eye moves through the diagram. There should be a clear visual story.
 
+Choose one primary visual argument. Do not add a delivery timeline, summary strip, or footer that only restates that argument. Keep the labels the drawing needs so it can be read on its own. A timeline or sequence stays when it is part of the question.
+
 ### Step 5: Generate JSON
 Only now create the Excalidraw elements. Read `references/shape-and-layout.md` for shape, color, layout, and text rules. See `references/element-templates.md` for copy-paste templates. **See below for how to handle large diagrams.**
 
@@ -191,7 +193,7 @@ After generating or editing the JSON, you MUST run the render-view-fix loop unti
 4. **Namespace seeds by section** (e.g., section 1 uses 100xxx, section 2 uses 200xxx) to avoid collisions.
 5. **Update cross-section bindings** as you go.
 
-**Phase 2: Review the whole** — cross-section arrows, spacing, IDs, and bindings.
+**Phase 2: Review the whole** — cross-section arrows, spacing, IDs, and bindings. A relationship is attached only when both endpoint bindings name real elements and each of those elements lists the arrow in `boundElements`. See `references/render-validate.md`.
 
 **Phase 3: Render & validate** — run the loop in `references/render-validate.md`.
 
@@ -246,7 +248,7 @@ See `references/json-schema.md` for additional schema details.
 12. **Typography hierarchy**: Are font size and color creating visual hierarchy (reducing need for boxes)?
 
 ### Structural
-13. **Connections**: Every relationship has an arrow or line
+13. **Connections**: Every relationship the diagram claims has a traceable connector. Node-to-node arrows bind both ends, and both endpoint elements list the arrow
 14. **Flow**: Clear visual path for the eye to follow
 15. **Hierarchy**: Important elements are larger/more isolated
 

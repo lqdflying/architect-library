@@ -63,6 +63,14 @@ All elements share these:
 }
 ```
 
+`elementId` must be another element, and that element must include this arrow in its `boundElements`:
+
+```json
+{ "id": "arrowId", "type": "arrow" }
+```
+
+The arrow's own `boundElements` lists a text label whose `containerId` is the arrow. It does not list the endpoint shapes. Omit one binding only when that end is intentionally open. Do not bind to text that already has a `containerId`; bind to the shape.
+
 ## Rectangle Roundness
 
 Add for rounded corners:

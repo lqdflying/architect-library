@@ -181,6 +181,8 @@ Copy-paste JSON templates for each Excalidraw element type. The `strokeColor` an
 
 For curves: use 3+ points in `points` array.
 
+The arrow snippet is not attached by itself. Each `startBinding` / `endBinding` element must also list this arrow in that element's `boundElements` (`type: "arrow"`), together with any text already listed there. `endBinding: null` means that end is open. A layer-to-layer spine arrow needs both ends. On the arrow object, `boundElements` is only the label whose `containerId` is the arrow (see the spine label below).
+
 ---
 
 ## Layered Server Architecture Templates

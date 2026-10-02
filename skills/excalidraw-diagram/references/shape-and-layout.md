@@ -116,6 +116,18 @@ Guide the eye: typically left→right or top→bottom for sequences, radial for 
 
 Position alone doesn't show relationships. If A relates to B, there must be an arrow.
 
+### Connected, Not Merely Touching
+
+- Bind a node-to-node arrow with `startBinding` and `endBinding`. Add `{ "id": "<arrow id>", "type": "arrow" }` to each endpoint's `boundElements`. A coordinate that meets a box is not an attached connection. The arrow's own `boundElements` is for a label on the arrow, not for the endpoints.
+- Bind to the shape. Do not bind to text that has a `containerId`. For an unboxed label, bind to that text or to a small marker, and align repeated markers in one column with the same gap. An open annotation or a timeline may leave an end unbound. A relationship arrow may not.
+- For a small fan-out, draw one arrow per destination, bound at the source and at that destination. Overlapping first segments can look like one trunk. A separate unbound trunk with branch stubs comes apart when a node moves. Add a bus element only when the bus is a named object and each branch binds to an explicit junction on it.
+- Use a short corridor, few bends, and arrowheads clear of dashed boundaries. A crossing must look different from a junction.
+- Place each connector label beside the segment or target it explains. Wrap a long note there. Do not delete a relationship to simplify the drawing. Use a second view when one canvas cannot show it.
+
+### One Diagram, One Main Story
+
+Do not add a second timeline, ownership recap, or footer that repeats the architecture. Keep the labels and evidence the drawing needs to be read on its own. Shorten the canvas by omitting that repeat. Do not shrink type or squeeze gaps below the sizes in this file. Keep a timeline when the user asked for that sequence or the system actually has one.
+
 ### Multi-section posters (reflow, don't insert in place)
 
 Inventory left, flow right, timeline below are **independent layers on one canvas**. Growing one layer is a **reflow of the occupied band**. Shift every element whose box intersects that band (or sits within the reserved gutter) — not only IDs that share a prefix. See `edit-existing.md`.
