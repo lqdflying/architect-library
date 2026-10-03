@@ -304,9 +304,9 @@ The install script runs **library** checks automatically for the `EDITOR` you pa
 
 | Skill | Before marking the task complete |
 |-------|----------------------------------|
-| **excalidraw-diagram** | Render `.excalidraw` → PNG, **view** the image (crop grown regions when editing), fix in a loop. Existing files: geometric collision pass before first PNG (`edit-existing.md`) |
+| **excalidraw-diagram** | Check both bindings and reciprocal endpoint references for node-to-node arrows. Render `.excalidraw` → PNG, **view** the image (crop grown regions when editing), fix in a loop. Existing files: geometric collision pass before first PNG (`edit-existing.md`) |
 | **word-document** | Validate DOCX; explicit table styling; deliver `.docx` only |
-| **powerpoint-presentation** | Validate PPTX; **`thumbnail` every deck**; **view** images; `office-system` if missing |
+| **powerpoint-presentation** | Validate PPTX; **`thumbnail` every deck**; **view** images; `office-system` if missing; test native PowerPoint opening when available, otherwise report it unverified; follow repair-prompt recovery in the skill |
 | **spreadsheet-document** | Deliver `.xlsx`; `recalc` until zero formula errors if formulas used |
 | **pdf-document** | Deliver `.pdf`; form fills per `references/forms.md` |
 | **verification-before-completion** | Fresh verification command output in same message before any completion/success claim |
@@ -322,6 +322,8 @@ The install script runs **library** checks automatically for the `EDITOR` you pa
 | **notion-mcp-ops** | Notion MCP server discovered with correct editor server name; fetch before write on updates; anchors from fetched content; formatting rules applied (`<callout>`, HTML tables); post-update verify fetch for structural edits; property names from fetched schema |
 
 **PowerPoint is not done** when the `.pptx` exists — only after layout preview (or user waives).
+
+Structural validation, rendered layout, and native PowerPoint opening are separate checks. LibreOffice rendering and the Office runtime-readiness gate do not prove that Microsoft PowerPoint accepts a delivered file. After a repair prompt, preserve the original, compare content and presenter notes, validate and preview any replacement, and obtain native-opening confirmation when possible. See [the recovery workflow](../skills/powerpoint-presentation/references/layout-preview.md#microsoft-powerpoint-compatibility).
 
 ## Custom agent execution (agents)
 
