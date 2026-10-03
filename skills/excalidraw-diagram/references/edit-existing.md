@@ -6,6 +6,16 @@ The render-view-fix loop in `render-validate.md` is still mandatory. Run **this 
 
 This is layout QA. It is not a diagram generator. Do not use it to synthesize a whole poster.
 
+## Learning from manual edits
+
+When asked to compare a user's drawing with an earlier generated version:
+
+1. Read the current file from disk and compare elements by stable ID. Ignore JSON indentation, element ordering, version nonces and editor defaults. Text width/height recalculation alone is not evidence that the user prefers different typography. Unsaved editor changes may not yet be present on disk.
+2. Render both snapshots at the same font and scale into temporary files. Do not overwrite the user's source or its published preview merely to compare them. Inspect both the overview and changed connector regions.
+3. Measure drawing changes such as endpoint attachment, reciprocal bindings, route bends, marker alignment, label proximity and exported frame size. Separate these observations from content edits, deleted relationships and remaining imperfections. A manual revision is evidence, not a rule to imitate every detail.
+4. Re-read the target immediately before an authorized edit. If it changed during comparison, refresh the affected evidence; do not restore the older snapshot. Preserve the user's coordinates and waypoints when a binding-only repair is sufficient.
+5. Record only transferable drawing lessons in the skill. Do not generalize a shorter canvas into a mandate to remove required relationships, or a partially improved binding count into an acceptable final result. Every intended node-to-node arrow needs both bindings and reciprocal endpoint references.
+
 ## Why ID-prefix shifts fail
 
 A multi-section poster (inventory tree on the left, process flow on the right, timeline below) is **independent layers on one canvas**. Growing one layer is a **reflow of the occupied band**, not an in-place insert.

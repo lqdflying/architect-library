@@ -1,6 +1,6 @@
 ---
 name: powerpoint-presentation
-description: Create, edit, and validate PowerPoint PPTX decks (slides, pitch decks, templates). Mandatory layout preview on every delivery — office_tools thumbnail grid + per-slide 150 DPI JPEGs (LibreOffice Impress + Poppler; install office-system). Architecture, executive, and general presentations. Validate PPTX; view preview images; fix overflow before finishing.
+description: Create, edit, and validate PowerPoint PPTX decks (slides, pitch decks, templates). Mandatory layout preview on every delivery — office_tools thumbnail grid + per-slide 150 DPI JPEGs (LibreOffice Impress + Poppler; install office-system). Architecture, executive, and general presentations. Validate PPTX; view preview images; distinguish PowerPoint opening from XML/render checks; recover from repair prompts.
 ---
 
 # PowerPoint Architecture Presentation Creator
@@ -15,7 +15,7 @@ Before authoring substantial content, read:
 
 - `../_shared/architecture-document-principles.md`
 - `references/pptx-guide.md`
-- `references/layout-preview.md` — render preview images and verify layout before delivery
+- `references/layout-preview.md` — render preview images, check compatibility evidence, and recover from PowerPoint repair prompts
 
 For PPTX tooling, use the shared toolkit:
 
@@ -118,6 +118,8 @@ python3 ../_shared/office-tools/office_tools.py thumbnail output.pptx /tmp/deck-
 
 View the grid for deck flow; open per-slide JPEGs to catch text overflow, overlap, and margin issues. Fix the generator or XML, then re-preview affected slides only. Repeat until the deck passes the layout checklist or the user explicitly waives visual QA.
 
+10. **PowerPoint compatibility:** when Microsoft PowerPoint is available, open the exact final file and confirm there is no repair prompt. XML validation and LibreOffice rendering do not prove this. If PowerPoint is unavailable, state that native opening is unverified. A reported repair prompt requires the recovery workflow in `references/layout-preview.md`; do not redeliver the same file merely because it passes validation.
+
 ## Template Editing Workflow
 
 For an existing PPTX template, inspect before editing.
@@ -175,6 +177,8 @@ Check for: text clipping; misaligned titles/icons/charts; broken images; hidden 
 | "Validated earlier" | Re-run validate + thumbnail in this message |
 | "User seems in a hurry" | No exceptions — layout preview is mandatory |
 | "XML looks fine" | XML ≠ rendered layout — view JPEGs |
+| "LibreOffice opens it" | Rendering is not proof of Microsoft PowerPoint compatibility |
+| "The repair worked" | Distinguish a locally checked re-export from user-confirmed native opening |
 
 ## Delivery Checklist
 
@@ -187,3 +191,4 @@ Before finishing:
 5. **Deliver only the `.pptx`** unless the user asked for preview images or generator scripts.
 6. Keep preview JPEGs and unpacked working directories out of the deliverable folder (use `/tmp` or `.cursor/`).
 7. Keep generator `.js` out of the deliverable folder unless the user wants a maintained regen script under `scripts/`.
+8. Report structural validation, rendered layout, and native PowerPoint opening separately. If the user reports a repair prompt, preserve the original, compare slide text and presenter notes after any re-export, validate and preview the replacement, and request confirmation of native opening. Do not invent the specific XML cause when it has not been isolated.

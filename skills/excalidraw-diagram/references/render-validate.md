@@ -4,6 +4,19 @@ You cannot judge a diagram from JSON alone. After generating or editing the Exca
 
 **Editing an existing file:** run the geometric collision pass in `edit-existing.md` **before** this loop. Then crop the grown region and Read those PNGs. A full-page PNG summary often misses a local overlap.
 
+## Connector Integrity Before Export
+
+A zero-collision PNG does not prove a relationship is attached. For every arrow that claims a node-to-node relationship, check the JSON:
+
+- `startBinding.elementId` and `endBinding.elementId` exist and are not deleted. An id that merely exists in the file is not enough.
+- Each of those elements includes `{ "id": "<arrow id>", "type": "arrow" }` in its `boundElements`.
+- The arrow's own `boundElements` lists only a text label on the arrow. Do not put the endpoint shapes there.
+- Bind to the shape. If label text has a `containerId`, do not bind the arrow to that text. For an unboxed label, bind to the text element or to a small marker that is the real endpoint.
+
+An intentionally open end (annotation, timeline tick, decorative line) may omit that binding. Do not use that exception for a relationship the diagram claims.
+
+The headless renderer cannot move elements. The check above is the required gate. If an interactive editor is already open, you may move one connected node on a disposable copy and confirm the connector follows. Never run that test on the user's original file.
+
 ## How to Render
 
 ```bash
@@ -25,6 +38,7 @@ After generating the initial JSON, run this cycle:
 - Does the eye flow through the diagram in the order you designed?
 - Is the visual hierarchy correct — hero elements dominant, supporting elements smaller?
 - For technical diagrams: are the evidence artifacts (code snippets, data examples) readable and properly placed?
+- Does the exported frame still give the main architecture room to read, or does an extra timeline or footer shrink it?
 
 **3. Check for visual defects:**
 
@@ -33,6 +47,7 @@ After generating the initial JSON, run this cycle:
 - JSON rewritten with `ensure_ascii=True` (em dashes become `\u2014` — rewrite with `ensure_ascii=False`)
 - Arrows crossing through elements instead of routing around them
 - Arrows landing on the wrong element or pointing into empty space
+- A relationship that only meets a shape in the PNG, or a trunk line that is not bound to the nodes it appears to join
 - Labels floating ambiguously (not clearly anchored to what they describe)
 - Uneven spacing between elements that should be evenly spaced
 - Sections with too much whitespace next to sections that are too cramped
@@ -82,7 +97,7 @@ After rendering, confirm:
 2. **No text overflow**: All text fits within its container
 3. **No overlapping elements**: Geometric (AABB + scene-space arrow points) and cropped PNG of the grown region; shapes and text don't overlap unintentionally
 4. **Even spacing**: Similar elements have consistent spacing
-5. **Arrows land correctly**: Arrows connect to intended elements without crossing others
+5. **Arrows land correctly**: Node-to-node arrows have both bindings and a matching `boundElements` entry on each endpoint. Each fan-out destination has its own bound arrow
 6. **Readable at export size**: Text is legible in the rendered PNG
 7. **Balanced composition**: No large empty voids or overcrowded regions
 
