@@ -51,7 +51,7 @@ cd references
 uv run python render_excalidraw.py <path-to-file.excalidraw>
 ```
 
-The renderer writes a PNG next to the `.excalidraw` file. Inspect the PNG and iterate until the diagram is readable, balanced, and accurate. When **editing** an existing file, run the collision pass in `references/edit-existing.md` before the first PNG, and crop the grown region when viewing.
+The renderer writes a PNG next to the `.excalidraw` file and keeps it at or below 29,000 vision patches (`ceil(width / 32) × ceil(height / 32)`). APIs reject an image above 30,000 patches. `--scale` defaults to 2 and is lowered when the uncapped image would exceed that budget. Inspect the PNG and iterate until the diagram is readable, balanced, and accurate. When **editing** an existing file, run the collision pass in `references/edit-existing.md` before the first PNG, and crop the grown region from that PNG when viewing.
 
 Shift a horizontal or vertical band (does not synthesize a diagram):
 

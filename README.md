@@ -469,6 +469,8 @@ cd skills/excalidraw-diagram/references
 uv run python render_excalidraw.py path/to/diagram.excalidraw
 ```
 
+The script keeps the PNG at or below 29,000 vision patches. A larger image is rejected by vision APIs at 30,000 patches (`ceil(width / 32) × ceil(height / 32)`).
+
 From `skills/_shared/office-tools` (or use paths from an installed skill folder—see each `SKILL.md`):
 
 ```bash

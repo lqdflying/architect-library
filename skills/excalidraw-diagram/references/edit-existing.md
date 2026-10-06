@@ -72,4 +72,4 @@ When a script rewrites the file, use `json.dumps(..., indent=2, ensure_ascii=Fal
 
 ## Then render
 
-Crop the grown region and Read those PNGs. Full-page PNG summaries miss local overlap. See `render-validate.md`.
+Crop the grown region from the view-safe PNG and Read those crops. The renderer keeps each full export at or below 29,000 vision patches (APIs reject above 30,000). Full-page PNG summaries miss local overlap. See `render-validate.md`.

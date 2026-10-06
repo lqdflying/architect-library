@@ -4,6 +4,10 @@ Usage:
     cd <installed-skills-root>/excalidraw-diagram/references
     uv run python render_excalidraw.py <path-to-file.excalidraw> [--output path.png] [--scale 2]
 
+The PNG stays at or below MAX_VIEW_PATCHES (under the 30,000-patch vision
+reject limit). --scale is a requested supersample; it is reduced when the
+full-size image would exceed that budget.
+
 First-time setup:
     cd <installed-skills-root>/excalidraw-diagram/references
     bash install_deps.sh
@@ -22,11 +26,20 @@ import contextlib
 import functools
 import http.server
 import json
+import math
 import socketserver
+import struct
 import sys
 import threading
 from pathlib import Path
 from urllib.parse import urlparse
+
+# Vision requests count ceil(width/32) * ceil(height/32) patches and reject
+# an image above 30,000 after processing. They do not shrink it to fit.
+# 29,000 leaves slack for a screenshot that is a few pixels larger than asked.
+PATCH_PX = 32
+PATCH_LIMIT = 30_000
+MAX_VIEW_PATCHES = 29_000
 
 
 @contextlib.contextmanager
@@ -65,10 +78,95 @@ def validate_excalidraw(data: dict) -> list[str]:
     return errors
 
 
+def patch_count(width: int, height: int) -> int:
+    """32px patches needed to cover an image. A patch may hang past the edge."""
+    if width <= 0 or height <= 0:
+        return 0
+    return math.ceil(width / PATCH_PX) * math.ceil(height / PATCH_PX)
+
+
+def fit_view_size(
+    css_w: float,
+    css_h: float,
+    requested_scale: float,
+    max_patches: int = MAX_VIEW_PATCHES,
+) -> tuple[int, int]:
+    """Largest pixel size at or under requested_scale that stays within max_patches.
+
+    Aspect ratio is preserved aside from flooring each side to a whole pixel.
+    """
+    if css_w <= 0 or css_h <= 0:
+        raise ValueError(f"SVG size must be positive, got {css_w}x{css_h}")
+    if requested_scale <= 0:
+        raise ValueError(f"scale must be positive, got {requested_scale}")
+    if max_patches < 1:
+        raise ValueError(f"max_patches must be positive, got {max_patches}")
+
+    max_w = max(1, math.floor(css_w * requested_scale))
+    max_h = max(1, math.floor(css_h * requested_scale))
+    if patch_count(max_w, max_h) <= max_patches:
+        return max_w, max_h
+
+    best = (1, 1)
+    lo, hi = 0.0, 1.0
+    for _ in range(48):
+        mid = (lo + hi) / 2.0
+        width = max(1, math.floor(max_w * mid))
+        height = max(1, math.floor(max_h * mid))
+        if patch_count(width, height) <= max_patches:
+            best = (width, height)
+            lo = mid
+        else:
+            hi = mid
+    return best
+
+
+def _parse_px(value: object) -> float:
+    if isinstance(value, bool) or value is None:
+        raise ValueError(f"missing SVG size: {value!r}")
+    if isinstance(value, (int, float)):
+        return float(value)
+    text = str(value).strip()
+    if text.endswith("px"):
+        text = text[:-2].strip()
+    return float(text)
+
+
+def _png_size(path: Path) -> tuple[int, int]:
+    with path.open("rb") as handle:
+        signature = handle.read(8)
+        if signature != b"\x89PNG\r\n\x1a\n":
+            raise ValueError(f"Not a PNG: {path}")
+        handle.read(4)
+        chunk_type = handle.read(4)
+        if chunk_type != b"IHDR":
+            raise ValueError(f"PNG missing IHDR: {path}")
+        width, height = struct.unpack(">II", handle.read(8))
+    return width, height
+
+
+def _report_png(width: int, height: int, requested_w: int, requested_h: int, max_patches: int) -> None:
+    patches = patch_count(width, height)
+    requested_patches = patch_count(requested_w, requested_h)
+    if requested_patches <= max_patches:
+        print(
+            f"rendered {width}x{height} ({patches} patches, limit {max_patches})",
+            file=sys.stderr,
+        )
+        return
+    print(
+        f"capped PNG to {width}x{height} ({patches} patches, limit {max_patches}); "
+        f"requested scale would have produced {requested_w}x{requested_h} "
+        f"({requested_patches} patches)",
+        file=sys.stderr,
+    )
+
+
 def render(
     excalidraw_path: Path,
     output_path: Path | None = None,
-    scale: int = 2,
+    scale: float = 2,
+    max_patches: int = MAX_VIEW_PATCHES,
 ) -> Path:
     """Render an .excalidraw file to PNG. Returns the output PNG path."""
     # Import playwright here so validation errors show before import errors
@@ -125,12 +223,12 @@ def render(
                 sys.exit(1)
             raise
 
-        # The exported SVG is sized to its content and captured via an element
-        # screenshot below, so the page viewport does not affect the output;
-        # a generous fixed size just avoids any layout quirks.
+        # Pixel size is applied on the SVG after export. device_scale_factor
+        # stays 1 so a requested --scale is not applied twice. The viewport
+        # does not clip an element screenshot.
         page = browser.new_page(
             viewport={"width": 1920, "height": 1080},
-            device_scale_factor=scale,
+            device_scale_factor=1,
         )
 
         # Load template via local HTTP — file:// URLs break dynamic import() of the
@@ -198,14 +296,64 @@ def render(
             # Wait for render completion signal
             page.wait_for_function("window.__renderComplete === true", timeout=15000)
 
-            # Screenshot the SVG element
             svg_el = page.query_selector("#root svg")
             if svg_el is None:
                 print("ERROR: No SVG element found after render.", file=sys.stderr)
                 browser.close()
                 sys.exit(1)
 
-            svg_el.screenshot(path=str(output_path))
+            try:
+                css_w = _parse_px(result.get("width"))
+                css_h = _parse_px(result.get("height"))
+            except (TypeError, ValueError):
+                box = svg_el.bounding_box()
+                if not box or box["width"] <= 0 or box["height"] <= 0:
+                    print("ERROR: Could not read SVG size.", file=sys.stderr)
+                    browser.close()
+                    sys.exit(1)
+                css_w = float(box["width"])
+                css_h = float(box["height"])
+
+            view_w, view_h = fit_view_size(css_w, css_h, scale, max_patches)
+            requested_w = max(1, math.floor(css_w * scale))
+            requested_h = max(1, math.floor(css_h * scale))
+
+            # Re-measure after the screenshot. If the bitmap is still over the
+            # budget (padding, DPR), shrink and shoot again.
+            for _ in range(3):
+                page.evaluate(
+                    """({width, height}) => {
+                        const svg = document.querySelector('#root svg');
+                        const root = document.getElementById('root');
+                        svg.setAttribute('width', String(width));
+                        svg.setAttribute('height', String(height));
+                        svg.style.width = width + 'px';
+                        svg.style.height = height + 'px';
+                        if (root) {
+                            root.style.width = width + 'px';
+                            root.style.height = height + 'px';
+                        }
+                    }""",
+                    {"width": view_w, "height": view_h},
+                )
+                svg_el.screenshot(path=str(output_path))
+                actual_w, actual_h = _png_size(output_path)
+                if patch_count(actual_w, actual_h) <= max_patches:
+                    _report_png(actual_w, actual_h, requested_w, requested_h, max_patches)
+                    break
+                shrink = math.sqrt(max_patches / patch_count(actual_w, actual_h)) * 0.98
+                view_w = max(1, math.floor(actual_w * shrink))
+                view_h = max(1, math.floor(actual_h * shrink))
+            else:
+                actual_w, actual_h = _png_size(output_path)
+                print(
+                    f"ERROR: PNG {actual_w}x{actual_h} is still "
+                    f"{patch_count(actual_w, actual_h)} patches "
+                    f"(limit {max_patches}).",
+                    file=sys.stderr,
+                )
+                browser.close()
+                sys.exit(1)
 
         browser.close()
 
@@ -216,14 +364,35 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Render Excalidraw JSON to PNG")
     parser.add_argument("input", type=Path, help="Path to .excalidraw JSON file")
     parser.add_argument("--output", "-o", type=Path, default=None, help="Output PNG path (default: same name with .png)")
-    parser.add_argument("--scale", "-s", type=int, default=2, help="Device scale factor (default: 2)")
+    parser.add_argument(
+        "--scale",
+        "-s",
+        type=float,
+        default=2,
+        help="Requested render scale (default: 2). Reduced when the PNG would exceed the vision patch limit.",
+    )
+    parser.add_argument(
+        "--max-patches",
+        type=int,
+        default=MAX_VIEW_PATCHES,
+        help=f"Max 32px patches in the PNG (default: {MAX_VIEW_PATCHES}; APIs reject above {PATCH_LIMIT})",
+    )
     args = parser.parse_args()
 
     if not args.input.exists():
         print(f"ERROR: File not found: {args.input}", file=sys.stderr)
         sys.exit(1)
+    if args.scale <= 0:
+        print(f"ERROR: --scale must be positive, got {args.scale}", file=sys.stderr)
+        sys.exit(1)
+    if args.max_patches < 1 or args.max_patches > PATCH_LIMIT:
+        print(
+            f"ERROR: --max-patches must be from 1 to {PATCH_LIMIT}, got {args.max_patches}",
+            file=sys.stderr,
+        )
+        sys.exit(1)
 
-    png_path = render(args.input, args.output, args.scale)
+    png_path = render(args.input, args.output, args.scale, args.max_patches)
     print(str(png_path))
 
 
