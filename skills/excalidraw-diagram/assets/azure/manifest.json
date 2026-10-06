@@ -1,0 +1,10 @@
+{
+  "version": "V24",
+  "archive": "Azure_Public_Service_Icons_V24.zip",
+  "sha256": "921594ccd1bf3d9c0a1bd7b6d924e050551a59342f2b353bb74bdcf761c35141",
+  "source": "https://arch-center.azureedge.net/icons/Azure_Public_Service_Icons_V24.zip",
+  "guidelines": "https://learn.microsoft.com/azure/architecture/icons/",
+  "retrieved": "2026-10-06",
+  "prefix": "Azure_Public_Service_Icons/Icons/",
+  "terms_member": "Azure_Public_Service_Icons/Microsoft_Terms_of_Use.pdf"
+}

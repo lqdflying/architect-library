@@ -44,7 +44,7 @@ For simple mental models or non-server concepts, use generic patterns in `visual
                         |
               [Store / Connection Manager]     ← blue bar
                         |
-                    (PostgreSQL)               ← green ellipse(s)
+                    (PostgreSQL)               ← green ellipse(s) or Azure icon(s)
 
 [Auth Layer]                              [Admin & Management]
  dashed purple                           dashed navy boundary
@@ -66,7 +66,7 @@ Build one section per edit pass. Use descriptive string IDs and namespace seeds 
 1. **Title block** — free-floating text only (no boxes)
 2. **Client ellipses** — top band, spaced horizontally
 3. **Server bar** — center, primary blue, white text
-4. **Spine layers** — vertical stack below server: route boundary → critical/safety bar → store bar → database ellipse(s)
+4. **Spine layers** — vertical stack below server: route boundary → critical/safety bar → store bar → database ellipse(s), or official icons for Azure databases
 5. **Spine arrows** — between layers, with bound labels where layers need names
 6. **Auth sidebar** — left: section title, dashed purple boundary, stacked auth boxes
 7. **Admin sidebar** — right: section title, dashed navy boundary, stacked admin boxes
@@ -90,7 +90,7 @@ Build one section per edit pass. Use descriptive string IDs and namespace seeds 
 | Critical / safety / merge | rectangle bar | Warning/Reset (`#fee2e2` / `#dc2626`) | full spine width |
 | RBAC / policy | rectangle | Decision (`#fef3c7` / `#b45309`) | ~220×42 |
 | Auth inner boxes | rectangle | AI/LLM purple | ~220×42 |
-| Database | ellipse | End/Success (`#a7f3d0` / `#047857`) | ~140–180×65–71 |
+| Database | ellipse, or the official icon for an Azure database | End/Success (`#a7f3d0` / `#047857`); an icon keeps its native colors | ~140–180×65–71 |
 | Auth boundary | rectangle, dashed | purple stroke, transparent fill | ~260×180 |
 | Route / admin boundary | rectangle, dashed | navy stroke, transparent fill | ~430–455×180–310 |
 | Ancillary panel | rectangle, `strokeWidth: 1` | Sidebar ancillary (`#dbeafe` / `#1e3a5f`) | ~260×60–120 |
@@ -98,6 +98,8 @@ Build one section per edit pass. Use descriptive string IDs and namespace seeds 
 | Flow evidence artifact | rectangle | `#1e293b` fill, `#22c55e` text | variable |
 
 All shapes: `roughness: 0`, `opacity: 100`, `strokeWidth: 2` (except boundaries and ancillary: `strokeWidth: 1`).
+
+On an Azure diagram, a zone that is an Azure service, such as a database, cache, storage account, Key Vault or Entra ID, uses its official icon and caption from `azure-icons.md` instead of the shape above. Keep its position in the layout. A database that is not an Azure service stays a green ellipse.
 
 ---
 
@@ -108,7 +110,7 @@ Every major component gets up to three text layers:
 | Tier | Placement | Font | Color | Content |
 |------|-----------|------|-------|---------|
 | 1 — Label | Inside shape (`containerId`) | 14–16px, `fontFamily: 3` | match shape stroke, or `#ffffff` on dark fills | Name + route or technology, e.g. `/mcp\nFastMCP` |
-| 2 — Detail caption | Free-floating below shape | 10px, `fontFamily: 3` | `#64748b` | Bullet list of capabilities, endpoints, or behaviors |
+| 2 — Detail caption | Free-floating outside shape, on the clearest side | 10px, `fontFamily: 3` | `#64748b` | Capabilities, endpoints, or behaviors |
 | 3 — Function names | Inside red/critical bars or evidence artifacts | 14–16px (bars) or 9px (artifacts) | match bar stroke or `#22c55e` on dark | Real names: `validate_sql() · safe_identifier()` |
 
 **Examples from reference diagrams:**
@@ -120,7 +122,7 @@ Every major component gets up to three text layers:
 
 Use middle dot (`·`) to separate inline function lists. Use `\n` for multi-line detail captions.
 
-**Rule**: detail captions are always **outside** the shape (`containerId: null`), positioned ~5–15px below the parent box.
+**Rule**: detail captions stay **outside** the shape (`containerId: null`). Below is one option; use above or beside the icon/box when that removes a crossing or preserves a straight route. Keep the caption close enough to identify its parent without ambiguity.
 
 ---
 
@@ -169,9 +171,9 @@ Before rendering, confirm each zone:
 - [ ] External actors are ellipses (not rectangles)
 - [ ] Server bar is centered on spine with white label text
 - [ ] Route/tool row sits inside a dashed navy boundary
-- [ ] Each route box has a 10px gray detail caption below
+- [ ] Each route box has a nearby gray detail caption on the clearest side
 - [ ] Critical/safety layer is red, full spine width, with real function names
-- [ ] Database(s) are green ellipses at bottom
+- [ ] Database(s) sit at the bottom: green ellipses, or official icons for Azure databases
 - [ ] Auth sidebar has purple dashed boundary
 - [ ] Admin sidebar has navy dashed boundary
 - [ ] Spine arrows between major layers have bound labels where layers are named
@@ -190,5 +192,5 @@ Before rendering, confirm each zone:
 | Auth/admin boxes floating without boundary | Dashed grouping rectangle |
 | Generic placeholder text | Research real tool names, routes, functions |
 | All arrows same color | Color matches source semantic |
-| Detail text inside small route boxes | Free-floating caption below shape |
+| Detail text inside small route boxes | Free-floating caption outside the shape, placed to clear connectors |
 | Skipping red safety/merge layer | Dedicated spine bar for guardrails or resolution logic |

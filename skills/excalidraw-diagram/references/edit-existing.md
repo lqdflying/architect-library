@@ -12,9 +12,13 @@ When asked to compare a user's drawing with an earlier generated version:
 
 1. Read the current file from disk and compare elements by stable ID. Ignore JSON indentation, element ordering, version nonces and editor defaults. Text width/height recalculation alone is not evidence that the user prefers different typography. Unsaved editor changes may not yet be present on disk.
 2. Render both snapshots at the same font and scale into temporary files. Do not overwrite the user's source or its published preview merely to compare them. Inspect both the overview and changed connector regions.
-3. Measure drawing changes such as endpoint attachment, reciprocal bindings, route bends, marker alignment, label proximity and exported frame size. Separate these observations from content edits, deleted relationships and remaining imperfections. A manual revision is evidence, not a rule to imitate every detail.
+3. Measure drawing changes such as endpoint attachment, reciprocal bindings, route bends, marker alignment, label proximity and exported frame size. Match recreated arrows by their source/target pair when IDs changed. Separate these observations from content edits, deleted relationships and remaining imperfections. A manual revision is evidence, not a rule to imitate every detail.
 4. Re-read the target immediately before an authorized edit. If it changed during comparison, refresh the affected evidence; do not restore the older snapshot. Preserve the user's coordinates and waypoints when a binding-only repair is sufficient.
 5. Record only transferable drawing lessons in the skill. Do not generalize a shorter canvas into a mandate to remove required relationships, or a partially improved binding count into an acceptable final result. Every intended node-to-node arrow needs both bindings and reciprocal endpoint references.
+
+Compare icon-caption placement as a pair, not just absolute coordinates. A label moved above an icon may be reserving the connection point below it. Inspect connector crossings, bend count and route length together, and distinguish editor rounding from visibly diagonal segments. A user's description is a hypothesis to test against the drawing, not the lesson itself.
+
+For each proposed lesson, record the observed change, the affected retained relationships, the mechanism that improves readability and the tradeoff. Reject rules supported only by fewer elements, changed scope or a stated preference. Preserve successful parts of the earlier drawing too. Do not copy incidental defects such as a connector landing on an icon caption, a lost binding or a color no longer explained by the legend.
 
 ## Why ID-prefix shifts fail
 

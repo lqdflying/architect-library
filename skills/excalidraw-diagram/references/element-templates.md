@@ -163,6 +163,7 @@ Copy-paste JSON templates for each Excalidraw element type. The `strokeColor` an
   "roughness": 0,
   "opacity": 100,
   "angle": 0,
+  "roundness": null,
   "seed": 33333,
   "version": 1,
   "versionNonce": 44444,
@@ -179,7 +180,7 @@ Copy-paste JSON templates for each Excalidraw element type. The `strokeColor` an
 }
 ```
 
-For curves: use 3+ points in `points` array.
+Architecture elbows use horizontal/vertical waypoints, for example `[[0, 0], [60, 0], [60, 80], [118, 80]]`, with `angle: 0` and `roundness: null`. Choose a clear route with the fewest bends. Do not introduce curves or diagonal segments unless explicitly requested or required by the concept. For a required curve, such as a feedback loop, use 3+ points with `roundness: {"type": 2}`; points alone still render straight segments.
 
 The arrow snippet is not attached by itself. Each `startBinding` / `endBinding` element must also list this arrow in that element's `boundElements` (`type: "arrow"`), together with any text already listed there. `endBinding: null` means that end is open. A layer-to-layer spine arrow needs both ends. On the arrow object, `boundElements` is only the label whose `containerId` is the arrow (see the spine label below).
 
@@ -276,7 +277,7 @@ Use with colors from `color-palette.md`. See `layered-server-architecture.md` fo
   "roughness": 0,
   "opacity": 100,
   "roundness": {"type": 3},
-  "boundElements": [{"id": "server_text", "type": "text"}]
+  "boundElements": [{"id": "server_text", "type": "text"}, {"id": "arrow_ai_to_server", "type": "arrow"}, {"id": "arrow_server_to_tools", "type": "arrow"}]
 }
 ```
 ```json
@@ -355,7 +356,8 @@ Use with colors from `color-palette.md`. See `layered-server-architecture.md` fo
   "strokeStyle": "dashed",
   "roughness": 0,
   "opacity": 100,
-  "roundness": {"type": 3}
+  "roundness": {"type": 3},
+  "boundElements": [{"id": "arrow_server_to_tools", "type": "arrow"}]
 }
 ```
 
@@ -368,9 +370,10 @@ Use with colors from `color-palette.md`. See `layered-server-architecture.md` fo
   "strokeWidth": 2,
   "roughness": 0,
   "opacity": 100,
+  "roundness": null,
   "points": [[0, 0], [0, 50]],
   "startBinding": {"elementId": "server_rect", "focus": 0, "gap": 2},
-  "endBinding": null,
+  "endBinding": {"elementId": "route_boundary", "focus": 0, "gap": 3},
   "endArrowhead": "arrow",
   "boundElements": [{"type": "text", "id": "arrow_server_label"}]
 }
@@ -401,7 +404,8 @@ Use with colors from `color-palette.md`. See `layered-server-architecture.md` fo
   "strokeStyle": "dashed",
   "roughness": 0,
   "opacity": 100,
-  "points": [[0, 0], [-200, 117]],
+  "points": [[0, 0], [-100, 0], [-100, 117], [-200, 117]],
+  "roundness": null,
   "startBinding": {"elementId": "config_label", "focus": 0, "gap": 10},
   "endBinding": {"elementId": "conn_mgr_rect", "focus": 0.7, "gap": 5},
   "endArrowhead": "arrow"
@@ -441,6 +445,9 @@ Use with colors from `color-palette.md`. See `layered-server-architecture.md` fo
 ```
 
 ### Database Ellipse
+
+For an Azure database, use an `image` node with its official icon instead (`azure-icons.md`).
+
 ```json
 {
   "type": "ellipse",

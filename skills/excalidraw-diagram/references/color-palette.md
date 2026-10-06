@@ -2,6 +2,8 @@
 
 **This is the single source of truth for all colors and brand-specific styles.** To customize diagrams for your own brand, edit this file — everything else in the skill is universal.
 
+Official service icons are an exception to diagram recoloring: retain their native SVG artwork and colors. Apply this palette to surrounding boundaries, text and connectors. See `azure-icons.md` for the offline Azure icon cache and usage terms.
+
 ---
 
 ## Shape Colors (Semantic)
