@@ -23,7 +23,13 @@ The headless renderer cannot move elements. The check above is the required gate
 cd <installed-skills-root>/excalidraw-diagram/references && uv run python render_excalidraw.py <path-to-file.excalidraw>
 ```
 
-This outputs a PNG next to the `.excalidraw` file. Then use the **Read tool** on the PNG to actually view it.
+This outputs a PNG next to the `.excalidraw` file. Then use the **Read tool** on that PNG to actually view it.
+
+### View-safe PNG size
+
+Vision APIs reject an image above 30,000 patches. Patches are `ceil(width / 32) × ceil(height / 32)`, counted after their own resize rules, and an over-limit image is not shrunk for you. The render script keeps the PNG at or below 29,000 patches. Read that file.
+
+`--scale` (default 2) is only a request. The script lowers it when the full image would exceed the budget, and it prints `capped PNG` on stderr when it does. Do not raise `--scale` to beat the cap. Do not Read a screenshot from another tool, and do not stitch crops into one image before Read. A crop of the capped PNG is smaller, so it is safe to Read. When a label is too small in the overview, crop that region from this PNG and Read the crop.
 
 ## The Loop
 

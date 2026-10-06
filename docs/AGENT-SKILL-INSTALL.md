@@ -304,7 +304,7 @@ The install script runs **library** checks automatically for the `EDITOR` you pa
 
 | Skill | Before marking the task complete |
 |-------|----------------------------------|
-| **excalidraw-diagram** | Check both bindings and reciprocal endpoint references for node-to-node arrows. Render `.excalidraw` → PNG, **view** the image (crop grown regions when editing), fix in a loop. Existing files: geometric collision pass before first PNG (`edit-existing.md`) |
+| **excalidraw-diagram** | Check both bindings and reciprocal endpoint references for node-to-node arrows. Render `.excalidraw` → PNG under the 30,000-patch vision cap, **view** that image (crop grown regions from it when editing), fix in a loop. Existing files: geometric collision pass before first PNG (`edit-existing.md`) |
 | **word-document** | Validate DOCX; explicit table styling; deliver `.docx` only |
 | **powerpoint-presentation** | Validate PPTX; **`thumbnail` every deck**; **view** images; `office-system` if missing; test native PowerPoint opening when available, otherwise report it unverified; follow repair-prompt recovery in the skill |
 | **spreadsheet-document** | Deliver `.xlsx`; `recalc` until zero formula errors if formulas used |

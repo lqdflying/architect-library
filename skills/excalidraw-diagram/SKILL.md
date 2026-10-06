@@ -1,6 +1,6 @@
 ---
 name: excalidraw-diagram
-description: Create Excalidraw diagram JSON files that make visual arguments. Use when the user wants to visualize workflows, architectures, or concepts. Validate connector bindings and rendered layout, not only collisions. When editing an existing .excalidraw, run the geometric collision pass before the first PNG.
+description: Create Excalidraw diagram JSON files that make visual arguments. Use when the user wants to visualize workflows, architectures, or concepts. Validate connector bindings and rendered layout, not only collisions. When editing an existing .excalidraw, run the geometric collision pass before the first PNG. The rendered PNG stays under the 30,000-patch vision limit; Read that file.
 ---
 
 # Excalidraw Diagram Creator
@@ -175,7 +175,7 @@ Only now create the Excalidraw elements. Read `references/shape-and-layout.md` f
 If the task changes an existing `.excalidraw`, read `references/edit-existing.md` and run the geometric collision pass **before** the first PNG. Shift the occupied band, not only IDs that share a prefix. A small `shift_region.py` helper is allowed for that pass.
 
 ### Step 6: Render & Validate (MANDATORY)
-After generating or editing the JSON, you MUST run the render-view-fix loop until the diagram looks right. This is not optional — see `references/render-validate.md` for the full process. Crop and Read the grown region; a full-page PNG summary misses local overlap.
+After generating or editing the JSON, you MUST run the render-view-fix loop until the diagram looks right. This is not optional — see `references/render-validate.md` for the full process. The renderer caps the PNG under the 30,000-patch vision limit. Read that PNG. Crop and Read the grown region from it; a full-page summary misses local overlap.
 
 ---
 
