@@ -29,12 +29,14 @@ For layered server diagrams (`layered-server-architecture.md`):
 | External actor (AI, tool, browser) | `ellipse` | Top band; color encodes client type |
 | Internal layer (server, store, safety) | `rectangle` bar | Center spine; `roundness: {type: 3}` |
 | Route / tool endpoint | `rectangle` | Inside dashed boundary; ~125×70 |
-| Database | `ellipse` | Bottom of spine; green semantic |
+| Database | `ellipse` | Bottom of spine; green semantic. An Azure database uses its official icon (`azure-icons.md`) |
 | Section grouping | dashed `rectangle` | Transparent fill; auth=purple stroke, routes/admin=navy |
 | Decision (2FA, policy gate) | `diamond` | Amber semantic |
 | Flow evidence | dark `rectangle` | Terminal-style; green text inside |
 
-**Detail captions** are always free-floating text below the parent shape (`containerId: null`), never inside route boxes.
+On an Azure diagram, a zone that is an Azure service, such as a database, cache, storage account, Key Vault or Entra ID, uses its official icon and caption from `azure-icons.md` instead of the shape in this table. Keep the zone's position in the layout and its connector colors. A database that is not an Azure service stays a green ellipse.
+
+**Detail captions** are free-floating text outside the parent shape (`containerId: null`). Place them above, below, left or right to keep connectors clear; below is not mandatory. Keep each caption closer to its own icon than to a neighboring icon, and group the icon and caption so they move together.
 
 ### Architecture Font Scale
 
@@ -44,7 +46,7 @@ For layered server diagrams (`layered-server-architecture.md`):
 | Section title | 16px | `#1e40af` | "Authentication Layer", "MCP Tool Layer" |
 | Shape label | 14–16px | match shape or `#ffffff` on dark | Inside boxes/ellipses |
 | Spine arrow label | 16–20px | `#1e1e1e`, often `fontFamily: 5` | Bound to vertical arrows |
-| Detail caption | 10px | `#64748b` | Below route boxes, stores, auth |
+| Detail caption | 10px | `#64748b` | Beside route boxes, stores or auth; choose the clearest side |
 | Evidence artifact | 9px | `#22c55e` on `#1e293b` | Flow sequences in admin |
 | Ancillary panel label | 13px | `#3b82f6` | Above sidebar info boxes |
 
@@ -64,6 +66,8 @@ Colors encode information, not decoration. Every color choice should come from `
 - Always pair a darker stroke with a lighter fill for contrast
 
 **Do not invent new colors.** If a concept doesn't fit an existing semantic category, use Primary/Neutral or Secondary.
+
+Official service icons retain their original artwork and colors. Use the palette for the diagram's boundaries, labels and connectors; do not recolor an Azure icon to match it. See `azure-icons.md` for the bundled SVG cache.
 
 ## Modern Aesthetics
 
@@ -123,6 +127,18 @@ Position alone doesn't show relationships. If A relates to B, there must be an a
 - For a small fan-out, draw one arrow per destination, bound at the source and at that destination. Overlapping first segments can look like one trunk. A separate unbound trunk with branch stubs comes apart when a node moves. Add a bus element only when the bus is a named object and each branch binds to an explicit junction on it.
 - Use a short corridor, few bends, and arrowheads clear of dashed boundaries. A crossing must look different from a junction.
 - Place each connector label beside the segment or target it explains. Wrap a long note there. Do not delete a relationship to simplify the drawing. Use a second view when one canvas cannot show it.
+
+### Routing Before Decoration
+
+- Arrange regions around the dominant relationships before routing individual edges. Do not place an unrelated system boundary between a source and its main destinations: lines crossing it can imply traversal or membership. A shared hub usually belongs near the center of its connected peers; the test is the resulting routes, not geometric symmetry.
+- Reserve different corridors for different connection families, such as network peerings, service access and diagnostics. Let a clearly separated secondary route be longer when that makes the primary flow easier to trace. Optimize for semantic clarity and fewer crossings first, then bends and length; shortest total wire length is not the goal.
+- Avoid crossings when another placement or route can remove them. Move a source closer to its destinations, reorder peer nodes, or reserve a separate connector lane before adding detours. Check each retained relationship: fewer arrows after an edit can mean reduced scope rather than better routing.
+- Use straight horizontal or vertical segments with right-angle bends for architecture connectors. Consecutive scene-space points must share either x or y; set `angle: 0` and `roundness: null` on these arrows. Straight does not mean diagonal. Use curves or diagonal paths only when the concept or the user explicitly requires them.
+- Prefer one straight segment, then the fewest necessary elbows within the chosen corridor. Keep parallel routes separated. Do not run connectors through unrelated icons, labels or container headings. Choose the connection side and caption side together: the side occupied by incoming or outgoing arrows should stay clear, so a caption above an icon can free its lower connection point. Keep repeated subgraphs aligned so the reader can compare them.
+- For unavoidable crossings, make continuation distinct from connection. Junctions need an explicit node or marker; an ordinary crossing is not a junction. Do not merge independent routes into an unlabeled shared trunk to hide crossings.
+- Preserve both endpoint bindings and reciprocal `boundElements` when rerouting. Check the complete route in scene coordinates after moving any connected node; endpoint attachment alone does not keep the intermediate segments orthogonal.
+
+Do not turn a successful arrangement into a universal top/bottom rule. A control plane can sit above, below or beside compute; place it where its links stay clear of unrelated network relationships. Allow at most 0.5 px of scene-space tolerance for editor rounding when measuring routes, but snap newly authored points to exact shared axes.
 
 ### One Diagram, One Main Story
 

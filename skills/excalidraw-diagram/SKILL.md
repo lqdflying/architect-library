@@ -1,6 +1,6 @@
 ---
 name: excalidraw-diagram
-description: Create Excalidraw diagram JSON files that make visual arguments. Use when the user wants to visualize workflows, architectures, or concepts. Validate connector bindings and rendered layout, not only collisions. When editing an existing .excalidraw, run the geometric collision pass before the first PNG. The rendered PNG stays under the 30,000-patch vision limit; Read that file.
+description: Create Excalidraw diagram JSON files that make visual arguments. Use when the user wants to visualize workflows, architectures, or concepts. Every Azure diagram must use the cached official Azure icons for its Azure services, or a reported labeled box when no icon exists. Avoid preventable crossings and use horizontal/vertical architecture connectors. Validate bindings and rendered layout. When editing an existing .excalidraw, run the geometric collision pass before the first PNG. Keep the PNG under the 30,000-patch vision limit and inspect it.
 ---
 
 # Excalidraw Diagram Creator
@@ -15,6 +15,7 @@ Generate `.excalidraw` JSON files that **argue visually**, not just display info
 - `references/layered-server-architecture.md` — **MCP/server architecture layout** (read before any backend, MCP, or multi-client system diagram)
 - `references/visual-patterns.md` — fan-out, convergence, timeline, tree, and other patterns
 - `references/shape-and-layout.md` — shape meaning, color, layout, text rules
+- `references/azure-icons.md` — **required for every Azure diagram**: offline official SVG lookup and embedding, preserving native artwork
 - `references/edit-existing.md` — **editing an existing file**: geometric collision pass before the first PNG (load this when changing a diagram, not only when creating one)
 - `references/element-templates.md` — copy-paste JSON templates per element type
 - `references/json-schema.md` — Excalidraw JSON structure details
@@ -22,7 +23,7 @@ Generate `.excalidraw` JSON files that **argue visually**, not just display info
 
 ## Customization
 
-**All colors and brand-specific styles live in one file:** `references/color-palette.md`. Read it before generating any diagram and use it as the single source of truth for all color choices — shape fills, strokes, text colors, evidence artifact backgrounds, everything.
+**Diagram colors and brand-specific styles live in one file:** `references/color-palette.md`. Read it before generating any diagram and use it for shape fills, strokes, text colors and evidence backgrounds. Official service icons are the exception: preserve their native artwork and colors.
 
 To make this skill produce diagrams in your own brand style, edit `color-palette.md`. Everything else in this file is universal design methodology and Excalidraw best practices.
 
@@ -168,6 +169,8 @@ Before JSON, mentally trace how the eye moves through the diagram. There should 
 
 Choose one primary visual argument. Do not add a delivery timeline, summary strip, or footer that only restates that argument. Keep the labels the drawing needs so it can be read on its own. A timeline or sequence stays when it is part of the question.
 
+Arrange regions around the main relationships, keeping unrelated boundaries out of their paths. Reserve separate corridors for network, service and diagnostic connections. Remove preventable crossings by moving or reordering nodes; use horizontal/vertical architecture segments with the fewest necessary bends within each corridor. Choose caption placement to leave connection points clear.
+
 ### Step 5: Generate JSON
 Only now create the Excalidraw elements. Read `references/shape-and-layout.md` for shape, color, layout, and text rules. See `references/element-templates.md` for copy-paste templates. **See below for how to handle large diagrams.**
 
@@ -249,7 +252,7 @@ See `references/json-schema.md` for additional schema details.
 
 ### Structural
 13. **Connections**: Every relationship the diagram claims has a traceable connector. Node-to-node arrows bind both ends, and both endpoint elements list the arrow
-14. **Flow**: Clear visual path for the eye to follow
+14. **Flow**: Clear visual path; no preventable crossings, diagonal architecture segments or unnecessary detours
 15. **Hierarchy**: Important elements are larger/more isolated
 
 ### Technical
@@ -261,11 +264,11 @@ See `references/json-schema.md` for additional schema details.
 
 ### Layered Server Architecture (when applicable)
 28. **Vertical spine**: Request flow readable top-to-bottom through server → routes → safety → store → DB
-29. **Three-tier labels**: Route/tool boxes have 10px gray detail captions below with real names
+29. **Three-tier labels**: Route/tool boxes have nearby gray detail captions with real names; placement keeps connectors clear
 30. **Actor ellipses**: External clients at top are ellipses, color-coded (purple AI, orange tool, blue browser)
 31. **Dashed boundaries**: Auth (purple) and admin/route (navy) regions grouped by dashed rectangles
 32. **Spine arrow labels**: Major layer transitions have bound labels on vertical arrows
 33. **Red critical layer**: Safety, merge, or guardrail logic uses the red spine bar with real function names
 
 ### Visual Validation (Render Required)
-34–40: Complete the visual validation checklist in `references/render-validate.md`.
+34–43: Complete the visual validation checklist in `references/render-validate.md`.

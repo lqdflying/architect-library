@@ -17,6 +17,8 @@ An intentionally open end (annotation, timeline tick, decorative line) may omit 
 
 The headless renderer cannot move elements. The check above is the required gate. If an interactive editor is already open, you may move one connected node on a disposable copy and confirm the connector follows. Never run that test on the user's original file.
 
+For architecture routes, check every consecutive pair of scene-space points: x or y must match (allow at most 0.5 px for editor rounding), `angle` must be zero and `roundness` must be null. Examine connector-to-connector intersections as well as connector-to-text collisions. Remove avoidable crossings by adjusting placement or lanes; count neither shared endpoint attachment nor an explicit junction as an accidental crossing. A low crossing count is not success if required relationships were removed.
+
 ## How to Render
 
 ```bash
@@ -52,12 +54,14 @@ After generating the initial JSON, run this cycle:
 - Text or shapes overlapping other elements (fail if two non-connected boxes overlap, or a dashed/polyline arrow crosses a label it is not bound to)
 - JSON rewritten with `ensure_ascii=True` (em dashes become `\u2014` — rewrite with `ensure_ascii=False`)
 - Arrows crossing through elements instead of routing around them
+- Preventable connector crossings, diagonal segments, rounded routing or unnecessary perimeter-length detours
 - Arrows landing on the wrong element or pointing into empty space
 - A relationship that only meets a shape in the PNG, or a trunk line that is not bound to the nodes it appears to join
 - Labels floating ambiguously (not clearly anchored to what they describe)
 - Uneven spacing between elements that should be evenly spaced
 - Sections with too much whitespace next to sections that are too cramped
 - Text too small to read at the rendered size
+- Font substitution changing caption widths or apparent spacing. Compare revisions with the same loaded font and export scale; an icon-only render with fallback text is not layout evidence.
 - Overall composition feels lopsided or unbalanced
 
 **4. Fix** — Edit the JSON to address everything you found. Common fixes:
@@ -65,7 +69,7 @@ After generating the initial JSON, run this cycle:
 - Widen containers when text is clipped
 - Adjust `x`/`y` coordinates to fix spacing and alignment
 - Add intermediate waypoints to arrow `points` arrays to route around elements
-- Reposition labels closer to the element they describe
+- Reposition labels closer to the element they describe; use above, below or beside the icon to free the route
 - Resize elements to rebalance visual weight across sections
 
 **5. Re-render & re-view** — Run the render script again and Read the new PNG.
@@ -106,13 +110,16 @@ After rendering, confirm:
 5. **Arrows land correctly**: Node-to-node arrows have both bindings and a matching `boundElements` entry on each endpoint. Each fan-out destination has its own bound arrow
 6. **Readable at export size**: Text is legible in the rendered PNG
 7. **Balanced composition**: No large empty voids or overcrowded regions
+8. **Routing**: Horizontal/vertical architecture segments; no preventable crossings, ambiguous junctions or avoidable detours
+9. **Icon captions**: Clear association with the intended icon and no interference with connector lanes; above-icon placement is valid
+10. **Service artwork**: Every Azure service node uses its cached official icon (or a labeled box where the cache has none, reported in the reply); icons render without distortion; every image element's `fileId` resolves to embedded `files` data
 
 ## Layered Server Architecture Checks
 
 When the diagram follows `layered-server-architecture.md`, also confirm:
 
 1. **Vertical spine**: Eye can trace server → routes → safety → store → DB without crossing confusion
-2. **Detail captions**: Every route/tool box has a 10px gray caption below with real names
+2. **Detail captions**: Every route/tool box has a nearby gray caption with real names on a side that keeps routes clear
 3. **Dashed boundaries**: Auth region (purple) and admin/route region (navy) are visibly grouped
 4. **Client color coding**: Purple = AI/MCP, orange = external tool, blue = browser/admin client
 5. **Red critical layer**: Safety, merge, or guardrail bar stands out on the spine with function names

@@ -62,8 +62,28 @@ uv run python shift_region.py diagram.excalidraw --below 1075 --dy 108 --dry-run
 ## Key References
 
 - `SKILL.md` - design methodology and workflow
+- `references/shape-and-layout.md` - relationship-driven placement, orthogonal routing and flexible icon captions
+- `references/azure-icons.md` - offline official Azure icon cache, usage terms and embedding helper
 - `references/color-palette.md` - single source of truth for colors
 - `references/layered-server-architecture.md` - MCP/server architecture layout (vertical spine + sidebars)
 - `references/edit-existing.md` - collision pass when editing an existing diagram
 - `references/element-templates.md` - reusable Excalidraw JSON templates
 - `references/json-schema.md` - Excalidraw file format reference
+
+## Azure Icon Cache
+
+The skill includes Microsoft's V24 SVG package under `assets/azure/`, with version, source and checksum in `manifest.json`. It installs with the skill and needs no network access during drawing. Embedded icons keep their original artwork; diagrams retain their own copy of each selected SVG.
+
+```bash
+python3 references/azure_icons.py search "Databricks"
+python3 references/azure_icons.py embed /path/to/diagram.excalidraw \
+  --icon 'workspace_icon=analytics/10787-icon-service-Azure-Databricks.svg'
+```
+
+The image node must already exist. The helper packages assets only; it does not generate or reposition a diagram. See [Azure icon guidance](references/azure-icons.md) for the complete workflow and Microsoft's permitted uses.
+
+Verify the bundled cache and helper offline:
+
+```bash
+python3 -I -B references/test_azure_icons.py -v
+```

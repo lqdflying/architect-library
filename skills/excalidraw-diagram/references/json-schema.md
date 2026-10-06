@@ -11,6 +11,7 @@
 | `text` | Labels inside shapes |
 | `line` | Non-arrow connections |
 | `frame` | Grouping containers |
+| `image` | Official service icons and other embedded artwork |
 
 ## Common Properties
 
@@ -70,6 +71,14 @@ All elements share these:
 ```
 
 The arrow's own `boundElements` lists a text label whose `containerId` is the arrow. It does not list the endpoint shapes. Omit one binding only when that end is intentionally open. Do not bind to text that already has a `containerId`; bind to the shape.
+
+For architecture diagrams, use `angle: 0` and `roundness: null` on arrows with axis-aligned waypoints. Bind an icon relationship to the image element, not its nearby caption, and include the arrow in the image's `boundElements`.
+
+## Image Assets
+
+An image element uses `fileId`, `status: "saved"`, `scale: [1, 1]` and its normal position/dimensions. Keep service icons at `angle: 0` and preserve their aspect ratio. The top-level `files[fileId]` entry contains `id`, `mimeType`, `dataURL`, `created` and `lastRetrieved`. For official Azure SVGs, the MIME type is `image/svg+xml` and `dataURL` starts with `data:image/svg+xml;base64,`.
+
+Use the offline search/embed helper in `azure-icons.md` to package original artwork. A remote image URL or local filesystem path is not a replacement for the embedded `files` entry. All image IDs must resolve before rendering.
 
 ## Rectangle Roundness
 
