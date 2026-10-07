@@ -22,6 +22,7 @@ bash ../_shared/office-tools/install_deps.sh --with-system
 ```bash
 cd ../_shared/office-tools
 uv run python3 office_tools.py recalc model.xlsx
+uv run python3 office_tools.py recalc model.xlsx 60 --force   # accept external-link loss
 uv run python3 office_tools.py validate model.xlsx --auto-repair
 ```
 

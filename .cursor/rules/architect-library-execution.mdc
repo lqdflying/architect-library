@@ -14,7 +14,7 @@ Task is **not** complete until:
 | **word-document (no npm)** | python-docx + `validate`; note fallback in reply; `bash scripts/install_deps.sh office` |
 | **powerpoint-presentation** | PPTX validates; **`thumbnail` every deck** (grid + `--per-slide` 150 DPI), images **viewed**, overflow fixed; `office-system` installed if missing; test native PowerPoint opening when available, otherwise report it unverified; follow repair-prompt recovery in the skill |
 | **powerpoint-presentation (no npm)** | Template/XML path only — **no** greenfield deck; do not claim new-deck delivery without pptxgenjs or user template; preview still mandatory if `.pptx` delivered |
-| **spreadsheet-document** | `.xlsx` delivered; if formulas used: `office_tools.py recalc` → JSON `status: success` (zero formula errors); `office-system` for recalc |
+| **spreadsheet-document** | `.xlsx` delivered; formulas LibreOffice can evaluate (no `XLOOKUP`/`XMATCH`/`SORT`/`FILTER`/`UNIQUE`/`SEQUENCE`; `_xlfn.` prefix where required); if formulas used: `office_tools.py recalc` → JSON `status: success` (zero formula errors; `status: success` is not proof the numbers are right); external-link refusal is a failed recalc until cached values are preserved or `--force`; `office-system` for recalc |
 | **pdf-document** | Deliver requested `.pdf`; form fills: run validation scripts per `references/forms.md` |
 | **verification-before-completion** | No completion/success claim without fresh verification command output in the same message |
 | **newagentlink** | `/tmp/<topic>-newagentlink.md` written once this turn; one-shot banner present; live git gathered; chat returns path + starter prompt only; never writes `/tmp/<topic>-handoff.md` |
@@ -91,7 +91,7 @@ Canonical sources: `user-rules/cursor/branch-strategy.mdc` (installs to `~/.curs
 |--------|---------|-----|
 | Office Python | `bash scripts/install_deps.sh office` | validate, extract, unpack/pack |
 | Excalidraw | `bash scripts/install_deps.sh excalidraw` | PNG render |
-| LibreOffice Writer + Impress + Poppler | `bash scripts/install_deps.sh office-system` | **all PPT deliveries**, DOCX `accept`, conversions; XLSX `recalc` additionally requires Calc |
+| LibreOffice Writer + Impress + Calc + Poppler | `bash scripts/install_deps.sh office-system` | **all PPT deliveries**, DOCX `accept`, conversions, XLSX `recalc` |
 | PDF Python (pypdf, etc.) | `bash scripts/install_deps.sh pdf` | pdf-document scripts |
 | Node + npm globals | `bash scripts/install_deps.sh node` | new Word (docx-js) / new PPT (pptxgenjs) |
 | python-docx | `bash scripts/install_deps.sh office` | Word fallback when npm missing |

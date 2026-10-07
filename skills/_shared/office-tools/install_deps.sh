@@ -33,10 +33,10 @@ install_system_deps() {
     sudo apt-get update -qq
     sudo apt-get install -y --no-install-recommends libreoffice poppler-utils
   elif command -v dnf &>/dev/null; then
-    # impress component required for PPTX→PDF; headless for server use
-    sudo dnf install -y libreoffice-writer libreoffice-impress libreoffice-headless poppler-utils
+    # impress for PPTX→PDF; calc for spreadsheet recalc; headless for server use
+    sudo dnf install -y libreoffice-writer libreoffice-impress libreoffice-calc libreoffice-headless poppler-utils
   elif command -v yum &>/dev/null; then
-    sudo yum install -y libreoffice-writer libreoffice-impress libreoffice-headless poppler-utils
+    sudo yum install -y libreoffice-writer libreoffice-impress libreoffice-calc libreoffice-headless poppler-utils
   elif command -v pacman &>/dev/null; then
     sudo pacman -S --needed --noconfirm libreoffice-still poppler
   elif command -v zypper &>/dev/null; then
@@ -48,7 +48,7 @@ install_system_deps() {
 }
 
 if [[ "$WITH_SYSTEM" == "--with-system" ]]; then
-  echo "Installing system dependencies (LibreOffice Writer + Impress + Poppler)..."
+  echo "Installing system dependencies (LibreOffice Writer + Impress + Calc + Poppler)..."
   install_system_deps
   echo "Installed for PPTX layout preview, PDF conversion, and DOCX accept-changes."
 elif [[ -n "$WITH_SYSTEM" ]]; then

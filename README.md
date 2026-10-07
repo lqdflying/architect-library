@@ -26,7 +26,7 @@ Run these steps **once** on each computer (or CI image) where you want rendering
 | Node.js + npm | `bash scripts/install_deps.sh node` (or included in `install_deps.sh` `all`); offline Excalidraw vendor uses same npm bootstrap pattern |
 | python-docx | Included in `bash scripts/install_deps.sh office` — Word fallback when npm/`docx` unavailable |
 | sudo (Linux only) | Optional OS libraries for headless Chromium (`install_deps.sh`) and LibreOffice/Poppler (`office-system`) |
-| LibreOffice Writer + Impress + Poppler | **Optional** for document generation / XML tooling; **required for previews**. Writer supports DOCX conversion and `accept`; Impress supports mandatory PPTX layout preview. Install once: `bash scripts/install_deps.sh office-system` |
+| LibreOffice Writer + Impress + Calc + Poppler | **Optional** for document generation / XML tooling; **required for previews and spreadsheet recalc**. Writer supports DOCX conversion and `accept`; Impress supports mandatory PPTX layout preview; Calc supports `office_tools.py recalc`. Install once: `bash scripts/install_deps.sh office-system` |
 
 **Artifact capability without npm:** Word new DOCX → python-docx; PowerPoint new deck → **not supported** (template/XML edit only). Run `bash scripts/runtime_readiness.sh` after install to see status.
 
@@ -37,11 +37,11 @@ From the repository root (after `git clone`):
 ```bash
 cd architect-library   # or your clone path
 bash scripts/install_deps.sh              # Excalidraw + Office + PDF + Node/npm (docx, pptxgenjs)
-bash scripts/install_deps.sh office-system   # Writer + Impress + Poppler, then required DOCX/PPTX checks
+bash scripts/install_deps.sh office-system   # Writer + Impress + Calc + Poppler, then required DOCX/PPTX checks
 bash scripts/install_library.sh all cursor   # or: all copilot — skills + agents + that editor's handoff instruction
 ```
 
-**Is LibreOffice mandatory?** Not for creating `.docx` or building `.pptx` source (Node/python). **Yes for completing PowerPoint skill work**—every deck must go through layout preview (`thumbnail`), which needs LibreOffice Impress + Poppler. Word-only tasks can skip `office-system`. Install: `bash scripts/install_deps.sh office-system`.
+**Is LibreOffice mandatory?** Not for creating `.docx` or building `.pptx` source (Node/python). **Yes for completing PowerPoint skill work and spreadsheet formula recalc**—every deck must go through layout preview (`thumbnail`), which needs LibreOffice Impress + Poppler, and `office_tools.py recalc` needs LibreOffice Calc. Word-only tasks can skip `office-system`. Install: `bash scripts/install_deps.sh office-system`.
 
 Before claiming DOCX/PPTX readiness, run `bash scripts/runtime_readiness.sh --require-office`. It verifies offline schema compilation, generated DOCX validation, and real DOCX/PPTX conversion to readable PDF/PNG outputs. It returns nonzero on failure; library instructions can still be installed separately. Calc and spreadsheet recalculation are not covered by this gate.
 
@@ -161,7 +161,7 @@ See [Installation](#installation) for Copilot / Claude Code paths, or [docs/AGEN
 | `excalidraw-diagram` | Create Excalidraw architecture diagrams, workflows, system maps, and concept visuals. |
 | `word-document` | Create or edit DOCX architecture documents, HLDs, LLDs, ADRs, design docs, requirements, comments, and tracked changes. |
 | `powerpoint-presentation` | Create or edit PPTX decks; **every delivery requires layout preview** (slide images via LibreOffice + Poppler). |
-| `spreadsheet-document` | Create or edit `.xlsx`; formula recalc via `office_tools.py recalc` (LibreOffice). |
+| `spreadsheet-document` | Create or edit `.xlsx`. Use formulas LibreOffice can evaluate; `office_tools.py recalc` must return JSON `status: success` before delivery. |
 | `pdf-document` | Read, create, merge, split, and fill PDFs. |
 | `verification-before-completion` | Fresh verification evidence before any completion or delivery claim. |
 | `newagentlink` | One-shot `/tmp/<topic>-newagentlink.md` so a new agent can continue without the old transcript. Not the review ledger. |
@@ -287,7 +287,7 @@ One working branch at a time. The branch already checked out is that branch.
 | [`skills/powerpoint-presentation/README.md`](skills/powerpoint-presentation/README.md) | PPT setup (including optional icon packages) |
 | [`skills/powerpoint-presentation/references/pptx-guide.md`](skills/powerpoint-presentation/references/pptx-guide.md) | pptxgenjs and template editing |
 | [`skills/powerpoint-presentation/references/layout-preview.md`](skills/powerpoint-presentation/references/layout-preview.md) | PPTX layout preview images (grid + per-slide JPEGs) |
-| [`skills/spreadsheet-document/SKILL.md`](skills/spreadsheet-document/SKILL.md) | XLSX workflow and recalc |
+| [`skills/spreadsheet-document/SKILL.md`](skills/spreadsheet-document/SKILL.md) | XLSX workflow, LibreOffice-safe formulas, and recalc |
 | [`skills/pdf-document/SKILL.md`](skills/pdf-document/SKILL.md) | PDF workflows and form fill |
 | [`skills/_shared/architecture-document-principles.md`](skills/_shared/architecture-document-principles.md) | Shared structure for architecture docs and decks |
 | [`skills/_shared/office-tools/README.md`](skills/_shared/office-tools/README.md) | Full `office_tools.py` command reference and validation checks |
