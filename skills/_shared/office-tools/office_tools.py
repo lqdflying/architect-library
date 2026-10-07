@@ -12,7 +12,7 @@ Usage:
     python3 office_tools.py slide unpacked/ slide2.xml
     python3 office_tools.py clean unpacked/
     python3 office_tools.py thumbnail presentation.pptx /tmp/preview --per-slide /tmp/slides --dpi 150
-    python3 office_tools.py recalc model.xlsx
+    python3 office_tools.py recalc model.xlsx [timeout_seconds] [--force]
 """
 
 import sys

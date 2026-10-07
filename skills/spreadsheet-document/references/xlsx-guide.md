@@ -10,12 +10,19 @@ Detailed patterns for spreadsheet creation, editing, and formula verification.
 - Use a consistent, professional font (e.g., Arial, Times New Roman) for all deliverables unless otherwise instructed by the user
 
 ### Zero Formula Errors
-- Every Excel model MUST be delivered with ZERO formula errors (#REF!, #DIV/0!, #VALUE!, #N/A, #NAME?)
+- Every Excel model MUST be delivered with ZERO formula errors (#REF!, #DIV/0!, #VALUE!, #N/A, #NAME?, #NULL!, #NUM!)
+- If an error might predate your edit, prove it: load the original with `data_only=True` and read that cell
+- `recalc` JSON `status: success` means the formulas evaluated. It does not mean the numbers are right. Check 2–3 formulas before filling a grid
+
+### Follow the spec
+- Use the sheet names, column headers, and formulas the user named
+- A workbook you create for someone to fill in needs a short legend of editable cells and one example row. Do not add that row to a file you were asked to edit
 
 ### Preserve Existing Templates (when updating templates)
 - Study and EXACTLY match existing format, style, and conventions when modifying files
 - Never impose standardized formatting on files with established patterns
 - Existing template conventions ALWAYS override these guidelines
+- Find designated input cells first (distinct font color, fill, or shading), write only there, and leave existing formulas untouched
 
 ## Financial models
 
@@ -35,7 +42,7 @@ Unless otherwise stated by the user or existing template
 - **Years**: Format as text strings (e.g., "2024" not "2,024")
 - **Currency**: Use $#,##0 format; ALWAYS specify units in headers ("Revenue ($mm)")
 - **Zeros**: Use number formatting to make all zeros "-", including percentages (e.g., "$#,##0;($#,##0);-")
-- **Percentages**: Default to 0.0% format (one decimal)
+- **Percentages**: Default to 0.0% format (one decimal), stored as fractions (`0.15` renders `15.0%`; storing `15` renders `1500.0%`)
 - **Multiples**: Format as 0.0x for valuation multiples (EV/EBITDA, P/E)
 - **Negative numbers**: Use parentheses (123) not minus -123
 
@@ -45,6 +52,15 @@ Unless otherwise stated by the user or existing template
 - Place ALL assumptions (growth rates, margins, multiples, etc.) in separate assumption cells
 - Use cell references instead of hardcoded values in formulas
 - Example: Use =B5*(1+$B$6) instead of =B5*1.05
+
+#### Functions LibreOffice can evaluate
+
+`office_tools.py recalc` uses LibreOffice. A function it cannot evaluate becomes `#NAME?` in the file you deliver.
+
+- Prefer `SUMIFS`, `INDEX`, `MATCH`, `IFERROR`, and `SUMPRODUCT`. They need no prefix.
+- These later functions work only with an `_xlfn.` prefix, because openpyxl writes the formula text verbatim: `_xlfn.TEXTJOIN`, `_xlfn.CONCAT`, `_xlfn.IFS`, `_xlfn.SWITCH`, `_xlfn.MAXIFS`, `_xlfn.MINIFS`. Written bare, each yields `#NAME?`.
+- Do not use `XLOOKUP`, `XMATCH`, `SORT`, `FILTER`, `UNIQUE`, or `SEQUENCE`. This LibreOffice cannot evaluate them. They are spilling array functions, and an openpyxl file has no spill metadata, so a newer build can fill only the top-left cell and still report `total_errors: 0`. Use `INDEX`/`MATCH`. Sort, filter, and de-duplicate in Python before writing cells.
+- A formula LibreOffice could not parse is written back lowercased.
 
 #### Formula Error Prevention
 - Verify all cell references are correct
@@ -69,7 +85,7 @@ A user may ask you to create, edit, or analyze the contents of an .xlsx file. Yo
 
 ## Important Requirements
 
-**LibreOffice Required for Formula Recalculation**: You can assume LibreOffice is installed for recalculating formula values using the `../_shared/office-tools/office_tools.py recalc` script. The script automatically configures LibreOffice on first run, including in sandboxed environments where Unix sockets are restricted (handled by `soffice (install: bash scripts/install_deps.sh office-system)`)
+**LibreOffice Calc is required for formula recalculation.** Use `../_shared/office-tools/office_tools.py recalc`. Install it with `bash scripts/install_deps.sh office-system` from the repository root. The script configures a LibreOffice macro on first run, including sandboxed environments where Unix sockets are restricted (`soffice_wrapper.py`).
 
 ## Reading and analyzing data
 
@@ -217,10 +233,35 @@ python ../_shared/office-tools/office_tools.py recalc output.xlsx 30
 
 The script:
 - Automatically sets up LibreOffice macro on first run
-- Recalculates all formulas in all sheets
-- Scans ALL cells for Excel errors (#REF!, #DIV/0!, etc.)
-- Returns JSON with detailed error locations and counts
+- Recalculates all formulas in all sheets and rewrites the file in place
+- Scans cells for Excel errors (#REF!, #DIV/0!, etc.)
+- Returns JSON with error locations (up to 100 per type) and counts
+- Refuses when external-link formulas have lost their cached values (`--force` overrides)
 - Works on both Linux and macOS
+
+### External links
+
+A formula such as `='[1]Returns Analysis'!$B$2` points at another workbook. openpyxl strips the cached value on save. Recalculating then resolves the link, fails, writes `#NAME?`, and deletes it.
+
+`recalc` refuses in that state and lists `external_link_cells`. Copy those values from the original before saving over them, or pass `--force` and accept the loss. An `error` key with no `status` means nothing was recalculated. `errors_found` is a real recalc that still failed the zero-error bar; the CLI exits non-zero for both.
+
+### JSON shape
+
+```json
+{
+  "status": "errors_found",
+  "total_errors": 2,
+  "total_formulas": 42,
+  "error_summary": {
+    "#REF!": {
+      "count": 2,
+      "locations": ["Sheet1!B5", "Sheet1!C10"]
+    }
+  }
+}
+```
+
+`locations_truncated` is added on an error type only when that type's location list was cut at 100. Trust `total_errors` and each entry's `count`. `status: success` uses the same keys with `total_errors: 0` and an empty `error_summary`.
 
 ## Formula Verification Checklist
 
@@ -244,21 +285,9 @@ Quick checks to ensure formulas work correctly:
 - [ ] **Verify dependencies**: Check all cells referenced in formulas exist
 - [ ] **Test edge cases**: Include zero, negative, and very large values
 
-### Interpreting ../_shared/office-tools/office_tools.py recalc Output
-The script returns JSON with error details:
-```json
-{
-  "status": "success",           // or "errors_found"
-  "total_errors": 0,              // Total error count
-  "total_formulas": 42,           // Number of formulas in file
-  "error_summary": {              // Only present if errors found
-    "#REF!": {
-      "count": 2,
-      "locations": ["Sheet1!B5", "Sheet1!C10"]
-    }
-  }
-}
-```
+### Interpreting recalc output
+
+See **JSON shape** above. `status` is `success` or `errors_found`. `error_summary` is present only when that error type was found. `locations_truncated`, when present, is the number of cells withheld past 100.
 
 ## Best Practices
 
@@ -268,8 +297,12 @@ The script returns JSON with error details:
 
 ### Working with openpyxl
 - Cell indices are 1-based (row=1, column=1 refers to cell A1)
-- Use `data_only=True` to read calculated values: `load_workbook('file.xlsx', data_only=True)`
+- Reading a model takes two loads. The default returns formula strings. `data_only=True` returns cached values and drops the formulas. One pass cannot give you both
 - **Warning**: If opened with `data_only=True` and saved, formulas are replaced with values and permanently lost
+- `data_only=True` on a file openpyxl just wrote returns `None` until `recalc`. A formula whose result is `""` also reads back as `None`
+- Merged cells: write the top-left anchor only. Other cells in the range are read-only
+- `.xlsm` loses macros unless `load_workbook(..., keep_vba=True)`
+- A sheet name containing a space must be quoted in a cross-sheet reference: `='Assumptions Inputs'!$B$5`
 - For large files: Use `read_only=True` for reading or `write_only=True` for writing
 - Formulas are preserved but not evaluated - use ../_shared/office-tools/office_tools.py recalc to update values
 

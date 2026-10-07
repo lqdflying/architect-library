@@ -187,5 +187,68 @@ class PreviewTests(unittest.TestCase):
                     office_readiness.convert_preview(root / "input.docx", root, "writer_pdf_Export")
 
 
+class ExternalLinkRecalcTests(unittest.TestCase):
+    def workbook_with_link(self, directory, formula="='[1]Returns'!$B$2"):
+        from openpyxl import Workbook
+
+        path = Path(directory) / "links.xlsx"
+        workbook = Workbook()
+        sheet = workbook.active
+        sheet.title = "Model"
+        sheet["A1"] = formula
+        sheet["B1"] = "=SUM(1,2)"
+        workbook.save(path)
+        workbook.close()
+        return path
+
+    def add_external_part(self, path):
+        payload = path.read_bytes()
+        rewritten = io.BytesIO()
+        with zipfile.ZipFile(io.BytesIO(payload)) as source, zipfile.ZipFile(rewritten, "w") as target:
+            for item in source.infolist():
+                target.writestr(item, source.read(item.filename))
+            target.writestr("xl/externalLinks/externalLink1.xml", "<externalLink/>")
+        path.write_bytes(rewritten.getvalue())
+
+    def test_no_external_part_is_not_at_risk(self):
+        import recalc
+
+        with tempfile.TemporaryDirectory() as directory:
+            path = self.workbook_with_link(directory)
+            self.assertEqual(recalc.external_links_at_risk(path), [])
+
+    def test_missing_cache_refuses_without_calling_libreoffice(self):
+        import recalc
+
+        with tempfile.TemporaryDirectory() as directory:
+            path = self.workbook_with_link(directory)
+            self.add_external_part(path)
+            self.assertEqual(recalc.external_links_at_risk(path), ["Model!A1"])
+            with patch.object(recalc, "setup_libreoffice_macro") as setup:
+                result = recalc.recalc(path)
+            setup.assert_not_called()
+            self.assertNotIn("status", result)
+            self.assertIn("external links", result["error"])
+            self.assertEqual(result["external_link_cells"], ["Model!A1"])
+            self.assertEqual(result["external_link_cells_truncated"], 0)
+
+    def test_named_range_external_link_is_at_risk(self):
+        import recalc
+        from openpyxl import Workbook
+        from openpyxl.workbook.defined_name import DefinedName
+
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "named.xlsx"
+            workbook = Workbook()
+            sheet = workbook.active
+            sheet.title = "Model"
+            workbook.defined_names.add(DefinedName(name="ExtRate", attr_text="'[1]Returns'!$B$2"))
+            sheet["C1"] = "=ExtRate"
+            workbook.save(path)
+            workbook.close()
+            self.add_external_part(path)
+            self.assertEqual(recalc.external_links_at_risk(path), ["Model!C1"])
+
+
 if __name__ == "__main__":
     unittest.main()

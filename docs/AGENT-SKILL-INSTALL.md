@@ -307,7 +307,7 @@ The install script runs **library** checks automatically for the `EDITOR` you pa
 | **excalidraw-diagram** | Check both bindings and reciprocal endpoint references for node-to-node arrows. Use horizontal/vertical architecture routes, remove preventable crossings and place icon captions to clear connection points. Give every Azure service node its official icon from the bundled SVG cache; when the cache has none, use a labeled box and report it. Render `.excalidraw` → PNG under the 30,000-patch vision cap, **view** that image (crop grown regions from it when editing), fix in a loop. Existing files: geometric collision pass before first PNG (`edit-existing.md`) |
 | **word-document** | Validate DOCX; explicit table styling; deliver `.docx` only |
 | **powerpoint-presentation** | Validate PPTX; **`thumbnail` every deck**; **view** images; `office-system` if missing; test native PowerPoint opening when available, otherwise report it unverified; follow repair-prompt recovery in the skill |
-| **spreadsheet-document** | Deliver `.xlsx`; `recalc` until zero formula errors if formulas used |
+| **spreadsheet-document** | Deliver `.xlsx`; formulas LibreOffice can evaluate (no `XLOOKUP`/`XMATCH`/`SORT`/`FILTER`/`UNIQUE`/`SEQUENCE`); `recalc` until JSON `status: success` if formulas used; external-link refusal fails the recalc until values are preserved or `--force` |
 | **pdf-document** | Deliver `.pdf`; form fills per `references/forms.md` |
 | **verification-before-completion** | Fresh verification command output in same message before any completion/success claim |
 | **newagentlink** | `/tmp/<topic>-newagentlink.md` written once this turn; one-shot banner present; live git gathered; chat returns path + starter prompt only; never writes `/tmp/<topic>-handoff.md` |
@@ -346,7 +346,7 @@ See [CODE-REVIEW-AGENT.md](CODE-REVIEW-AGENT.md) and [SECURITY-AUDITOR-AGENT.md]
 | Library copy (Copilot) | `bash scripts/install_library.sh all copilot` |
 | Library copy (all editors) | `bash scripts/install_library.sh` |
 | Core runtimes | `bash scripts/install_deps.sh` |
-| LibreOffice Writer + Impress + Poppler | `bash scripts/install_deps.sh office-system` |
+| LibreOffice Writer + Impress + Calc + Poppler | `bash scripts/install_deps.sh office-system` |
 | Offline Excalidraw | `bash scripts/vendor_excalidraw.sh` |
 | New DOCX / PPTX via Node | `bash scripts/install_deps.sh node` (included in `install_deps.sh all`) |
 | Word fallback (no npm) | `bash scripts/install_deps.sh office` (python-docx in uv env) |

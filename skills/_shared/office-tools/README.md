@@ -29,7 +29,7 @@ python3 office_tools.py <command> [args...]
 | `slide` | Duplicate PPTX slides or create from layout |
 | `clean` | Remove orphaned PPTX files (cascading) |
 | `thumbnail` | PPTX layout preview: thumbnail grid and/or per-slide JPEGs (`--per-slide`, `--dpi`, `--no-grid`) |
-| `recalc` | Recalculate XLSX formulas via LibreOffice; JSON report of `#REF!`, `#DIV/0!`, etc. |
+| `recalc` | Recalculate XLSX formulas via LibreOffice. Refuses when external-link cached values are missing (`--force` overrides). JSON reports `#REF!`, `#DIV/0!`, and the other Excel errors (up to 100 locations per type). |
 
 ### Standalone scripts (also usable directly)
 
@@ -150,8 +150,9 @@ See ../word-document/references/docx-guide.md and ../powerpoint-presentation/ref
 | DOCX → PDF or images | Yes | LibreOffice Writer, Poppler |
 | PPTX → PDF or images | Yes | LibreOffice Impress, Poppler |
 | `accept` tracked changes on DOCX | Yes | LibreOffice Writer |
+| XLSX formula `recalc` | Yes | LibreOffice Calc |
 
-On RHEL/Oracle Linux, `install_deps.sh --with-system` installs `libreoffice-writer`, `libreoffice-impress`, headless support, and Poppler. Core alone cannot convert DOCX/PPTX. Calc is a separate requirement for spreadsheet recalculation and is not verified by the DOCX/PPTX checks.
+On RHEL/Oracle Linux, `install_deps.sh --with-system` installs `libreoffice-writer`, `libreoffice-impress`, `libreoffice-calc`, headless support, and Poppler. Core alone cannot convert DOCX/PPTX. Spreadsheet recalculation is not verified by the DOCX/PPTX readiness checks.
 
 ### Runtime Verification
 
