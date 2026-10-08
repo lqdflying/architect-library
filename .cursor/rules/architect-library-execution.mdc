@@ -67,7 +67,7 @@ Canonical sources: `user-rules/cursor/response-style.mdc` (installs to `~/.curso
 
 | Work | Done when |
 |------|-----------|
-| **response-style** | Reply leads with the result; Changes, Verify, and Open Items appear only on file-changing turns and only with content; one conclusion; no step narration, pasted logs, or AI filler. |
+| **response-style** | Reply leads with the result; a vague objective stops the work; a worse approach is named and the shorter path is used; excess complexity in the task's own work is deleted rather than defended; Changes, Verify, and Open Items appear only on file-changing turns and only with content; one conclusion; no step narration, pasted logs, or AI filler. |
 
 ## Edit scope (user-global protocol)
 
@@ -75,7 +75,7 @@ Canonical sources: `user-rules/cursor/edit-scope.mdc` (installs to `~/.cursor/ru
 
 | Work | Done when |
 |------|-----------|
-| **edit-scope** | Writes stay in the current repo except `/tmp`, `~/.cursor/`, and `~/.copilot/` when this request or an installed protocol requires that write. |
+| **edit-scope** | Writes stay in the current repo except `/tmp`, `~/.cursor/`, and `~/.copilot/` when this request or an installed protocol requires that write. The diff is the minimum that meets the request. Work a simpler means already settles is not done again. |
 
 ## Branch strategy (user-global protocol)
 

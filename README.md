@@ -207,7 +207,7 @@ Short replies. Lead with the answer. No AI filler.
 | Cursor | [`user-rules/cursor/response-style.mdc`](user-rules/cursor/response-style.mdc) | `~/.cursor/rules/response-style.mdc` (`alwaysApply: true`) |
 | Copilot | [`user-rules/copilot/response-style.md`](user-rules/copilot/response-style.md) | Concatenated into `~/.copilot/copilot-instructions.md` |
 
-The first sentence is the result. Turns that changed files add Changes, Verify, and Open Items only when those sections have content. One conclusion, no step-by-step narration, no pasted logs or reprinted code.
+The first sentence is the result. A vague objective stops the work. A clear goal with a worse approach gets the shorter path named, then used. A question about excess complexity in the task's own work is answered by deleting it. Turns that changed files add Changes, Verify, and Open Items only when those sections have content. One conclusion, no step-by-step narration, no pasted logs or reprinted code.
 
 ## Edit scope (Cursor and Copilot)
 
@@ -218,7 +218,7 @@ Writes stay in the open repository. Auto-read is allowed everywhere, including o
 | Cursor | [`user-rules/cursor/edit-scope.mdc`](user-rules/cursor/edit-scope.mdc) | `~/.cursor/rules/edit-scope.mdc` (`alwaysApply: true`) |
 | Copilot | [`user-rules/copilot/edit-scope.md`](user-rules/copilot/edit-scope.md) | Concatenated into `~/.copilot/copilot-instructions.md` |
 
-`/tmp`, `~/.cursor/`, and `~/.copilot/` may be written when the current request or an installed protocol requires that write. Intermediate status and validator scripts are one of those `/tmp` writes.
+`/tmp`, `~/.cursor/`, and `~/.copilot/` may be written when the current request or an installed protocol requires that write. Intermediate status and validator scripts are one of those `/tmp` writes. Inside a file, the diff is the minimum that meets the request: no speculative features, no drive-by cleanup, nothing that repeats what a simpler means already settles. Orphans the edit created are removed. Pre-existing dead code stays.
 
 ## Branch strategy (Cursor and Copilot)
 

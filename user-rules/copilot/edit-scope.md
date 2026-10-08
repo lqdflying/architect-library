@@ -11,6 +11,13 @@ Goal: no write lands in another code repository.
 - Allowed writes outside the repo: `/tmp`, `~/.cursor/`, and `~/.copilot/`, only for the write this request or an installed protocol requires (review handoff, newagentlink, intermediate status and validator scripts, install or patch of rules, skills, or agents). Do not edit unrelated files under those trees.
 - Any other path outside the current repo stays out of write scope until this message names it.
 - Inside an in-scope file, change only what the request requires. No unrelated refactor, rename, reformat, import reorder, comment edit, or dead-code removal.
+- Code you add is the minimum that solves this request. No features, abstractions, or configurability beyond the request. No error handling for a case that cannot happen. If the change is more complicated than the request, simplify it before you finish.
+- Do not add a second way to settle something a simpler means already settles. A finer-grained result is not a reason for the second way.
+- Hard to read is a defect. Keep the shorter code that reaches the same result.
+- Match the style already in the file.
+- Unrelated dead code: mention it in the reply. Do not delete it.
+- An import, variable, or function that your edit made unused: remove that orphan. Pre-existing dead code stays.
+- Every changed line traces to this request. A bug fix changes the lines that remove the origin, not a patch on the symptom, when that origin is in this request's scope.
 - Modify includes editor writes, create/delete/rename/move, and terminal commands that write (formatters, linters with `--fix`, codemods, package installs that change manifests or lockfiles, git checkout/reset/stash/clean, regenerating generated files).
 - If the task needs an out-of-scope write, stop before making it. Report the file(s), why, and the proposed diff. Wait.
 - Approval must be explicit and covers only the files listed in the proposal it answers. Silence, or approval inferred from earlier turns, is not approval.
