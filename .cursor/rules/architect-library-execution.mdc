@@ -85,6 +85,22 @@ Canonical sources: `user-rules/cursor/branch-strategy.mdc` (installs to `~/.curs
 |------|-----------|
 | **branch-strategy** | One working branch at a time (the branch already checked out). No edit, commit, or push on `main`. No switch off a branch that still has unmerged commits or uncommitted files. A new branch only when the current branch is `main`, or the user asks, and it is created from `main`. Mixed topics on one branch are expected. Pause before `git commit` or `git push`. |
 
+## Docs lookup (user-global protocol)
+
+Canonical sources: `user-rules/cursor/docs-lookup.mdc` (installs to `~/.cursor/rules/`) and `user-rules/copilot/docs-lookup.md` (concatenated into `~/.copilot/copilot-instructions.md`). Do not duplicate the body here.
+
+| Work | Done when |
+|------|-----------|
+| **docs-lookup** | Code documentation is looked up with Microsoft Learn or Context7 MCP first. Native web search and fetch run only when no documentation MCP applies, the call fails, or the result has nothing usable. |
+
+## Temporary validators (user-global protocol)
+
+Canonical sources: `user-rules/cursor/temp-validators.mdc` (installs to `~/.cursor/rules/`) and `user-rules/copilot/temp-validators.md` (concatenated into `~/.copilot/copilot-instructions.md`). Do not duplicate the body here.
+
+| Work | Done when |
+|------|-----------|
+| **temp-validators** | Intermediate status and validator scripts are written under `/tmp` and are not added to the current code repository. |
+
 ## Dependencies
 
 | Target | Command | For |

@@ -16,7 +16,7 @@ set -euo pipefail
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 # cursor source name : copilot fragment name
-PAIRS="response-style:response-style edit-scope:edit-scope branch-strategy:branch-strategy review-handoff-reconciliation:review-handoff"
+PAIRS="response-style:response-style edit-scope:edit-scope branch-strategy:branch-strategy review-handoff-reconciliation:review-handoff docs-lookup:docs-lookup temp-validators:temp-validators"
 
 MODE="${1:-write}"
 case "$MODE" in

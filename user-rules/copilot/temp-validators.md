@@ -1,0 +1,7 @@
+# Temporary validators
+
+Applies in every VS Code Copilot chat. Intermediate status and validator scripts go under `/tmp`.
+
+- A script written to check status, validate an intermediate result, or probe work in progress is created under `/tmp`.
+- Leave the current code repository unchanged by that script. Do not commit it.
+- A validator the current request explicitly places in the repository stays in the repository.

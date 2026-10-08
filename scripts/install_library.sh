@@ -14,8 +14,8 @@ SKILL_BUNDLE="excalidraw-diagram word-document powerpoint-presentation spreadshe
 # Cursor + Copilot only (never Claude). SKILL.<editor>.md wins; otherwise the shared SKILL.md ships.
 EDITOR_VARIANT_SKILLS="mcp-tool-rules context7-docs notion-mcp-ops review-handoff"
 AGENT_BUNDLE="code-review security-auditor"
-CURSOR_RULE_BUNDLE="review-handoff-reconciliation response-style edit-scope branch-strategy"
-COPILOT_INSTRUCTION_FRAGMENTS="response-style edit-scope branch-strategy review-handoff"
+CURSOR_RULE_BUNDLE="review-handoff-reconciliation response-style edit-scope branch-strategy docs-lookup temp-validators"
+COPILOT_INSTRUCTION_FRAGMENTS="response-style edit-scope branch-strategy review-handoff docs-lookup temp-validators"
 
 LEGACY_SKILLS="docx pptx xlsx pdf terraform-apply-fix-review mcp-tool-rules-copilot handoff"
 LEGACY_CURSOR_RULES="code-review-handoff response-and-edit-scope"
@@ -386,6 +386,8 @@ verify_copilot_instructions() {
   grep -q '# Edit scope' "$dest" || return 1
   grep -q '# Branch strategy' "$dest" || return 1
   grep -q '# Review handoff' "$dest" || return 1
+  grep -q '# Docs lookup' "$dest" || return 1
+  grep -q '# Temporary validators' "$dest" || return 1
   if grep -q 'alwaysApply' "$dest"; then
     return 1
   fi

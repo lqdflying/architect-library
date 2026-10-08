@@ -35,7 +35,7 @@ Use partial installs **only** when the user explicitly asks:
 - Skills: `<repo>/skills/<name>/`
 - Agents: `<repo>/agents/<name>/` (assembled to a single `.md` at install)
 - Cursor user-global rules: `<repo>/user-rules/cursor/<name>.mdc`
-- Copilot always-on fragments: `<repo>/user-rules/copilot/{response-style,edit-scope,branch-strategy,review-handoff}.md` (generated from `user-rules/cursor/` by `bash scripts/sync_copilot_rules.sh`; concatenated to `~/.copilot/copilot-instructions.md`)
+- Copilot always-on fragments: `<repo>/user-rules/copilot/{response-style,edit-scope,branch-strategy,review-handoff,docs-lookup,temp-validators}.md` (generated from `user-rules/cursor/` by `bash scripts/sync_copilot_rules.sh`; concatenated to `~/.copilot/copilot-instructions.md`)
 - Review handoff protocol: `<repo>/skills/review-handoff/SKILL.md` (on-demand skill; the `review-handoff` rule and fragment are only its always-on trigger)
 
 **Cursor global install targets:**
@@ -56,8 +56,8 @@ Do **not** copy skills into `<repo>/.cursor/skills/`, agents into `<repo>/.curso
 SKILL_BUNDLE="excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document verification-before-completion newagentlink api-and-interface-design deprecation-and-migration github-markdown terraform-commit-review terraform-apply-assistance security-audit _shared"
 EDITOR_VARIANT_SKILLS="mcp-tool-rules context7-docs notion-mcp-ops review-handoff"
 AGENT_BUNDLE="code-review security-auditor"
-CURSOR_RULE_BUNDLE="review-handoff-reconciliation response-style edit-scope branch-strategy"
-COPILOT_INSTRUCTION_FRAGMENTS="response-style edit-scope branch-strategy review-handoff"
+CURSOR_RULE_BUNDLE="review-handoff-reconciliation response-style edit-scope branch-strategy docs-lookup temp-validators"
+COPILOT_INSTRUCTION_FRAGMENTS="response-style edit-scope branch-strategy review-handoff docs-lookup temp-validators"
 LEGACY_SKILLS="docx pptx xlsx pdf terraform-apply-fix-review mcp-tool-rules-copilot handoff"
 LEGACY_CURSOR_RULES="code-review-handoff response-and-edit-scope"
 ```
@@ -106,12 +106,18 @@ test -f ~/.cursor/rules/edit-scope.mdc
 grep -q 'alwaysApply: true' ~/.cursor/rules/edit-scope.mdc
 test -f ~/.cursor/rules/branch-strategy.mdc
 grep -q 'alwaysApply: true' ~/.cursor/rules/branch-strategy.mdc
+test -f ~/.cursor/rules/docs-lookup.mdc
+grep -q 'alwaysApply: true' ~/.cursor/rules/docs-lookup.mdc
+test -f ~/.cursor/rules/temp-validators.mdc
+grep -q 'alwaysApply: true' ~/.cursor/rules/temp-validators.mdc
 test ! -f ~/.cursor/rules/code-review-handoff.mdc
 test ! -f ~/.cursor/rules/response-and-edit-scope.mdc
 cmp -s user-rules/cursor/review-handoff-reconciliation.mdc ~/.cursor/rules/review-handoff-reconciliation.mdc
 cmp -s user-rules/cursor/response-style.mdc ~/.cursor/rules/response-style.mdc
 cmp -s user-rules/cursor/edit-scope.mdc ~/.cursor/rules/edit-scope.mdc
 cmp -s user-rules/cursor/branch-strategy.mdc ~/.cursor/rules/branch-strategy.mdc
+cmp -s user-rules/cursor/docs-lookup.mdc ~/.cursor/rules/docs-lookup.mdc
+cmp -s user-rules/cursor/temp-validators.mdc ~/.cursor/rules/temp-validators.mdc
 test -f ~/.copilot/copilot-instructions.md
 test -f ~/.copilot/skills/review-handoff/SKILL.md
 grep -q 'Applies in every VS Code Copilot chat.' ~/.copilot/copilot-instructions.md
@@ -120,8 +126,10 @@ grep -q '# Response style' ~/.copilot/copilot-instructions.md
 grep -q '# Edit scope' ~/.copilot/copilot-instructions.md
 grep -q '# Branch strategy' ~/.copilot/copilot-instructions.md
 grep -q '# Review handoff' ~/.copilot/copilot-instructions.md
+grep -q '# Docs lookup' ~/.copilot/copilot-instructions.md
+grep -q '# Temporary validators' ~/.copilot/copilot-instructions.md
 ! grep -q 'alwaysApply' ~/.copilot/copilot-instructions.md
-cmp -s <(printf '%s\n\n%s\n\n%s\n\n%s\n' "$(cat user-rules/copilot/response-style.md)" "$(cat user-rules/copilot/edit-scope.md)" "$(cat user-rules/copilot/branch-strategy.md)" "$(cat user-rules/copilot/review-handoff.md)") ~/.copilot/copilot-instructions.md
+cmp -s <(printf '%s\n\n%s\n\n%s\n\n%s\n\n%s\n\n%s\n' "$(cat user-rules/copilot/response-style.md)" "$(cat user-rules/copilot/edit-scope.md)" "$(cat user-rules/copilot/branch-strategy.md)" "$(cat user-rules/copilot/review-handoff.md)" "$(cat user-rules/copilot/docs-lookup.md)" "$(cat user-rules/copilot/temp-validators.md)") ~/.copilot/copilot-instructions.md
 cd skills/_shared/office-tools && uv run python3 office_tools.py --help >/dev/null
 command -v soffice >/dev/null
 command -v pdftoppm >/dev/null
