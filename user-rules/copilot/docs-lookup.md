@@ -1,0 +1,9 @@
+# Docs lookup
+
+Applies in every VS Code Copilot chat. For code documentation, use a documentation MCP before the editor's native web search or fetch.
+
+Code documentation means docs for libraries, frameworks, SDKs, APIs, CLIs, and cloud services.
+
+- Search the matching documentation MCP first. Use Microsoft Learn for Microsoft and Azure docs. Use Context7 for library, framework, SDK, and other code docs.
+- When that MCP has a fetch or page tool, use it for the page you will rely on.
+- If no documentation MCP applies, the call fails, or the result has nothing usable, use the editor's native web search, then its native fetch on the page you will rely on.

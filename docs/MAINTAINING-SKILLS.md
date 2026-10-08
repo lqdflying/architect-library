@@ -67,7 +67,7 @@ Update **agent guidance**:
 
 ## Copilot always-on instruction
 
-Fragments: `user-rules/copilot/response-style.md`, `user-rules/copilot/edit-scope.md`, `user-rules/copilot/branch-strategy.md`, and `user-rules/copilot/review-handoff.md`. Plain Markdown. No `alwaysApply` frontmatter. Install concatenates them, in that order, to `~/.copilot/copilot-instructions.md`.
+Fragments: `user-rules/copilot/response-style.md`, `user-rules/copilot/edit-scope.md`, `user-rules/copilot/branch-strategy.md`, `user-rules/copilot/review-handoff.md`, `user-rules/copilot/docs-lookup.md`, and `user-rules/copilot/temp-validators.md`. Plain Markdown. No `alwaysApply` frontmatter. Install concatenates them, in that order, to `~/.copilot/copilot-instructions.md`.
 
 The fragments are generated. Edit the Cursor source in `user-rules/cursor/`, then run `bash scripts/sync_copilot_rules.sh`. Install verify runs `--check` and fails on drift.
 
