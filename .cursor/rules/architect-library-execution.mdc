@@ -49,7 +49,7 @@ Applies when the user invokes a custom agent or you test agent behavior in this 
 | **code-review** | Scope established (SHA range when provided); tests reviewed first; five-axis review; requirements alignment when plan supplied; logic traced; Strengths + findings with file:line evidence; verification story; MCP/web verification table; merge verdict (Yes/No/With fixes); **no source files edited** |
 | **security-auditor** | Scope established; trust boundaries + STRIDE; findings by severity with file:line evidence; PoC for Critical/High; MCP/web verification when applicable; release verdict (Yes/No/With fixes); **no source files edited** |
 
-After editing `agents/`, run `bash scripts/install_library.sh agents cursor` so global `~/.cursor/agents/` matches repo source.
+After editing `agents/`, run `bash scripts/install_library.sh agents cursor` and `bash scripts/install_library.sh agents copilot` so `~/.cursor/agents/` and `~/.copilot/agents/` match repo source.
 After editing `user-rules/cursor/`, run `bash scripts/install_library.sh rules cursor` so `~/.cursor/rules/` matches repo source.
 Do not hand-edit `user-rules/copilot/`. After editing `user-rules/cursor/`, run `bash scripts/sync_copilot_rules.sh` to regenerate the Copilot fragments, then `bash scripts/install_library.sh rules copilot` so `~/.copilot/copilot-instructions.md` is rebuilt.
 

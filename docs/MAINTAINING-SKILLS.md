@@ -18,7 +18,7 @@ Update **agent guidance** (all that apply):
 - [ ] [AGENT-SKILL-INSTALL.md](AGENT-SKILL-INSTALL.md) — skill table, execution rules
 - [ ] [README.md](../README.md) — Skills table, documentation map
 - [ ] [scripts/install_library.sh](../scripts/install_library.sh) — add to `SKILL_BUNDLE`
-- [ ] Run full Cursor readiness: `bash scripts/install_deps.sh`, `bash scripts/install_deps.sh office-system`, then `bash scripts/install_library.sh all cursor`
+- [ ] Run full readiness: `bash scripts/install_deps.sh`, `bash scripts/install_deps.sh office-system`, then `bash scripts/install_library.sh all cursor` and `bash scripts/install_library.sh all copilot`
 
 If the skill uses Office tools:
 
@@ -42,7 +42,7 @@ Update **agent guidance**:
 - [ ] [README.md](../README.md) — Custom agents table
 - [ ] `.cursor/rules/architect-library-execution.mdc` — completion row if applicable
 - [ ] Optional deep dive: `docs/<AGENT-NAME>-AGENT.md`
-- [ ] Run full Cursor readiness: `bash scripts/install_deps.sh`, `bash scripts/install_deps.sh office-system`, then `bash scripts/install_library.sh all cursor`
+- [ ] Run full readiness: `bash scripts/install_deps.sh`, `bash scripts/install_deps.sh office-system`, then `bash scripts/install_library.sh all cursor` and `bash scripts/install_library.sh all copilot`
 
 **Do not** add agents under `skills/` or to `SKILL_BUNDLE`.
 
@@ -61,7 +61,7 @@ Update **agent guidance**:
 - [ ] [AGENT-SKILL-INSTALL.md](AGENT-SKILL-INSTALL.md) — user-global rules table + verify commands
 - [ ] [AGENTS.md](../AGENTS.md) — Cursor install target `~/.cursor/rules/`
 - [ ] `.cursor/rules/architect-library-repo.mdc` and `architect-library-patch.mdc` — layout + bundle string
-- [ ] Run `bash scripts/install_library.sh rules cursor` (or full `all cursor`)
+- [ ] Run `bash scripts/install_library.sh rules cursor` and `bash scripts/install_library.sh rules copilot` (or full `all cursor` and `all copilot`)
 
 **Do not** copy `user-rules/cursor/` into this repo’s `.cursor/rules/` (those files are maintainer-only for architect-library). **Do not** add user-global rules to `SKILL_BUNDLE` or `AGENT_BUNDLE`. Cursor Settings → Customize → Rules is a different store — install does not write it. One protocol only: edit `user-rules/cursor/<name>.mdc` and reinstall; add retired filenames to `LEGACY_CURSOR_RULES` so `~/.cursor/rules/` cannot keep a second copy.
 

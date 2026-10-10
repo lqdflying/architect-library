@@ -9,9 +9,9 @@ Compatible with [Cursor](https://cursor.com), [VS Code + GitHub Copilot](https:/
 **For coding agents:**
 
 - Working **in this repo**: [`.cursor/rules/`](.cursor/rules/) (maintainer rules, not installed globally) and [docs/MAINTAINING-SKILLS.md](docs/MAINTAINING-SKILLS.md).
-- **Installing** the full ready-to-use library: [docs/AGENT-SKILL-INSTALL.md](docs/AGENT-SKILL-INSTALL.md) — runtime dependencies + `bash scripts/install_library.sh all cursor` or `all copilot` (editor-scoped default). Cursor copies [`user-rules/cursor/`](user-rules/cursor/) to `~/.cursor/rules/`. A global Copilot install concatenates [`user-rules/copilot/`](user-rules/copilot/) fragments into `~/.copilot/copilot-instructions.md`.
+- **Installing** the full ready-to-use library: [docs/AGENT-SKILL-INSTALL.md](docs/AGENT-SKILL-INSTALL.md) — runtime dependencies, then `bash scripts/install_library.sh all cursor` and `bash scripts/install_library.sh all copilot`. Cursor copies [`user-rules/cursor/`](user-rules/cursor/) to `~/.cursor/rules/`. A global Copilot install concatenates [`user-rules/copilot/`](user-rules/copilot/) fragments into `~/.copilot/copilot-instructions.md`. Add `all claude` only when you want Claude Code.
 
-**Full install means instructions + runtimes:** When an agent handles **install library**, it should install the runtime dependencies first, then copy skills, agents, and (in Cursor) user-global rules for the active editor. Manual installs should follow the same order below.
+**Full install means instructions + runtimes:** When an agent handles **install library**, it should install the runtime dependencies first, then copy skills, agents, Cursor user-global rules, and the Copilot always-on instruction for Cursor and VS Code Copilot. Manual installs should follow the same order below.
 
 ## First-time preparation (one-time per machine)
 
@@ -38,7 +38,8 @@ From the repository root (after `git clone`):
 cd architect-library   # or your clone path
 bash scripts/install_deps.sh              # Excalidraw + Office + PDF + Node/npm (docx, pptxgenjs)
 bash scripts/install_deps.sh office-system   # Writer + Impress + Calc + Poppler, then required DOCX/PPTX checks
-bash scripts/install_library.sh all cursor   # or: all copilot — skills + agents + that editor's handoff instruction
+bash scripts/install_library.sh all cursor
+bash scripts/install_library.sh all copilot
 ```
 
 **Is LibreOffice mandatory?** Not for creating `.docx` or building `.pptx` source (Node/python). **Yes for completing PowerPoint skill work and spreadsheet formula recalc**—every deck must go through layout preview (`thumbnail`), which needs LibreOffice Impress + Poppler, and `office_tools.py recalc` needs LibreOffice Calc. Word-only tasks can skip `office-system`. Install: `bash scripts/install_deps.sh office-system`.
@@ -139,11 +140,11 @@ After [first-time preparation](#first-time-preparation-one-time-per-machine) (sk
    cd architect-library
    ```
 
-2. **Install library globally** — skills, custom agents, and (Cursor) user-global rules (pick your editor):
+2. **Install library globally** — skills, custom agents, Cursor user-global rules, and the Copilot always-on instruction:
 
    ```bash
-   bash scripts/install_library.sh all cursor    # Cursor
-   bash scripts/install_library.sh all copilot   # VS Code Copilot
+   bash scripts/install_library.sh all cursor
+   bash scripts/install_library.sh all copilot
    ```
 
    AI agents working in this repo: see [`AGENTS.md`](AGENTS.md). Full procedure: [`docs/AGENT-SKILL-INSTALL.md`](docs/AGENT-SKILL-INSTALL.md).
@@ -196,7 +197,7 @@ One ledger protocol in an on-demand skill, plus a short always-on trigger per ed
 | Cursor trigger | [`user-rules/cursor/review-handoff-reconciliation.mdc`](user-rules/cursor/review-handoff-reconciliation.mdc) | `~/.cursor/rules/review-handoff-reconciliation.mdc` (`alwaysApply: true`; not Cursor Settings → Customize → Rules) |
 | Copilot trigger | [`user-rules/copilot/review-handoff.md`](user-rules/copilot/review-handoff.md) (generated) | Concatenated into `~/.copilot/copilot-instructions.md` (personal always-on file for Copilot Agent Host chats) |
 
-`/tmp/<topic>-handoff.md` is the ledger, with FIX / DEFER / KEEP / DO NOT APPLY / FIXED / RECONCILED. **Append-only** (no full-file rewrite/truncate/delete of prior rounds; surgical header Status/Must fix only). Distinct from `newagentlink` (`/tmp/<topic>-newagentlink.md`). Edit `skills/review-handoff/SKILL.md` and reinstall with `all cursor` or `all copilot`; do not keep a second version in the home file.
+`/tmp/<topic>-handoff.md` is the ledger, with FIX / DEFER / KEEP / DO NOT APPLY / FIXED / RECONCILED. **Append-only** (no full-file rewrite/truncate/delete of prior rounds; surgical header Status/Must fix only). Distinct from `newagentlink` (`/tmp/<topic>-newagentlink.md`). Edit `skills/review-handoff/SKILL.md` and reinstall with `all cursor` and `all copilot`; do not keep a second version in the home file.
 
 ## Response style (Cursor and Copilot)
 
@@ -443,18 +444,23 @@ git clone https://github.com/lqdflying/architect-library.git
 
 ### Install library (recommended)
 
-From the repo root — installs **runtime dependencies, skills, custom agents**, and (Cursor) **user-global rules** globally for **your editor**:
+From the repo root — installs **runtime dependencies, skills, custom agents**, Cursor **user-global rules**, and the Copilot always-on instruction:
 
 ```bash
 cd /path/to/architect-library
 bash scripts/install_deps.sh
 bash scripts/install_deps.sh office-system
-bash scripts/install_library.sh all cursor    # Cursor
-bash scripts/install_library.sh all copilot   # VS Code Copilot
-bash scripts/install_library.sh all claude    # Claude Code
+bash scripts/install_library.sh all cursor
+bash scripts/install_library.sh all copilot
 ```
 
-Install all editors at once (only if you use more than one):
+Claude Code, only when you want it:
+
+```bash
+bash scripts/install_library.sh all claude
+```
+
+Cursor, Copilot, and Claude together:
 
 ```bash
 bash scripts/install_library.sh

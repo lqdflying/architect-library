@@ -7,7 +7,7 @@ alwaysApply: true
 
 Skill library + custom agent library + Cursor user-global rules. Work in this clone to edit `skills/`, `agents/`, `user-rules/`, `office-tools`, scripts, or docs.
 
-**Install or patch (global default):** after skill, agent, or user-rule changes — or when the user asks (e.g. **install library**) — follow [AGENTS.md](../../AGENTS.md) § Install library with **`all cursor`** (Cursor paths only). Do not only edit source folders. Cursor details: [architect-library-patch.mdc](architect-library-patch.mdc), [docs/AGENT-SKILL-INSTALL.md](docs/AGENT-SKILL-INSTALL.md).
+**Install or patch (global default):** after skill, agent, or user-rule changes — or when the user asks (e.g. **install library**) — follow [AGENTS.md](../../AGENTS.md) § Install library with **`all cursor` and `all copilot`**. Do not only edit source folders, and do not install only one of those editors unless the user names it. Claude stays out unless the user asks. Cursor details: [architect-library-patch.mdc](architect-library-patch.mdc), [docs/AGENT-SKILL-INSTALL.md](docs/AGENT-SKILL-INSTALL.md).
 
 ## Layout
 
@@ -48,9 +48,9 @@ Skill behavior: `skills/<name>/SKILL.md` and `skills/<name>/references/`.
 Do **not** update only scripts or README. When adding or changing a skill, agent, user-global Cursor rule, workflow step, or dependency:
 
 1. Follow [docs/MAINTAINING-SKILLS.md](docs/MAINTAINING-SKILLS.md).
-2. **Skill change** → update `skills/*/SKILL.md`, execution rule row, `SKILL_BUNDLE` in `install_library.sh` if new skill, run `bash scripts/install_library.sh skills cursor`.
-3. **Agent change** → update `agents/<name>/`, [docs/AGENTS.md](docs/AGENTS.md), `AGENT_BUNDLE` in `install_library.sh` if new agent, run `bash scripts/install_library.sh agents cursor`.
-4. **Cursor user-global rule change** → update `user-rules/cursor/<name>.mdc`, `CURSOR_RULE_BUNDLE` in `install_library.sh` if new, run `bash scripts/install_library.sh rules cursor`.
+2. **Skill change** → update `skills/*/SKILL.md`, execution rule row, `SKILL_BUNDLE` in `install_library.sh` if new skill, run `bash scripts/install_library.sh skills cursor` and `bash scripts/install_library.sh skills copilot`.
+3. **Agent change** → update `agents/<name>/`, [docs/AGENTS.md](docs/AGENTS.md), `AGENT_BUNDLE` in `install_library.sh` if new agent, run `bash scripts/install_library.sh agents cursor` and `bash scripts/install_library.sh agents copilot`.
+4. **Cursor user-global rule change** → update `user-rules/cursor/<name>.mdc`, `CURSOR_RULE_BUNDLE` in `install_library.sh` if new, run `bash scripts/sync_copilot_rules.sh`, then `bash scripts/install_library.sh rules cursor` and `bash scripts/install_library.sh rules copilot`.
 5. **Copilot always-on instruction change** → edit the Cursor source under `user-rules/cursor/`, run `bash scripts/sync_copilot_rules.sh` to regenerate `user-rules/copilot/`, then `bash scripts/install_library.sh rules copilot`.
 6. **Review handoff protocol change** → edit `skills/review-handoff/SKILL.md` (not the trigger rule), run `bash scripts/install_library.sh skills cursor` and `skills copilot`.
 7. Always update `README.md`, `docs/AGENT-SKILL-INSTALL.md`, and relevant `.cursor/rules/*.mdc`.
@@ -64,4 +64,4 @@ When the user asks to **review or absorb ref material under `tmp/`**, read `.cur
 - Copy `user-rules/cursor/` into `repo/.cursor/rules/` — maintainer rules and user-global rules are different sources. Project-scope install from this clone (any cwd under the clone) skips rules so that copy cannot happen.
 - Add agents to `SKILL_BUNDLE`, skills to `AGENT_BUNDLE`, or user-global rules to either of those bundles.
 
-Install bundles for users: run runtime dependencies first, then `bash scripts/install_library.sh all cursor` in Cursor (or `all copilot` in VS Code Copilot). Use `bash scripts/install_library.sh` (all editors) only when the user asks.
+Install bundles for users: run runtime dependencies first, then `bash scripts/install_library.sh all cursor` and `bash scripts/install_library.sh all copilot`. Use `bash scripts/install_library.sh` (Cursor + Copilot + Claude) only when the user asks for Claude or all editors.

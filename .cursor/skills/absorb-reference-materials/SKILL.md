@@ -144,17 +144,16 @@ bash scripts/install_deps.sh office-system
 bash scripts/runtime_readiness.sh
 ```
 
-| Session | Command only | Targets |
-|---------|----------------|---------|
-| **Cursor** | `bash scripts/install_library.sh all cursor` | `~/.cursor/skills/`, `~/.cursor/agents/` |
-| **VS Code Copilot** | `bash scripts/install_library.sh all copilot` | `~/.copilot/skills/`, `~/.copilot/agents/` |
+| Session | Command | Targets |
+|---------|---------|---------|
+| **Cursor and VS Code Copilot** | `bash scripts/install_library.sh all cursor` then `bash scripts/install_library.sh all copilot` | `~/.cursor/skills/`, `~/.cursor/agents/`, `~/.copilot/skills/`, `~/.copilot/agents/` |
 
-- Never run bare `install_library.sh` (all editors) unless the user explicitly asks.
-- Never write `~/.copilot/` from a Cursor session or `~/.cursor/` from VS Code.
-- Docs must document **both** editor paths; **implementation** uses the active editor only.
-- Do not claim full readiness until the runtime setup and editor-scoped library command finish successfully.
+- Never run bare `install_library.sh` (that also installs Claude) unless the user asks for Claude or all editors.
+- Install only one of Cursor or Copilot when the user names that editor.
+- Docs must document **both** editor paths. The default install writes both.
+- Do not claim full readiness until the runtime setup and both library commands finish successfully.
 
-After skill/agent source changes in Cursor: run the runtime setup above, then `bash scripts/install_library.sh all cursor` from repo root.
+After skill/agent source changes: run the runtime setup above, then `bash scripts/install_library.sh all cursor` and `bash scripts/install_library.sh all copilot` from repo root.
 
 ## Shipping checklist (new install target only)
 
@@ -166,7 +165,7 @@ Follow [docs/MAINTAINING-SKILLS.md](../../docs/MAINTAINING-SKILLS.md):
 - [ ] `.cursor/rules/architect-library-execution.mdc` done-when row
 - [ ] `docs/AGENT-SKILL-INSTALL.md` (+ `docs/AGENTS.md` / `CODE-REVIEW-AGENT.md` if agent)
 - [ ] **`README.md`** — skills/agents table, documentation map, repository layout ([readme-after-absorb.md](references/readme-after-absorb.md))
-- [ ] Runtime setup, then `bash scripts/install_library.sh all cursor` (or `copilot` in VS Code)
+- [ ] Runtime setup, then `bash scripts/install_library.sh all cursor` and `bash scripts/install_library.sh all copilot`
 - [ ] Verify installed path exists under correct home directory
 
 ## Harden-only checklist

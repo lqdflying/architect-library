@@ -15,15 +15,16 @@ Cross-editor guide for AI agents working **in this repository** (maintainers edi
 
 **Trigger phrases:** install library, patch library, refresh library, update library, install skills and agents, sync library, update architect library — or after you change `skills/`, `agents/`, or `user-rules/` in this repo.
 
-### 1. Detect editor — do not ask the user
+### 1. Install Cursor and VS Code Copilot
 
-| You are in | Install **only** to |
-|------------|---------------------|
-| **Cursor** | `~/.cursor/skills/`, `~/.cursor/agents/`, `~/.cursor/rules/` |
-| **VS Code Copilot** | `~/.copilot/skills/`, `~/.copilot/agents/`, `~/.copilot/copilot-instructions.md` |
+The default install is **Cursor and VS Code Copilot together**.
+
+| You are in | Install to |
+|------------|------------|
+| **Cursor** or **VS Code Copilot** | `~/.cursor/skills/`, `~/.cursor/agents/`, `~/.cursor/rules/`, and `~/.copilot/skills/`, `~/.copilot/agents/`, `~/.copilot/copilot-instructions.md` |
 | **Claude Code** | `~/.claude/skills/`, `~/.claude/agents/` |
 
-**Never** write to other editors’ home paths unless the user explicitly asks for all editors.
+Install Claude as well when the user asks for Claude or all editors. Install only one of Cursor or Copilot when the user names that editor.
 
 ### 2. Runtimes (from repo root)
 
@@ -57,14 +58,13 @@ bash scripts/install_deps.sh office-system
 
 | Editor | Command |
 |--------|---------|
-| **Cursor** | `bash scripts/install_library.sh all cursor` |
-| **VS Code Copilot** | `bash scripts/install_library.sh all copilot` |
+| **Cursor and VS Code Copilot** (default) | `bash scripts/install_library.sh all cursor` then `bash scripts/install_library.sh all copilot` |
 | **Claude Code** | `bash scripts/install_library.sh all claude` |
 | All editors (explicit user ask only) | `bash scripts/install_library.sh` |
 
-**Do not** run bare `bash scripts/install_library.sh` by default — it uses `EDITOR=both` and installs to Cursor + Copilot + Claude.
+**Do not** run bare `bash scripts/install_library.sh` by default — it uses `EDITOR=both` and also installs Claude.
 
-Partial installs only when the user explicitly asks (still editor-scoped), e.g. `bash scripts/install_library.sh agents copilot` or `bash scripts/install_library.sh rules cursor`.
+Partial installs only when the user explicitly asks for a library subset. Still install that subset for Cursor and Copilot unless the user names one editor, for example `bash scripts/install_library.sh skills cursor` and `bash scripts/install_library.sh skills copilot`.
 
 ### 4. Tell the user
 
@@ -76,14 +76,14 @@ Reload the editor or open a **new agent chat**. If any runtime step failed, say 
 
 | Wrong | Right |
 |-------|-------|
-| `bash scripts/install_library.sh` with no editor arg | `all cursor` / `all copilot` / `all claude` |
+| `bash scripts/install_library.sh` with no editor arg | `all cursor` and `all copilot`; add `all claude` only when the user asks |
 | Install nvm/fnm because `npm` failed | Run `bash scripts/install_deps.sh node` first; only install nvm if user asks |
 | Run bare `npm install -g` before `install_deps.sh node` | Use `bash scripts/install_deps.sh` or `install_deps.sh node` — it handles Cursor-server Node + npm bootstrap |
 | Say pptxgenjs works via python-docx | **Wrong** — PPT new decks need pptxgenjs or template/XML; Word only has python-docx fallback |
 | Manual Node without sourcing env | `source scripts/architect_env.sh` so `NODE_PATH` finds `docx` / `pptxgenjs` under `~/.npm-global` |
 | Copy `skills/` into `repo/.cursor/skills/` | Source is `skills/`; install via `install_library.sh` |
 | Copy `user-rules/` into `repo/.cursor/rules/` | Cursor source is `user-rules/cursor/` → `~/.cursor/rules/`. Copilot fragments in `user-rules/copilot/` concatenate to `~/.copilot/copilot-instructions.md` |
-| Ask which editor on “install library” | Infer from the environment you are running in |
+| Ask which editor on “install library” | Install Cursor and VS Code Copilot; add Claude only when the user asks |
 
 ---
 
