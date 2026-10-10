@@ -2,7 +2,7 @@
 
 **This is the single source of truth for all colors and brand-specific styles.** To customize diagrams for your own brand, edit this file — everything else in the skill is universal.
 
-Official service icons are an exception to diagram recoloring: retain their native SVG artwork and colors. Apply this palette to surrounding boundaries, text and connectors. See `azure-icons.md` for the offline Azure icon cache and usage terms.
+Official service icons, and the F5, Palo Alto Networks, NGINX, and Datadog marks, are an exception to diagram recoloring: retain their native SVG artwork and colors. Apply this palette to surrounding boundaries, text and connectors. See `azure-icons.md` for the offline Azure icon cache and usage terms. A node that is F5, Palo Alto Networks, NGINX, or Datadog uses that product's cached icon and caption from `vendor-icons.md`.
 
 ---
 

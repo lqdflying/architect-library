@@ -1,0 +1,45 @@
+{
+  "set": "simple-icons",
+  "version": "16.0.0",
+  "retrieved": "2026-10-10",
+  "license": "https://github.com/simple-icons/simple-icons/blob/16.0.0/LICENSE.md",
+  "disclaimer": "https://github.com/simple-icons/simple-icons/blob/16.0.0/DISCLAIMER.md",
+  "terms": "TERMS.md",
+  "icons": [
+    {
+      "file": "datadog.svg",
+      "title": "Datadog",
+      "hex": "632CA6",
+      "source": "https://www.datadoghq.com/about/resources",
+      "guidelines": "https://www.datadoghq.com/about/resources/",
+      "upstream": "https://github.com/simple-icons/simple-icons/blob/16.0.0/icons/datadog.svg",
+      "sha256": "2dae0a9ddf090ec01626d9d0f73b1740a70ad280de92e2c27136bc81151fd1ff"
+    },
+    {
+      "file": "f5.svg",
+      "title": "F5",
+      "hex": "E4002B",
+      "source": "https://www.f5.com/company/news/press-kit",
+      "upstream": "https://github.com/simple-icons/simple-icons/blob/16.0.0/icons/f5.svg",
+      "sha256": "4661fd69d282bb1964f3ba25c66cdef33a75f5ea27bba6ee6a23e5b436c1ebeb"
+    },
+    {
+      "file": "nginx.svg",
+      "title": "NGINX",
+      "hex": "009639",
+      "source": "https://www.nginx.com/press/",
+      "guidelines": "https://www.nginx.com/press/",
+      "upstream": "https://github.com/simple-icons/simple-icons/blob/16.0.0/icons/nginx.svg",
+      "sha256": "236d53b2b746706df75e2a01668cb84e6f3fc7c8923a9ce824f8534db007a438"
+    },
+    {
+      "file": "paloaltonetworks.svg",
+      "title": "Palo Alto Networks",
+      "hex": "F04E23",
+      "source": "https://www.paloaltonetworks.com",
+      "guidelines": "https://www.paloaltonetworks.com/company/brand",
+      "upstream": "https://github.com/simple-icons/simple-icons/blob/16.0.0/icons/paloaltonetworks.svg",
+      "sha256": "47b46a688d2117b938251c0a36568593562a07c221493f9d04bd1e0e536b1456"
+    }
+  ]
+}

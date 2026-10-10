@@ -112,7 +112,7 @@ After rendering, confirm:
 7. **Balanced composition**: No large empty voids or overcrowded regions
 8. **Routing**: Horizontal/vertical architecture segments; no preventable crossings, ambiguous junctions or avoidable detours
 9. **Icon captions**: Clear association with the intended icon and no interference with connector lanes; above-icon placement is valid
-10. **Service artwork**: Every Azure service node uses its cached official icon (or a labeled box where the cache has none, reported in the reply); icons render without distortion; every image element's `fileId` resolves to embedded `files` data
+10. **Service artwork**: Every Azure service node uses its cached official icon (or a labeled box where the cache has none, reported in the reply). F5, Palo Alto Networks, NGINX, and Datadog nodes use the cached SVG for that product (`vendor-icons.md`). Icons render without distortion; every image element's `fileId` resolves to embedded `files` data
 
 ## Layered Server Architecture Checks
 

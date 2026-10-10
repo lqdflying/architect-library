@@ -99,7 +99,7 @@ Build one section per edit pass. Use descriptive string IDs and namespace seeds 
 
 All shapes: `roughness: 0`, `opacity: 100`, `strokeWidth: 2` (except boundaries and ancillary: `strokeWidth: 1`).
 
-On an Azure diagram, a zone that is an Azure service, such as a database, cache, storage account, Key Vault or Entra ID, uses its official icon and caption from `azure-icons.md` instead of the shape above. Keep its position in the layout. A database that is not an Azure service stays a green ellipse.
+On an Azure diagram, a zone that is an Azure service, such as a database, cache, storage account, Key Vault or Entra ID, uses its official icon and caption from `azure-icons.md` instead of the shape above. Keep its position in the layout. A database that is not an Azure service stays a green ellipse. A node that is F5, Palo Alto Networks, NGINX, or Datadog uses that product's cached icon and caption from `vendor-icons.md`. A generic load balancer, firewall, proxy, or monitoring service keeps the shape above.
 
 ---
 

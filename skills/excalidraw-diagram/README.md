@@ -64,6 +64,7 @@ uv run python shift_region.py diagram.excalidraw --below 1075 --dy 108 --dry-run
 - `SKILL.md` - design methodology and workflow
 - `references/shape-and-layout.md` - relationship-driven placement, orthogonal routing and flexible icon captions
 - `references/azure-icons.md` - offline official Azure icon cache, usage terms and embedding helper
+- `references/vendor-icons.md` - offline F5, Palo Alto Networks, NGINX, and Datadog SVG cache and embedding helper
 - `references/color-palette.md` - single source of truth for colors
 - `references/layered-server-architecture.md` - MCP/server architecture layout (vertical spine + sidebars)
 - `references/edit-existing.md` - collision pass when editing an existing diagram
@@ -86,4 +87,20 @@ Verify the bundled cache and helper offline:
 
 ```bash
 python3 -I -B references/test_azure_icons.py -v
+```
+
+## Vendor Icon Cache
+
+The skill includes four unmodified Simple Icons 16.0.0 SVGs under `assets/vendors/` for F5, Palo Alto Networks, NGINX, and Datadog. `manifest.json` records the version, source, brand hex, and SHA-256. The stored files have no fill. Embedding sets the brand fill on the copy inside the diagram and leaves the path data unchanged. Drawing does not use the network. See [vendor icon guidance](references/vendor-icons.md) and [terms](assets/vendors/TERMS.md).
+
+```bash
+python3 references/vendor_icons.py search "Palo Alto"
+python3 references/vendor_icons.py embed /path/to/diagram.excalidraw \
+  --icon 'edge_icon=f5.svg'
+```
+
+The image node must already exist, and it must be square. The helper packages assets only; it does not generate or reposition a diagram.
+
+```bash
+python3 -I -B references/test_vendor_icons.py -v
 ```
