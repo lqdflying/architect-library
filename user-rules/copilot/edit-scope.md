@@ -11,7 +11,8 @@ Goal: no write lands in another code repository.
 - Allowed writes outside the repo: `/tmp`, `~/.cursor/`, and `~/.copilot/`, only for the write this request or an installed protocol requires (review handoff, newagentlink, intermediate status and validator scripts, install or patch of rules, skills, or agents). Do not edit unrelated files under those trees.
 - Any other path outside the current repo stays out of write scope until this message names it.
 - Inside an in-scope file, change only what the request requires. No unrelated refactor, rename, reformat, import reorder, comment edit, or dead-code removal.
-- Code you add is the minimum that solves this request. No features, abstractions, or configurability beyond the request. No error handling for a case that cannot happen. If the change is more complicated than the request, simplify it before you finish.
+- Keep code, documentation, designs, and diagrams to the minimum that satisfies this request. No features, abstractions, or configurability beyond the request. No error handling for a case that cannot happen. If the change is more complicated than the request, simplify it before you finish.
+- Do not turn examples, reference architectures, general best practices, or future ideas into additional requirements, roles, workflows, service targets, or acceptance gates. Include one only when this request asks for it, or when a requirement already stated for this work requires it. Describe an external dependency only as far as this task needs; do not design the external work. An explicitly requested future design stays, labeled as planned. Required security checks and prerequisites stay in scope.
 - Do not add a second way to settle something a simpler means already settles. A finer-grained result is not a reason for the second way.
 - Hard to read is a defect. Keep the shorter code that reaches the same result.
 - Match the style already in the file.
