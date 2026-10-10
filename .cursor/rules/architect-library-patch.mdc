@@ -1,22 +1,23 @@
 ---
-description: After skill, agent, or user-rule changes, patch global library via install_library.sh (Cursor only)
+description: After skill, agent, or user-rule changes, patch the global library for Cursor and VS Code Copilot
 alwaysApply: true
 ---
 
-# Patch / install Architect Library (Cursor — global readiness default)
+# Patch / install Architect Library (Cursor and VS Code Copilot)
 
 **Shared contract:** [AGENTS.md](../../AGENTS.md) — install trigger phrases, editor scope, anti-patterns.
 
-**Editor scope:** You are in **Cursor**. Install to **Cursor paths only** — do not write `~/.copilot/` or `~/.claude/` unless the user explicitly asks for all editors.
+**Editor scope:** Install to **Cursor and VS Code Copilot**. Do **not** write `~/.claude/` unless the user asks for Claude or all editors. Do **not** install only one of Cursor or Copilot unless the user names that editor.
 
-When the user asks to **install library**, **install the library**, **patch library**, **refresh library**, **update library**, **install skills and agents**, **sync library**, **update architect library** — or **patch**, **upgrade**, **install**, or **refresh** skills, agents, or Cursor user-global rules — or you finish adding/changing `skills/`, `agents/`, or `user-rules/` in this repo — **run the Cursor readiness install yourself**.
+When the user asks to **install library**, **install the library**, **patch library**, **refresh library**, **update library**, **install skills and agents**, **sync library**, **update architect library** — or **patch**, **upgrade**, **install**, or **refresh** skills, agents, or Cursor user-global rules — or you finish adding/changing `skills/`, `agents/`, or `user-rules/` in this repo — **run the readiness install yourself**.
 
-Default means **runtimes + skills + agents + Cursor user-global rules** for Cursor only. Do **not** ask which editor, scope, library subset, or runtime set to install for those trigger phrases.
+Default means **runtimes + skills + agents + Cursor user-global rules + the Copilot always-on instruction**. Do **not** ask which editor, scope, library subset, or runtime set to install for those trigger phrases.
 
 ```bash
 bash scripts/install_deps.sh
 bash scripts/install_deps.sh office-system
 bash scripts/install_library.sh all cursor
+bash scripts/install_library.sh all copilot
 ```
 
 (`install_deps.sh` includes Node/npm + global `docx`/`pptxgenjs` via `install_node.sh`; re-run `bash scripts/install_deps.sh node` if that step warned.)
@@ -25,10 +26,11 @@ If a runtime command fails because of missing permissions, sudo, network, or npm
 
 Use partial installs **only** when the user explicitly asks:
 
-- Skills only: `bash scripts/install_library.sh skills cursor`
-- Agents only: `bash scripts/install_library.sh agents cursor`
-- Cursor user-global rules only: `bash scripts/install_library.sh rules cursor`
-- All editors (Cursor + Copilot + Claude): `bash scripts/install_library.sh` — **only** when user asks
+- Skills only: `bash scripts/install_library.sh skills cursor` and `bash scripts/install_library.sh skills copilot`
+- Agents only: `bash scripts/install_library.sh agents cursor` and `bash scripts/install_library.sh agents copilot`
+- Cursor user-global rules and the Copilot always-on instruction: `bash scripts/install_library.sh rules cursor` and `bash scripts/install_library.sh rules copilot`
+- One editor only: pass `cursor` or `copilot` alone when the user names that editor
+- Claude, or all editors: `bash scripts/install_library.sh` — **only** when the user asks
 
 **Source of truth:**
 
@@ -65,7 +67,7 @@ LEGACY_CURSOR_RULES="code-review-handoff response-and-edit-scope"
 - **New** skill, agent, or Cursor user-global rule → add to the matching bundle and install target.
 - **Existing** entry → **replace** whole folder/file (`rm -rf` then fresh copy/assemble; rules: `rm` then copy the `.mdc`).
 
-## Patch procedure (Cursor)
+## Patch procedure (Cursor and VS Code Copilot)
 
 From the repository root:
 
@@ -75,9 +77,10 @@ cd "$REPO"
 bash scripts/install_deps.sh
 bash scripts/install_deps.sh office-system
 bash scripts/install_library.sh all cursor
+bash scripts/install_library.sh all copilot
 ```
 
-## Verify (Cursor)
+## Verify (Cursor and VS Code Copilot)
 
 ```bash
 test -f ~/.cursor/skills/_shared/office-tools/office_tools.py
@@ -144,8 +147,8 @@ The install script runs skill/agent/rule checks automatically when `EDITOR=curso
 
 ## After patching
 
-1. Tell the user skills, agents, Cursor user-global rules, and runtimes were updated for Cursor.
-2. Ask them to **open a new agent chat** (or reload the window) so skill descriptions, agents, and user-global rules reload.
+1. Tell the user skills, agents, Cursor user-global rules, the Copilot always-on instruction, and runtimes were updated for Cursor and VS Code Copilot.
+2. Ask them to **open a new agent chat** (or reload the window) so skill descriptions, agents, and user-global rules reload. Reload VS Code for Copilot.
 3. If any runtime command failed, say readiness is incomplete and include the failing command.
 
 Full paths, Copilot/Claude variants, and mistakes to avoid: [docs/AGENT-SKILL-INSTALL.md](docs/AGENT-SKILL-INSTALL.md).

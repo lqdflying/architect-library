@@ -4,15 +4,15 @@
 
 Trigger: user says **install library**, install the library, patch library, refresh library, update library, install skills and agents, sync library, update architect library, update skills, refresh skills, sync skills, update agents, or similar.
 
-**You are in VS Code Copilot.** Follow **AGENTS.md** § Install library with **`all copilot`** only. Do not write `~/.cursor/` or `~/.claude/` unless the user explicitly asks for all editors.
+**You are in VS Code Copilot.** Follow **AGENTS.md** § Install library with **`all cursor` and `all copilot`**. Do not write `~/.claude/` unless the user asks for Claude or all editors. Do not install only Copilot unless the user names that editor.
 
 Do **not** ask which editor, scope, library subset, or runtime set to install for trigger phrases above. Do **not** install Node.js/nvm when `npm` is missing — report the error per AGENTS.md.
 
 Use partial installs only when the user explicitly asks:
 
-- Skills only: `bash scripts/install_library.sh skills copilot`
-- Agents only: `bash scripts/install_library.sh agents copilot`
-- All editors: `bash scripts/install_library.sh` — **only** when user asks
+- Skills only: `bash scripts/install_library.sh skills cursor` and `bash scripts/install_library.sh skills copilot`
+- Agents only: `bash scripts/install_library.sh agents cursor` and `bash scripts/install_library.sh agents copilot`
+- Claude, or all editors: `bash scripts/install_library.sh` — **only** when the user asks
 
 ## Procedure
 
@@ -55,11 +55,12 @@ bash scripts/install_deps.sh office-system
 
 If a runtime command fails because of missing permissions, sudo, network, or npm, report the exact failing command and error. Run `bash scripts/runtime_readiness.sh` — library install can still proceed; Word may work via python-docx; new PPT decks need pptxgenjs or a user template. See [AGENTS.md](../../AGENTS.md) capability matrix.
 
-4. **Install both libraries globally (Copilot only):**
+4. **Install both libraries globally (Cursor and VS Code Copilot):**
 
 ```bash
 REPO=/home/opc/architect-library
 cd "$REPO"
+bash scripts/install_library.sh all cursor
 bash scripts/install_library.sh all copilot
 ```
 

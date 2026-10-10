@@ -8,7 +8,7 @@ Use this document when the user asks to install, update, or fix **skills**, **cu
 
 ## User phrases (full readiness default)
 
-When the user says any of these, run a **full global readiness install** (runtimes + skills + agents + Cursor user-global rules when you are in Cursor) for **the editor you are running in**:
+When the user says any of these, run a **full global readiness install** (runtimes + skills + agents + Cursor user-global rules + the Copilot always-on instruction) for **Cursor and VS Code Copilot**:
 
 - **install library** | install the library | patch library | refresh library | update library
 - install skills and agents | sync library | update architect library
@@ -23,19 +23,19 @@ bash scripts/install_deps.sh
 bash scripts/install_deps.sh office-system
 ```
 
-Then run the editor-scoped library command:
+Then run both library commands:
 
-| You are in | Library command | Targets |
+| Target | Library command | Paths |
 |------------|-----------------|---------|
 | **Cursor** | `bash scripts/install_library.sh all cursor` | `~/.cursor/skills/`, `~/.cursor/agents/`, `~/.cursor/rules/` |
-| **VS Code Copilot** | `bash scripts/install_library.sh all copilot` | `~/.copilot/skills/`, `~/.copilot/agents/` |
-| **Claude Code** | `bash scripts/install_library.sh all claude` | `~/.claude/skills/`, `~/.claude/agents/` |
+| **VS Code Copilot** | `bash scripts/install_library.sh all copilot` | `~/.copilot/skills/`, `~/.copilot/agents/`, `~/.copilot/copilot-instructions.md` |
+| **Claude Code** (only when the user asks) | `bash scripts/install_library.sh all claude` | `~/.claude/skills/`, `~/.claude/agents/` |
 
-Do **not** ask which editor, scope, subset, or runtime set to install for these trigger phrases. Use the active editor default.
+Do **not** ask which editor, scope, subset, or runtime set to install for these trigger phrases. Install Cursor and VS Code Copilot.
 
-Do **not** install to other editors unless the user explicitly asks (e.g. "install for all editors" → `bash scripts/install_library.sh` with no `EDITOR` arg, which uses `both` = Cursor + Copilot + Claude).
+Do **not** install Claude unless the user asks for Claude or all editors (`bash scripts/install_library.sh` with no `EDITOR` arg, which uses `both` = Cursor + Copilot + Claude). Install only one of Cursor or Copilot when the user names that editor.
 
-Use **partial** installs (`skills`, `agents`, or `rules` only) **only** when the user explicitly asks — still scoped to your editor, e.g. `bash scripts/install_library.sh skills cursor` or `bash scripts/install_library.sh rules cursor`.
+Use **partial** installs (`skills`, `agents`, or `rules` only) **only** when the user explicitly asks — still for both Cursor and Copilot, for example `bash scripts/install_library.sh skills cursor` and `bash scripts/install_library.sh skills copilot`.
 
 ## What you are installing
 
@@ -140,13 +140,13 @@ echo "OK: repo layout valid"
 | Per project | `bash scripts/install_library.sh all cursor project` | `bash scripts/install_library.sh all copilot project` |
 | All editors (explicit ask) | `bash scripts/install_library.sh` | same |
 
-Prefer **global** unless the user explicitly wants project-local copies. Prefer **editor-scoped** unless the user explicitly wants all editors.
+Prefer **global** unless the user explicitly wants project-local copies. The default pair is Cursor and VS Code Copilot. Add Claude only when the user asks for Claude or all editors.
 
 ---
 
 ## Step 2: Patch / upgrade (agent default)
 
-When the user says **install library** or any phrase in [User phrases](#user-phrases-full-readiness-default) — or you changed `skills/`, `agents/`, or `user-rules/` — **run this** from the repo root (replace `cursor` with `copilot` or `claude` if that is your editor):
+When the user says **install library** or any phrase in [User phrases](#user-phrases-full-readiness-default) — or you changed `skills/`, `agents/`, or `user-rules/` — **run this** from the repo root:
 
 ```bash
 REPO=/path/to/architect-library
@@ -154,6 +154,7 @@ cd "$REPO"
 bash scripts/install_deps.sh
 bash scripts/install_deps.sh office-system
 bash scripts/install_library.sh all cursor
+bash scripts/install_library.sh all copilot
 ```
 
 If a runtime command fails because of missing permissions, sudo, network, or npm, report the exact failing command and error. Run `bash scripts/runtime_readiness.sh` and state partial capability per [AGENTS.md](../AGENTS.md) — **library copy can succeed without Node**; Word may still work via python-docx; new PPT decks need pptxgenjs or a user template.
@@ -386,7 +387,7 @@ Do not run `install_deps.sh` inside `~/.cursor/skills/` — run from the **repos
 | Leave `~/.cursor/rules/code-review-handoff.mdc` after install | Two `alwaysApply` review protocols load — install must delete the legacy name |
 | Leave `~/.cursor/rules/response-and-edit-scope.mdc` after install | Old combined rule overlaps `response-style.mdc` and `edit-scope.mdc` — install must delete the legacy name |
 | Leave `~/.cursor/skills/handoff` or `~/.cursor/commands/handoff.md` after install | Old continuation skill/command collides with `newagentlink` — install must delete both and install `~/.cursor/commands/newagentlink.md` |
-| Install to all editors from one agent | Pollutes unused paths — scope to your editor |
+| Install Claude without being asked | Default is Cursor and VS Code Copilot; bare `install_library.sh` also installs Claude |
 | Edit `agents/` without running install | Global agents stale |
 | Edit `user-rules/` without running install | `~/.cursor/rules/` and `~/.copilot/copilot-instructions.md` stale |
 | Add agents to `skills/` bundle | Wrong library — use `AGENT_BUNDLE` in `install_library.sh` |
