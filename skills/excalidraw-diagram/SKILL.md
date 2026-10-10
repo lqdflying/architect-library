@@ -1,6 +1,6 @@
 ---
 name: excalidraw-diagram
-description: Create Excalidraw diagram JSON files that make visual arguments. Use when the user wants to visualize workflows, architectures, or concepts. Every Azure diagram must use the cached official Azure icons for its Azure services, or a reported labeled box when no icon exists. Avoid preventable crossings and use horizontal/vertical architecture connectors. Validate bindings and rendered layout. When editing an existing .excalidraw, run the geometric collision pass before the first PNG. Keep the PNG under the 30,000-patch vision limit and inspect it.
+description: Create Excalidraw diagram JSON files that make visual arguments. Use when the user wants to visualize workflows, architectures, or concepts. Every Azure diagram must use the cached official Azure icons for its Azure services, or a reported labeled box when no icon exists. F5, Palo Alto Networks, NGINX, and Datadog nodes use the cached Simple Icons SVGs. Avoid preventable crossings and use horizontal/vertical architecture connectors. Validate bindings and rendered layout. When editing an existing .excalidraw, run the geometric collision pass before the first PNG. Keep the PNG under the 30,000-patch vision limit and inspect it.
 ---
 
 # Excalidraw Diagram Creator
@@ -16,6 +16,7 @@ Generate `.excalidraw` JSON files that **argue visually**, not just display info
 - `references/visual-patterns.md` — fan-out, convergence, timeline, tree, and other patterns
 - `references/shape-and-layout.md` — shape meaning, color, layout, text rules
 - `references/azure-icons.md` — **required for every Azure diagram**: offline official SVG lookup and embedding, preserving native artwork
+- `references/vendor-icons.md` — **required when a node is F5, Palo Alto Networks, NGINX, or Datadog**: offline SVG lookup and embedding, with the brand fill applied only at embed
 - `references/edit-existing.md` — **editing an existing file**: geometric collision pass before the first PNG (load this when changing a diagram, not only when creating one)
 - `references/element-templates.md` — copy-paste JSON templates per element type
 - `references/json-schema.md` — Excalidraw JSON structure details
@@ -23,7 +24,7 @@ Generate `.excalidraw` JSON files that **argue visually**, not just display info
 
 ## Customization
 
-**Diagram colors and brand-specific styles live in one file:** `references/color-palette.md`. Read it before generating any diagram and use it for shape fills, strokes, text colors and evidence backgrounds. Official service icons are the exception: preserve their native artwork and colors.
+**Diagram colors and brand-specific styles live in one file:** `references/color-palette.md`. Read it before generating any diagram and use it for shape fills, strokes, text colors and evidence backgrounds. Official service icons, and the cached F5, Palo Alto Networks, NGINX, and Datadog marks, are the exception: preserve their native artwork and colors.
 
 To make this skill produce diagrams in your own brand style, edit `color-palette.md`. Everything else in this file is universal design methodology and Excalidraw best practices.
 

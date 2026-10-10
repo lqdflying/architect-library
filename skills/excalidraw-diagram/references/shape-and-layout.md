@@ -34,7 +34,7 @@ For layered server diagrams (`layered-server-architecture.md`):
 | Decision (2FA, policy gate) | `diamond` | Amber semantic |
 | Flow evidence | dark `rectangle` | Terminal-style; green text inside |
 
-On an Azure diagram, a zone that is an Azure service, such as a database, cache, storage account, Key Vault or Entra ID, uses its official icon and caption from `azure-icons.md` instead of the shape in this table. Keep the zone's position in the layout and its connector colors. A database that is not an Azure service stays a green ellipse.
+On an Azure diagram, a zone that is an Azure service, such as a database, cache, storage account, Key Vault or Entra ID, uses its official icon and caption from `azure-icons.md` instead of the shape in this table. Keep the zone's position in the layout and its connector colors. A database that is not an Azure service stays a green ellipse. A node that is F5, Palo Alto Networks, NGINX, or Datadog uses that product's cached icon and caption from `vendor-icons.md`. A generic load balancer, firewall, proxy, or monitoring service keeps the shape in this table.
 
 **Detail captions** are free-floating text outside the parent shape (`containerId: null`). Place them above, below, left or right to keep connectors clear; below is not mandatory. Keep each caption closer to its own icon than to a neighboring icon, and group the icon and caption so they move together.
 
@@ -67,7 +67,7 @@ Colors encode information, not decoration. Every color choice should come from `
 
 **Do not invent new colors.** If a concept doesn't fit an existing semantic category, use Primary/Neutral or Secondary.
 
-Official service icons retain their original artwork and colors. Use the palette for the diagram's boundaries, labels and connectors; do not recolor an Azure icon to match it. See `azure-icons.md` for the bundled SVG cache.
+Official service icons, and the F5, Palo Alto Networks, NGINX, and Datadog marks, retain their original artwork and colors. Use the palette for the diagram's boundaries, labels and connectors. Do not recolor those icons to match the palette. See `azure-icons.md` and `vendor-icons.md`.
 
 ## Modern Aesthetics
 
