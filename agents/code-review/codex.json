@@ -1,0 +1,4 @@
+{
+  "name": "code-review",
+  "description": "Read-only code review specialist. Trace logic, find correctness and test risks, and cross-check APIs through available MCP and web tools. Never edit code."
+}

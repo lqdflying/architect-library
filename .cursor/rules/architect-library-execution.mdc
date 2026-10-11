@@ -55,7 +55,7 @@ Do not hand-edit `user-rules/copilot/`. After editing `user-rules/cursor/`, run 
 
 ## Review handoff (skill + always-on trigger)
 
-Canonical protocol: `skills/review-handoff/SKILL.md` (Cursor and Copilot only, via `EDITOR_VARIANT_SKILLS`; loaded on demand). Always-on trigger: `user-rules/cursor/review-handoff-reconciliation.mdc` (installs to `~/.cursor/rules/`) and the generated `user-rules/copilot/review-handoff.md` (concatenated into `~/.copilot/copilot-instructions.md`). The trigger only tells the agent to read the skill. Do not duplicate the body here or in the trigger.
+Canonical protocol: `skills/review-handoff/SKILL.md` (Cursor, Copilot, and Codex, via `EDITOR_VARIANT_SKILLS`; loaded on demand). Always-on trigger: `user-rules/cursor/review-handoff-reconciliation.mdc` (installs to `~/.cursor/rules/`) and the generated `user-rules/copilot/review-handoff.md` (concatenated into `~/.copilot/copilot-instructions.md`). Codex uses the generated `user-rules/codex/review-handoff.md` in its managed global `AGENTS.md` block. Its read-only custom agents return ledger rounds to the parent for recording. The trigger only tells the agent to read the skill. Do not duplicate the body here or in the trigger.
 
 | Work | Done when |
 |------|-----------|
@@ -75,7 +75,7 @@ Canonical sources: `user-rules/cursor/edit-scope.mdc` (installs to `~/.cursor/ru
 
 | Work | Done when |
 |------|-----------|
-| **edit-scope** | Writes stay in the current repo except `/tmp`, `~/.cursor/`, and `~/.copilot/` when this request or an installed protocol requires that write. The diff is the minimum that meets the request. Work a simpler means already settles is not done again. |
+| **edit-scope** | Writes stay in the current repo except `/tmp`, `~/.cursor/`, and `~/.copilot/` when this request or an installed protocol requires that write. The diff is the minimum that meets the request. Work that a simpler means already settles is not done again. |
 
 ## Branch strategy (user-global protocol)
 

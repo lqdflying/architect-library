@@ -1,9 +1,9 @@
 ---
 name: newagentlink
 description: >-
-  Writes a one-shot continuation markdown so a new Cursor agent can proceed
+  Writes a one-shot continuation markdown so a new agent can proceed
   without the old transcript. One read on the new agent's first turn, then
-  never reuse or update that file. Use when the user types /newagentlink, asks
+  never reuse or update that file. Use when the user types /newagentlink or $newagentlink, asks
   for a new-agent brief, continuation file, or "too much context / start a new
   agent".
 disable-model-invocation: true
@@ -11,11 +11,14 @@ disable-model-invocation: true
 
 # New agent link (`/newagentlink`)
 
+In Codex, explicitly invoke `$newagentlink`. Its `agents/openai.yaml` disables
+implicit invocation. The `/newagentlink` examples below describe the same workflow.
+
 Write **one** markdown file a **new** agent can read **once** and then discard.
 
 This is **not** a living ledger. It is **not** the review protocol in the
 `review-handoff` skill (`skills/review-handoff/SKILL.md`, installed to
-`~/.cursor/skills/` and `~/.copilot/skills/`). That protocol is updated
+`~/.cursor/skills/`, `~/.copilot/skills/`, or `~/.agents/skills/` for Codex). That protocol is updated
 across reviewer/fixer rounds and writes `/tmp/<topic>-handoff.md`.
 `/newagentlink` is a **single snapshot** for starting a new session.
 

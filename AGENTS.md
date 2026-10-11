@@ -15,16 +15,17 @@ Cross-editor guide for AI agents working **in this repository** (maintainers edi
 
 **Trigger phrases:** install library, patch library, refresh library, update library, install skills and agents, sync library, update architect library — or after you change `skills/`, `agents/`, or `user-rules/` in this repo.
 
-### 1. Install Cursor and VS Code Copilot
+### 1. Select editors (Cursor and VS Code Copilot by default)
 
 The default install is **Cursor and VS Code Copilot together**.
 
 | You are in | Install to |
 |------------|------------|
 | **Cursor** or **VS Code Copilot** | `~/.cursor/skills/`, `~/.cursor/agents/`, `~/.cursor/rules/`, and `~/.copilot/skills/`, `~/.copilot/agents/`, `~/.copilot/copilot-instructions.md` |
-| **Claude Code** | `~/.claude/skills/`, `~/.claude/agents/` |
+| **Claude Code** | `~/.claude/skills/`, `~/.claude/agents/`, `~/.claude/rules/` |
+| **Codex** (explicit request) | `~/.agents/skills/`, `${CODEX_HOME:-$HOME/.codex}/agents/`, `${CODEX_HOME:-$HOME/.codex}/AGENTS.md` |
 
-Install Claude as well when the user asks for Claude or all editors. Install only one of Cursor or Copilot when the user names that editor.
+Codex and Claude are opt-in: include them only when the user requests that editor or all editors. When the user names one editor, install only that editor. Generic requests still install Cursor + Copilot.
 
 ### 2. Runtimes (from repo root)
 
@@ -54,15 +55,16 @@ bash scripts/install_deps.sh office-system
 
 **Without npm:** Word → python-docx per `word-document` skill; PowerPoint → template/XML path only (no greenfield deck); layout preview still mandatory when delivering `.pptx`.
 
-### 3. Copy skills, agents, and Cursor user-global rules — editor-scoped command
+### 3. Copy skills, agents, and user instructions — editor-scoped command
 
 | Editor | Command |
 |--------|---------|
 | **Cursor and VS Code Copilot** (default) | `bash scripts/install_library.sh all cursor` then `bash scripts/install_library.sh all copilot` |
 | **Claude Code** | `bash scripts/install_library.sh all claude` |
-| All editors (explicit user ask only) | `bash scripts/install_library.sh` |
+| **Codex** | `bash scripts/install_library.sh all codex` |
+| All four editors (explicit user ask only) | `bash scripts/install_library.sh all all` |
 
-**Do not** run bare `bash scripts/install_library.sh` by default — it uses `EDITOR=both` and also installs Claude.
+**Do not** run bare `bash scripts/install_library.sh` by default — it uses the legacy `EDITOR=both` (Cursor + Copilot + Claude, without Codex). Use explicit targets; `EDITOR=all` selects all four.
 
 Partial installs only when the user explicitly asks for a library subset. Still install that subset for Cursor and Copilot unless the user names one editor, for example `bash scripts/install_library.sh skills cursor` and `bash scripts/install_library.sh skills copilot`.
 
@@ -76,24 +78,26 @@ Reload the editor or open a **new agent chat**. If any runtime step failed, say 
 
 | Wrong | Right |
 |-------|-------|
-| `bash scripts/install_library.sh` with no editor arg | `all cursor` and `all copilot`; add `all claude` only when the user asks |
+| `bash scripts/install_library.sh` with no editor arg | `all cursor` and `all copilot`; add `all claude` or `all codex` only when the user asks |
 | Install nvm/fnm because `npm` failed | Run `bash scripts/install_deps.sh node` first; only install nvm if user asks |
 | Run bare `npm install -g` before `install_deps.sh node` | Use `bash scripts/install_deps.sh` or `install_deps.sh node` — it handles Cursor-server Node + npm bootstrap |
 | Say pptxgenjs works via python-docx | **Wrong** — PPT new decks need pptxgenjs or template/XML; Word only has python-docx fallback |
 | Manual Node without sourcing env | `source scripts/architect_env.sh` so `NODE_PATH` finds `docx` / `pptxgenjs` under `~/.npm-global` |
 | Copy `skills/` into `repo/.cursor/skills/` | Source is `skills/`; install via `install_library.sh` |
 | Copy `user-rules/` into `repo/.cursor/rules/` | Cursor source is `user-rules/cursor/` → `~/.cursor/rules/`. Copilot fragments in `user-rules/copilot/` concatenate to `~/.copilot/copilot-instructions.md` |
-| Ask which editor on “install library” | Install Cursor and VS Code Copilot; add Claude only when the user asks |
+| Ask which editor on “install library” | Install Cursor and VS Code Copilot; add Claude or Codex only when the user asks |
 
 ---
 
 ## Library layout (source of truth)
 
 - **Skills:** `skills/<name>/` → bundled in `SKILL_BUNDLE` in `scripts/install_library.sh`
-- **Custom agents:** `agents/<name>/` → `AGENT_BUNDLE`; assembled from `cursor.header.md` / `copilot.header.md` / `claude.header.md` + `INSTRUCTIONS.md`
+- **Custom agents:** `agents/<name>/` → `AGENT_BUNDLE`; assembled from editor headers + `INSTRUCTIONS.md`. Codex uses `codex.json` metadata + the shared body + `agents/codex-review.md` to generate read-only `.toml` agents; the parent records review ledgers.
 - **Cursor user-global rules:** `user-rules/cursor/<name>.mdc` → `CURSOR_RULE_BUNDLE` (`review-handoff-reconciliation`, `response-style`, `edit-scope`, `branch-strategy`, `docs-lookup`, `temp-validators`); installed to `~/.cursor/rules/`. Distinct from this repo’s maintainer `.cursor/rules/`.
 - **Copilot always-on instructions:** `user-rules/copilot/{response-style,edit-scope,branch-strategy,review-handoff,docs-lookup,temp-validators}.md` are generated from `user-rules/cursor/` by `bash scripts/sync_copilot_rules.sh` (do not hand-edit) and concatenate to `~/.copilot/copilot-instructions.md` on a global Copilot install. Project scope does not write `.github/copilot-instructions.md`.
-- **Review handoff:** the protocol is the on-demand skill `skills/review-handoff/` (Cursor + Copilot only, via `EDITOR_VARIANT_SKILLS`). The `review-handoff` rule and fragment are only its always-on trigger.
+- **Codex user instructions:** `user-rules/codex/` contains the same six fragments, generated from `user-rules/cursor/` by `bash scripts/sync_codex_rules.sh` (do not hand-edit). Global installation updates only the `architect-library` marked block in the active Codex home’s `AGENTS.md`, preserving personal text. Conflicting nonempty `AGENTS.override.md` or malformed markers fail before copying. Project scope installs `.agents/skills/` and `.codex/agents/` but never writes project `AGENTS.md`. Python 3 is required for Codex agent/instruction rendering.
+- **Claude Code user rules:** `user-rules/claude/` contains the same six fragments, generated from `user-rules/cursor/` by `bash scripts/sync_claude_rules.sh` (do not hand-edit). Global installation copies them to `~/.claude/rules/<name>.md` and leaves `~/.claude/CLAUDE.md` and other rule files untouched. Project scope does not write `.claude/rules/`.
+- **Review handoff:** the protocol is the on-demand skill `skills/review-handoff/` (all four editors, via `SKILL_BUNDLE`). The `review-handoff` rule and fragment are only its always-on trigger.
 - **End-user skills/agents/rules** live in the user’s home directory after install — not in this repo’s `.cursor/skills/` (except maintainer-only `.cursor/skills/absorb-reference-materials/`)
 
 ---

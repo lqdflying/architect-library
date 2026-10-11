@@ -1,8 +1,8 @@
-# Agent guide: install Architect Library (Cursor / Copilot)
+# Agent guide: install Architect Library (Cursor / Copilot / Codex / Claude Code)
 
-Use this document when the user asks to install, update, or fix **skills**, **custom agents**, or **Cursor user-global rules** from the **architect-library** repository. Follow it literally; do not invent alternate paths.
+Use this document when the user asks to install, update, or fix **skills**, **custom agents**, or **user instructions** from the **architect-library** repository. Follow it literally; do not invent alternate paths.
 
-**Cross-editor contract:** [AGENTS.md](../AGENTS.md) at the repo root — install trigger phrases, editor scope, and anti-patterns (both Cursor and Copilot should follow it).
+**Cross-editor contract:** [AGENTS.md](../AGENTS.md) at the repo root — install trigger phrases, editor scope, and anti-patterns (all supported editors should follow it).
 
 **Editing this repository?** Cursor loads [`.cursor/rules/`](../.cursor/rules/) automatically (maintainer rules). Follow [MAINTAINING-SKILLS.md](MAINTAINING-SKILLS.md) whenever you add a skill, agent, user-global Cursor rule, workflow step, or dependency.
 
@@ -29,11 +29,12 @@ Then run both library commands:
 |------------|-----------------|---------|
 | **Cursor** | `bash scripts/install_library.sh all cursor` | `~/.cursor/skills/`, `~/.cursor/agents/`, `~/.cursor/rules/` |
 | **VS Code Copilot** | `bash scripts/install_library.sh all copilot` | `~/.copilot/skills/`, `~/.copilot/agents/`, `~/.copilot/copilot-instructions.md` |
-| **Claude Code** (only when the user asks) | `bash scripts/install_library.sh all claude` | `~/.claude/skills/`, `~/.claude/agents/` |
+| **Claude Code** (only when the user asks) | `bash scripts/install_library.sh all claude` | `~/.claude/skills/`, `~/.claude/agents/`, `~/.claude/rules/` |
+| **Codex** (only when the user asks) | `bash scripts/install_library.sh all codex` | `~/.agents/skills/`, `${CODEX_HOME:-$HOME/.codex}/agents/`, `${CODEX_HOME:-$HOME/.codex}/AGENTS.md` |
 
 Do **not** ask which editor, scope, subset, or runtime set to install for these trigger phrases. Install Cursor and VS Code Copilot.
 
-Do **not** install Claude unless the user asks for Claude or all editors (`bash scripts/install_library.sh` with no `EDITOR` arg, which uses `both` = Cursor + Copilot + Claude). Install only one of Cursor or Copilot when the user names that editor.
+Codex and Claude are opt-in. If the user names one editor, install only that editor. An explicit all-editor request uses `bash scripts/install_library.sh all all`. The legacy `both` selector (also the bare command default) still means Cursor + Copilot + Claude, without Codex.
 
 Use **partial** installs (`skills`, `agents`, or `rules` only) **only** when the user explicitly asks — still for both Cursor and Copilot, for example `bash scripts/install_library.sh skills cursor` and `bash scripts/install_library.sh skills copilot`.
 
@@ -45,23 +46,23 @@ Architect Library publishes **two libraries** plus **Cursor user-global rules**:
 
 | Folder | Type | Required |
 |--------|------|----------|
-| `excalidraw-diagram` | Cursor/Copilot skill | If diagrams are needed |
-| `word-document` | Cursor/Copilot skill | If DOCX is needed |
-| `powerpoint-presentation` | Cursor/Copilot skill | If PPTX is needed |
-| `spreadsheet-document` | Cursor/Copilot skill | If XLSX/spreadsheet work is needed |
-| `pdf-document` | Cursor/Copilot skill | If PDF work is needed |
-| `verification-before-completion` | Cursor/Copilot skill | Evidence before completion claims; required by artifact skills at delivery |
-| `newagentlink` | Cursor/Copilot skill | One-shot `/tmp/<topic>-newagentlink.md` for a new agent chat; not the review ledger |
-| `review-handoff` | Cursor + Copilot only (on demand) | Review and fix ledger protocol at `/tmp/<topic>-handoff.md`; read when the always-on `review-handoff` trigger fires |
-| `api-and-interface-design` | Cursor/Copilot skill | API and module boundary design workflow |
-| `github-markdown` | Cursor/Copilot skill | GitHub Flavored Markdown for READMEs, issues, PRs, discussions, wikis, and repo docs |
-| `deprecation-and-migration` | Cursor/Copilot skill | Deprecation and migration planning workflow |
-| `terraform-commit-review` | Cursor/Copilot skill | Terraform IaC commit-range review (correctness, security, destructive changes) |
-| `terraform-apply-assistance` | Cursor/Copilot skill | Fix Terraform errors, review apply scope from commit hash through HEAD, stay on the current working branch, review plan output for apply safety |
-| `security-audit` | Cursor/Copilot skill | Deep multi-phase codebase security audit — parallel sub-agent hunting, adversarial validation, structured `findings.json` output |
-| `mcp-tool-rules` | Cursor + Copilot (editor variants) | Scan MCP servers and generate rule/instruction files with correct tool arguments (`.mdc` for Cursor, `.instructions.md` for Copilot) |
-| `context7-docs` | Cursor + Copilot (editor variants) | Fetch current library/framework documentation via Context7 MCP instead of training data; editor variants use correct MCP server name |
-| `notion-mcp-ops` | Cursor + Copilot (editor variants) | Notion MCP CRUD and formatting; fetch-before-write; failure-mode avoidance; editor variants use correct MCP server name (`plugin-notion-workspace-notion` in Cursor, `notion` in Copilot) |
+| `excalidraw-diagram` | Shared skill | If diagrams are needed |
+| `word-document` | Shared skill | If DOCX is needed |
+| `powerpoint-presentation` | Shared skill | If PPTX is needed |
+| `spreadsheet-document` | Shared skill | If XLSX/spreadsheet work is needed |
+| `pdf-document` | Shared skill | If PDF work is needed |
+| `verification-before-completion` | Shared skill | Evidence before completion claims; required by artifact skills at delivery |
+| `newagentlink` | Shared skill | One-shot `/tmp/<topic>-newagentlink.md` for a new agent chat; not the review ledger |
+| `review-handoff` | Shared skill (on demand) | Review and fix ledger protocol at `/tmp/<topic>-handoff.md`; read when the always-on `review-handoff` trigger fires |
+| `api-and-interface-design` | Shared skill | API and module boundary design workflow |
+| `github-markdown` | Shared skill | GitHub Flavored Markdown for READMEs, issues, PRs, discussions, wikis, and repo docs |
+| `deprecation-and-migration` | Shared skill | Deprecation and migration planning workflow |
+| `terraform-commit-review` | Shared skill | Terraform IaC commit-range review (correctness, security, destructive changes) |
+| `terraform-apply-assistance` | Shared skill | Fix Terraform errors, review apply scope from commit hash through HEAD, stay on the current working branch, review plan output for apply safety |
+| `security-audit` | Shared skill | Deep multi-phase codebase security audit — parallel sub-agent hunting, adversarial validation, structured `findings.json` output |
+| `mcp-tool-rules` | Cursor + Copilot + Codex (editor variants) | Scan MCP servers and generate rule/instruction files with correct tool arguments (`.mdc` for Cursor, `.instructions.md` for Copilot, `.agents/mcp-tools/` references plus a project `AGENTS.md` trigger for Codex) |
+| `context7-docs` | Cursor + Copilot + Codex (editor variants) | Fetch current library/framework documentation via Context7 MCP instead of training data; editor variants use correct MCP server name |
+| `notion-mcp-ops` | Cursor + Copilot + Codex (editor variants) | Notion MCP CRUD and formatting; fetch-before-write; failure-mode avoidance; editor variants use correct MCP server name (`plugin-notion-workspace-notion` in Cursor, `notion` in Copilot; Codex discovers the available tool names) |
 | `_shared` | Support files (not a standalone skill) | **Yes** whenever Word, PowerPoint, or spreadsheet skills are installed |
 
 Word, PowerPoint, and spreadsheet skills reference Office tools via `../_shared/office-tools/`. If `_shared` is missing or not a **sibling** of those folders, paths break.
@@ -73,7 +74,7 @@ Word, PowerPoint, and spreadsheet skills reference Office tools via `../_shared/
 | `code-review` | Read-only code review with MCP and web verification |
 | `security-auditor` | Read-only security review — STRIDE, OWASP, LLM security, CVE checks |
 
-Agents install as single `.md` files (assembled from header + `INSTRUCTIONS.md`). See [AGENTS.md](AGENTS.md).
+Agents install as single `.md` files (assembled from header + `INSTRUCTIONS.md`), or `.toml` for Codex (`codex.json` metadata + shared instructions + `agents/codex-review.md`). See [AGENTS.md](AGENTS.md).
 
 ### Cursor user-global rules (`user-rules/cursor/`)
 
@@ -83,7 +84,7 @@ Installed to `~/.cursor/rules/<name>.mdc` (not the Cursor Settings → Customize
 |------|---------|
 | `review-handoff-reconciliation.mdc` | Always-on trigger (about 1 KB): on review, audit, or fix-from-ledger turns, read the `review-handoff` skill first. The protocol (`/tmp/<topic>-handoff.md` ledger, FIX / DEFER / KEEP / DO NOT APPLY / FIXED / RECONCILED, **append-only**) lives in `skills/review-handoff/SKILL.md` and loads on demand. Distinct from the `newagentlink` skill (`/tmp/<topic>-newagentlink.md`). |
 | `response-style.mdc` | Short replies (result first; a vague objective stops the work; a worse approach is named and the shorter path is used; excess complexity in the task's own work is deleted rather than defended; Changes, Verify, Open Items only on file-changing turns and only when they have content; one conclusion; no step narration, pasted logs, or AI filler). Matching Copilot fragment: `user-rules/copilot/response-style.md`. |
-| `edit-scope.mdc` | Writes stay in the current repo. Auto-read is allowed everywhere. The diff is the minimum that meets the request, and work a simpler means already settles is not done again. `/tmp`, `~/.cursor/`, and `~/.copilot/` may be written when this request or an installed protocol requires that write. Matching Copilot fragment: `user-rules/copilot/edit-scope.md`. |
+| `edit-scope.mdc` | Writes stay in the current repo. Auto-read is allowed everywhere. The diff is the minimum that meets the request, and work that a simpler means already settles is not done again. `/tmp`, `~/.cursor/`, and `~/.copilot/` may be written when this request or an installed protocol requires that write. Matching Copilot fragment: `user-rules/copilot/edit-scope.md`. |
 | `branch-strategy.mdc` | One working branch at a time (the branch already checked out). No edit, commit, or push on `main`. No switch off a branch that still has unmerged commits or uncommitted files. A new branch only from `main`, when the current branch is `main` or the user asks. Mixed topics on one branch are expected. Pause before `git commit` or `git push`. Matching Copilot fragment: `user-rules/copilot/branch-strategy.md`. |
 | `docs-lookup.mdc` | Code documentation uses Microsoft Learn or Context7 MCP first. Native web search and fetch run only when no documentation MCP applies, the call fails, or the result has nothing usable. Matching Copilot fragment: `user-rules/copilot/docs-lookup.md`. |
 | `temp-validators.mdc` | Intermediate status and validator scripts go under `/tmp` and are not added to the current code repository. Matching Copilot fragment: `user-rules/copilot/temp-validators.md`. |
@@ -91,6 +92,57 @@ Installed to `~/.cursor/rules/<name>.mdc` (not the Cursor Settings → Customize
 ### Copilot always-on instruction (`user-rules/copilot/`)
 
 Global Copilot install concatenates `response-style.md`, `edit-scope.md`, `branch-strategy.md`, `review-handoff.md`, `docs-lookup.md`, and `temp-validators.md` into `~/.copilot/copilot-instructions.md`. That path is the personal always-on file for Copilot Agent Host chats. Fragments have no `alwaysApply` frontmatter. They are generated from `user-rules/cursor/` by `bash scripts/sync_copilot_rules.sh`; do not hand-edit them. Install verify fails when they drift from the Cursor sources. Project-scope install does not write `.github/copilot-instructions.md`.
+
+### Codex user instructions (`user-rules/codex/`)
+
+The same six user-rule groups are generated from the canonical Cursor sources
+with `bash scripts/sync_codex_rules.sh`. Do not hand-edit the Codex fragments.
+The transformation drops Cursor frontmatter, changes the scope wording to Codex,
+uses `~/.agents/skills/` for skills, and adapts the allowed instruction paths to
+`~/.agents/` and the active Codex home (`$CODEX_HOME`, default `~/.codex`). Policy
+intent remains shared with Cursor and Copilot. `--check` fails on drift.
+
+Global installation places the fragments in `AGENTS.md` in the active Codex home,
+between `<!-- BEGIN architect-library -->` and `<!-- END architect-library -->`.
+Reinstallation replaces only that block and preserves personal text outside it.
+Unmatched/duplicate markers, instruction-file symlinks, and a nonempty global
+`AGENTS.override.md` fail preflight before any library files are copied. Resolve
+the reported conflict and rerun; the installer never removes the override.
+A `rules codex` refresh requires the installed `review-handoff` skill; on a fresh
+machine use `all codex` or install `skills codex` first.
+
+Codex installation uses Python 3 standard-library helpers and needs no Node
+runtime for copying. It does not install Codex, change `config.toml`, configure
+MCP servers, or authenticate. Project scope installs skills and agents only;
+it does not write `AGENTS.md` or global instructions. User skills stay under
+`~/.agents/skills/` even with a custom `CODEX_HOME`.
+
+Cursor and VS Code Copilot also load `~/.agents/skills/` and project
+`.agents/skills/`, so after a Codex install they list the library skills twice.
+Shared skills are identical copies. The Codex variants of `mcp-tool-rules`,
+`context7-docs`, and `notion-mcp-ops` are marked Codex only, so other editors
+use their own copy.
+
+See official documentation for [skill discovery and invocation metadata](https://learn.chatgpt.com/docs/build-skills),
+[AGENTS.md precedence](https://learn.chatgpt.com/docs/agent-configuration/agents-md),
+[custom agents](https://learn.chatgpt.com/docs/agent-configuration/subagents), and
+[Codex MCP configuration](https://learn.chatgpt.com/docs/extend/mcp?surface=cli).
+
+### Claude Code user rules (`user-rules/claude/`)
+
+The same six user-rule groups are generated from the Cursor sources with
+`bash scripts/sync_claude_rules.sh`. Do not hand-edit them. The transformation
+drops Cursor frontmatter, changes the scope wording to Claude Code, uses
+`~/.claude/skills/` for skills, and allows writes to `~/.claude/` instead of
+`~/.cursor/` and `~/.copilot/`. `--check` fails on drift.
+
+Global installation copies each fragment to `~/.claude/rules/<name>.md`. Claude
+Code loads user-level rules without `paths` frontmatter in every project
+([memory docs](https://code.claude.com/docs/en/memory)). The installer replaces
+only its six files and never edits `~/.claude/CLAUDE.md`, so keep personal
+instructions there and do not repeat the library rules in it. A `rules claude`
+refresh requires the installed `review-handoff` skill; on a fresh machine use
+`all claude`. Project scope does not write `.claude/rules/`.
 
 **Source of truth:** `<repo>/skills/<name>/`, `<repo>/agents/<name>/`, `<repo>/user-rules/cursor/<name>.mdc`, and `<repo>/user-rules/copilot/{response-style,edit-scope,branch-strategy,review-handoff,docs-lookup,temp-validators}.md`  
 **Do not** copy into `<repo>/.cursor/skills/`, `<repo>/.cursor/agents/`, or `<repo>/.cursor/rules/` — use `install_library.sh`.
@@ -138,9 +190,9 @@ echo "OK: repo layout valid"
 | Agents only | `bash scripts/install_library.sh agents cursor` | `bash scripts/install_library.sh agents copilot` |
 | User-global rules only | `bash scripts/install_library.sh rules cursor` | `bash scripts/install_library.sh rules copilot` |
 | Per project | `bash scripts/install_library.sh all cursor project` | `bash scripts/install_library.sh all copilot project` |
-| All editors (explicit ask) | `bash scripts/install_library.sh` | same |
+| All editors (explicit ask) | `bash scripts/install_library.sh all all` | same |
 
-Prefer **global** unless the user explicitly wants project-local copies. The default pair is Cursor and VS Code Copilot. Add Claude only when the user asks for Claude or all editors.
+Prefer **global** unless the user explicitly wants project-local copies. The default pair is Cursor and VS Code Copilot. Add Codex or Claude only when requested. For Codex, use the same `all`, `skills`, `agents`, or `rules` selector with `codex`; project scope supports skills and agents only.
 
 ---
 
@@ -178,19 +230,19 @@ Copilot rule: [`.github/instructions/update-library.instructions.md`](../.github
 
 ## Step 3: Global install targets
 
-| Library | Cursor | Copilot | Claude (optional) |
-|---------|--------|---------|-------------------|
-| Skills | `~/.cursor/skills/<name>/` | `~/.copilot/skills/<name>/` | `~/.claude/skills/<name>/` |
-| Agents | `~/.cursor/agents/<name>.md` | `~/.copilot/agents/<name>.agent.md` | `~/.claude/agents/<name>.md` |
-| User-global rules | `~/.cursor/rules/<name>.mdc` | `~/.copilot/copilot-instructions.md` | — |
+| Library | Cursor | Copilot | Claude (optional) | Codex (optional) |
+|---------|--------|---------|-------------------|------------------|
+| Skills | `~/.cursor/skills/<name>/` | `~/.copilot/skills/<name>/` | `~/.claude/skills/<name>/` | `~/.agents/skills/<name>/` |
+| Agents | `~/.cursor/agents/<name>.md` | `~/.copilot/agents/<name>.agent.md` | `~/.claude/agents/<name>.md` | `${CODEX_HOME:-$HOME/.codex}/agents/<name>.toml` |
+| User-global rules | `~/.cursor/rules/<name>.mdc` | `~/.copilot/copilot-instructions.md` | `~/.claude/rules/<name>.md` | `${CODEX_HOME:-$HOME/.codex}/AGENTS.md` |
 
 ### Per project (only when asked)
 
-| Library | Cursor | Copilot |
-|---------|--------|---------|
-| Skills | `.cursor/skills/<name>/` | `.github/skills/<name>/` |
-| Agents | `.cursor/agents/<name>.md` | `.github/agents/<name>.agent.md` |
-| User-global rules | `.cursor/rules/<name>.mdc` | — (global file only; project install does not write `.github/copilot-instructions.md`) |
+| Library | Cursor | Copilot | Codex |
+|---------|--------|---------|-------|
+| Skills | `.cursor/skills/<name>/` | `.github/skills/<name>/` | `.agents/skills/<name>/` |
+| Agents | `.cursor/agents/<name>.md` | `.github/agents/<name>.agent.md` | `.codex/agents/<name>.toml` |
+| User-global rules | `.cursor/rules/<name>.mdc` | — (global file only; project install does not write `.github/copilot-instructions.md`) | — (project `AGENTS.md` untouched) |
 
 Project-scope from the **architect-library** clone (repo root or any subdirectory) skips user-global rules so they are not copied into maintainer `.cursor/rules/` or a nested `.cursor/rules/` under the clone.
 
@@ -208,6 +260,33 @@ See [AGENTS.md](../AGENTS.md) § Runtime capability matrix. Summary:
 `bash scripts/runtime_readiness.sh` reports Node/npm packages and tests offline schema compilation, generated DOCX validation, DOCX/PPTX generation, and PDF/PNG previews. `bash scripts/runtime_readiness.sh --require-office` returns nonzero if an Office check fails. `office-system` runs this required gate and propagates failure; library copying remains independent. DOCX conversion requires Writer, PPTX conversion requires Impress, and previews require Poppler. Calc and spreadsheet recalculation are not checked.
 
 ## Step 4: Verify installation
+
+**Codex:** the installer verifies all bundled skills, editor variants, agent
+content, instruction fragments, and the managed block. For a standalone refresh:
+
+```bash
+bash scripts/sync_codex_rules.sh --check
+bash scripts/install_library.sh all codex
+```
+
+Start a fresh Codex session and confirm `$word-document`, `$newagentlink`, and
+the other library skills are discoverable. Ask which instruction sources are
+active and confirm the six user-rule groups. Confirm the custom agents
+`code-review` and `security-auditor` are available. Read-only agents return a
+ledger round to the parent; the parent records it with `review-handoff`.
+If runtime discovery cannot be checked, report that separately from file-copy
+verification. Project overrides and configured disabled skills may change what
+loads; the installer does not rewrite those user settings.
+
+Maintainer regression checks (Python 3.11+ for the test runner):
+
+```bash
+python3 -m unittest discover -s scripts -p 'test_install_library.py'
+bash -n scripts/install_library.sh scripts/sync_codex_rules.sh scripts/sync_claude_rules.sh
+bash scripts/sync_copilot_rules.sh --check
+bash scripts/sync_codex_rules.sh --check
+bash scripts/sync_claude_rules.sh --check
+```
 
 **Library copy** (required) — skills and agents paths. **Artifact runtimes** (optional for install, required for delivery) — npm globals, python-docx, LibreOffice.
 
@@ -310,6 +389,7 @@ The install script runs **library** checks automatically for the `EDITOR` you pa
 
 ## Step 5: Reload the editor
 
+- **Codex:** start a fresh session; skills use `$skill-name`, and `$newagentlink` is explicit-only.
 - **Cursor:** new agent chat or reload window (skills, agents, and user-global rules reload).
 - **VS Code:** reload window.
 
@@ -332,7 +412,7 @@ The install script runs **library** checks automatically for the `EDITOR` you pa
 | **terraform-commit-review** | Commit range established; all changed files read; provider docs verified via MCP; 7-section checklist applied; structured report with intent summary, per-phase table, issues, vendor comments, source URLs, and execution summary |
 | **terraform-apply-assistance** | Apply scope established (commit hash through HEAD or inferred); error/plan triaged; stayed on the current working branch (new branch only when the current branch is `main`, or the user asks); diagnosis via MCP; smallest edit applied; local validation run; **paused for user review** — no commit/push unless user instructs; plan evaluated with rubric; recap/runbook requests honor phase scope exclusions; risks re-raised every iteration; execution summary with apply decision, global/common/phase-specific env prerequisites, per-phase `## Phase N` command blocks, and post-apply checks |
 | **security-audit** | All 6 phases completed (Recon → Hunt → Validate → Report → Structured output → Independent verification); `findings.json` validates against schema (`validate-findings.cjs`); `REPORT.md` and `FINDINGS-DETAIL.md` reconciled with `findings.json`; output directory contains all artifacts |
-| **mcp-tool-rules** | MCP config read; servers presented and confirmed; tools discovered per server; editor-appropriate files generated (Cursor: `.mdc` rules, Copilot: `.instructions.md`) with parameter tables and example calls; files validated (server names, tables, examples, frontmatter); report delivered |
+| **mcp-tool-rules** | MCP config read; servers presented and confirmed; tools discovered per server; editor-appropriate files generated (Cursor: `.mdc` rules, Copilot: `.instructions.md`, Codex: `.agents/mcp-tools/` references plus a managed project `AGENTS.md` trigger) with parameter tables and example calls; files validated (server names, tables, examples, frontmatter); report delivered |
 | **context7-docs** | Library/framework docs fetched via Context7 MCP; version-specific library ID selected when applicable; query decomposed to one topic per call; source cited in response; fallback to web search or Microsoft Learn when Context7 lacks the library |
 | **notion-mcp-ops** | Notion MCP server discovered with correct editor server name; fetch before write on updates; anchors from fetched content; formatting rules applied (`<callout>`, HTML tables); post-update verify fetch for structural edits; property names from fetched schema |
 
@@ -359,7 +439,9 @@ See [CODE-REVIEW-AGENT.md](CODE-REVIEW-AGENT.md) and [SECURITY-AUDITOR-AGENT.md]
 | Cursor user-global rules only | `bash scripts/install_library.sh rules cursor` |
 | Copilot always-on instruction only | `bash scripts/install_library.sh rules copilot` |
 | Library copy (Copilot) | `bash scripts/install_library.sh all copilot` |
-| Library copy (all editors) | `bash scripts/install_library.sh` |
+| Library copy (Codex) | `bash scripts/install_library.sh all codex` |
+| Codex user instructions only | `bash scripts/install_library.sh rules codex` |
+| Library copy (all editors) | `bash scripts/install_library.sh all all` |
 | Core runtimes | `bash scripts/install_deps.sh` |
 | LibreOffice Writer + Impress + Calc + Poppler | `bash scripts/install_deps.sh office-system` |
 | Offline Excalidraw | `bash scripts/vendor_excalidraw.sh` |
