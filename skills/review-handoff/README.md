@@ -13,9 +13,9 @@ trigger keeps that load reliable:
 | Cursor | `~/.cursor/rules/review-handoff-reconciliation.mdc` | `~/.cursor/skills/review-handoff/SKILL.md` |
 | VS Code Copilot | `review-handoff` fragment in `~/.copilot/copilot-instructions.md` | `~/.copilot/skills/review-handoff/SKILL.md` |
 | Codex | `review-handoff` fragment in the active Codex home’s `AGENTS.md` | `~/.agents/skills/review-handoff/SKILL.md` |
+| Claude Code | `~/.claude/rules/review-handoff.md` | `~/.claude/skills/review-handoff/SKILL.md` |
 
-Installed for Cursor, Copilot, and Codex (listed in `EDITOR_VARIANT_SKILLS`).
-Claude Code does not get this skill.
+Installed for all four editors (listed in `SKILL_BUNDLE`).
 
 This is **not** the `newagentlink` one-shot snapshot
 (`/tmp/<topic>-newagentlink.md`).
@@ -27,6 +27,7 @@ Ships with Architect Library:
 ```bash
 bash scripts/install_library.sh all cursor    # Cursor
 bash scripts/install_library.sh all copilot   # VS Code Copilot
+bash scripts/install_library.sh all claude    # Claude Code (opt-in)
 ```
 
 The trigger needs the skill, so install both (`all`), not `rules` alone.

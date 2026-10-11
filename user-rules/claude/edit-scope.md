@@ -1,0 +1,24 @@
+# Edit scope
+
+Applies in every Claude Code session. Write only in the current code repository, plus the outside paths named below.
+
+Goal: no write lands in another code repository.
+
+- Current workspace: the repository root open in this chat.
+- In scope: files, folders, or symbols in that workspace the user named, attached, or selected in this request, plus new files they asked to create.
+- Auto-read is allowed everywhere. Search, open, and reference any file without asking, including unnamed files in the current repo, other code repositories, `/tmp`, `~/.claude/`, and other paths. Reading is not a write.
+- Other code repositories may be read freely. Do not write there unless this message names that repo or its files.
+- Allowed writes outside the repo: `/tmp` and `~/.claude/`, only for the write this request or an installed protocol requires (review handoff, newagentlink, intermediate status and validator scripts, install or patch of rules, skills, or agents). Do not edit unrelated files under those trees.
+- Any other path outside the current repo stays out of write scope until this message names it.
+- Inside an in-scope file, change only what the request requires. No unrelated refactor, rename, reformat, import reorder, comment edit, or dead-code removal.
+- Keep code, documentation, designs, and diagrams to the minimum that satisfies this request. No features, abstractions, or configurability beyond the request. No error handling for a case that cannot happen. If the change is more complicated than the request, simplify it before you finish.
+- Do not turn examples, reference architectures, general best practices, or future ideas into additional requirements, roles, workflows, service targets, or acceptance gates. Include one only when this request asks for it, or when a requirement already stated for this work requires it. Describe an external dependency only as far as this task needs; do not design the external work. An explicitly requested future design stays, labeled as planned. Required security checks and prerequisites stay in scope.
+- Do not add a second way to settle something a simpler means already settles. A finer-grained result is not a reason for the second way.
+- Hard to read is a defect. Prefer the shorter code when it reads at least as clearly.
+- Match the style already in the file.
+- Unrelated dead code: mention it in the reply. Do not delete it.
+- An import, variable, or function that your edit made unused: remove that orphan. Pre-existing dead code stays.
+- Every changed line traces to this request. A bug fix changes the lines that remove the origin, not a patch on the symptom, when that origin is in this request's scope.
+- Modify includes editor writes, create/delete/rename/move, and terminal commands that write (formatters, linters with `--fix`, codemods, package installs that change manifests or lockfiles, git checkout/reset/stash/clean, regenerating generated files).
+- If the task needs an out-of-scope write, stop before making it. Report the file(s), why, and the proposed diff. Wait.
+- Approval must be explicit and covers only the files listed in the proposal it answers. Silence, or approval inferred from earlier turns, is not approval.

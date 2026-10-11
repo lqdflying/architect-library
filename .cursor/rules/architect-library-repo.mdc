@@ -50,8 +50,8 @@ Do **not** update only scripts or README. When adding or changing a skill, agent
 1. Follow [docs/MAINTAINING-SKILLS.md](docs/MAINTAINING-SKILLS.md).
 2. **Skill change** → update `skills/*/SKILL.md`, execution rule row, `SKILL_BUNDLE` in `install_library.sh` if new skill, run `bash scripts/install_library.sh skills cursor` and `bash scripts/install_library.sh skills copilot`.
 3. **Agent change** → update `agents/<name>/`, [docs/AGENTS.md](docs/AGENTS.md), `AGENT_BUNDLE` in `install_library.sh` if new agent, run `bash scripts/install_library.sh agents cursor` and `bash scripts/install_library.sh agents copilot`.
-4. **Cursor user-global rule change** → update `user-rules/cursor/<name>.mdc`, `CURSOR_RULE_BUNDLE` in `install_library.sh` if new, run `bash scripts/sync_copilot_rules.sh` and `bash scripts/sync_codex_rules.sh`, then `bash scripts/install_library.sh rules cursor` and `bash scripts/install_library.sh rules copilot`.
-5. **Copilot always-on instruction change** → edit the Cursor source under `user-rules/cursor/`, run `bash scripts/sync_copilot_rules.sh` and `bash scripts/sync_codex_rules.sh` to regenerate `user-rules/copilot/` and `user-rules/codex/`, then `bash scripts/install_library.sh rules copilot`.
+4. **Cursor user-global rule change** → update `user-rules/cursor/<name>.mdc`, `CURSOR_RULE_BUNDLE` in `install_library.sh` if new, run `bash scripts/sync_copilot_rules.sh`, `bash scripts/sync_codex_rules.sh`, and `bash scripts/sync_claude_rules.sh`, then `bash scripts/install_library.sh rules cursor` and `bash scripts/install_library.sh rules copilot`.
+5. **Copilot always-on instruction change** → edit the Cursor source under `user-rules/cursor/`, run `bash scripts/sync_copilot_rules.sh`, `bash scripts/sync_codex_rules.sh`, and `bash scripts/sync_claude_rules.sh` to regenerate `user-rules/copilot/`, `user-rules/codex/`, and `user-rules/claude/`, then `bash scripts/install_library.sh rules copilot`.
 6. **Review handoff protocol change** → edit `skills/review-handoff/SKILL.md` (not the trigger rule), run `bash scripts/install_library.sh skills cursor` and `skills copilot`.
 7. Always update `README.md`, `docs/AGENT-SKILL-INSTALL.md`, and relevant `.cursor/rules/*.mdc`.
 
@@ -72,9 +72,18 @@ When Codex is requested, use `bash scripts/install_library.sh all codex` after
 the same runtime setup. Skills go to `~/.agents/skills/`; agents and the managed
 `AGENTS.md` block go to `${CODEX_HOME:-$HOME/.codex}`. The six fragments in
 `user-rules/codex/` are generated from `user-rules/cursor/` by
-`bash scripts/sync_codex_rules.sh`; do not hand-edit them. Run both sync scripts
+`bash scripts/sync_codex_rules.sh`; do not hand-edit them. Run all three sync scripts
 with `--check` after user-rule changes. Preserve personal instructions outside
 the managed block. Project Codex installs write `.agents/skills/` and
 `.codex/agents/` only. See `docs/AGENT-SKILL-INSTALL.md` for conflict handling and
 `python3 -m unittest discover -s scripts -p 'test_install_library.py'` for isolated
 installer regression checks.
+
+## Claude Code installation
+
+When Claude Code is requested, use `bash scripts/install_library.sh all claude`.
+Skills, agents, and rules go to `~/.claude/skills/`, `~/.claude/agents/`, and
+`~/.claude/rules/`. The six rule files in `user-rules/claude/` are generated from
+`user-rules/cursor/` by `bash scripts/sync_claude_rules.sh`; do not hand-edit them.
+The installer never edits `~/.claude/CLAUDE.md`. Project Claude installs do not
+write `.claude/rules/`.

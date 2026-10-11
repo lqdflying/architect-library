@@ -1,4 +1,4 @@
-# Agent guide: install Architect Library (Cursor / Copilot / Codex)
+# Agent guide: install Architect Library (Cursor / Copilot / Codex / Claude Code)
 
 Use this document when the user asks to install, update, or fix **skills**, **custom agents**, or **user instructions** from the **architect-library** repository. Follow it literally; do not invent alternate paths.
 
@@ -29,7 +29,7 @@ Then run both library commands:
 |------------|-----------------|---------|
 | **Cursor** | `bash scripts/install_library.sh all cursor` | `~/.cursor/skills/`, `~/.cursor/agents/`, `~/.cursor/rules/` |
 | **VS Code Copilot** | `bash scripts/install_library.sh all copilot` | `~/.copilot/skills/`, `~/.copilot/agents/`, `~/.copilot/copilot-instructions.md` |
-| **Claude Code** (only when the user asks) | `bash scripts/install_library.sh all claude` | `~/.claude/skills/`, `~/.claude/agents/` |
+| **Claude Code** (only when the user asks) | `bash scripts/install_library.sh all claude` | `~/.claude/skills/`, `~/.claude/agents/`, `~/.claude/rules/` |
 | **Codex** (only when the user asks) | `bash scripts/install_library.sh all codex` | `~/.agents/skills/`, `${CODEX_HOME:-$HOME/.codex}/agents/`, `${CODEX_HOME:-$HOME/.codex}/AGENTS.md` |
 
 Do **not** ask which editor, scope, subset, or runtime set to install for these trigger phrases. Install Cursor and VS Code Copilot.
@@ -53,7 +53,7 @@ Architect Library publishes **two libraries** plus **Cursor user-global rules**:
 | `pdf-document` | Shared skill | If PDF work is needed |
 | `verification-before-completion` | Shared skill | Evidence before completion claims; required by artifact skills at delivery |
 | `newagentlink` | Shared skill | One-shot `/tmp/<topic>-newagentlink.md` for a new agent chat; not the review ledger |
-| `review-handoff` | Cursor + Copilot + Codex (on demand) | Review and fix ledger protocol at `/tmp/<topic>-handoff.md`; read when the always-on `review-handoff` trigger fires |
+| `review-handoff` | Shared skill (on demand) | Review and fix ledger protocol at `/tmp/<topic>-handoff.md`; read when the always-on `review-handoff` trigger fires |
 | `api-and-interface-design` | Shared skill | API and module boundary design workflow |
 | `github-markdown` | Shared skill | GitHub Flavored Markdown for READMEs, issues, PRs, discussions, wikis, and repo docs |
 | `deprecation-and-migration` | Shared skill | Deprecation and migration planning workflow |
@@ -84,7 +84,7 @@ Installed to `~/.cursor/rules/<name>.mdc` (not the Cursor Settings → Customize
 |------|---------|
 | `review-handoff-reconciliation.mdc` | Always-on trigger (about 1 KB): on review, audit, or fix-from-ledger turns, read the `review-handoff` skill first. The protocol (`/tmp/<topic>-handoff.md` ledger, FIX / DEFER / KEEP / DO NOT APPLY / FIXED / RECONCILED, **append-only**) lives in `skills/review-handoff/SKILL.md` and loads on demand. Distinct from the `newagentlink` skill (`/tmp/<topic>-newagentlink.md`). |
 | `response-style.mdc` | Short replies (result first; a vague objective stops the work; a worse approach is named and the shorter path is used; excess complexity in the task's own work is deleted rather than defended; Changes, Verify, Open Items only on file-changing turns and only when they have content; one conclusion; no step narration, pasted logs, or AI filler). Matching Copilot fragment: `user-rules/copilot/response-style.md`. |
-| `edit-scope.mdc` | Writes stay in the current repo. Auto-read is allowed everywhere. The diff is the minimum that meets the request, and work a simpler means already settles is not done again. `/tmp`, `~/.cursor/`, and `~/.copilot/` may be written when this request or an installed protocol requires that write. Matching Copilot fragment: `user-rules/copilot/edit-scope.md`. |
+| `edit-scope.mdc` | Writes stay in the current repo. Auto-read is allowed everywhere. The diff is the minimum that meets the request, and work that a simpler means already settles is not done again. `/tmp`, `~/.cursor/`, and `~/.copilot/` may be written when this request or an installed protocol requires that write. Matching Copilot fragment: `user-rules/copilot/edit-scope.md`. |
 | `branch-strategy.mdc` | One working branch at a time (the branch already checked out). No edit, commit, or push on `main`. No switch off a branch that still has unmerged commits or uncommitted files. A new branch only from `main`, when the current branch is `main` or the user asks. Mixed topics on one branch are expected. Pause before `git commit` or `git push`. Matching Copilot fragment: `user-rules/copilot/branch-strategy.md`. |
 | `docs-lookup.mdc` | Code documentation uses Microsoft Learn or Context7 MCP first. Native web search and fetch run only when no documentation MCP applies, the call fails, or the result has nothing usable. Matching Copilot fragment: `user-rules/copilot/docs-lookup.md`. |
 | `temp-validators.mdc` | Intermediate status and validator scripts go under `/tmp` and are not added to the current code repository. Matching Copilot fragment: `user-rules/copilot/temp-validators.md`. |
@@ -127,6 +127,22 @@ See official documentation for [skill discovery and invocation metadata](https:/
 [AGENTS.md precedence](https://learn.chatgpt.com/docs/agent-configuration/agents-md),
 [custom agents](https://learn.chatgpt.com/docs/agent-configuration/subagents), and
 [Codex MCP configuration](https://learn.chatgpt.com/docs/extend/mcp?surface=cli).
+
+### Claude Code user rules (`user-rules/claude/`)
+
+The same six user-rule groups are generated from the Cursor sources with
+`bash scripts/sync_claude_rules.sh`. Do not hand-edit them. The transformation
+drops Cursor frontmatter, changes the scope wording to Claude Code, uses
+`~/.claude/skills/` for skills, and allows writes to `~/.claude/` instead of
+`~/.cursor/` and `~/.copilot/`. `--check` fails on drift.
+
+Global installation copies each fragment to `~/.claude/rules/<name>.md`. Claude
+Code loads user-level rules without `paths` frontmatter in every project
+([memory docs](https://code.claude.com/docs/en/memory)). The installer replaces
+only its six files and never edits `~/.claude/CLAUDE.md`, so keep personal
+instructions there and do not repeat the library rules in it. A `rules claude`
+refresh requires the installed `review-handoff` skill; on a fresh machine use
+`all claude`. Project scope does not write `.claude/rules/`.
 
 **Source of truth:** `<repo>/skills/<name>/`, `<repo>/agents/<name>/`, `<repo>/user-rules/cursor/<name>.mdc`, and `<repo>/user-rules/copilot/{response-style,edit-scope,branch-strategy,review-handoff,docs-lookup,temp-validators}.md`  
 **Do not** copy into `<repo>/.cursor/skills/`, `<repo>/.cursor/agents/`, or `<repo>/.cursor/rules/` — use `install_library.sh`.
@@ -218,7 +234,7 @@ Copilot rule: [`.github/instructions/update-library.instructions.md`](../.github
 |---------|--------|---------|-------------------|------------------|
 | Skills | `~/.cursor/skills/<name>/` | `~/.copilot/skills/<name>/` | `~/.claude/skills/<name>/` | `~/.agents/skills/<name>/` |
 | Agents | `~/.cursor/agents/<name>.md` | `~/.copilot/agents/<name>.agent.md` | `~/.claude/agents/<name>.md` | `${CODEX_HOME:-$HOME/.codex}/agents/<name>.toml` |
-| User-global rules | `~/.cursor/rules/<name>.mdc` | `~/.copilot/copilot-instructions.md` | — | `${CODEX_HOME:-$HOME/.codex}/AGENTS.md` |
+| User-global rules | `~/.cursor/rules/<name>.mdc` | `~/.copilot/copilot-instructions.md` | `~/.claude/rules/<name>.md` | `${CODEX_HOME:-$HOME/.codex}/AGENTS.md` |
 
 ### Per project (only when asked)
 
@@ -266,9 +282,10 @@ Maintainer regression checks (Python 3.11+ for the test runner):
 
 ```bash
 python3 -m unittest discover -s scripts -p 'test_install_library.py'
-bash -n scripts/install_library.sh scripts/sync_codex_rules.sh
+bash -n scripts/install_library.sh scripts/sync_codex_rules.sh scripts/sync_claude_rules.sh
 bash scripts/sync_copilot_rules.sh --check
 bash scripts/sync_codex_rules.sh --check
+bash scripts/sync_claude_rules.sh --check
 ```
 
 **Library copy** (required) — skills and agents paths. **Artifact runtimes** (optional for install, required for delivery) — npm globals, python-docx, LibreOffice.

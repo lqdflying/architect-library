@@ -61,7 +61,7 @@ class InstallLibraryTests(unittest.TestCase):
         for source in (self.repo / "skills").iterdir():
             if not source.is_dir():
                 continue
-            if editor == "claude" and source.name in ("mcp-tool-rules", "context7-docs", "notion-mcp-ops", "review-handoff"):
+            if editor == "claude" and source.name in ("mcp-tool-rules", "context7-docs", "notion-mcp-ops"):
                 self.assertFalse((directory / source.name).exists())
                 continue
             shared = source / "SKILL.md"
@@ -228,7 +228,32 @@ class InstallLibraryTests(unittest.TestCase):
         self.assertEqual(snapshot(self.home), before)
         self.assertTrue((self.project / ".cursor/rules/response-style.mdc").exists())
         self.assertFalse((self.project / ".github/copilot-instructions.md").exists())
+        self.assertFalse((self.project / ".claude/rules").exists())
         self.assertFalse((self.project / "AGENTS.md").exists())
+
+    def test_claude_rules_install_and_keep_personal_files(self):
+        personal = {self.home / ".claude/CLAUDE.md": "personal instructions",
+                    self.home / ".claude/rules/personal.md": "personal rule"}
+        for path, text in personal.items():
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(text)
+        self.install("all", "claude")
+        for source in (self.repo / "user-rules/claude").iterdir():
+            installed = (self.home / ".claude/rules" / source.name).read_bytes()
+            self.assertEqual(installed, source.read_bytes())
+            self.assertNotIn(b"alwaysApply", installed)
+        self.assertIn(b"~/.claude/skills/review-handoff/SKILL.md",
+                      (self.home / ".claude/rules/review-handoff.md").read_bytes())
+        for path, text in personal.items():
+            self.assertEqual(path.read_text(), text)
+        stable = snapshot(self.home)
+        self.install("all", "claude")
+        self.assertEqual(snapshot(self.home), stable)
+
+    def test_claude_rules_only_missing_skill_changes_nothing(self):
+        result = self.install("rules", "claude", success=False)
+        self.assertIn("Missing review-handoff", result.stderr)
+        self.assertEqual(snapshot(self.home), {})
 
     def test_maintainer_project_scope_preserves_rules(self):
         rules = self.repo / ".cursor/rules/response-style.mdc"

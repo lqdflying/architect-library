@@ -2,14 +2,14 @@
 
 A **skill library**, **custom agent library**, and **user instructions** for Cursor, VS Code Copilot, and Codex. Install once globally; use in any project.
 
-**Skills** handle artifacts (Excalidraw, Word, PowerPoint, spreadsheets, PDFs) and architecture workflows (API design, deprecation/migration). **Custom agents** handle focused readonly tasks such as [code review](docs/CODE-REVIEW-AGENT.md) and [security audit](docs/SECURITY-AUDITOR-AGENT.md). **Cursor user-global rules** install to `~/.cursor/rules/` and apply in every Cursor project: response style, edit scope, branch strategy, docs lookup, temporary validators, and a short trigger that loads the on-demand `review-handoff` skill. VS Code Copilot concatenates the matching fragments from [`user-rules/copilot/`](user-rules/copilot/) (generated from the Cursor sources) into `~/.copilot/copilot-instructions.md`. Codex transforms the same rules into [`user-rules/codex/`](user-rules/codex/) and installs them in a managed global `AGENTS.md` block. Host files are install copies. The `newagentlink` skill is a separate one-shot snapshot for starting a new agent chat — not that ledger.
+**Skills** handle artifacts (Excalidraw, Word, PowerPoint, spreadsheets, PDFs) and architecture workflows (API design, deprecation/migration). **Custom agents** handle focused readonly tasks such as [code review](docs/CODE-REVIEW-AGENT.md) and [security audit](docs/SECURITY-AUDITOR-AGENT.md). **Cursor user-global rules** install to `~/.cursor/rules/` and apply in every Cursor project: response style, edit scope, branch strategy, docs lookup, temporary validators, and a short trigger that loads the on-demand `review-handoff` skill. VS Code Copilot concatenates the matching fragments from [`user-rules/copilot/`](user-rules/copilot/) (generated from the Cursor sources) into `~/.copilot/copilot-instructions.md`. Codex transforms the same rules into [`user-rules/codex/`](user-rules/codex/) and installs them in a managed global `AGENTS.md` block. Claude Code transforms them into [`user-rules/claude/`](user-rules/claude/) and installs one file per rule in `~/.claude/rules/`. Host files are install copies. The `newagentlink` skill is a separate one-shot snapshot for starting a new agent chat — not that ledger.
 
 Compatible with [Cursor](https://cursor.com), [VS Code + GitHub Copilot](https://code.visualstudio.com/docs/copilot/customization/agent-skills), [Claude Code](https://docs.anthropic.com/en/docs/claude-code), OpenCode, and [Codex](https://learn.chatgpt.com/docs/build-skills).
 
 **For coding agents:**
 
 - Working **in this repo**: [`.cursor/rules/`](.cursor/rules/) (maintainer rules, not installed globally) and [docs/MAINTAINING-SKILLS.md](docs/MAINTAINING-SKILLS.md).
-- **Installing** the full ready-to-use library: [docs/AGENT-SKILL-INSTALL.md](docs/AGENT-SKILL-INSTALL.md) — runtime dependencies, then `bash scripts/install_library.sh all cursor` and `bash scripts/install_library.sh all copilot`. Cursor copies [`user-rules/cursor/`](user-rules/cursor/) to `~/.cursor/rules/`. A global Copilot install concatenates [`user-rules/copilot/`](user-rules/copilot/) fragments into `~/.copilot/copilot-instructions.md`. Use `all codex` for Codex or `all claude` for Claude Code; both are opt-in.
+- **Installing** the full ready-to-use library: [docs/AGENT-SKILL-INSTALL.md](docs/AGENT-SKILL-INSTALL.md) — runtime dependencies, then `bash scripts/install_library.sh all cursor` and `bash scripts/install_library.sh all copilot`. Cursor copies [`user-rules/cursor/`](user-rules/cursor/) to `~/.cursor/rules/`. A global Copilot install concatenates [`user-rules/copilot/`](user-rules/copilot/) fragments into `~/.copilot/copilot-instructions.md`. Use `all codex` for Codex or `all claude` for Claude Code (rules from [`user-rules/claude/`](user-rules/claude/) go to `~/.claude/rules/`); both are opt-in.
 
 **Full install means instructions + runtimes:** When an agent handles **install library**, it should install the runtime dependencies first, then copy skills, agents, Cursor user-global rules, and the Copilot always-on instruction for Cursor and VS Code Copilot. Manual installs should follow the same order below.
 
@@ -187,20 +187,21 @@ See [Installation](#installation) for Copilot / Claude Code / Codex paths, or [d
 
 Catalog: [`docs/AGENTS.md`](docs/AGENTS.md). Deep dive: [`docs/CODE-REVIEW-AGENT.md`](docs/CODE-REVIEW-AGENT.md), [`docs/SECURITY-AUDITOR-AGENT.md`](docs/SECURITY-AUDITOR-AGENT.md).
 
-## Review handoff (Cursor, Copilot, and Codex)
+## Review handoff (Cursor, Copilot, Codex, and Claude Code)
 
 One ledger protocol in an on-demand skill, plus a short always-on trigger per editor. Only the trigger (about 1 KB) loads on every chat; the protocol loads on review, audit, and fix-from-ledger turns. Distinct from this repo’s maintainer [`.cursor/rules/`](.cursor/rules/).
 
 | Part | Source | Installed file |
 |------|--------|----------------|
-| Protocol (skill) | [`skills/review-handoff/SKILL.md`](skills/review-handoff/SKILL.md) | `~/.cursor/skills/review-handoff/`, `~/.copilot/skills/review-handoff/`, and `~/.agents/skills/review-handoff/` (not Claude Code) |
+| Protocol (skill) | [`skills/review-handoff/SKILL.md`](skills/review-handoff/SKILL.md) | `~/.cursor/skills/review-handoff/`, `~/.copilot/skills/review-handoff/`, `~/.agents/skills/review-handoff/`, and `~/.claude/skills/review-handoff/` |
 | Cursor trigger | [`user-rules/cursor/review-handoff-reconciliation.mdc`](user-rules/cursor/review-handoff-reconciliation.mdc) | `~/.cursor/rules/review-handoff-reconciliation.mdc` (`alwaysApply: true`; not Cursor Settings → Customize → Rules) |
 | Copilot trigger | [`user-rules/copilot/review-handoff.md`](user-rules/copilot/review-handoff.md) (generated) | Concatenated into `~/.copilot/copilot-instructions.md` (personal always-on file for Copilot Agent Host chats) |
 | Codex trigger | [`user-rules/codex/review-handoff.md`](user-rules/codex/review-handoff.md) (generated) | Managed block in `${CODEX_HOME:-$HOME/.codex}/AGENTS.md` |
+| Claude Code trigger | [`user-rules/claude/review-handoff.md`](user-rules/claude/review-handoff.md) (generated) | `~/.claude/rules/review-handoff.md` |
 
-`/tmp/<topic>-handoff.md` is the ledger, with FIX / DEFER / KEEP / DO NOT APPLY / FIXED / RECONCILED. **Append-only** (no full-file rewrite/truncate/delete of prior rounds; surgical header Status/Must fix only). Distinct from `newagentlink` (`/tmp/<topic>-newagentlink.md`). Edit `skills/review-handoff/SKILL.md` and reinstall with `all cursor` and `all copilot`; use `all codex` for Codex. Do not keep a second protocol in the home file.
+`/tmp/<topic>-handoff.md` is the ledger, with FIX / DEFER / KEEP / DO NOT APPLY / FIXED / RECONCILED. **Append-only** (no full-file rewrite/truncate/delete of prior rounds; surgical header Status/Must fix only). Distinct from `newagentlink` (`/tmp/<topic>-newagentlink.md`). Edit `skills/review-handoff/SKILL.md` and reinstall with `all cursor` and `all copilot`; use `all codex` for Codex and `all claude` for Claude Code. Do not keep a second protocol in the home file.
 
-## Response style (Cursor, Copilot, and Codex)
+## Response style (Cursor, Copilot, Codex, and Claude Code)
 
 Short replies. Lead with the answer. No AI filler.
 
@@ -209,10 +210,11 @@ Short replies. Lead with the answer. No AI filler.
 | Cursor | [`user-rules/cursor/response-style.mdc`](user-rules/cursor/response-style.mdc) | `~/.cursor/rules/response-style.mdc` (`alwaysApply: true`) |
 | Copilot | [`user-rules/copilot/response-style.md`](user-rules/copilot/response-style.md) | Concatenated into `~/.copilot/copilot-instructions.md` |
 | Codex | [`user-rules/codex/response-style.md`](user-rules/codex/response-style.md) (generated) | Managed block in `${CODEX_HOME:-$HOME/.codex}/AGENTS.md` |
+| Claude Code | [`user-rules/claude/response-style.md`](user-rules/claude/response-style.md) (generated) | `~/.claude/rules/response-style.md` |
 
 The first sentence is the result. A vague objective stops the work. A clear goal with a worse approach gets the shorter path named, then used. A question about excess complexity in the task's own work is answered by deleting it. Turns that changed files add Changes, Verify, and Open Items only when those sections have content. One conclusion, no step-by-step narration, no pasted logs or reprinted code.
 
-## Edit scope (Cursor, Copilot, and Codex)
+## Edit scope (Cursor, Copilot, Codex, and Claude Code)
 
 Writes stay in the open repository. Auto-read is allowed everywhere, including other repositories.
 
@@ -221,10 +223,11 @@ Writes stay in the open repository. Auto-read is allowed everywhere, including o
 | Cursor | [`user-rules/cursor/edit-scope.mdc`](user-rules/cursor/edit-scope.mdc) | `~/.cursor/rules/edit-scope.mdc` (`alwaysApply: true`) |
 | Copilot | [`user-rules/copilot/edit-scope.md`](user-rules/copilot/edit-scope.md) | Concatenated into `~/.copilot/copilot-instructions.md` |
 | Codex | [`user-rules/codex/edit-scope.md`](user-rules/codex/edit-scope.md) (generated) | Managed block in `${CODEX_HOME:-$HOME/.codex}/AGENTS.md` |
+| Claude Code | [`user-rules/claude/edit-scope.md`](user-rules/claude/edit-scope.md) (generated) | `~/.claude/rules/edit-scope.md` |
 
 For Codex the corresponding allowed paths are `/tmp`, `~/.agents/`, and the active Codex home. For Cursor and Copilot, `/tmp`, `~/.cursor/`, and `~/.copilot/` may be written when the current request or an installed protocol requires that write. Intermediate status and validator scripts are one of those `/tmp` writes. Inside a file, the diff is the minimum that meets the request: no speculative features, no drive-by cleanup, nothing that repeats what a simpler means already settles. Orphans the edit created are removed. Pre-existing dead code stays.
 
-## Branch strategy (Cursor, Copilot, and Codex)
+## Branch strategy (Cursor, Copilot, Codex, and Claude Code)
 
 One working branch at a time. The branch already checked out is that branch.
 
@@ -233,10 +236,11 @@ One working branch at a time. The branch already checked out is that branch.
 | Cursor | [`user-rules/cursor/branch-strategy.mdc`](user-rules/cursor/branch-strategy.mdc) | `~/.cursor/rules/branch-strategy.mdc` (`alwaysApply: true`) |
 | Copilot | [`user-rules/copilot/branch-strategy.md`](user-rules/copilot/branch-strategy.md) | Concatenated into `~/.copilot/copilot-instructions.md` |
 | Codex | [`user-rules/codex/branch-strategy.md`](user-rules/codex/branch-strategy.md) (generated) | Managed block in `${CODEX_HOME:-$HOME/.codex}/AGENTS.md` |
+| Claude Code | [`user-rules/claude/branch-strategy.md`](user-rules/claude/branch-strategy.md) (generated) | `~/.claude/rules/branch-strategy.md` |
 
 `main` may be checked out for reading. Edits, commits, and pushes stay off `main`. Stay on the current non-main branch across tasks. A new branch is created from `main` only when the current branch is `main`, or when you ask for one. Mixed topics on one branch are expected. Commit and push wait for your confirmation.
 
-## Docs lookup (Cursor, Copilot, and Codex)
+## Docs lookup (Cursor, Copilot, Codex, and Claude Code)
 
 Code documentation is looked up with a documentation MCP first. Microsoft Learn covers Microsoft and Azure. Context7 covers libraries, frameworks, SDKs, and other code docs. Native web search and fetch run only when no documentation MCP applies, the call fails, or the result has nothing usable.
 
@@ -245,8 +249,9 @@ Code documentation is looked up with a documentation MCP first. Microsoft Learn 
 | Cursor | [`user-rules/cursor/docs-lookup.mdc`](user-rules/cursor/docs-lookup.mdc) | `~/.cursor/rules/docs-lookup.mdc` (`alwaysApply: true`) |
 | Copilot | [`user-rules/copilot/docs-lookup.md`](user-rules/copilot/docs-lookup.md) | Concatenated into `~/.copilot/copilot-instructions.md` |
 | Codex | [`user-rules/codex/docs-lookup.md`](user-rules/codex/docs-lookup.md) (generated) | Managed block in `${CODEX_HOME:-$HOME/.codex}/AGENTS.md` |
+| Claude Code | [`user-rules/claude/docs-lookup.md`](user-rules/claude/docs-lookup.md) (generated) | `~/.claude/rules/docs-lookup.md` |
 
-## Temporary validators (Cursor, Copilot, and Codex)
+## Temporary validators (Cursor, Copilot, Codex, and Claude Code)
 
 Intermediate status and validator scripts go under `/tmp`. They are not added to the current code repository.
 
@@ -255,6 +260,7 @@ Intermediate status and validator scripts go under `/tmp`. They are not added to
 | Cursor | [`user-rules/cursor/temp-validators.mdc`](user-rules/cursor/temp-validators.mdc) | `~/.cursor/rules/temp-validators.mdc` (`alwaysApply: true`) |
 | Copilot | [`user-rules/copilot/temp-validators.md`](user-rules/copilot/temp-validators.md) | Concatenated into `~/.copilot/copilot-instructions.md` |
 | Codex | [`user-rules/codex/temp-validators.md`](user-rules/codex/temp-validators.md) (generated) | Managed block in `${CODEX_HOME:-$HOME/.codex}/AGENTS.md` |
+| Claude Code | [`user-rules/claude/temp-validators.md`](user-rules/claude/temp-validators.md) (generated) | `~/.claude/rules/temp-validators.md` |
 
 ## Security and review tools — when to use which
 
@@ -336,6 +342,7 @@ architect-library/
       branch-strategy.mdc
       docs-lookup.mdc
       temp-validators.mdc
+    claude/                   # generated by scripts/sync_claude_rules.sh → ~/.claude/rules/
     codex/                    # generated by scripts/sync_codex_rules.sh → managed ~/.codex/AGENTS.md block
     copilot/                  # generated by scripts/sync_copilot_rules.sh → concatenated ~/.copilot/copilot-instructions.md
       response-style.md
@@ -502,9 +509,11 @@ bash scripts/install_library.sh all codex project    # project skills and agents
 |---------|--------|---------|-------------|-------|
 | Skills | `~/.cursor/skills/<name>/` | `~/.copilot/skills/<name>/` | `~/.claude/skills/<name>/` | `~/.agents/skills/<name>/` |
 | Agents | `~/.cursor/agents/<name>.md` | `~/.copilot/agents/<name>.agent.md` | `~/.claude/agents/<name>.md` | `~/.codex/agents/<name>.toml` |
-| User-global rules | `~/.cursor/rules/<name>.mdc` | `~/.copilot/copilot-instructions.md` | — | `~/.codex/AGENTS.md` (managed block) |
+| User-global rules | `~/.cursor/rules/<name>.mdc` | `~/.copilot/copilot-instructions.md` | `~/.claude/rules/<name>.md` | `~/.codex/AGENTS.md` (managed block) |
 
 Codex respects `CODEX_HOME` for agents and `AGENTS.md`; user skills stay under `~/.agents/skills/`. Codex installation needs Python 3, with no extra Python packages. Its six instruction fragments in `user-rules/codex/` are generated from the existing Cursor rules by `bash scripts/sync_codex_rules.sh`. The installer preserves personal instructions outside the managed block and checks conflicts before writing. Project installs use `.agents/skills/` and `.codex/agents/`, leaving project `AGENTS.md` untouched. Cursor and VS Code Copilot also read `.agents/skills/`, so they list the skills twice after a Codex install; the three Codex variant skills are marked Codex only.
+
+Claude Code rules in `user-rules/claude/` are generated from the same Cursor rules by `bash scripts/sync_claude_rules.sh`. A global install copies them to `~/.claude/rules/<name>.md`, which Claude Code loads in every project. The installer does not touch `~/.claude/CLAUDE.md` or other files in `~/.claude/rules/`. Project installs do not write `.claude/rules/`.
 
 Reload Cursor, VS Code, or Claude Code after installation. Skills appear as slash commands (`/word-document`, etc.). Custom agents appear in the agent picker (`code-review`, `security-auditor`, `/code-review` on Cursor). Cursor user-global rules apply in new agent chats. The Copilot always-on file applies in new Copilot Agent Host chats.
 
@@ -718,6 +727,7 @@ Installer regression tests use temporary homes and projects (Python 3.11+):
 python3 -m unittest discover -s scripts -p 'test_install_library.py'
 bash scripts/sync_copilot_rules.sh --check
 bash scripts/sync_codex_rules.sh --check
+bash scripts/sync_claude_rules.sh --check
 ```
 
 Smoke checks after [first-time preparation](#first-time-preparation-one-time-per-machine):

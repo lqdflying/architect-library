@@ -107,9 +107,18 @@ When Codex is requested, use `bash scripts/install_library.sh all codex` after
 the same runtime setup. Skills go to `~/.agents/skills/`; agents and the managed
 `AGENTS.md` block go to `${CODEX_HOME:-$HOME/.codex}`. The six fragments in
 `user-rules/codex/` are generated from `user-rules/cursor/` by
-`bash scripts/sync_codex_rules.sh`; do not hand-edit them. Run both sync scripts
+`bash scripts/sync_codex_rules.sh`; do not hand-edit them. Run all three sync scripts
 with `--check` after user-rule changes. Preserve personal instructions outside
 the managed block. Project Codex installs write `.agents/skills/` and
 `.codex/agents/` only. See `docs/AGENT-SKILL-INSTALL.md` for conflict handling and
 `python3 -m unittest discover -s scripts -p 'test_install_library.py'` for isolated
 installer regression checks.
+
+## Claude Code installation
+
+When Claude Code is requested, use `bash scripts/install_library.sh all claude`.
+Skills, agents, and rules go to `~/.claude/skills/`, `~/.claude/agents/`, and
+`~/.claude/rules/`. The six rule files in `user-rules/claude/` are generated from
+`user-rules/cursor/` by `bash scripts/sync_claude_rules.sh`; do not hand-edit them.
+The installer never edits `~/.claude/CLAUDE.md`. Project Claude installs do not
+write `.claude/rules/`.

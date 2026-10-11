@@ -6,13 +6,14 @@
 set -euo pipefail
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-SKILL_BUNDLE="excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document verification-before-completion newagentlink api-and-interface-design deprecation-and-migration github-markdown terraform-commit-review terraform-apply-assistance security-audit _shared"
+SKILL_BUNDLE="excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document verification-before-completion newagentlink api-and-interface-design deprecation-and-migration github-markdown terraform-commit-review terraform-apply-assistance security-audit review-handoff _shared"
 # Cursor + Copilot + Codex (never Claude). SKILL.<editor>.md wins over SKILL.md.
-EDITOR_VARIANT_SKILLS="mcp-tool-rules context7-docs notion-mcp-ops review-handoff"
+EDITOR_VARIANT_SKILLS="mcp-tool-rules context7-docs notion-mcp-ops"
 AGENT_BUNDLE="code-review security-auditor"
 CURSOR_RULE_BUNDLE="review-handoff-reconciliation response-style edit-scope branch-strategy docs-lookup temp-validators"
 COPILOT_INSTRUCTION_FRAGMENTS="response-style edit-scope branch-strategy review-handoff docs-lookup temp-validators"
 CODEX_INSTRUCTION_FRAGMENTS="$COPILOT_INSTRUCTION_FRAGMENTS"
+CLAUDE_RULE_BUNDLE="$COPILOT_INSTRUCTION_FRAGMENTS"
 
 LEGACY_SKILLS="docx pptx xlsx pdf terraform-apply-fix-review mcp-tool-rules-copilot handoff"
 LEGACY_CURSOR_RULES="code-review-handoff response-and-edit-scope"
@@ -25,10 +26,10 @@ WHAT (default: all):
   all      Install skills, agents, and supported user instructions
   skills   Install skill library only
   agents   Install custom agent library only
-  rules    Install Cursor rules, Copilot instructions, or Codex AGENTS.md
+  rules    Install Cursor rules, Copilot instructions, Claude rules, or Codex AGENTS.md
 
 EDITOR (default: both):
-  both     Cursor + Copilot + Claude (Claude gets skills and agents only)
+  both     Cursor + Copilot + Claude
   all      Cursor + Copilot + Claude + Codex
   cursor   Cursor paths only
   copilot  Copilot paths only
@@ -38,7 +39,7 @@ EDITOR (default: both):
 SCOPE (default: global):
   global   ~/.cursor/, ~/.copilot/, ~/.claude/, ~/.agents/skills/, $CODEX_HOME (default ~/.codex)
   project  .cursor/, .github/, .claude/, .agents/skills/, .codex/agents/ under cwd
-           Copilot and Codex project installs do not write user instructions
+           Copilot, Claude, and Codex project installs do not write user instructions
 
 Examples:
   bash scripts/install_library.sh
@@ -104,6 +105,7 @@ copilot_skills_dir() {
   fi
 }
 claude_skills_dir() { echo "${BASE}/.claude/skills"; }
+claude_rules_dir() { echo "${BASE}/.claude/rules"; }
 codex_skills_dir() { echo "${BASE}/.agents/skills"; }
 codex_home_dir() { echo "${CODEX_HOME:-${HOME}/.codex}"; }
 codex_agents_dir() {
@@ -276,6 +278,21 @@ install_copilot_instructions() {
   assemble_copilot_instructions "$dest" || exit 1
 }
 
+install_claude_rules() {
+  selected claude || return 0
+  if [[ "$SCOPE" != "global" ]]; then
+    echo "Skip Claude user rules (project scope does not write .claude/rules/)"
+    return 0
+  fi
+  local dest name
+  dest="$(claude_rules_dir)"
+  mkdir -p "$dest"
+  for name in $CLAUDE_RULE_BUNDLE; do
+    rm -f "${dest}/${name}.md"
+    cp -a "${REPO}/user-rules/claude/${name}.md" "${dest}/${name}.md"
+  done
+}
+
 codex_instructions() {
   local mode="$1" name
   local fragments=()
@@ -385,6 +402,13 @@ preflight() {
     if selected copilot; then
       bash "${REPO}/scripts/sync_copilot_rules.sh" --check || return 1
     fi
+    if selected claude; then
+      bash "${REPO}/scripts/sync_claude_rules.sh" --check || return 1
+      if [[ "$SCOPE" == "global" && "$WHAT" == "rules" && ! -f "$(claude_skills_dir)/review-handoff/SKILL.md" ]]; then
+        echo "Missing review-handoff skill (run: bash scripts/install_library.sh skills claude)" >&2
+        return 1
+      fi
+    fi
     if selected codex; then
       bash "${REPO}/scripts/sync_codex_rules.sh" --check || return 1
       if [[ "$SCOPE" == "global" ]]; then
@@ -412,6 +436,7 @@ case "$WHAT" in
     install_agents
     install_cursor_rules
     install_copilot_instructions
+    install_claude_rules
     install_codex_instructions
     ;;
   skills) install_skills ;;
@@ -419,6 +444,7 @@ case "$WHAT" in
   rules)
     install_cursor_rules
     install_copilot_instructions
+    install_claude_rules
     install_codex_instructions
     ;;
 esac
@@ -511,6 +537,14 @@ verify_review_handoff_skill() {
   fi
 }
 
+verify_claude_rules() {
+  local dir="$1"
+  local name
+  for name in $CLAUDE_RULE_BUNDLE; do
+    cmp -s "${REPO}/user-rules/claude/${name}.md" "${dir}/${name}.md" || return 1
+  done
+}
+
 verify_cursor_rules() {
   local dir="$1"
   local name legacy
@@ -579,6 +613,13 @@ verify() {
       if [[ "$SCOPE" == "global" ]]; then
         verify_copilot_instructions || ok=1
         verify_review_handoff_skill "$(copilot_skills_dir)" copilot || ok=1
+      fi
+    fi
+    if selected claude; then
+      bash "${REPO}/scripts/sync_claude_rules.sh" --check || ok=1
+      if [[ "$SCOPE" == "global" ]]; then
+        verify_claude_rules "$(claude_rules_dir)" || ok=1
+        verify_review_handoff_skill "$(claude_skills_dir)" claude || ok=1
       fi
     fi
     if selected codex; then

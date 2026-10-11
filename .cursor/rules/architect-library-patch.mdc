@@ -52,16 +52,17 @@ Use partial installs **only** when the user explicitly asks:
 
 Use **per-project** `.cursor/skills/` only if the user explicitly wants project-local install (`install_library.sh all cursor project`). Project-scope also copies bundled user-global rules into `<cwd>/.cursor/rules/` without wiping other `.mdc` files — **except** when cwd is this clone (`architect-library`) **or any subdirectory of it**; then rules install is skipped so maintainer `.cursor/rules/` is not overwritten.
 
-Do **not** copy skills into `<repo>/.cursor/skills/`, agents into `<repo>/.cursor/agents/`, or `user-rules/` into `<repo>/.cursor/rules/` — that duplicates source and breaks the install model. One protocol per editor: edit `user-rules/cursor/`, then run `bash scripts/sync_copilot_rules.sh` and `bash scripts/sync_codex_rules.sh` to regenerate `user-rules/copilot/` and `user-rules/codex/`; the host file is an install copy.
+Do **not** copy skills into `<repo>/.cursor/skills/`, agents into `<repo>/.cursor/agents/`, or `user-rules/` into `<repo>/.cursor/rules/` — that duplicates source and breaks the install model. One protocol per editor: edit `user-rules/cursor/`, then run `bash scripts/sync_copilot_rules.sh`, `bash scripts/sync_codex_rules.sh`, and `bash scripts/sync_claude_rules.sh` to regenerate `user-rules/copilot/`, `user-rules/codex/`, and `user-rules/claude/`; the host file is an install copy.
 
 ## Bundles (in `scripts/install_library.sh`)
 
 ```
-SKILL_BUNDLE="excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document verification-before-completion newagentlink api-and-interface-design deprecation-and-migration github-markdown terraform-commit-review terraform-apply-assistance security-audit _shared"
-EDITOR_VARIANT_SKILLS="mcp-tool-rules context7-docs notion-mcp-ops review-handoff"
+SKILL_BUNDLE="excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document verification-before-completion newagentlink api-and-interface-design deprecation-and-migration github-markdown terraform-commit-review terraform-apply-assistance security-audit review-handoff _shared"
+EDITOR_VARIANT_SKILLS="mcp-tool-rules context7-docs notion-mcp-ops"
 AGENT_BUNDLE="code-review security-auditor"
 CURSOR_RULE_BUNDLE="review-handoff-reconciliation response-style edit-scope branch-strategy docs-lookup temp-validators"
 COPILOT_INSTRUCTION_FRAGMENTS="response-style edit-scope branch-strategy review-handoff docs-lookup temp-validators"
+CLAUDE_RULE_BUNDLE="$COPILOT_INSTRUCTION_FRAGMENTS"
 LEGACY_SKILLS="docx pptx xlsx pdf terraform-apply-fix-review mcp-tool-rules-copilot handoff"
 LEGACY_CURSOR_RULES="code-review-handoff response-and-edit-scope"
 ```
@@ -161,9 +162,18 @@ When Codex is requested, use `bash scripts/install_library.sh all codex` after
 the same runtime setup. Skills go to `~/.agents/skills/`; agents and the managed
 `AGENTS.md` block go to `${CODEX_HOME:-$HOME/.codex}`. The six fragments in
 `user-rules/codex/` are generated from `user-rules/cursor/` by
-`bash scripts/sync_codex_rules.sh`; do not hand-edit them. Run both sync scripts
+`bash scripts/sync_codex_rules.sh`; do not hand-edit them. Run all three sync scripts
 with `--check` after user-rule changes. Preserve personal instructions outside
 the managed block. Project Codex installs write `.agents/skills/` and
 `.codex/agents/` only. See `docs/AGENT-SKILL-INSTALL.md` for conflict handling and
 `python3 -m unittest discover -s scripts -p 'test_install_library.py'` for isolated
 installer regression checks.
+
+## Claude Code installation
+
+When Claude Code is requested, use `bash scripts/install_library.sh all claude`.
+Skills, agents, and rules go to `~/.claude/skills/`, `~/.claude/agents/`, and
+`~/.claude/rules/`. The six rule files in `user-rules/claude/` are generated from
+`user-rules/cursor/` by `bash scripts/sync_claude_rules.sh`; do not hand-edit them.
+The installer never edits `~/.claude/CLAUDE.md`. Project Claude installs do not
+write `.claude/rules/`.
