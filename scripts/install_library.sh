@@ -137,9 +137,11 @@ install_skills_to() {
   local dest="$1"
   local editor="$2" name legacy
   mkdir -p "$dest"
-  for legacy in $LEGACY_SKILLS; do
-    rm -rf "${dest}/${legacy}"
-  done
+  if [[ "$editor" != "codex" ]]; then
+    for legacy in $LEGACY_SKILLS; do
+      rm -rf "${dest}/${legacy}"
+    done
+  fi
   for name in $SKILL_BUNDLE; do
     rm -rf "${dest}/${name}"
     cp -a "${REPO}/skills/${name}" "${dest}/${name}"
@@ -451,7 +453,7 @@ esac
 
 verify_skills_at() {
   local dir="$1"
-  local name
+  local editor="$2" name
   for name in $SKILL_BUNDLE; do
     [[ "$name" == "_shared" ]] || test -f "${dir}/${name}/SKILL.md" || return 1
     test -z "$(find "${dir}/${name}" -maxdepth 1 -name 'SKILL.*.md' -print)" || return 1
@@ -465,7 +467,7 @@ verify_skills_at() {
   test -f "${dir}/security-audit/SKILL.md" || return 1
   test -f "${dir}/newagentlink/SKILL.md" || return 1
   grep -q 'disable-model-invocation: true' "${dir}/newagentlink/SKILL.md" || return 1
-  test ! -d "${dir}/handoff" || return 1
+  [[ "$editor" == "codex" || ! -d "${dir}/handoff" ]] || return 1
 }
 
 verify_editor_variants_at() {
@@ -561,7 +563,7 @@ verify() {
   local ok=0 name
   if [[ "$WHAT" == "all" || "$WHAT" == "skills" ]]; then
     if selected cursor; then
-      verify_skills_at "$(cursor_skills_dir)" || ok=1
+      verify_skills_at "$(cursor_skills_dir)" cursor || ok=1
       verify_editor_variants_at "$(cursor_skills_dir)" || ok=1
       if [[ "$SCOPE" == "global" ]]; then
         test ! -d "${HOME}/.cursor/skills/handoff" || ok=1
@@ -571,14 +573,14 @@ verify() {
       fi
     fi
     if selected copilot; then
-      verify_skills_at "$(copilot_skills_dir)" || ok=1
+      verify_skills_at "$(copilot_skills_dir)" copilot || ok=1
       verify_editor_variants_at "$(copilot_skills_dir)" || ok=1
     fi
     if selected claude; then
-      verify_skills_at "$(claude_skills_dir)" || ok=1
+      verify_skills_at "$(claude_skills_dir)" claude || ok=1
     fi
     if selected codex; then
-      verify_skills_at "$(codex_skills_dir)" || ok=1
+      verify_skills_at "$(codex_skills_dir)" codex || ok=1
       verify_editor_variants_at "$(codex_skills_dir)" || ok=1
       grep -q 'allow_implicit_invocation: false' "$(codex_skills_dir)/newagentlink/agents/openai.yaml" || ok=1
     fi

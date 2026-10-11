@@ -112,6 +112,35 @@ class InstallLibraryTests(unittest.TestCase):
         self.install("all", "codex")
         self.assertEqual(snapshot(self.home), stable)
 
+    def test_codex_preserves_shared_skills_with_legacy_names(self):
+        names = ("docx", "pptx", "xlsx", "pdf", "terraform-apply-fix-review",
+                 "mcp-tool-rules-copilot", "handoff")
+        cases = ((("all", "codex"), self.home),
+                 (("skills", "codex", "project"), self.project),
+                 (("all", "all"), self.home))
+        for args, base in cases:
+            with self.subTest(args=args):
+                originals = {}
+                for name in names:
+                    path = base / ".agents/skills" / name / "SKILL.md"
+                    path.parent.mkdir(parents=True, exist_ok=True)
+                    originals[path] = f"personal {name} skill\r\n".encode()
+                    path.write_bytes(originals[path])
+                legacy_dirs = []
+                if args == ("all", "all"):
+                    for editor in ("cursor", "copilot", "claude"):
+                        for name in names:
+                            directory = self.home / f".{editor}/skills" / name
+                            directory.mkdir(parents=True, exist_ok=True)
+                            (directory / "SKILL.md").write_text("legacy library skill")
+                            legacy_dirs.append(directory)
+                self.install(*args)
+                for path, content in originals.items():
+                    self.assertTrue(path.is_file(), str(path))
+                    self.assertEqual(path.read_bytes(), content)
+                for directory in legacy_dirs:
+                    self.assertFalse(directory.exists(), str(directory))
+
     def test_codex_partial_installs_and_custom_home(self):
         self.env["CODEX_HOME"] = str(self.root / "custom codex profile")
         self.install("skills", "codex")

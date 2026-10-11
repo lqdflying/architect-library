@@ -40,7 +40,7 @@ Codex discovers the actual MCP tool names in the session; the aliases above are 
 
 ## Enforcement
 
-- Codex: generated TOML with `sandbox_mode = "read-only"`; no model override. Returns ledger rounds to the parent instead of writing `/tmp` itself.
+- Codex: generated TOML requests `sandbox_mode = "read-only"`; no model override. Parent live sandbox and approval overrides take precedence over this default. Instructions prohibit writes and require returning ledger rounds to the parent. In a writable parent session, those instructions provide no sandbox enforcement. See [Codex sandbox controls](https://learn.chatgpt.com/docs/agent-configuration/subagents#approvals-and-sandbox-controls).
 - Cursor: `readonly: true` in assembled agent file
 - Copilot: `disallowedTools: edit`; `agents: []`
 - Claude Code: `permissionMode: plan`; `disallowedTools: Edit, Write, NotebookEdit, MultiEdit`
