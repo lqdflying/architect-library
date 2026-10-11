@@ -2,12 +2,13 @@
 
 Scans enabled MCP servers, discovers tool schemas, and generates editor-specific documentation files so the AI agent always calls each tool with correct arguments.
 
-This skill has two variants — one per supported editor:
+This skill has three variants — one per supported editor:
 
 | Variant | File | Output |
 |---------|------|--------|
 | Cursor | `SKILL.cursor.md` | `.cursor/rules/mcp-*.mdc` |
 | VS Code Copilot | `SKILL.copilot.md` | `.github/instructions/mcp-*.instructions.md` |
+| Codex | `SKILL.codex.md` | `.agents/mcp-tools/*.md` plus a managed project `AGENTS.md` trigger |
 
 The install script activates the correct variant as `SKILL.md` at the destination.
 
@@ -29,12 +30,16 @@ MCP tool calls can fail or produce unexpected results when the model guesses arg
 Generate MCP tool calling instructions for all my servers
 ```
 
-Both variants walk through the same four phases:
+All variants walk through the same four phases:
 
 1. **Discover servers** — reads editor-specific MCP config, shows a summary table
 2. **Discover tools** — reads tool schemas from descriptor files, source code, docs, or user input
-3. **Generate rules/instructions** — writes rule files (Cursor: `.mdc`, Copilot: `.instructions.md`)
+3. **Generate rules/instructions** — writes editor-specific references and their trigger; Codex preserves existing project instructions
 4. **Validate** — reads back generated files, checks server names, parameter tables, and examples
+
+For Codex, install with `bash scripts/install_library.sh all codex` and invoke
+`$mcp-tool-rules`. The skill discovers actual session tools and Codex configuration;
+it does not assume Cursor/Copilot tool names or copy their rule formats.
 
 ## Dependencies
 

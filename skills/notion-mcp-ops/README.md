@@ -9,9 +9,10 @@ Installed as part of the Architect Library:
 ```bash
 bash scripts/install_library.sh all cursor    # Cursor
 bash scripts/install_library.sh all copilot   # VS Code Copilot
+bash scripts/install_library.sh all codex     # Codex
 ```
 
-This is an **editor-variant skill** — the install script selects the correct `SKILL.md` variant for your editor (Cursor uses server `plugin-notion-workspace-notion`; Copilot uses `notion`).
+This is an **editor-variant skill** — the install script selects the correct `SKILL.md` variant for your editor (Cursor uses server `plugin-notion-workspace-notion`; Copilot uses `notion`; Codex discovers the available tool names).
 
 ## Prerequisites
 
@@ -19,6 +20,8 @@ The Notion MCP server must be enabled:
 
 - **Cursor**: Enable the Notion workspace plugin in Settings → MCP.
 - **VS Code Copilot**: Enable the Notion plugin; server is typically `notion` in `.vscode/mcp.json`.
+
+- **Codex**: Enable the corresponding MCP server or plugin. Configuration lives in the active Codex home’s `config.toml` or trusted project `.codex/config.toml`. The skill does not configure servers or credentials.
 
 No additional runtime dependencies.
 

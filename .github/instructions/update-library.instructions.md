@@ -4,7 +4,7 @@
 
 Trigger: user says **install library**, install the library, patch library, refresh library, update library, install skills and agents, sync library, update architect library, update skills, refresh skills, sync skills, update agents, or similar.
 
-**You are in VS Code Copilot.** Follow **AGENTS.md** § Install library with **`all cursor` and `all copilot`**. Do not write `~/.claude/` unless the user asks for Claude or all editors. Do not install only Copilot unless the user names that editor.
+**You are in VS Code Copilot.** Follow **AGENTS.md** § Install library with **`all cursor` and `all copilot`**. Claude and Codex are opt-in; select only the named editor when the user specifies one. Do not install only Copilot unless the user names that editor.
 
 Do **not** ask which editor, scope, library subset, or runtime set to install for trigger phrases above. Do **not** install Node.js/nvm when `npm` is missing — report the error per AGENTS.md.
 
@@ -12,7 +12,9 @@ Use partial installs only when the user explicitly asks:
 
 - Skills only: `bash scripts/install_library.sh skills cursor` and `bash scripts/install_library.sh skills copilot`
 - Agents only: `bash scripts/install_library.sh agents cursor` and `bash scripts/install_library.sh agents copilot`
-- Claude, or all editors: `bash scripts/install_library.sh` — **only** when the user asks
+- Codex: `bash scripts/install_library.sh all codex` — **only** when requested
+- Claude: `bash scripts/install_library.sh all claude` — **only** when requested
+- All editors: `bash scripts/install_library.sh all all` — **only** when requested
 
 ## Procedure
 
@@ -98,3 +100,16 @@ bash /home/opc/architect-library/scripts/runtime_readiness.sh
 - Cursor user-global rules (`user-rules/cursor/`) install to `~/.cursor/rules/`
 - Copilot always-on fragments (`user-rules/copilot/{response-style,edit-scope,branch-strategy,review-handoff,docs-lookup,temp-validators}.md`, generated from `user-rules/cursor/` by `scripts/sync_copilot_rules.sh`) concatenate to `~/.copilot/copilot-instructions.md` on a global Copilot install
 - Review handoff protocol is the on-demand `review-handoff` skill (`~/.copilot/skills/review-handoff/`); the fragment is only its trigger
+
+## Codex installation
+
+When Codex is requested, use `bash scripts/install_library.sh all codex` after
+the same runtime setup. Skills go to `~/.agents/skills/`; agents and the managed
+`AGENTS.md` block go to `${CODEX_HOME:-$HOME/.codex}`. The six fragments in
+`user-rules/codex/` are generated from `user-rules/cursor/` by
+`bash scripts/sync_codex_rules.sh`; do not hand-edit them. Run both sync scripts
+with `--check` after user-rule changes. Preserve personal instructions outside
+the managed block. Project Codex installs write `.agents/skills/` and
+`.codex/agents/` only. See `docs/AGENT-SKILL-INSTALL.md` for conflict handling and
+`python3 -m unittest discover -s scripts -p 'test_install_library.py'` for isolated
+installer regression checks.

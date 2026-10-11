@@ -33,3 +33,10 @@ Do **not** use this skill for code review findings. That protocol appends
 
 Adapted from the user-global `handoff` skill; renamed so it cannot collide
 with the review-handoff ledger.
+
+## Codex
+
+Install with `bash scripts/install_library.sh all codex`. Skills live under
+`~/.agents/skills/` globally or `.agents/skills/` in a project.
+Invoke `$newagentlink` explicitly; `agents/openai.yaml` disables implicit invocation.
+The shared one-shot continuation protocol is unchanged.

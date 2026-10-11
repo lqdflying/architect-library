@@ -44,6 +44,15 @@ In chat: state the path, then a short prioritized summary. Do not paste the file
 
 Chat-only review without a handoff update is not done.
 
+### Codex read-only custom agents
+
+The Codex `code-review` and `security-auditor` agents return a proposed ledger
+path and a complete labeled round to the parent; they do not write even to
+`/tmp`. The parent records the round using this append-only protocol. Until the
+parent confirms the write, describe the ledger update as pending. Do not weaken
+the sandbox or use shell writes to bypass it. Ordinary Codex sessions with write
+access continue to maintain the ledger directly.
+
 ## Append-only file discipline
 
 The handoff is a growing ledger. **Never delete, truncate, or full-file rewrite** an existing `/tmp/<topic>-handoff.md`.

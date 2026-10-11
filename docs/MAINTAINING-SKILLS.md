@@ -34,6 +34,7 @@ Create `agents/<agent-name>/` with:
 - [ ] `cursor.header.md` — Cursor frontmatter
 - [ ] `copilot.header.md` — Copilot frontmatter
 - [ ] `claude.header.md` — Claude Code frontmatter
+- [ ] `codex.json` — Codex name + description; shared instructions and `agents/codex-review.md` are serialized into TOML by the installer
 
 Update **agent guidance**:
 
@@ -69,7 +70,7 @@ Update **agent guidance**:
 
 Fragments: `user-rules/copilot/response-style.md`, `user-rules/copilot/edit-scope.md`, `user-rules/copilot/branch-strategy.md`, `user-rules/copilot/review-handoff.md`, `user-rules/copilot/docs-lookup.md`, and `user-rules/copilot/temp-validators.md`. Plain Markdown. No `alwaysApply` frontmatter. Install concatenates them, in that order, to `~/.copilot/copilot-instructions.md`.
 
-The fragments are generated. Edit the Cursor source in `user-rules/cursor/`, then run `bash scripts/sync_copilot_rules.sh`. Install verify runs `--check` and fails on drift.
+The fragments are generated. Edit the Cursor source in `user-rules/cursor/`, then run `bash scripts/sync_copilot_rules.sh` and `bash scripts/sync_codex_rules.sh`. Install verify runs `--check` and fails on drift.
 
 - [ ] New fragment: add the `cursor:copilot` name pair to `PAIRS` in [scripts/sync_copilot_rules.sh](../scripts/sync_copilot_rules.sh) and the name to `COPILOT_INSTRUCTION_FRAGMENTS`
 - [ ] Review handoff: edit the protocol in `skills/review-handoff/SKILL.md`; `review-handoff-reconciliation.mdc` stays a short trigger that points at it
@@ -77,6 +78,19 @@ The fragments are generated. Edit the Cursor source in `user-rules/cursor/`, the
 - [ ] [scripts/install_library.sh](../scripts/install_library.sh) concatenates the fragments on global `copilot` or `both` rules install
 - [ ] Project scope does not write `.github/copilot-instructions.md`
 - [ ] Run `bash scripts/install_library.sh rules copilot`
+
+## Codex skills and user instructions
+
+- [ ] Every shared skill installs to `~/.agents/skills/`; editor variants use `SKILL.codex.md` when needed. The installer removes unselected variants.
+- [ ] Adapt actual tool discovery, Codex configuration paths, and invocation syntax; do not copy Cursor or Copilot tool prefixes.
+- [ ] `newagentlink/agents/openai.yaml` preserves explicit-only invocation in Codex.
+- [ ] Generate all six `user-rules/codex/` fragments from Cursor sources with `bash scripts/sync_codex_rules.sh`; never hand-edit them.
+- [ ] New rule: update `PAIRS` in both sync scripts and the instruction fragment bundles in the installer.
+- [ ] Global instructions live in the marked Architect Library block in `${CODEX_HOME:-$HOME/.codex}/AGENTS.md`; preserve personal content outside it.
+- [ ] Project installs leave `AGENTS.md` untouched. A rules-only global install requires the `review-handoff` skill already present.
+- [ ] Run `bash scripts/sync_codex_rules.sh --check` and `python3 -m unittest discover -s scripts -p 'test_install_library.py'` (test runner needs Python 3.11+).
+- [ ] When Codex is the requested target, run runtime setup followed by `bash scripts/install_library.sh all codex`; otherwise keep the default Cursor + Copilot pair.
+- [ ] Check a fresh Codex session discovers skills and both custom agents; report discovery as unverified if Codex cannot run.
 
 ## New workflow step (existing skill)
 

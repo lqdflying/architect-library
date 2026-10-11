@@ -9,9 +9,10 @@ Installed as part of the Architect Library:
 ```bash
 bash scripts/install_library.sh all cursor    # Cursor
 bash scripts/install_library.sh all copilot   # VS Code Copilot
+bash scripts/install_library.sh all codex     # Codex
 ```
 
-This is an **editor-variant skill** — the install script selects the correct `SKILL.md` variant for your editor (Cursor uses `user-context7` server name; Copilot uses `context7`).
+This is an **editor-variant skill** — the install script selects the correct `SKILL.md` variant for your editor (Cursor uses `user-context7` server name; Copilot uses `context7`; Codex discovers the available tool names).
 
 ## Prerequisites
 
@@ -19,6 +20,8 @@ The Context7 MCP server must be enabled in your editor:
 
 - **Cursor**: Context7 is available as a built-in plugin (`context7-plugin`). Enable it in Settings > MCP.
 - **VS Code Copilot**: Add the Context7 server to `.vscode/mcp.json` or VS Code user settings. See [Context7 documentation](https://context7.com) for setup.
+
+- **Codex**: Enable the corresponding MCP server or plugin. Configuration lives in the active Codex home’s `config.toml` or trusted project `.codex/config.toml`. The skill does not configure servers or credentials.
 
 No additional runtime dependencies are required.
 

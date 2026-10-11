@@ -1,21 +1,18 @@
 #!/usr/bin/env bash
 # Install Architect Library (skills + custom agents + user-global rules)
-# to Cursor / Copilot / Claude.
-# Default: global install of skills and agents to cursor + copilot home directories.
-# Cursor rules install when EDITOR is cursor or both.
-# Copilot always-on instructions install when EDITOR is copilot or both and SCOPE is global.
+# to Cursor / Copilot / Claude / Codex.
+# The legacy CLI default "both" means Cursor + Copilot + Claude.
+# Generic install requests use explicit cursor and copilot commands (see AGENTS.md).
 set -euo pipefail
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-# shellcheck source=architect_env.sh
-source "$REPO/scripts/architect_env.sh"
-
 SKILL_BUNDLE="excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document verification-before-completion newagentlink api-and-interface-design deprecation-and-migration github-markdown terraform-commit-review terraform-apply-assistance security-audit _shared"
-# Cursor + Copilot only (never Claude). SKILL.<editor>.md wins; otherwise the shared SKILL.md ships.
+# Cursor + Copilot + Codex (never Claude). SKILL.<editor>.md wins over SKILL.md.
 EDITOR_VARIANT_SKILLS="mcp-tool-rules context7-docs notion-mcp-ops review-handoff"
 AGENT_BUNDLE="code-review security-auditor"
 CURSOR_RULE_BUNDLE="review-handoff-reconciliation response-style edit-scope branch-strategy docs-lookup temp-validators"
 COPILOT_INSTRUCTION_FRAGMENTS="response-style edit-scope branch-strategy review-handoff docs-lookup temp-validators"
+CODEX_INSTRUCTION_FRAGMENTS="$COPILOT_INSTRUCTION_FRAGMENTS"
 
 LEGACY_SKILLS="docx pptx xlsx pdf terraform-apply-fix-review mcp-tool-rules-copilot handoff"
 LEGACY_CURSOR_RULES="code-review-handoff response-and-edit-scope"
@@ -25,20 +22,23 @@ usage() {
 Usage: install_library.sh [WHAT] [EDITOR] [SCOPE]
 
 WHAT (default: all):
-  all      Install skills, agents, Cursor user-global rules, and the Copilot always-on instruction
+  all      Install skills, agents, and supported user instructions
   skills   Install skill library only
   agents   Install custom agent library only
-  rules    Install Cursor user-global rules and the Copilot always-on instruction
+  rules    Install Cursor rules, Copilot instructions, or Codex AGENTS.md
 
 EDITOR (default: both):
   both     Cursor + Copilot + Claude (Claude gets skills and agents only)
+  all      Cursor + Copilot + Claude + Codex
   cursor   Cursor paths only
   copilot  Copilot paths only
   claude   Claude Code paths only
+  codex    Codex skills, agents, and user instructions (requires Python 3)
 
 SCOPE (default: global):
-  global   ~/.cursor/, ~/.copilot/, ~/.claude/
-  project  .cursor/, .github/, .claude/ under current working directory
+  global   ~/.cursor/, ~/.copilot/, ~/.claude/, ~/.agents/skills/, $CODEX_HOME (default ~/.codex)
+  project  .cursor/, .github/, .claude/, .agents/skills/, .codex/agents/ under cwd
+           Copilot and Codex project installs do not write user instructions
 
 Examples:
   bash scripts/install_library.sh
@@ -46,6 +46,8 @@ Examples:
   bash scripts/install_library.sh agents cursor global
   bash scripts/install_library.sh rules cursor
   bash scripts/install_library.sh rules copilot
+  bash scripts/install_library.sh all codex
+  bash scripts/install_library.sh all all
   bash scripts/install_library.sh all both project
 EOF
 }
@@ -61,7 +63,7 @@ case "$WHAT" in
 esac
 
 case "$EDITOR" in
-  both|cursor|copilot|claude) ;;
+  both|all|cursor|copilot|claude|codex) ;;
   global|project)
     SCOPE="$EDITOR"
     EDITOR="both"
@@ -88,6 +90,10 @@ else
   BASE="$(pwd)"
 fi
 
+selected() {
+  [[ "$EDITOR" == "$1" || "$EDITOR" == "all" || ( "$EDITOR" == "both" && "$1" != "codex" ) ]]
+}
+
 cursor_skills_dir() { echo "${BASE}/.cursor/skills"; }
 cursor_rules_dir() { echo "${BASE}/.cursor/rules"; }
 copilot_skills_dir() {
@@ -98,6 +104,15 @@ copilot_skills_dir() {
   fi
 }
 claude_skills_dir() { echo "${BASE}/.claude/skills"; }
+codex_skills_dir() { echo "${BASE}/.agents/skills"; }
+codex_home_dir() { echo "${CODEX_HOME:-${HOME}/.codex}"; }
+codex_agents_dir() {
+  if [[ "$SCOPE" == "project" ]]; then
+    echo "${BASE}/.codex/agents"
+  else
+    echo "$(codex_home_dir)/agents"
+  fi
+}
 cursor_agents_dir() { echo "${BASE}/.cursor/agents"; }
 copilot_agents_dir() {
   if [[ "$SCOPE" == "project" ]]; then
@@ -108,8 +123,17 @@ copilot_agents_dir() {
 }
 claude_agents_dir() { echo "${BASE}/.claude/agents"; }
 
+activate_skill_variant() {
+  local dir="$1" editor="$2"
+  if [[ -f "${dir}/SKILL.${editor}.md" ]]; then
+    mv "${dir}/SKILL.${editor}.md" "${dir}/SKILL.md"
+  fi
+  find "$dir" -maxdepth 1 -name 'SKILL.*.md' -delete
+}
+
 install_skills_to() {
   local dest="$1"
+  local editor="$2" name legacy
   mkdir -p "$dest"
   for legacy in $LEGACY_SKILLS; do
     rm -rf "${dest}/${legacy}"
@@ -117,20 +141,17 @@ install_skills_to() {
   for name in $SKILL_BUNDLE; do
     rm -rf "${dest}/${name}"
     cp -a "${REPO}/skills/${name}" "${dest}/${name}"
+    activate_skill_variant "${dest}/${name}" "$editor"
   done
 }
 
 install_editor_variants() {
   local dest="$1"
-  local editor="$2"
+  local editor="$2" name
   for name in $EDITOR_VARIANT_SKILLS; do
     rm -rf "${dest}/${name}"
     cp -a "${REPO}/skills/${name}" "${dest}/${name}"
-    if [[ -f "${dest}/${name}/SKILL.${editor}.md" ]]; then
-      mv "${dest}/${name}/SKILL.${editor}.md" "${dest}/${name}/SKILL.md"
-    fi
-    # Remove all remaining variant files (SKILL.*.md) so only SKILL.md stays
-    find "${dest}/${name}" -maxdepth 1 -name 'SKILL.*.md' -delete
+    activate_skill_variant "${dest}/${name}" "$editor"
   done
 }
 
@@ -148,17 +169,8 @@ install_agent_file() {
   cat "${agent_dir}/${header}" "${agent_dir}/INSTRUCTIONS.md" > "$dest"
 }
 
-# Retired original continuation skill + slash command (replaced by newagentlink).
-# Removal only — does not install to other editors.
-remove_legacy_handoff() {
-  rm -rf "${HOME}/.cursor/skills/handoff"
-  rm -rf "${HOME}/.copilot/skills/handoff"
-  rm -rf "${HOME}/.claude/skills/handoff"
-  rm -f "${HOME}/.cursor/commands/handoff.md"
-}
-
 install_cursor_newagentlink_command() {
-  if [[ "$EDITOR" != "both" && "$EDITOR" != "cursor" ]]; then
+  if ! selected cursor; then
     return 0
   fi
   if [[ "$SCOPE" != "global" ]]; then
@@ -178,26 +190,15 @@ install_cursor_newagentlink_command() {
 }
 
 install_skills() {
-  case "$EDITOR" in
-    both)
-      install_skills_to "$(cursor_skills_dir)"
-      install_editor_variants "$(cursor_skills_dir)" cursor
-      install_skills_to "$(copilot_skills_dir)"
-      install_editor_variants "$(copilot_skills_dir)" copilot
-      install_skills_to "$(claude_skills_dir)"
-      ;;
-    cursor)
-      install_skills_to "$(cursor_skills_dir)"
-      install_editor_variants "$(cursor_skills_dir)" cursor
-      ;;
-    copilot)
-      install_skills_to "$(copilot_skills_dir)"
-      install_editor_variants "$(copilot_skills_dir)" copilot
-      ;;
-    # Claude gets shared skills only — no editor-variant skills (no SKILL.claude.md exists)
-    claude) install_skills_to "$(claude_skills_dir)" ;;
-  esac
-  remove_legacy_handoff
+  local editor dest
+  for editor in cursor copilot claude codex; do
+    selected "$editor" || continue
+    dest="$("${editor}_skills_dir")"
+    install_skills_to "$dest" "$editor"
+    if [[ "$editor" != "claude" ]]; then
+      install_editor_variants "$dest" "$editor"
+    fi
+  done
   install_cursor_newagentlink_command
 }
 
@@ -215,7 +216,7 @@ skip_cursor_rules_into_repo() {
 }
 
 install_cursor_rules() {
-  if [[ "$EDITOR" != "both" && "$EDITOR" != "cursor" ]]; then
+  if ! selected cursor; then
     echo "Skip Cursor user-global rules (EDITOR=$EDITOR)"
     return 0
   fi
@@ -260,7 +261,7 @@ assemble_copilot_instructions() {
 }
 
 install_copilot_instructions() {
-  if [[ "$EDITOR" != "both" && "$EDITOR" != "copilot" ]]; then
+  if ! selected copilot; then
     echo "Skip Copilot always-on instructions (EDITOR=$EDITOR)"
     return 0
   fi
@@ -275,6 +276,31 @@ install_copilot_instructions() {
   assemble_copilot_instructions "$dest" || exit 1
 }
 
+codex_instructions() {
+  local mode="$1" name
+  local fragments=()
+  for name in $CODEX_INSTRUCTION_FRAGMENTS; do
+    fragments+=("${REPO}/user-rules/codex/${name}.md")
+  done
+  python3 "${REPO}/scripts/codex_install.py" instructions "$mode" \
+    "$(codex_home_dir)/AGENTS.md" "${fragments[@]}"
+}
+
+codex_agent() {
+  local mode="$1" name="$2"
+  python3 "${REPO}/scripts/codex_install.py" agent "$mode" \
+    "$(codex_agents_dir)/${name}.toml" "${REPO}/agents/${name}"
+}
+
+install_codex_instructions() {
+  selected codex || return 0
+  if [[ "$SCOPE" != "global" ]]; then
+    echo "Skip Codex user instructions (project scope does not write AGENTS.md)"
+    return 0
+  fi
+  codex_instructions write
+}
+
 install_agents() {
   for name in $AGENT_BUNDLE; do
     if [[ ! -d "${REPO}/agents/${name}" ]]; then
@@ -283,24 +309,98 @@ install_agents() {
     fi
   done
 
-  if [[ "$EDITOR" == "both" || "$EDITOR" == "cursor" ]]; then
+  if selected cursor; then
     for name in $AGENT_BUNDLE; do
       install_agent_file "$name" "cursor.header.md" "$(cursor_agents_dir)/${name}.md"
     done
   fi
 
-  if [[ "$EDITOR" == "both" || "$EDITOR" == "copilot" ]]; then
+  if selected copilot; then
     for name in $AGENT_BUNDLE; do
       install_agent_file "$name" "copilot.header.md" "$(copilot_agents_dir)/${name}.agent.md"
     done
   fi
 
-  if [[ "$EDITOR" == "both" || "$EDITOR" == "claude" ]]; then
+  if selected claude; then
     for name in $AGENT_BUNDLE; do
       install_agent_file "$name" "claude.header.md" "$(claude_agents_dir)/${name}.md"
     done
   fi
+  if selected codex; then
+    for name in $AGENT_BUNDLE; do
+      codex_agent write "$name"
+    done
+  fi
 }
+
+# Check selected sources and Codex conflicts before touching any install target.
+preflight() {
+  local editor name src
+  if selected codex; then
+    command -v python3 >/dev/null || { echo "Codex installation requires Python 3" >&2; return 1; }
+  fi
+  for editor in cursor copilot claude codex; do
+    selected "$editor" || continue
+    if [[ "$WHAT" == "all" || "$WHAT" == "skills" ]]; then
+      for name in $SKILL_BUNDLE; do
+        src="${REPO}/skills/${name}"
+        if [[ "$name" == "_shared" ]]; then
+          test -f "$src/office-tools/office_tools.py" || { echo "Missing shared Office tools: $src" >&2; return 1; }
+        elif [[ ! -f "$src/SKILL.${editor}.md" && ! -f "$src/SKILL.md" ]]; then
+          echo "Missing $editor skill source: $src" >&2; return 1
+        fi
+      done
+      if [[ "$editor" != "claude" ]]; then
+        for name in $EDITOR_VARIANT_SKILLS; do
+          src="${REPO}/skills/${name}"
+          if [[ ! -f "$src/SKILL.${editor}.md" && ! -f "$src/SKILL.md" ]]; then
+            echo "Missing $editor skill source: $src" >&2; return 1
+          fi
+        done
+      fi
+      if [[ "$editor" == "cursor" && "$SCOPE" == "global" ]]; then
+        test -f "${REPO}/skills/newagentlink/cursor.command.md" || return 1
+      fi
+      if [[ "$editor" == "codex" ]]; then
+        test -f "${REPO}/skills/newagentlink/agents/openai.yaml" || return 1
+      fi
+    fi
+    if [[ "$WHAT" == "all" || "$WHAT" == "agents" ]]; then
+      for name in $AGENT_BUNDLE; do
+        if [[ "$editor" == "codex" ]]; then
+          codex_agent preflight "$name" || return 1
+        else
+          test -f "${REPO}/agents/${name}/${editor}.header.md" && \
+            test -f "${REPO}/agents/${name}/INSTRUCTIONS.md" || { echo "Missing $editor agent source: $name" >&2; return 1; }
+        fi
+      done
+    fi
+  done
+  if [[ "$WHAT" == "all" || "$WHAT" == "rules" ]]; then
+    if selected cursor; then
+      for name in $CURSOR_RULE_BUNDLE; do
+        test -f "${REPO}/user-rules/cursor/${name}.mdc" || { echo "Missing Cursor rule: $name" >&2; return 1; }
+      done
+    fi
+    if selected copilot; then
+      bash "${REPO}/scripts/sync_copilot_rules.sh" --check || return 1
+    fi
+    if selected codex; then
+      bash "${REPO}/scripts/sync_codex_rules.sh" --check || return 1
+      if [[ "$SCOPE" == "global" ]]; then
+        codex_instructions preflight || return 1
+        if [[ "$WHAT" == "rules" && ! -f "$(codex_skills_dir)/review-handoff/SKILL.md" ]]; then
+          echo "Missing review-handoff skill (run: bash scripts/install_library.sh skills codex)" >&2
+          return 1
+        fi
+      fi
+    fi
+  fi
+}
+
+preflight
+# shellcheck source=architect_env.sh
+source "$REPO/scripts/architect_env.sh"
 
 echo "Architect Library install_library.sh"
 echo "  REPO=$REPO"
@@ -312,17 +412,24 @@ case "$WHAT" in
     install_agents
     install_cursor_rules
     install_copilot_instructions
+    install_codex_instructions
     ;;
   skills) install_skills ;;
   agents) install_agents ;;
   rules)
     install_cursor_rules
     install_copilot_instructions
+    install_codex_instructions
     ;;
 esac
 
 verify_skills_at() {
   local dir="$1"
+  local name
+  for name in $SKILL_BUNDLE; do
+    [[ "$name" == "_shared" ]] || test -f "${dir}/${name}/SKILL.md" || return 1
+    test -z "$(find "${dir}/${name}" -maxdepth 1 -name 'SKILL.*.md' -print)" || return 1
+  done
   test -f "${dir}/_shared/office-tools/office_tools.py" || return 1
   test -f "${dir}/word-document/SKILL.md" || return 1
   test -f "${dir}/api-and-interface-design/SKILL.md" || return 1
@@ -342,6 +449,7 @@ verify_editor_variants_at() {
     # No leftover variant files at destination
     test ! -f "${dir}/${name}/SKILL.cursor.md" || return 1
     test ! -f "${dir}/${name}/SKILL.copilot.md" || return 1
+    test ! -f "${dir}/${name}/SKILL.codex.md" || return 1
   done
 }
 
@@ -416,42 +524,49 @@ verify_cursor_rules() {
 }
 
 verify() {
-  local ok=0
+  local ok=0 name
   if [[ "$WHAT" == "all" || "$WHAT" == "skills" ]]; then
-    if [[ "$EDITOR" == "both" || "$EDITOR" == "cursor" ]]; then
+    if selected cursor; then
       verify_skills_at "$(cursor_skills_dir)" || ok=1
       verify_editor_variants_at "$(cursor_skills_dir)" || ok=1
       if [[ "$SCOPE" == "global" ]]; then
         test ! -d "${HOME}/.cursor/skills/handoff" || ok=1
-        test ! -d "${HOME}/.copilot/skills/handoff" || ok=1
-        test ! -d "${HOME}/.claude/skills/handoff" || ok=1
         test ! -f "${HOME}/.cursor/commands/handoff.md" || ok=1
         test -f "${HOME}/.cursor/commands/newagentlink.md" || ok=1
         cmp -s "${REPO}/skills/newagentlink/cursor.command.md" "${HOME}/.cursor/commands/newagentlink.md" || ok=1
       fi
     fi
-    if [[ "$EDITOR" == "both" || "$EDITOR" == "copilot" ]]; then
+    if selected copilot; then
       verify_skills_at "$(copilot_skills_dir)" || ok=1
       verify_editor_variants_at "$(copilot_skills_dir)" || ok=1
     fi
-    if [[ "$EDITOR" == "both" || "$EDITOR" == "claude" ]]; then
+    if selected claude; then
       verify_skills_at "$(claude_skills_dir)" || ok=1
+    fi
+    if selected codex; then
+      verify_skills_at "$(codex_skills_dir)" || ok=1
+      verify_editor_variants_at "$(codex_skills_dir)" || ok=1
+      grep -q 'allow_implicit_invocation: false' "$(codex_skills_dir)/newagentlink/agents/openai.yaml" || ok=1
     fi
   fi
   if [[ "$WHAT" == "all" || "$WHAT" == "agents" ]]; then
-    if [[ "$EDITOR" == "both" || "$EDITOR" == "cursor" ]]; then
+    if selected codex; then
+      for name in $AGENT_BUNDLE; do
+        codex_agent verify "$name" || ok=1
+      done
+    fi
+    if selected cursor; then
       verify_cursor_agents "$(cursor_agents_dir)" || ok=1
     fi
-    if [[ "$EDITOR" == "both" || "$EDITOR" == "copilot" ]]; then
+    if selected copilot; then
       verify_copilot_agents "$(copilot_agents_dir)" || ok=1
     fi
-    if [[ "$EDITOR" == "both" || "$EDITOR" == "claude" ]]; then
+    if selected claude; then
       verify_claude_agents "$(claude_agents_dir)" || ok=1
     fi
   fi
   if [[ "$WHAT" == "all" || "$WHAT" == "rules" ]]; then
-    bash "${REPO}/scripts/sync_copilot_rules.sh" --check || ok=1
-    if [[ "$EDITOR" == "both" || "$EDITOR" == "cursor" ]]; then
+    if selected cursor; then
       if skip_cursor_rules_into_repo; then
         :
       else
@@ -459,10 +574,18 @@ verify() {
         verify_review_handoff_skill "$(cursor_skills_dir)" cursor || ok=1
       fi
     fi
-    if [[ "$EDITOR" == "both" || "$EDITOR" == "copilot" ]]; then
+    if selected copilot; then
+      bash "${REPO}/scripts/sync_copilot_rules.sh" --check || ok=1
       if [[ "$SCOPE" == "global" ]]; then
         verify_copilot_instructions || ok=1
         verify_review_handoff_skill "$(copilot_skills_dir)" copilot || ok=1
+      fi
+    fi
+    if selected codex; then
+      bash "${REPO}/scripts/sync_codex_rules.sh" --check || ok=1
+      if [[ "$SCOPE" == "global" ]]; then
+        codex_instructions verify || ok=1
+        verify_review_handoff_skill "$(codex_skills_dir)" codex || ok=1
       fi
     fi
   fi
