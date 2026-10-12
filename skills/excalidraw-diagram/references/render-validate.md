@@ -77,7 +77,7 @@ After generating the initial JSON, run this cycle:
 
 - Widen containers when text is clipped
 - Adjust `x`/`y` coordinates to fix spacing and alignment
-- Remove unnecessary waypoints first; add intermediate waypoints only when routing around an actual obstacle or maintaining distinct lanes
+- Remove unnecessary waypoints first. Add one only to avoid an actual obstacle, to separate routing lanes, to express a necessary fan-out, or when the endpoints still do not share an x or y after attachment alignment and moving the nodes onto one axis would break grouping, labels, or another route.
 - Reposition labels closer to the element they describe; use above, below or beside the icon to free the route
 - Resize elements to rebalance visual weight across sections
 
@@ -119,7 +119,7 @@ After rendering, confirm:
 5. **Arrows land correctly**: Node-to-node arrows have both bindings and a matching `boundElements` entry on each endpoint. Each fan-out destination has its own bound arrow
 6. **Readable at viewing size**: Architecture text meets the default 16px minimum or explicit user scale, and is legible at the intended overview size as well as in detail crops; unclear wording is rewritten
 7. **Balanced composition**: No large empty voids or overcrowded regions
-8. **Routing**: Horizontal/vertical architecture segments; straight when clear, with every retained bend justified by an obstacle, separate lane or necessary fan-out; no preventable crossings or ambiguous junctions
+8. **Routing**: Horizontal/vertical architecture segments; straight when clear. A boundary crossing or a small endpoint-height mismatch is not itself a reason to bend. Keep a bend to avoid an actual obstacle, to separate routing lanes, to express a necessary fan-out, or when the endpoints still do not share an x or y after attachment alignment and moving the nodes onto one axis would break grouping, labels, or another route. No preventable crossings or ambiguous junctions
 9. **Icon captions**: Clear association with the intended icon and no interference with connector lanes; above-icon placement is valid
 10. **Service artwork**: Every depicted Azure service and private endpoint has its own cached official icon node (or a labeled box where the cache has none, reported in the reply), checked against the design inventory. F5, Palo Alto Networks, NGINX, and Datadog nodes use the cached SVG for that product (`vendor-icons.md`). Icons render without distortion; every image element's `fileId` resolves to embedded `files` data
 

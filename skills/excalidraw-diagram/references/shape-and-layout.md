@@ -28,7 +28,7 @@ For layered server diagrams (`layered-server-architecture.md`):
 |------|-------|-------|
 | External actor (AI, tool, browser) | `ellipse` | Top band; color encodes client type |
 | Internal layer (server, store, safety) | `rectangle` bar | Center spine; `roundness: {type: 3}` |
-| Route / tool endpoint | `rectangle` | Inside dashed boundary; ~125×70 |
+| Route / tool endpoint | `rectangle` | Inside dashed boundary; ~168×70 |
 | Database | `ellipse` | Bottom of spine; green semantic. An Azure database uses its official icon (`azure-icons.md`) |
 | Section grouping | dashed `rectangle` | Transparent fill; auth=purple stroke, routes/admin=navy |
 | Decision (2FA, policy gate) | `diamond` | Amber semantic |
@@ -143,7 +143,7 @@ Position alone doesn't show relationships. If A relates to B, there must be an a
 - Reserve different corridors for different connection families, such as network peerings, service access and diagnostics. Let a clearly separated secondary route be longer when that makes the primary flow easier to trace. Optimize for semantic clarity and fewer crossings first, then bends and length; shortest total wire length is not the goal.
 - Avoid crossings when another placement or route can remove them. Move a source closer to its destinations, reorder peer nodes, or reserve a separate connector lane before adding detours. Check each retained relationship: fewer arrows after an edit can mean reduced scope rather than better routing.
 - Use straight horizontal or vertical segments with right-angle bends for architecture connectors. Consecutive scene-space points must share either x or y; set `angle: 0` and `roundness: null` on these arrows. Straight does not mean diagonal. Use curves or diagonal paths only when the concept or the user explicitly requires them.
-- Try one straight horizontal or vertical segment first. Before adding an elbow, align the endpoint attachment positions if that leaves labels and other routes clear. A boundary crossing or a small endpoint-height mismatch is not itself a reason to bend. Keep a bend only to avoid an actual obstacle, separate routing lanes or express a necessary fan-out.
+- Try one straight horizontal or vertical segment first. Before adding an elbow, align the endpoint attachment positions if that leaves labels and other routes clear. A boundary crossing or a small endpoint-height mismatch is not itself a reason to bend. Keep a bend to avoid an actual obstacle, to separate routing lanes, to express a necessary fan-out, or when the endpoints still do not share an x or y after that alignment and moving the nodes onto one axis would break grouping, labels, or another route.
 - Keep parallel routes separated. Do not run connectors through unrelated icons, labels or container headings. Choose the connection side and caption side together: the side occupied by incoming or outgoing arrows should stay clear, so a caption above an icon can free its lower connection point. Keep repeated subgraphs aligned so the reader can compare them.
 - For unavoidable crossings, make continuation distinct from connection. Junctions need an explicit node or marker; an ordinary crossing is not a junction. Do not merge independent routes into an unlabeled shared trunk to hide crossings.
 - Preserve both endpoint bindings and reciprocal `boundElements` when rerouting. Check the complete route in scene coordinates after moving any connected node; endpoint attachment alone does not keep the intermediate segments orthogonal.

@@ -85,14 +85,14 @@ Build one section per edit pass. Use descriptive string IDs and namespace seeds 
 | Tool / Ansible / LLM client | ellipse | Start/Trigger (`#fed7aa` / `#c2410c`) | ~140×80 |
 | Browser / admin client | ellipse | Tertiary (`#93c5fd` / `#1e3a5f`) | ~140×80 |
 | Server, REST, store bars | rectangle, `roundness: {type: 3}` | Primary (`#3b82f6` / `#1e3a5f`) | ~380–400×55–60 |
-| Route / tool boxes | rectangle | match client or primary semantic | ~125×70 |
-| Secondary route tier | rectangle | Secondary (`#60a5fa`) or Tertiary (`#93c5fd`) | ~125×70 |
+| Route / tool boxes | rectangle | match client or primary semantic | ~168×70 |
+| Secondary route tier | rectangle | Secondary (`#60a5fa`) or Tertiary (`#93c5fd`) | ~168×70 |
 | Critical / safety / merge | rectangle bar | Warning/Reset (`#fee2e2` / `#dc2626`) | full spine width |
 | RBAC / policy | rectangle | Decision (`#fef3c7` / `#b45309`) | ~220×42 |
 | Auth inner boxes | rectangle | AI/LLM purple | ~220×42 |
 | Database | ellipse, or the official icon for an Azure database | End/Success (`#a7f3d0` / `#047857`); an icon keeps its native colors | ~140–180×65–71 |
 | Auth boundary | rectangle, dashed | purple stroke, transparent fill | ~260×180 |
-| Route / admin boundary | rectangle, dashed | navy stroke, transparent fill | ~430–455×180–310 |
+| Route / admin boundary | rectangle, dashed | navy stroke, transparent fill | ~600×180–310 |
 | Ancillary panel | rectangle, `strokeWidth: 1` | Sidebar ancillary (`#dbeafe` / `#1e3a5f`) | ~260×60–120 |
 | Decision (2FA, etc.) | diamond | Decision amber | ~88×68 |
 | Flow evidence artifact | rectangle | `#1e293b` fill, `#22c55e` text | variable |
@@ -146,7 +146,7 @@ Bindings: `startBinding` / `endBinding` with `gap: 2`. Arrow color follows the *
 
 Free-floating text above dashed boundaries:
 
-- Font: 16px, `#1e40af`, `fontFamily: 3`
+- Font: 18–20px, `#1e40af`, `fontFamily: 3`
 - Examples: "Authentication Layer", "MCP Tool Layer", "Admin & Policy", "SQL Safety Guardrails"
 - Ancillary panel labels: 16px, `#3b82f6`, left-aligned above light blue box
 
