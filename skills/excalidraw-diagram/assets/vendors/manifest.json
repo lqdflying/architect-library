@@ -24,6 +24,23 @@
       "sha256": "4661fd69d282bb1964f3ba25c66cdef33a75f5ea27bba6ee6a23e5b436c1ebeb"
     },
     {
+      "file": "github.svg",
+      "title": "GitHub",
+      "hex": "181717",
+      "source": "https://github.com/logos",
+      "guidelines": "https://github.com/logos",
+      "upstream": "https://github.com/simple-icons/simple-icons/blob/16.0.0/icons/github.svg",
+      "sha256": "3bf8cceead820aec50d4ee825a3fd02c5a1cd6665cc9cf4cbf3d9c8861a204bb"
+    },
+    {
+      "file": "githubactions.svg",
+      "title": "GitHub Actions",
+      "hex": "2088FF",
+      "source": "https://github.com/features/actions",
+      "upstream": "https://github.com/simple-icons/simple-icons/blob/16.0.0/icons/githubactions.svg",
+      "sha256": "e8b23379b4d89e96731ae354ea9cd3d8ceddf67f411bde39853f215138843777"
+    },
+    {
       "file": "nginx.svg",
       "title": "NGINX",
       "hex": "009639",

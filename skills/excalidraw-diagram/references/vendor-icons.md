@@ -1,8 +1,8 @@
 # Vendor icons
 
-When a diagram node is F5, Palo Alto Networks, NGINX, or Datadog, use the cached SVG for that product. Keep the product name as a caption and preserve the node's bindings and routes. These marks identify only those products. A generic load balancer, firewall, proxy, or monitoring service stays a labeled shape from `shape-and-layout.md`.
+When a diagram node is F5, Palo Alto Networks, NGINX, Datadog, GitHub, or GitHub Actions, use the cached SVG for that product. Keep the product name as a caption and preserve the node's bindings and routes. These marks identify only those products. A generic load balancer, firewall, proxy, monitoring service, source host, or workflow runner stays a labeled shape from `shape-and-layout.md`.
 
-The skill bundles four unmodified SVGs from Simple Icons 16.0.0 at `assets/vendors/`. `assets/vendors/manifest.json` records the version, source, brand hex, and SHA-256 of each file. `assets/vendors/TERMS.md` records the use limit. No download is needed during drawing. The normal skill installer copies this asset directory with the rest of the skill.
+The skill bundles six unmodified SVGs from Simple Icons 16.0.0 at `assets/vendors/`. `assets/vendors/manifest.json` records the version, source, brand hex, and SHA-256 of each file. `assets/vendors/TERMS.md` records the use limit. No download is needed during drawing. The normal skill installer copies this asset directory with the rest of the skill.
 
 ## Find and embed
 
@@ -11,17 +11,23 @@ From the skill directory:
 ```bash
 python3 references/vendor_icons.py search "Palo Alto"
 python3 references/vendor_icons.py search "Datadog"
+python3 references/vendor_icons.py search "GitHub"
+python3 references/vendor_icons.py search "GitHub Actions"
 ```
 
-Choose an exact returned path. Create or reuse an Excalidraw `image` element with its own stable ID, coordinates, dimensions, `scale: [1, 1]`, `angle: 0`, and reciprocal arrow bindings. These icons are square (`viewBox="0 0 24 24"`), so a 64×64 node matches. Then embed the selected artwork:
+`search "GitHub"` returns `github.svg` and `githubactions.svg`. `search "GitHub Actions"` returns `githubactions.svg`. Choose an exact returned path. Create or reuse an Excalidraw `image` element with its own stable ID, coordinates, dimensions, `scale: [1, 1]`, `angle: 0`, and reciprocal arrow bindings. These icons are square (`viewBox="0 0 24 24"`), so a 64×64 node matches. Then embed the selected artwork:
 
 ```bash
 python3 references/vendor_icons.py embed /path/to/diagram.excalidraw \
   --icon 'edge_icon=f5.svg' \
-  --icon 'monitor_icon=datadog.svg'
+  --icon 'monitor_icon=datadog.svg' \
+  --icon 'repo_icon=github.svg' \
+  --icon 'workflow_icon=githubactions.svg'
 ```
 
 The helper checks each cache checksum, resolves exact file names, and fills `files` entries with `mimeType: image/svg+xml` and a base64 `dataURL`. The stored SVG has no fill. The embedded copy sets `fill` on the root `<svg>` to the brand hex in the manifest and leaves the path data unchanged. It assigns each selected node a `fileId` derived from those filled bytes and saved status. It creates no nodes or connections and preserves coordinates, labels, bindings, and unrelated assets. Repeating an identical selection is a no-op. Invalid selections fail before writing the scene, including an image node whose width/height ratio differs from the icon viewBox by more than 2%. The scene is replaced atomically and keeps its file mode. The output diagram is self-contained and does not depend on the skill cache to render later.
+
+An editor may normalize embedded SVG data while retaining its `fileId`, so re-embedding with the vendor helper can report `Conflicting embedded asset`. Compare the existing SVG with the selected cache artwork before deciding it is only serialization drift. Preserve verified existing artwork and embed only new or intentionally replaced icons. Do not delete a shared `files` entry or bypass the conflict check to force a batch through; other nodes may reference that asset. Check the rendered icons after the edit.
 
 ## Visual and semantic checks
 
@@ -33,6 +39,6 @@ The helper checks each cache checksum, resolves exact file names, and fills `fil
 
 ## Source and terms
 
-[Simple Icons 16.0.0](https://github.com/simple-icons/simple-icons/releases/tag/16.0.0) is the source of the four files. The Simple Icons project is released under [CC0 1.0](https://github.com/simple-icons/simple-icons/blob/16.0.0/LICENSE.md). The [project disclaimer](https://github.com/simple-icons/simple-icons/blob/16.0.0/DISCLAIMER.md) says individual brand marks can still be trademarked. These four titles have no license field in that release's icon data. `assets/vendors/TERMS.md` is the use limit for this skill: architecture diagrams that identify F5, Palo Alto Networks, NGINX, or Datadog. Do not alter the path, and do not extract the files for a product logo, app icon, or general-purpose icon pack. This is the maintainers' reading of those terms, not legal advice.
+[Simple Icons 16.0.0](https://github.com/simple-icons/simple-icons/releases/tag/16.0.0) is the source of the six files. The Simple Icons project is released under [CC0 1.0](https://github.com/simple-icons/simple-icons/blob/16.0.0/LICENSE.md). The [project disclaimer](https://github.com/simple-icons/simple-icons/blob/16.0.0/DISCLAIMER.md) says individual brand marks can still be trademarked. These six titles have no license field in that release's icon data. `assets/vendors/TERMS.md` is the use limit for this skill: architecture diagrams that identify F5, Palo Alto Networks, NGINX, Datadog, GitHub, or GitHub Actions. Do not alter the path, and do not extract the files for a product logo, app icon, or general-purpose icon pack. This is the maintainers' reading of those terms, not legal advice.
 
-The cache was retrieved on 2026-10-10 from the tag recorded in the manifest. It is a pinned snapshot, not a claim to be the latest set. Refresh only as an explicit maintenance action: download the same four files from the pinned tag, verify their source and checksums, update the files and manifest together, and run the helper tests. Never fetch or replace the cache while drawing.
+The original four files were retrieved on 2026-10-10, and GitHub plus GitHub Actions on 2026-10-12, from the tag recorded in the manifest. It is a pinned snapshot, not a claim to be the latest set. Refresh only as an explicit maintenance action: download the same six files from the pinned tag, verify their source and checksums, update the files and manifest together, and run the helper tests. Never fetch or replace the cache while drawing.

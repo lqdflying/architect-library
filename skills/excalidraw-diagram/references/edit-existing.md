@@ -20,6 +20,14 @@ Compare icon-caption placement as a pair, not just absolute coordinates. A label
 
 For each proposed lesson, record the observed change, the affected retained relationships, the mechanism that improves readability and the tradeoff. Reject rules supported only by fewer elements, changed scope or a stated preference. Preserve successful parts of the earlier drawing too. Do not copy incidental defects such as a connector landing on an icon caption, a lost binding or a color no longer explained by the legend.
 
+## Compacting after removal
+
+Treat unused space left by removed notes or nodes as a band reflow. Move the following section's icons, captions and connector labels together, shorten its boundary to fit the retained content, and rebuild every affected route, including arrows that start above the moved band. Keep readable type, reserved gutters and separate connector lanes; a shorter canvas is useful only if the retained relationships remain clear.
+
+Remove redundant inventory notes when the companion document retains those facts. Do not add service icons for statements about excluded resources. Keep labels needed to understand ownership, unresolved decisions or the depicted flow. Place external services outside the project boundary after compacting; an "external" caption does not cancel the membership implied by containment.
+
+Compare the retained source/target pairs before and after reflow, then run the collision and binding checks. Recompute crop bounds from the moved content and inspect the overview and changed regions at the same font and export scale. Fewer pixels or zero collisions alone do not prove better readability.
+
 ## Why ID-prefix shifts fail
 
 A multi-section poster (inventory tree on the left, process flow on the right, timeline below) is **independent layers on one canvas**. Growing one layer is a **reflow of the occupied band**, not an in-place insert.

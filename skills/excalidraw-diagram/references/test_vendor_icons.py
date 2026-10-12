@@ -47,12 +47,14 @@ class VendorIconTests(unittest.TestCase):
         self.assertEqual(vendor_icons.search_icons("Palo Alto Networks"), ["paloaltonetworks.svg"])
         self.assertEqual(vendor_icons.search_icons("nginx"), ["nginx.svg"])
         self.assertEqual(vendor_icons.search_icons("Datadog"), [DATADOG])
+        self.assertEqual(vendor_icons.search_icons("GitHub"), ["github.svg", "githubactions.svg"])
+        self.assertEqual(vendor_icons.search_icons("GitHub Actions"), ["githubactions.svg"])
         self.assertEqual(vendor_icons.search_icons("not-a-vendor-123456"), [])
 
     def test_cache_checksums_match_manifest(self):
         manifest = vendor_icons.load_cache()
         self.assertEqual(manifest["version"], "16.0.0")
-        self.assertEqual([icon["file"] for icon in manifest["icons"]], ["datadog.svg", "f5.svg", "nginx.svg", "paloaltonetworks.svg"])
+        self.assertEqual([icon["file"] for icon in manifest["icons"]], ["datadog.svg", "f5.svg", "github.svg", "githubactions.svg", "nginx.svg", "paloaltonetworks.svg"])
         self.assertTrue((vendor_icons.CACHE / manifest["terms"]).is_file())
         for icon in manifest["icons"]:
             blob = (vendor_icons.CACHE / icon["file"]).read_bytes()

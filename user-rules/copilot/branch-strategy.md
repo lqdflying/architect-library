@@ -2,6 +2,7 @@
 
 Applies in every VS Code Copilot chat. One working branch at a time. The branch you are already on is that branch.
 
+- Before the first write, run `git status --short --branch`. A session note that the directory is not a git repo does not replace that command. When the branch is `main`, create the working branch before editing. Name it from branch names already used in that repository. Do not ask the user for the name.
 - **`main` is protected against writes. Checking it out is allowed.** Never edit, commit, or push on `main`. Read-only use is fine and expected: check it out, read it, fast-forward it (`git fetch origin main:main`), or stand on it while deleting a finished branch. The rule bites at the first write. If `main` is checked out and a file must change, create the working branch first and make every edit there. Being on `main` is not permission to write, and a request to edit files while on `main` means leave `main` before the first edit.
 - Any other current branch is the non-main working branch. Stay on it for the task already in progress and for the next task, whatever the topic. Do not create or check out another branch because the work is a fix, a new task, a different phase, or a different subject from the branch name.
 - Do not switch away from a branch that holds unmerged commits or uncommitted files. The new branch cannot see that work, so switching strands it. Once its commits are merged into `main` and the tree is clean, switching is safe.

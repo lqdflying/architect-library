@@ -1,6 +1,6 @@
 ---
 name: excalidraw-diagram
-description: Create or refine Excalidraw diagram JSON files that make visual arguments. Use when the user wants to visualize workflows, architectures, or concepts, or fix diagram readability and alignment. Every Azure service and depicted private endpoint uses its cached official icon, or a reported labeled box when no icon exists. F5, Palo Alto Networks, NGINX, and Datadog nodes use cached Simple Icons SVGs. Use readable text, aligned icon rows and straight connectors when clear. Validate bindings, icon coverage and rendered layout separately from collisions. When editing an existing .excalidraw, run the geometric collision pass before the first PNG. Keep the PNG under the 30,000-patch vision limit and inspect it.
+description: Create or refine Excalidraw diagram JSON files that make visual arguments. Use when the user wants to visualize workflows, architectures, or concepts, or fix diagram readability and alignment. Every Azure service and depicted private endpoint uses its cached official icon, or a reported labeled box when no icon exists. F5, Palo Alto Networks, NGINX, Datadog, GitHub, and GitHub Actions nodes use cached Simple Icons SVGs. Use readable text, aligned icon rows and straight connectors when clear. Validate bindings, icon coverage and rendered layout separately from collisions. When editing an existing .excalidraw, run the geometric collision pass before the first PNG. Keep the PNG under the 30,000-patch vision limit and inspect it.
 ---
 
 # Excalidraw Diagram Creator
@@ -16,7 +16,7 @@ Generate `.excalidraw` JSON files that **argue visually**, not just display info
 - `references/visual-patterns.md` — fan-out, convergence, timeline, tree, and other patterns
 - `references/shape-and-layout.md` — shape meaning, color, layout, text rules
 - `references/azure-icons.md` — **required for every Azure diagram**: offline official SVG lookup and embedding, preserving native artwork
-- `references/vendor-icons.md` — **required when a node is F5, Palo Alto Networks, NGINX, or Datadog**: offline SVG lookup and embedding, with the brand fill applied only at embed
+- `references/vendor-icons.md` — **required when a node is F5, Palo Alto Networks, NGINX, Datadog, GitHub, or GitHub Actions**: offline SVG lookup and embedding, with the brand fill applied only at embed
 - `references/edit-existing.md` — **editing an existing file**: geometric collision pass before the first PNG (load this when changing a diagram, not only when creating one)
 - `references/element-templates.md` — copy-paste JSON templates per element type
 - `references/json-schema.md` — Excalidraw JSON structure details
@@ -24,7 +24,7 @@ Generate `.excalidraw` JSON files that **argue visually**, not just display info
 
 ## Customization
 
-**Diagram colors and brand-specific styles live in one file:** `references/color-palette.md`. Read it before generating any diagram and use it for shape fills, strokes, text colors and evidence backgrounds. Official service icons, and the cached F5, Palo Alto Networks, NGINX, and Datadog marks, are the exception: preserve their native artwork and colors.
+**Diagram colors and brand-specific styles live in one file:** `references/color-palette.md`. Read it before generating any diagram and use it for shape fills, strokes, text colors and evidence backgrounds. Official service icons, and the cached F5, Palo Alto Networks, NGINX, Datadog, GitHub, and GitHub Actions marks, are the exception: preserve their native artwork and colors.
 
 To make this skill produce diagrams in your own brand style, edit `color-palette.md`. Everything else in this file is universal design methodology and Excalidraw best practices.
 
