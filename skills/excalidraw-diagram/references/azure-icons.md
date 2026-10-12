@@ -2,6 +2,8 @@
 
 Every Azure diagram uses the official icon for each Azure service it shows, including when you edit an existing diagram that drew those services as boxes. Keep the service name as a caption and preserve the node's bindings and routes. If `search` finds no icon for a service after retrying a distinctive word and the service's former name (for example, Azure AI Search is filed as Cognitive-Search), use a labeled box for that service and name the gap in your reply. The skill bundles Microsoft's unmodified V24 SVG archive at `assets/azure/Azure_Public_Service_Icons_V24.zip`; `assets/azure/manifest.json` records the source, version and SHA-256. No download or extraction is needed for normal use. The normal skill installer copies this asset directory with the rest of the skill.
 
+Private endpoints are nodes too. Give each endpoint depicted in the topology its own official Private Endpoints icon, service-specific caption and bound service connection; a text list inside a subnet or the target service's icon is not a substitute. For example, distinct Blob, Queue, Table and File endpoints use four icon instances, which can share one embedded SVG asset. Derive the endpoint inventory from the design, not from the example; do not add unrequested endpoints. Before export, compare that inventory with the visible image nodes, not only the total number of embedded assets.
+
 ## Find And Embed
 
 From the skill directory:

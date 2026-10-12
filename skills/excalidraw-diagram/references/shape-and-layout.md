@@ -28,7 +28,7 @@ For layered server diagrams (`layered-server-architecture.md`):
 |------|-------|-------|
 | External actor (AI, tool, browser) | `ellipse` | Top band; color encodes client type |
 | Internal layer (server, store, safety) | `rectangle` bar | Center spine; `roundness: {type: 3}` |
-| Route / tool endpoint | `rectangle` | Inside dashed boundary; ~125×70 |
+| Route / tool endpoint | `rectangle` | Inside dashed boundary; ~168×70 |
 | Database | `ellipse` | Bottom of spine; green semantic. An Azure database uses its official icon (`azure-icons.md`) |
 | Section grouping | dashed `rectangle` | Transparent fill; auth=purple stroke, routes/admin=navy |
 | Decision (2FA, policy gate) | `diamond` | Amber semantic |
@@ -42,17 +42,19 @@ On an Azure diagram, a zone that is an Azure service, such as a database, cache,
 
 | Level | Size | Color | Use |
 |-------|------|-------|-----|
-| Diagram title | 28px | `#1e40af` | `{Name} — Architecture` |
-| Section title | 16px | `#1e40af` | "Authentication Layer", "MCP Tool Layer" |
-| Shape label | 14–16px | match shape or `#ffffff` on dark | Inside boxes/ellipses |
+| Diagram title | 28–36px | `#1e40af` | `{Name} — Architecture` |
+| Section title | 18–20px | `#1e40af` | "Authentication Layer", "MCP Tool Layer" |
+| Shape label | 16–18px | match shape or `#ffffff` on dark | Inside boxes/ellipses |
 | Spine arrow label | 16–20px | `#1e1e1e`, often `fontFamily: 5` | Bound to vertical arrows |
-| Detail caption | 10px | `#64748b` | Beside route boxes, stores or auth; choose the clearest side |
-| Evidence artifact | 9px | `#22c55e` on `#1e293b` | Flow sequences in admin |
-| Ancillary panel label | 13px | `#3b82f6` | Above sidebar info boxes |
+| Detail caption | 16px | `#64748b` | Beside route boxes, stores or auth; choose the clearest side |
+| Evidence artifact | 16px | `#22c55e` on `#1e293b` | Short flow sequences or examples |
+| Ancillary panel label | 16px | `#3b82f6` | Above sidebar info boxes |
+
+Use 16px as the default minimum for architecture text, including endpoint names, subnet labels and notes. An explicit user-specified scale may override it; otherwise shorten or wrap the text, expand the occupied region, or move inventory detail to the companion document. Never shrink labels to fit a fixed box. Check readability at the intended viewing size: a large export or readable close-up does not prove that the overview is legible.
 
 ### Sidebar Panel Styling
 
-Ancillary panels (notifications, data model, debug logging): light fill `#dbeafe`, stroke `#1e3a5f`, `strokeWidth: 1`. Label above box in `#3b82f6` at 13px.
+Ancillary panels (notifications, data model, debug logging): light fill `#dbeafe`, stroke `#1e3a5f`, `strokeWidth: 1`. Label above box in `#3b82f6` at 16px.
 
 ## Color as Meaning
 
@@ -116,6 +118,13 @@ The most important element has the most empty space around it (200px+).
 
 Guide the eye: typically left→right or top→bottom for sequences, radial for hub-and-spoke.
 
+### Repeated Icon And Label Rows
+
+- Choose one label alignment per repeated column. For labels beside icons, default to a shared left edge and `textAlign: "left"`; equal `x` values do not align visible text when some labels are centered.
+- Align icon centers in one column. Vertically center each label block on its icon, including wrapped labels: `label.y + label.height / 2 = icon.y + icon.height / 2`. Use measured text height after changing wording or font size.
+- Use a consistent center-to-center row interval, large enough for the tallest label and the required gutters. Choose the interval for the content, not a fixed project-specific value. Separate semantic groups explicitly when their spacing differs.
+- Move connected service nodes and rebuild routes when rows move. Group each icon with its caption, then check the rendered text edges and centers; non-overlap alone is not alignment.
+
 ### Connections Required
 
 Position alone doesn't show relationships. If A relates to B, there must be an arrow.
@@ -134,7 +143,8 @@ Position alone doesn't show relationships. If A relates to B, there must be an a
 - Reserve different corridors for different connection families, such as network peerings, service access and diagnostics. Let a clearly separated secondary route be longer when that makes the primary flow easier to trace. Optimize for semantic clarity and fewer crossings first, then bends and length; shortest total wire length is not the goal.
 - Avoid crossings when another placement or route can remove them. Move a source closer to its destinations, reorder peer nodes, or reserve a separate connector lane before adding detours. Check each retained relationship: fewer arrows after an edit can mean reduced scope rather than better routing.
 - Use straight horizontal or vertical segments with right-angle bends for architecture connectors. Consecutive scene-space points must share either x or y; set `angle: 0` and `roundness: null` on these arrows. Straight does not mean diagonal. Use curves or diagonal paths only when the concept or the user explicitly requires them.
-- Prefer one straight segment, then the fewest necessary elbows within the chosen corridor. Keep parallel routes separated. Do not run connectors through unrelated icons, labels or container headings. Choose the connection side and caption side together: the side occupied by incoming or outgoing arrows should stay clear, so a caption above an icon can free its lower connection point. Keep repeated subgraphs aligned so the reader can compare them.
+- Try one straight horizontal or vertical segment first. Before adding an elbow, align the endpoint attachment positions if that leaves labels and other routes clear. A boundary crossing or a small endpoint-height mismatch is not itself a reason to bend. Keep a bend to avoid an actual obstacle, to separate routing lanes, to express a necessary fan-out, or when the endpoints still do not share an x or y after that alignment and moving the nodes onto one axis would break grouping, labels, or another route.
+- Keep parallel routes separated. Do not run connectors through unrelated icons, labels or container headings. Choose the connection side and caption side together: the side occupied by incoming or outgoing arrows should stay clear, so a caption above an icon can free its lower connection point. Keep repeated subgraphs aligned so the reader can compare them.
 - For unavoidable crossings, make continuation distinct from connection. Junctions need an explicit node or marker; an ordinary crossing is not a junction. Do not merge independent routes into an unlabeled shared trunk to hide crossings.
 - Preserve both endpoint bindings and reciprocal `boundElements` when rerouting. Check the complete route in scene coordinates after moving any connected node; endpoint attachment alone does not keep the intermediate segments orthogonal.
 
@@ -153,6 +163,8 @@ Arrow `points` that go up (`negative y`) occupy a band **above** the start shape
 ## Text Rules
 
 **CRITICAL**: The JSON `text` property contains ONLY readable words.
+
+When improving an existing diagram, preserve technical meaning, ownership and pending decisions, not unclear wording. Replace unexplained abbreviations with service names, shorten descriptions and remove redundant inventory text. Keep identifiers that distinguish real resources; do not invent approval or runtime certainty. Make deliberate wording edits consistent in `text` and `originalText`, while retaining intentional display wrapping.
 
 ```json
 {

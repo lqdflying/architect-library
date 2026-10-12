@@ -19,6 +19,15 @@ The headless renderer cannot move elements. The check above is the required gate
 
 For architecture routes, check every consecutive pair of scene-space points: x or y must match (allow at most 0.5 px for editor rounding), `angle` must be zero and `roundness` must be null. Examine connector-to-connector intersections as well as connector-to-text collisions. Remove avoidable crossings by adjusting placement or lanes; count neither shared endpoint attachment nor an explicit junction as an accidental crossing. A low crossing count is not success if required relationships were removed.
 
+## Alignment And Readability Before Export
+
+A zero-collision result proves neither alignment nor readability. Check these separately using `shape-and-layout.md`:
+
+- For repeated icon-and-label rows, assert a common visible text edge, consistent `textAlign`, aligned icon centers, vertically centered label blocks and consistent row intervals within each group. Equal text `x` values alone are insufficient when alignment modes differ. Recheck the measured text after wrapping or resizing.
+- Check architecture text against the default 16px minimum or the user's explicit scale. Inspect both the intended overview size and detail crops. Rewrite, wrap or reflow small text instead of relying on a higher-resolution PNG or a close-up to make it readable.
+- Inspect each connector bend. If aligning the attachment positions permits a clear straight segment, remove the bend and update its bindings. Passing the orthogonal-segment check does not justify an unnecessary elbow.
+- Match depicted Azure services and private endpoints to their individual icon nodes. Valid `fileId` values only prove that existing images resolve; they do not detect a missing icon represented by text alone.
+
 ## How to Render
 
 ```bash
@@ -37,7 +46,7 @@ Vision APIs reject an image above 30,000 patches. Patches are `ceil(width / 32) 
 
 After generating the initial JSON, run this cycle:
 
-**1. Render & View** — Run the render script, then Read the PNG. Also crop the grown region (widened box, new leaves, identity/title stack, arrow band) and Read **those** crops. Full-page descriptions miss local overlap.
+**1. Render & View** — Run the render script, then Read the PNG. Also crop the changed region (widened box, repeated rows, identity/title stack, arrow band) and Read **those** crops. Recompute crop bounds after reflow so the image includes the whole changed region. Full-page descriptions miss local alignment and overlap.
 
 **2. Audit against your original vision** — Before looking for bugs, compare the rendered result to what you designed in Steps 1-4. Ask:
 
@@ -68,7 +77,7 @@ After generating the initial JSON, run this cycle:
 
 - Widen containers when text is clipped
 - Adjust `x`/`y` coordinates to fix spacing and alignment
-- Add intermediate waypoints to arrow `points` arrays to route around elements
+- Remove unnecessary waypoints first. Add one only to avoid an actual obstacle, to separate routing lanes, to express a necessary fan-out, or when the endpoints still do not share an x or y after attachment alignment and moving the nodes onto one axis would break grouping, labels, or another route.
 - Reposition labels closer to the element they describe; use above, below or beside the icon to free the route
 - Resize elements to rebalance visual weight across sections
 
@@ -106,13 +115,13 @@ After rendering, confirm:
 1. **Rendered to PNG**: Diagram has been rendered and visually inspected
 2. **No text overflow**: All text fits within its container
 3. **No overlapping elements**: Geometric (AABB + scene-space arrow points) and cropped PNG of the grown region; shapes and text don't overlap unintentionally
-4. **Even spacing**: Similar elements have consistent spacing
+4. **Alignment and spacing**: Repeated labels share a visible text edge and alignment mode; icon and label centers match; comparable rows use consistent intervals, verified numerically and in the close-up
 5. **Arrows land correctly**: Node-to-node arrows have both bindings and a matching `boundElements` entry on each endpoint. Each fan-out destination has its own bound arrow
-6. **Readable at export size**: Text is legible in the rendered PNG
+6. **Readable at viewing size**: Architecture text meets the default 16px minimum or explicit user scale, and is legible at the intended overview size as well as in detail crops; unclear wording is rewritten
 7. **Balanced composition**: No large empty voids or overcrowded regions
-8. **Routing**: Horizontal/vertical architecture segments; no preventable crossings, ambiguous junctions or avoidable detours
+8. **Routing**: Horizontal/vertical architecture segments; straight when clear. A boundary crossing or a small endpoint-height mismatch is not itself a reason to bend. Keep a bend to avoid an actual obstacle, to separate routing lanes, to express a necessary fan-out, or when the endpoints still do not share an x or y after attachment alignment and moving the nodes onto one axis would break grouping, labels, or another route. No preventable crossings or ambiguous junctions
 9. **Icon captions**: Clear association with the intended icon and no interference with connector lanes; above-icon placement is valid
-10. **Service artwork**: Every Azure service node uses its cached official icon (or a labeled box where the cache has none, reported in the reply). F5, Palo Alto Networks, NGINX, and Datadog nodes use the cached SVG for that product (`vendor-icons.md`). Icons render without distortion; every image element's `fileId` resolves to embedded `files` data
+10. **Service artwork**: Every depicted Azure service and private endpoint has its own cached official icon node (or a labeled box where the cache has none, reported in the reply), checked against the design inventory. F5, Palo Alto Networks, NGINX, and Datadog nodes use the cached SVG for that product (`vendor-icons.md`). Icons render without distortion; every image element's `fileId` resolves to embedded `files` data
 
 ## Layered Server Architecture Checks
 
