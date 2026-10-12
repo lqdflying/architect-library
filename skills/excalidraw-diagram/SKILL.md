@@ -1,6 +1,6 @@
 ---
 name: excalidraw-diagram
-description: Create Excalidraw diagram JSON files that make visual arguments. Use when the user wants to visualize workflows, architectures, or concepts. Every Azure diagram must use the cached official Azure icons for its Azure services, or a reported labeled box when no icon exists. F5, Palo Alto Networks, NGINX, and Datadog nodes use the cached Simple Icons SVGs. Avoid preventable crossings and use horizontal/vertical architecture connectors. Validate bindings and rendered layout. When editing an existing .excalidraw, run the geometric collision pass before the first PNG. Keep the PNG under the 30,000-patch vision limit and inspect it.
+description: Create or refine Excalidraw diagram JSON files that make visual arguments. Use when the user wants to visualize workflows, architectures, or concepts, or fix diagram readability and alignment. Every Azure service and depicted private endpoint uses its cached official icon, or a reported labeled box when no icon exists. F5, Palo Alto Networks, NGINX, and Datadog nodes use cached Simple Icons SVGs. Use readable text, aligned icon rows and straight connectors when clear. Validate bindings, icon coverage and rendered layout separately from collisions. When editing an existing .excalidraw, run the geometric collision pass before the first PNG. Keep the PNG under the 30,000-patch vision limit and inspect it.
 ---
 
 # Excalidraw Diagram Creator
@@ -172,6 +172,8 @@ Choose one primary visual argument. Do not add a delivery timeline, summary stri
 
 Arrange regions around the main relationships, keeping unrelated boundaries out of their paths. Reserve separate corridors for network, service and diagnostic connections. Remove preventable crossings by moving or reordering nodes; use horizontal/vertical architecture segments with the fewest necessary bends within each corridor. Choose caption placement to leave connection points clear.
 
+Apply the font scale and repeated-row alignment rules in `references/shape-and-layout.md` before fitting containers. When refining a diagram, rewrite unclear labels without changing the design's meaning. Check every depicted private endpoint against `references/azure-icons.md`; a service icon does not cover its endpoint nodes.
+
 ### Step 5: Generate JSON
 Only now create the Excalidraw elements. Read `references/shape-and-layout.md` for shape, color, layout, and text rules. See `references/element-templates.md` for copy-paste templates. **See below for how to handle large diagrams.**
 
@@ -253,11 +255,11 @@ See `references/json-schema.md` for additional schema details.
 
 ### Structural
 13. **Connections**: Every relationship the diagram claims has a traceable connector. Node-to-node arrows bind both ends, and both endpoint elements list the arrow
-14. **Flow**: Clear visual path; no preventable crossings, diagonal architecture segments or unnecessary detours
+14. **Flow**: Clear visual path; use a straight segment when clear, with a reason for each retained bend
 15. **Hierarchy**: Important elements are larger/more isolated
 
 ### Technical
-16. **Text clean**: `text` contains only readable words
+16. **Text clean**: Clear wording and the default 16px architecture minimum; readable at the intended viewing size
 17. **Font**: `fontFamily: 3`
 18. **Roughness**: `roughness: 0` for clean/modern (unless hand-drawn style requested)
 19. **Opacity**: `opacity: 100` for all elements (no transparency)
