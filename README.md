@@ -238,7 +238,7 @@ One working branch at a time. The branch already checked out is that branch.
 | Codex | [`user-rules/codex/branch-strategy.md`](user-rules/codex/branch-strategy.md) (generated) | Managed block in `${CODEX_HOME:-$HOME/.codex}/AGENTS.md` |
 | Claude Code | [`user-rules/claude/branch-strategy.md`](user-rules/claude/branch-strategy.md) (generated) | `~/.claude/rules/branch-strategy.md` |
 
-`main` may be checked out for reading. Edits, commits, and pushes stay off `main`. Stay on the current non-main branch across tasks. A new branch is created from `main` only when the current branch is `main`, or when you ask for one. Mixed topics on one branch are expected. Commit and push wait for your confirmation.
+`main` may be checked out for reading. Before the first write, `git status --short --branch` decides the branch. A session note that the directory is not a git repo does not replace that command. Edits, commits, and pushes stay off `main`. Stay on the current non-main branch across tasks. A new branch is created from `main` only when the current branch is `main`, or when you ask for one, and it is named from branch names already used in the repository without asking you for the name. Mixed topics on one branch are expected. Commit and push wait for your confirmation.
 
 ## Docs lookup (Cursor, Copilot, Codex, and Claude Code)
 

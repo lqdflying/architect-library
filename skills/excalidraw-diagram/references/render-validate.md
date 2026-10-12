@@ -121,7 +121,7 @@ After rendering, confirm:
 7. **Balanced composition**: No large empty voids or overcrowded regions
 8. **Routing**: Horizontal/vertical architecture segments; straight when clear. A boundary crossing or a small endpoint-height mismatch is not itself a reason to bend. Keep a bend to avoid an actual obstacle, to separate routing lanes, to express a necessary fan-out, or when the endpoints still do not share an x or y after attachment alignment and moving the nodes onto one axis would break grouping, labels, or another route. No preventable crossings or ambiguous junctions
 9. **Icon captions**: Clear association with the intended icon and no interference with connector lanes; above-icon placement is valid
-10. **Service artwork**: Every depicted Azure service and private endpoint has its own cached official icon node (or a labeled box where the cache has none, reported in the reply), checked against the design inventory. F5, Palo Alto Networks, NGINX, and Datadog nodes use the cached SVG for that product (`vendor-icons.md`). Icons render without distortion; every image element's `fileId` resolves to embedded `files` data
+10. **Service artwork**: Every depicted Azure service and private endpoint has its own cached official icon node (or a labeled box where the cache has none, reported in the reply), checked against the design inventory. F5, Palo Alto Networks, NGINX, Datadog, GitHub, and GitHub Actions nodes use the cached SVG for that product (`vendor-icons.md`). Icons render without distortion; every image element's `fileId` resolves to embedded `files` data
 
 ## Layered Server Architecture Checks
 

@@ -23,6 +23,8 @@ python3 references/azure_icons.py embed /path/to/diagram.excalidraw \
 
 The helper checks the cache checksum, resolves exact archive paths and fills `files` entries with `mimeType: image/svg+xml` and a base64 `dataURL`. It assigns each selected node the content-derived `fileId` and saved status. It creates no nodes or connections and preserves coordinates, labels, bindings and unrelated assets. Repeating an identical selection is a no-op. Invalid selections fail before writing the scene, including an image node whose width/height ratio differs from the icon's viewBox by more than 2%. The scene is replaced atomically and keeps its file mode. Search matches service file names first and falls back to category paths such as `networking`. The output diagram is self-contained and does not depend on the skill cache to render later.
 
+An editor may normalize embedded SVG data while retaining its `fileId`, so re-embedding can report `Conflicting embedded asset`. Compare the existing SVG with the selected cache artwork before deciding it is only serialization drift. Preserve verified existing artwork and embed only new or intentionally replaced icons. Do not delete a shared `files` entry or bypass the conflict check to force a batch through; other nodes may reference that asset. Check the rendered icons after the edit.
+
 ## Visual And Semantic Checks
 
 - Preserve the official artwork: no recoloring, cropping, flipping, rotation or distortion. Scale proportionally using the SVG's viewBox or width/height ratio.
