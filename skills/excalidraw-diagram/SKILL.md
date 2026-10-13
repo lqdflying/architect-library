@@ -170,7 +170,9 @@ Before JSON, mentally trace how the eye moves through the diagram. There should 
 
 Choose one primary visual argument. Do not add a delivery timeline, summary strip, or footer that only restates that argument. Keep the labels the drawing needs so it can be read on its own. A timeline or sequence stays when it is part of the question.
 
-Arrange regions around the main relationships, keeping unrelated boundaries out of their paths. Reserve separate corridors for network, service and diagnostic connections. Remove preventable crossings by moving or reordering nodes; use horizontal/vertical architecture segments with the fewest necessary bends within each corridor. Choose caption placement to leave connection points clear.
+Arrange regions around the main relationships, keeping unrelated boundaries out of their paths. Reserve separate corridors for network, service and diagnostic connections when they reduce crossings. Start with a direct connector, including a clear diagonal; do not add folds merely to force horizontal/vertical routing. Keep a bend only when it avoids an obstacle, separates routes or makes a fan-out clearer. Choose caption placement to leave connection points clear.
+
+When reviewing a manually edited diagram, compare its relationships and current design facts separately from its layout changes. Preserve deliberate placement and simplified routes; do not restore old waypoints just to satisfy a routing convention.
 
 Apply the font scale and repeated-row alignment rules in `references/shape-and-layout.md` before fitting containers. When refining a diagram, rewrite unclear labels without changing the design's meaning. Check every depicted private endpoint against `references/azure-icons.md`; a service icon does not cover its endpoint nodes.
 

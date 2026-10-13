@@ -12,12 +12,13 @@ A zero-collision PNG does not prove a relationship is attached. For every arrow 
 - Each of those elements includes `{ "id": "<arrow id>", "type": "arrow" }` in its `boundElements`.
 - The arrow's own `boundElements` lists only a text label on the arrow. Do not put the endpoint shapes there.
 - Bind to the shape. If label text has a `containerId`, do not bind the arrow to that text. For an unboxed label, bind to the text element or to a small marker that is the real endpoint.
+- Verify what each endpoint represents, not only that its binding exists. Rebinding a group-wide relationship to one child's caption changes its meaning even when the arrow count and reciprocal references still pass. Preserve the intended source and destination when simplifying routes.
 
 An intentionally open end (annotation, timeline tick, decorative line) may omit that binding. Do not use that exception for a relationship the diagram claims.
 
 The headless renderer cannot move elements. The check above is the required gate. If an interactive editor is already open, you may move one connected node on a disposable copy and confirm the connector follows. Never run that test on the user's original file.
 
-For architecture routes, check every consecutive pair of scene-space points: x or y must match (allow at most 0.5 px for editor rounding), `angle` must be zero and `roundness` must be null. Examine connector-to-connector intersections as well as connector-to-text collisions. Remove avoidable crossings by adjusting placement or lanes; count neither shared endpoint attachment nor an explicit junction as an accidental crossing. A low crossing count is not success if required relationships were removed.
+For architecture routes, check the direct path before judging bends. A clear two-point connector is valid even when diagonal or slightly offset; do not add folds to make it pass an orthogonality check. For deliberately orthogonal multi-segment routes, consecutive scene-space points share x or y (allow at most 0.5 px for editor rounding), `angle` is zero and `roundness` is null. Examine connector-to-connector intersections as well as connector-to-text collisions. Remove avoidable crossings by adjusting placement or lanes; count neither shared endpoint attachment nor an explicit junction as an accidental crossing. A low crossing count is not success if required relationships were removed.
 
 ## Alignment And Readability Before Export
 
@@ -25,7 +26,7 @@ A zero-collision result proves neither alignment nor readability. Check these se
 
 - For repeated icon-and-label rows, assert a common visible text edge, consistent `textAlign`, aligned icon centers, vertically centered label blocks and consistent row intervals within each group. Equal text `x` values alone are insufficient when alignment modes differ. Recheck the measured text after wrapping or resizing.
 - Check architecture text against the default 16px minimum or the user's explicit scale. Inspect both the intended overview size and detail crops. Rewrite, wrap or reflow small text instead of relying on a higher-resolution PNG or a close-up to make it readable.
-- Inspect each connector bend. If aligning the attachment positions permits a clear straight segment, remove the bend and update its bindings. Passing the orthogonal-segment check does not justify an unnecessary elbow.
+- Inspect each connector bend. If a direct segment is clear, remove the bend and update its bindings. Keep only bends that avoid an obstacle, separate routes or clarify a fan-out; passing an orthogonal-segment check does not justify an unnecessary elbow.
 - Match depicted Azure services and private endpoints to their individual icon nodes. Valid `fileId` values only prove that existing images resolve; they do not detect a missing icon represented by text alone.
 
 ## How to Render
@@ -63,7 +64,7 @@ After generating the initial JSON, run this cycle:
 - Text or shapes overlapping other elements (fail if two non-connected boxes overlap, or a dashed/polyline arrow crosses a label it is not bound to)
 - JSON rewritten with `ensure_ascii=True` (em dashes become `\u2014` — rewrite with `ensure_ascii=False`)
 - Arrows crossing through elements instead of routing around them
-- Preventable connector crossings, diagonal segments, rounded routing or unnecessary perimeter-length detours
+- Preventable connector crossings, unnecessary folds, rounded multi-segment routing or perimeter-length detours; a clear diagonal connector is not a defect
 - Arrows landing on the wrong element or pointing into empty space
 - A relationship that only meets a shape in the PNG, or a trunk line that is not bound to the nodes it appears to join
 - Labels floating ambiguously (not clearly anchored to what they describe)
@@ -77,7 +78,7 @@ After generating the initial JSON, run this cycle:
 
 - Widen containers when text is clipped
 - Adjust `x`/`y` coordinates to fix spacing and alignment
-- Remove unnecessary waypoints first. Add one only to avoid an actual obstacle, to separate routing lanes, to express a necessary fan-out, or when the endpoints still do not share an x or y after attachment alignment and moving the nodes onto one axis would break grouping, labels, or another route.
+- Remove unnecessary waypoints first. Add one only to avoid an actual obstacle, separate routing lanes or clarify a fan-out. Endpoint misalignment alone does not justify a fold. Preserve deliberate manual placement and direct routes when they remain clear.
 - Reposition labels closer to the element they describe; use above, below or beside the icon to free the route
 - Resize elements to rebalance visual weight across sections
 
@@ -119,7 +120,7 @@ After rendering, confirm:
 5. **Arrows land correctly**: Node-to-node arrows have both bindings and a matching `boundElements` entry on each endpoint. Each fan-out destination has its own bound arrow
 6. **Readable at viewing size**: Architecture text meets the default 16px minimum or explicit user scale, and is legible at the intended overview size as well as in detail crops; unclear wording is rewritten
 7. **Balanced composition**: No large empty voids or overcrowded regions
-8. **Routing**: Horizontal/vertical architecture segments; straight when clear. A boundary crossing or a small endpoint-height mismatch is not itself a reason to bend. Keep a bend to avoid an actual obstacle, to separate routing lanes, to express a necessary fan-out, or when the endpoints still do not share an x or y after attachment alignment and moving the nodes onto one axis would break grouping, labels, or another route. No preventable crossings or ambiguous junctions
+8. **Routing**: Direct connectors when clear, including diagonals. No unnecessary folds to satisfy orthogonality or endpoint alignment. Every retained bend avoids an obstacle, separates routes or clarifies a fan-out. No preventable crossings or ambiguous junctions
 9. **Icon captions**: Clear association with the intended icon and no interference with connector lanes; above-icon placement is valid
 10. **Service artwork**: Every depicted Azure service and private endpoint has its own cached official icon node (or a labeled box where the cache has none, reported in the reply), checked against the design inventory. F5, Palo Alto Networks, NGINX, Datadog, GitHub, and GitHub Actions nodes use the cached SVG for that product (`vendor-icons.md`). Icons render without distortion; every image element's `fileId` resolves to embedded `files` data
 
