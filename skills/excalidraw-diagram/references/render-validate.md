@@ -26,7 +26,7 @@ A zero-collision result proves neither alignment nor readability. Check these se
 
 - For repeated icon-and-label rows, assert a common visible text edge, consistent `textAlign`, aligned icon centers, vertically centered label blocks and consistent row intervals within each group. Equal text `x` values alone are insufficient when alignment modes differ. Recheck the measured text after wrapping or resizing.
 - Check architecture text against the default 16px minimum or the user's explicit scale. Inspect both the intended overview size and detail crops. Rewrite, wrap or reflow small text instead of relying on a higher-resolution PNG or a close-up to make it readable.
-- Inspect each connector bend. If a direct segment is clear, remove the bend and update its bindings. Keep only bends that avoid an obstacle, separate routes or clarify a fan-out; passing an orthogonal-segment check does not justify an unnecessary elbow.
+- Inspect each connector bend. If a direct segment is clear, remove the bend and update its bindings, unless that bend avoids an obstacle, separates routes, or clarifies a fan-out. Passing an orthogonal-segment check does not justify an unnecessary elbow. Do not replace a user's already simplified direct route with an elbow, and do not keep a route that collides or states the wrong relationship.
 - Match depicted Azure services and private endpoints to their individual icon nodes. Valid `fileId` values only prove that existing images resolve; they do not detect a missing icon represented by text alone.
 
 ## How to Render
@@ -78,7 +78,7 @@ After generating the initial JSON, run this cycle:
 
 - Widen containers when text is clipped
 - Adjust `x`/`y` coordinates to fix spacing and alignment
-- Remove unnecessary waypoints first. Add one only to avoid an actual obstacle, separate routing lanes or clarify a fan-out. Endpoint misalignment alone does not justify a fold. Preserve deliberate manual placement and direct routes when they remain clear.
+- Remove unnecessary waypoints first. Add one only to avoid an actual obstacle, separate routing lanes, or clarify a fan-out. Endpoint misalignment alone does not justify a fold. Do not replace a user's already simplified direct route with an elbow, and do not keep a route that collides or states the wrong relationship.
 - Reposition labels closer to the element they describe; use above, below or beside the icon to free the route
 - Resize elements to rebalance visual weight across sections
 
