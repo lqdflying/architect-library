@@ -4,6 +4,14 @@
 
 This guide covers essential PDF processing operations using Python libraries and command-line tools. For advanced features, JavaScript libraries, and detailed examples, see references/pdf-reference.md. If you need to fill out a PDF form, read references/forms.md and follow its instructions.
 
+Run the snippets with the skill uv project from `SKILL.md`, not system `python3` and not office-tools:
+
+```bash
+uv run --project <skill-root>/references python
+```
+
+The scanned-PDF OCR snippet adds `--with pytesseract --with pdf2image`. That needs system tesseract and Poppler.
+
 ## Quick Start
 
 ```python
@@ -226,7 +234,8 @@ pdftk input.pdf rotate 1east output rotated.pdf
 
 ### Extract Text from Scanned PDFs
 ```python
-# Requires: pip install pytesseract pdf2image
+# Run: uv run --project <skill-root>/references --with pytesseract --with pdf2image python
+# Needs system tesseract and Poppler.
 import pytesseract
 from pdf2image import convert_from_path
 
