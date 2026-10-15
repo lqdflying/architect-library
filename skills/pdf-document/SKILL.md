@@ -15,8 +15,20 @@ Read, create, merge, split, and fill PDF files. Deliver the requested `.pdf` unl
 
 ## Setup
 
+`pypdf`, `pdfplumber`, and `reportlab` are in this skill's uv project at `references/`. System Python has no `pdfplumber`. The office-tools environment has none of these three. Do not install them into either place.
+
+Run PDF Python with that project:
+
 ```bash
-bash references/install_deps.sh
+uv run --project <skill-root>/references python -c "import pypdf, pdfplumber, reportlab"
+```
+
+`<skill-root>` is `skills/pdf-document` in this repo, and `~/.cursor/skills/pdf-document`, `~/.copilot/skills/pdf-document`, `~/.claude/skills/pdf-document`, or `~/.agents/skills/pdf-document` when the skill is installed.
+
+If that import fails, install once:
+
+```bash
+bash <skill-root>/references/install_deps.sh
 # or from repo root:
 #   bash scripts/install_deps.sh pdf
 ```
@@ -25,7 +37,7 @@ Optional system tools (documented in `pdf-guide.md`, not installed by default): 
 
 ## Form Fill Workflow
 
-When filling PDF forms, follow `references/forms.md` and run validation scripts under `scripts/` (uv project is `references/`). Use the installed skill root — e.g. `~/.cursor/skills/pdf-document` on Cursor, `~/.copilot/skills/pdf-document` on Copilot, or `~/.agents/skills/pdf-document` on Codex:
+When filling PDF forms, follow `references/forms.md` and run validation scripts under `scripts/` (uv project is `references/`). Use the installed skill root — e.g. `~/.cursor/skills/pdf-document` on Cursor, `~/.copilot/skills/pdf-document` on Copilot, `~/.claude/skills/pdf-document` on Claude Code, or `~/.agents/skills/pdf-document` on Codex:
 
 ```bash
 uv run --project <skill-root>/references python <skill-root>/scripts/check_fillable_fields.py form.pdf

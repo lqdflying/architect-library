@@ -22,4 +22,4 @@ fi
 cd "$SCRIPT_DIR"
 uv sync
 echo "PDF tools setup complete."
-echo "Optional: qpdf, pdftk, poppler-utils; OCR: pip install pytesseract pdf2image + system tesseract"
+echo "Optional: qpdf, pdftk, poppler-utils; OCR: uv run --project <skill-root>/references --with pytesseract --with pdf2image python (needs system tesseract and Poppler)"
