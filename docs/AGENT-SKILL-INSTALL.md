@@ -57,8 +57,6 @@ Architect Library publishes **two libraries** plus **Cursor user-global rules**:
 | `api-and-interface-design` | Shared skill | API and module boundary design workflow |
 | `github-markdown` | Shared skill | GitHub Flavored Markdown for READMEs, issues, PRs, discussions, wikis, and repo docs |
 | `deprecation-and-migration` | Shared skill | Deprecation and migration planning workflow |
-| `terraform-commit-review` | Shared skill | Terraform IaC commit-range review (correctness, security, destructive changes) |
-| `terraform-apply-assistance` | Shared skill | Fix Terraform errors, review apply scope from commit hash through HEAD, stay on the current working branch, review plan output for apply safety |
 | `security-audit` | Shared skill | Deep multi-phase codebase security audit — parallel sub-agent hunting, adversarial validation, structured `findings.json` output |
 | `mcp-tool-rules` | Cursor + Copilot + Codex (editor variants) | Scan MCP servers and generate rule/instruction files with correct tool arguments (`.mdc` for Cursor, `.instructions.md` for Copilot, `.agents/mcp-tools/` references plus a project `AGENTS.md` trigger for Codex) |
 | `context7-docs` | Cursor + Copilot + Codex (editor variants) | Fetch current library/framework documentation via Context7 MCP instead of training data; editor variants use correct MCP server name |
@@ -221,6 +219,7 @@ If a runtime command fails because of missing permissions, sudo, network, or npm
 | **Existing** user-global rule | File replaced |
 | **Legacy** user-global rule (`code-review-handoff.mdc`) | Removed from dest so two `alwaysApply` protocols cannot load |
 | **Legacy** skill (`handoff`) | Removed from dest; replaced by `newagentlink` |
+| **Legacy** skills (`terraform-commit-review`, `terraform-apply-assistance`) | Removed from Cursor, Copilot, and Claude destinations. No replacement. Codex `~/.agents/skills/` is left in place, same as other legacy names |
 | **Legacy** Cursor command (`~/.cursor/commands/handoff.md`) | Removed; replaced by `~/.cursor/commands/newagentlink.md` |
 
 Repo rule (Cursor): [`.cursor/rules/architect-library-patch.mdc`](../.cursor/rules/architect-library-patch.mdc).  
@@ -299,6 +298,8 @@ test -f ~/.cursor/skills/verification-before-completion/SKILL.md && echo "OK: ve
 test -f ~/.cursor/skills/newagentlink/SKILL.md && echo "OK: newagentlink skill"
 grep -q 'disable-model-invocation: true' ~/.cursor/skills/newagentlink/SKILL.md && echo "OK: newagentlink disable-model-invocation"
 test ! -d ~/.cursor/skills/handoff && echo "OK: legacy handoff skill absent"
+test ! -d ~/.cursor/skills/terraform-commit-review && echo "OK: legacy terraform-commit-review absent"
+test ! -d ~/.cursor/skills/terraform-apply-assistance && echo "OK: legacy terraform-apply-assistance absent"
 test ! -f ~/.cursor/commands/handoff.md && echo "OK: leftover commands/handoff.md absent"
 test -f ~/.cursor/commands/newagentlink.md && echo "OK: newagentlink Cursor command"
 cmp -s /path/to/architect-library/skills/newagentlink/cursor.command.md ~/.cursor/commands/newagentlink.md && echo "OK: command matches repo source"
@@ -364,6 +365,8 @@ test -f ~/.copilot/skills/word-document/SKILL.md && echo "OK: copilot skills"
 test -f ~/.copilot/skills/verification-before-completion/SKILL.md && echo "OK: verification skill"
 test -f ~/.copilot/skills/newagentlink/SKILL.md && echo "OK: newagentlink skill"
 test ! -d ~/.copilot/skills/handoff && echo "OK: legacy handoff skill absent"
+test ! -d ~/.copilot/skills/terraform-commit-review && echo "OK: legacy terraform-commit-review absent"
+test ! -d ~/.copilot/skills/terraform-apply-assistance && echo "OK: legacy terraform-apply-assistance absent"
 test -f ~/.copilot/skills/api-and-interface-design/SKILL.md && echo "OK: api skill"
 test -f ~/.copilot/skills/github-markdown/SKILL.md && echo "OK: github-markdown skill"
 test -f ~/.copilot/skills/deprecation-and-migration/SKILL.md && echo "OK: deprecation skill"
@@ -409,8 +412,6 @@ The install script runs **library** checks automatically for the `EDITOR` you pa
 | **api-and-interface-design** | Contract before implementation; consistent errors; boundary validation; list pagination; deprecation cross-check when changing public interfaces |
 | **github-markdown** | Render context identified; valid GFM syntax; context-limited features avoided (e.g. no footnotes in wikis); relative in-repo links where applicable; delivery checklist in `SKILL.md` satisfied |
 | **deprecation-and-migration** | Replacement before deprecation; migration guide; zero-usage verified before removal |
-| **terraform-commit-review** | Commit range established; all changed files read; provider docs verified via MCP; 7-section checklist applied; structured report with intent summary, per-phase table, issues, vendor comments, source URLs, and execution summary |
-| **terraform-apply-assistance** | Apply scope established (commit hash through HEAD or inferred); error/plan triaged; stayed on the current working branch (new branch only when the current branch is `main`, or the user asks); diagnosis via MCP; smallest edit applied; local validation run; **paused for user review** — no commit/push unless user instructs; plan evaluated with rubric; recap/runbook requests honor phase scope exclusions; risks re-raised every iteration; execution summary with apply decision, global/common/phase-specific env prerequisites, per-phase `## Phase N` command blocks, and post-apply checks |
 | **security-audit** | All 6 phases completed (Recon → Hunt → Validate → Report → Structured output → Independent verification); `findings.json` validates against schema (`validate-findings.cjs`); `REPORT.md` and `FINDINGS-DETAIL.md` reconciled with `findings.json`; output directory contains all artifacts |
 | **mcp-tool-rules** | MCP config read; servers presented and confirmed; tools discovered per server; editor-appropriate files generated (Cursor: `.mdc` rules, Copilot: `.instructions.md`, Codex: `.agents/mcp-tools/` references plus a managed project `AGENTS.md` trigger) with parameter tables and example calls; files validated (server names, tables, examples, frontmatter); report delivered |
 | **context7-docs** | Library/framework docs fetched via Context7 MCP; version-specific library ID selected when applicable; query decomposed to one topic per call; source cited in response; fallback to web search or Microsoft Learn when Context7 lacks the library |
@@ -469,6 +470,7 @@ Do not run `install_deps.sh` inside `~/.cursor/skills/` — run from the **repos
 | Leave `~/.cursor/rules/code-review-handoff.mdc` after install | Two `alwaysApply` review protocols load — install must delete the legacy name |
 | Leave `~/.cursor/rules/response-and-edit-scope.mdc` after install | Old combined rule overlaps `response-style.mdc` and `edit-scope.mdc` — install must delete the legacy name |
 | Leave `~/.cursor/skills/handoff` or `~/.cursor/commands/handoff.md` after install | Old continuation skill/command collides with `newagentlink` — install must delete both and install `~/.cursor/commands/newagentlink.md` |
+| Leave `terraform-commit-review` or `terraform-apply-assistance` installed on Cursor, Copilot, or Claude | Retired skills — install deletes those directories on those editors |
 | Install Claude without being asked | Default is Cursor and VS Code Copilot; bare `install_library.sh` also installs Claude |
 | Edit `agents/` without running install | Global agents stale |
 | Edit `user-rules/` without running install | `~/.cursor/rules/` and `~/.copilot/copilot-instructions.md` stale |

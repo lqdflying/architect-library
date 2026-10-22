@@ -57,13 +57,13 @@ Do **not** copy skills into `<repo>/.cursor/skills/`, agents into `<repo>/.curso
 ## Bundles (in `scripts/install_library.sh`)
 
 ```
-SKILL_BUNDLE="excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document verification-before-completion newagentlink api-and-interface-design deprecation-and-migration github-markdown terraform-commit-review terraform-apply-assistance security-audit review-handoff _shared"
+SKILL_BUNDLE="excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document verification-before-completion newagentlink api-and-interface-design deprecation-and-migration github-markdown security-audit review-handoff _shared"
 EDITOR_VARIANT_SKILLS="mcp-tool-rules context7-docs notion-mcp-ops"
 AGENT_BUNDLE="code-review security-auditor"
 CURSOR_RULE_BUNDLE="review-handoff-reconciliation response-style edit-scope branch-strategy docs-lookup temp-validators"
 COPILOT_INSTRUCTION_FRAGMENTS="response-style edit-scope branch-strategy review-handoff docs-lookup temp-validators"
 CLAUDE_RULE_BUNDLE="$COPILOT_INSTRUCTION_FRAGMENTS"
-LEGACY_SKILLS="docx pptx xlsx pdf terraform-apply-fix-review mcp-tool-rules-copilot handoff"
+LEGACY_SKILLS="docx pptx xlsx pdf terraform-apply-fix-review terraform-commit-review terraform-apply-assistance mcp-tool-rules-copilot handoff"
 LEGACY_CURSOR_RULES="code-review-handoff response-and-edit-scope"
 ```
 
@@ -92,6 +92,8 @@ test -f ~/.cursor/skills/verification-before-completion/SKILL.md
 test -f ~/.cursor/skills/newagentlink/SKILL.md
 grep -q 'disable-model-invocation: true' ~/.cursor/skills/newagentlink/SKILL.md
 test ! -d ~/.cursor/skills/handoff
+test ! -d ~/.cursor/skills/terraform-commit-review
+test ! -d ~/.cursor/skills/terraform-apply-assistance
 test ! -f ~/.cursor/commands/handoff.md
 test -f ~/.cursor/commands/newagentlink.md
 cmp -s skills/newagentlink/cursor.command.md ~/.cursor/commands/newagentlink.md
@@ -126,6 +128,8 @@ cmp -s user-rules/cursor/docs-lookup.mdc ~/.cursor/rules/docs-lookup.mdc
 cmp -s user-rules/cursor/temp-validators.mdc ~/.cursor/rules/temp-validators.mdc
 test -f ~/.copilot/copilot-instructions.md
 test -f ~/.copilot/skills/review-handoff/SKILL.md
+test ! -d ~/.copilot/skills/terraform-commit-review
+test ! -d ~/.copilot/skills/terraform-apply-assistance
 grep -q 'Applies in every VS Code Copilot chat.' ~/.copilot/copilot-instructions.md
 grep -q '/tmp/<topic>-handoff.md' ~/.copilot/copilot-instructions.md
 grep -q '# Response style' ~/.copilot/copilot-instructions.md

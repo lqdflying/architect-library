@@ -170,8 +170,6 @@ See [Installation](#installation) for Copilot / Claude Code / Codex paths, or [d
 | `api-and-interface-design` | Design stable APIs and module boundaries — contract-first, error semantics, pagination, Hyrum's Law. |
 | `github-markdown` | Write correct GitHub Flavored Markdown for READMEs, issues, PRs, discussions, wikis, and repo docs. |
 | `deprecation-and-migration` | Deprecate and migrate systems safely — strangler pattern, migration guides, zero-usage removal. |
-| `terraform-commit-review` | Review Terraform IaC changes across a git commit range — correctness, security/RBAC, destructive changes, naming, cross-phase consistency, documentation/runbook accuracy. |
-| `terraform-apply-assistance` | Fix Terraform errors, review apply scope from commit hash through HEAD, stay on the current working branch, review plan output for apply safety. |
 | `security-audit` | Deep multi-phase codebase security audit — 6-phase workflow with parallel sub-agent hunting, adversarial validation, structured `findings.json` output. Full offensive audit, not a quick review. |
 | `mcp-tool-rules` | Scan MCP servers, discover tool schemas, generate rule/instruction files with correct tool arguments. Editor-specific variants: `.mdc` rules for Cursor, `.instructions.md` for Copilot. |
 | `context7-docs` | Fetch current library/framework documentation via Context7 MCP instead of training data. Editor variants use correct MCP server name (`user-context7` in Cursor, `context7` in Copilot). |
@@ -295,8 +293,6 @@ Intermediate status and validator scripts go under `/tmp`. They are not added to
 | [`skills/newagentlink/SKILL.md`](skills/newagentlink/SKILL.md) | One-shot new-agent continuation snapshot |
 | [`skills/newagentlink/cursor.command.md`](skills/newagentlink/cursor.command.md) | Cursor `/newagentlink` command (install copy: `~/.cursor/commands/newagentlink.md`) |
 | [`skills/deprecation-and-migration/SKILL.md`](skills/deprecation-and-migration/SKILL.md) | Deprecation and migration workflow |
-| [`skills/terraform-commit-review/SKILL.md`](skills/terraform-commit-review/SKILL.md) | Terraform commit-range review workflow |
-| [`skills/terraform-apply-assistance/SKILL.md`](skills/terraform-apply-assistance/SKILL.md) | Terraform apply fix, scope review, and plan evaluation workflow |
 | [`skills/security-audit/SKILL.md`](skills/security-audit/SKILL.md) | Deep codebase security audit (6-phase, multi-agent, structured output) |
 | [`skills/review-handoff/SKILL.md`](skills/review-handoff/SKILL.md) | Review and fix ledger protocol (on demand; Cursor and Copilot) |
 | [`skills/mcp-tool-rules/SKILL.cursor.md`](skills/mcp-tool-rules/SKILL.cursor.md) | MCP tool calling rules generation (Cursor) |
@@ -404,11 +400,6 @@ architect-library/
     deprecation-and-migration/
       SKILL.md
       README.md
-    terraform-commit-review/
-      SKILL.md
-      README.md
-    terraform-apply-assistance/
-      SKILL.md
     security-audit/
       SKILL.md
       references/
