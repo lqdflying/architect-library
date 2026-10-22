@@ -6,7 +6,7 @@
 set -euo pipefail
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-SKILL_BUNDLE="excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document verification-before-completion newagentlink api-and-interface-design deprecation-and-migration github-markdown terraform-commit-review terraform-apply-assistance security-audit review-handoff _shared"
+SKILL_BUNDLE="excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document verification-before-completion newagentlink api-and-interface-design deprecation-and-migration github-markdown security-audit review-handoff _shared"
 # Cursor + Copilot + Codex (never Claude). SKILL.<editor>.md wins over SKILL.md.
 EDITOR_VARIANT_SKILLS="mcp-tool-rules context7-docs notion-mcp-ops"
 AGENT_BUNDLE="code-review security-auditor"
@@ -15,7 +15,7 @@ COPILOT_INSTRUCTION_FRAGMENTS="response-style edit-scope branch-strategy review-
 CODEX_INSTRUCTION_FRAGMENTS="$COPILOT_INSTRUCTION_FRAGMENTS"
 CLAUDE_RULE_BUNDLE="$COPILOT_INSTRUCTION_FRAGMENTS"
 
-LEGACY_SKILLS="docx pptx xlsx pdf terraform-apply-fix-review mcp-tool-rules-copilot handoff"
+LEGACY_SKILLS="docx pptx xlsx pdf terraform-apply-fix-review terraform-commit-review terraform-apply-assistance mcp-tool-rules-copilot handoff"
 LEGACY_CURSOR_RULES="code-review-handoff response-and-edit-scope"
 
 usage() {
@@ -462,12 +462,12 @@ verify_skills_at() {
   test -f "${dir}/word-document/SKILL.md" || return 1
   test -f "${dir}/api-and-interface-design/SKILL.md" || return 1
   test -f "${dir}/deprecation-and-migration/SKILL.md" || return 1
-  test -f "${dir}/terraform-commit-review/SKILL.md" || return 1
-  test -f "${dir}/terraform-apply-assistance/SKILL.md" || return 1
   test -f "${dir}/security-audit/SKILL.md" || return 1
   test -f "${dir}/newagentlink/SKILL.md" || return 1
   grep -q 'disable-model-invocation: true' "${dir}/newagentlink/SKILL.md" || return 1
   [[ "$editor" == "codex" || ! -d "${dir}/handoff" ]] || return 1
+  [[ "$editor" == "codex" || ! -d "${dir}/terraform-commit-review" ]] || return 1
+  [[ "$editor" == "codex" || ! -d "${dir}/terraform-apply-assistance" ]] || return 1
 }
 
 verify_editor_variants_at() {

@@ -28,8 +28,6 @@ Skill library + custom agent library + Cursor user-global rules. Work in this cl
 | `skills/pdf-document/` | PDF read/create/merge/forms |
 | `skills/github-markdown/` | GitHub Flavored Markdown for READMEs, issues, PRs, discussions, wikis, repo docs |
 | `skills/newagentlink/` | One-shot new-agent continuation snapshot (`/tmp/<topic>-newagentlink.md`); Cursor command `cursor.command.md` → `~/.cursor/commands/newagentlink.md` |
-| `skills/terraform-commit-review/` | Terraform IaC commit-range review |
-| `skills/terraform-apply-assistance/` | Terraform apply fix, scope review, and plan evaluation |
 | `skills/notion-mcp-ops/` | Notion MCP CRUD, formatting, fetch-before-write; editor variants for Cursor and Copilot |
 | `skills/_shared/` | `architecture-document-principles.md`, `office-tools/` |
 | `scripts/install_library.sh` | Install/patch skills, agents, Cursor user-global rules, and the Copilot always-on instruction |

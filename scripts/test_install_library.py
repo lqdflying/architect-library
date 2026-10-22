@@ -114,6 +114,7 @@ class InstallLibraryTests(unittest.TestCase):
 
     def test_codex_preserves_shared_skills_with_legacy_names(self):
         names = ("docx", "pptx", "xlsx", "pdf", "terraform-apply-fix-review",
+                 "terraform-commit-review", "terraform-apply-assistance",
                  "mcp-tool-rules-copilot", "handoff")
         cases = ((("all", "codex"), self.home),
                  (("skills", "codex", "project"), self.project),
