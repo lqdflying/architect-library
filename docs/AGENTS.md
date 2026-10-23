@@ -20,7 +20,7 @@ Architect Library ships a **custom agent library** under `agents/`. Install glob
 
 Agents are assembled at install from `cursor.header.md` / `copilot.header.md` / `claude.header.md` + `INSTRUCTIONS.md`.
 
-Codex agents combine `codex.json` metadata, the shared `INSTRUCTIONS.md`, and `agents/codex-review.md`. They inherit the model and request a read-only sandbox. Parent live sandbox and approval overrides take precedence over this default. Their instructions prohibit writes and require returning ledger entries to the parent for append-only recording; those instructions provide no sandbox enforcement in a writable parent session. Project installation writes `.codex/agents/` without changing `config.toml`. See the [Codex custom-agent format](https://learn.chatgpt.com/docs/agent-configuration/subagents).
+Codex agents combine `codex.json` metadata, the shared `INSTRUCTIONS.md`, and `agents/codex-review.md`. They inherit the model and request a read-only sandbox. Parent live sandbox and approval overrides take precedence over this default. Their instructions prohibit writes and require returning ledger entries to the parent, which appends the round and purges closed rounds; those instructions provide no sandbox enforcement in a writable parent session. Project installation writes `.codex/agents/` without changing `config.toml`. See the [Codex custom-agent format](https://learn.chatgpt.com/docs/agent-configuration/subagents).
 
 ## Adding an agent
 

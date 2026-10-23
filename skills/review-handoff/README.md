@@ -2,7 +2,9 @@
 
 Review and fix protocol with a living ledger at `/tmp/<topic>-handoff.md`.
 Reviewer and fixer rounds append to the same file until no **FIX** item
-remains (**RECONCILED**).
+remains (**RECONCILED**). After each append, `scripts/purge_handoff.py`
+moves closed rounds into `/tmp/<topic>-handoff-archive.md`. The active
+file keeps the header, open items, and the two newest rounds.
 
 Loaded on demand. Only the skill `name` and `description` stay in context
 until a turn reviews, audits, or fixes from a handoff. A short always-on
@@ -43,5 +45,6 @@ The trigger needs the skill, so install both (`all`), not `rules` alone.
 Install with `bash scripts/install_library.sh all codex`. Skills live under
 `~/.agents/skills/` globally or `.agents/skills/` in a project.
 The generated Codex user-rule fragment triggers the same shared ledger protocol.
-Read-only Codex custom agents return a labeled ledger round to the parent for
-append-only recording; ordinary Codex sessions with write access record it directly.
+Read-only Codex custom agents return a labeled ledger round to the parent.
+The parent appends it and purges closed rounds. Ordinary Codex sessions with
+write access do both directly.

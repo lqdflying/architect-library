@@ -98,6 +98,7 @@ test ! -f ~/.cursor/commands/handoff.md
 test -f ~/.cursor/commands/newagentlink.md
 cmp -s skills/newagentlink/cursor.command.md ~/.cursor/commands/newagentlink.md
 test -f ~/.cursor/skills/review-handoff/SKILL.md
+test -f ~/.cursor/skills/review-handoff/scripts/purge_handoff.py
 bash scripts/sync_copilot_rules.sh --check
 test -f ~/.cursor/skills/api-and-interface-design/SKILL.md
 test -f ~/.cursor/skills/deprecation-and-migration/SKILL.md

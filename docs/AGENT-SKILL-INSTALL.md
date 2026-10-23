@@ -80,7 +80,7 @@ Installed to `~/.cursor/rules/<name>.mdc` (not the Cursor Settings → Customize
 
 | File | Purpose |
 |------|---------|
-| `review-handoff-reconciliation.mdc` | Always-on trigger (about 1 KB): on review, audit, or fix-from-ledger turns, read the `review-handoff` skill first. The protocol (`/tmp/<topic>-handoff.md` ledger, FIX / DEFER / KEEP / DO NOT APPLY / FIXED / RECONCILED, **append-only**) lives in `skills/review-handoff/SKILL.md` and loads on demand. Distinct from the `newagentlink` skill (`/tmp/<topic>-newagentlink.md`). |
+| `review-handoff-reconciliation.mdc` | Always-on trigger (about 1 KB): on review, audit, or fix-from-ledger turns, read the `review-handoff` skill first. The protocol (`/tmp/<topic>-handoff.md` ledger, FIX / DEFER / KEEP / DO NOT APPLY / FIXED / RECONCILED, purge of closed rounds to `/tmp/<topic>-handoff-archive.md`) lives in `skills/review-handoff/SKILL.md` and loads on demand. Distinct from the `newagentlink` skill (`/tmp/<topic>-newagentlink.md`). |
 | `response-style.mdc` | Short replies (result first; a vague objective stops the work; a worse approach is named and the shorter path is used; excess complexity in the task's own work is deleted rather than defended; Changes, Verify, Open Items only on file-changing turns and only when they have content; one conclusion; no step narration, pasted logs, or AI filler). Matching Copilot fragment: `user-rules/copilot/response-style.md`. |
 | `edit-scope.mdc` | Writes stay in the current repo. Auto-read is allowed everywhere. The diff is the minimum that meets the request, and work that a simpler means already settles is not done again. `/tmp`, `~/.cursor/`, and `~/.copilot/` may be written when this request or an installed protocol requires that write. Matching Copilot fragment: `user-rules/copilot/edit-scope.md`. |
 | `branch-strategy.mdc` | One working branch at a time (the branch already checked out). Before the first write, `git status --short --branch` decides the branch, including when a session note says the directory is not a git repo. No edit, commit, or push on `main`. No switch off a branch that still has unmerged commits or uncommitted files. A new branch only from `main`, when the current branch is `main` or the user asks, named from branch names already used in that repository without asking the user for the name. Mixed topics on one branch are expected. Pause before `git commit` or `git push`. Matching Copilot fragment: `user-rules/copilot/branch-strategy.md`. |
@@ -311,6 +311,7 @@ test -f ~/.cursor/skills/mcp-tool-rules/SKILL.md && echo "OK: mcp-tool-rules var
 test -f ~/.cursor/skills/context7-docs/SKILL.md && echo "OK: context7-docs variant"
 test -f ~/.cursor/skills/notion-mcp-ops/SKILL.md && echo "OK: notion-mcp-ops variant"
 test -f ~/.cursor/skills/review-handoff/SKILL.md && echo "OK: review-handoff skill (trigger target)"
+test -f ~/.cursor/skills/review-handoff/scripts/purge_handoff.py && echo "OK: review-handoff purge"
 test -f ~/.cursor/agents/code-review.md && echo "OK: cursor agents"
 grep -q 'readonly: true' ~/.cursor/agents/code-review.md && echo "OK: code-review"
 test -f ~/.cursor/agents/security-auditor.md && echo "OK: security-auditor"

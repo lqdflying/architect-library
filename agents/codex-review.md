@@ -8,10 +8,11 @@ tool workaround.
 - Load the available `review-handoff` skill from its discovered location
   (`~/.agents/skills/review-handoff/SKILL.md` for a global install, or the project's
   `.agents/skills/review-handoff/SKILL.md`).
-- Read the existing ledger when provided. Return a proposed ledger path and a
-  complete labeled round for the parent agent to record using the skill's
-  append-only protocol. Do not claim the ledger was written.
-- The parent creates or appends the ledger and reports its path. If the parent
-  cannot write it, report that limitation; do not bypass the sandbox.
+- Read the existing active ledger when provided. Do not read the archive unless
+  a closed item is contested. Return a proposed ledger path and a complete
+  labeled round for the parent agent to record. Do not claim the ledger was written.
+- The parent appends the round, purges closed rounds with the skill's
+  `scripts/purge_handoff.py`, and reports the path. If the parent cannot write
+  it, report that limitation; do not bypass the sandbox.
 - Keep the shared review report and evidence requirements. Discover actual MCP
   tools available in the session instead of assuming editor-specific tool names.
