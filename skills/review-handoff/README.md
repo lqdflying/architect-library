@@ -7,8 +7,8 @@ moves closed rounds into `/tmp/<topic>-handoff-archive.md`. The active
 file keeps the header, open items, and the two newest rounds.
 
 Loaded on demand. Only the skill `name` and `description` stay in context
-until a turn reviews, audits, or fixes from a handoff. A short always-on
-trigger keeps that load reliable:
+until the user explicitly asks for a code review or points at a handoff to fix.
+A short always-on trigger keeps that load reliable:
 
 | Editor | Trigger (always on) | Skill (on demand) |
 |--------|---------------------|-------------------|
@@ -36,9 +36,12 @@ The trigger needs the skill, so install both (`all`), not `rules` alone.
 
 ## When it loads
 
-- Review, audit, check, or find issues in a commit, diff, branch, file, or PR
-- Verify another model's or agent's work
-- Fix, triage, or reconcile from a `/tmp/*-handoff.md` file or pasted review feedback
+Only when the user explicitly asks for one of these:
+
+- A code review of a commit, diff, branch, file, or PR (the user invoking the code-review or security-auditor agent counts)
+- A fix, triage, or reconciliation that points at a `/tmp/*-handoff.md` file, or pastes that review and asks to fix it
+
+Other tasks do not load it and do not get a ledger.
 
 ## Codex
 

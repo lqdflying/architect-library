@@ -187,7 +187,7 @@ Catalog: [`docs/AGENTS.md`](docs/AGENTS.md). Deep dive: [`docs/CODE-REVIEW-AGENT
 
 ## Review handoff (Cursor, Copilot, Codex, and Claude Code)
 
-One ledger protocol in an on-demand skill, plus a short always-on trigger per editor. Only the trigger (about 1 KB) loads on every chat; the protocol loads on review, audit, and fix-from-ledger turns. Distinct from this repo’s maintainer [`.cursor/rules/`](.cursor/rules/).
+One ledger protocol in an on-demand skill, plus a short always-on trigger per editor. Only the trigger (about 1 KB) loads on every chat. The protocol loads only when the user explicitly asks for a code review, or points at a handoff and asks to fix it. Other tasks do not get a ledger. Distinct from this repo’s maintainer [`.cursor/rules/`](.cursor/rules/).
 
 | Part | Source | Installed file |
 |------|--------|----------------|

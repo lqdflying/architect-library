@@ -1,16 +1,14 @@
 ---
 name: review-handoff
 description: >-
-  Review handoff ledger for code review and fix rounds. Creates or appends
-  /tmp/<topic>-handoff.md with reviewer and fixer roles and FIX, DEFER, KEEP,
-  DO NOT APPLY, FIXED, and RECONCILED dispositions, then purges closed rounds
-  into /tmp/<topic>-handoff-archive.md. Use when asked to review, audit,
-  check, or find issues in a commit, diff, branch, file, or PR; to verify
-  another model's or agent's work; or to fix, triage, or reconcile findings
-  from a /tmp/*-handoff.md file or pasted review feedback. Done when the
-  ledger is created or appended this turn, closed rounds are purged when more
-  than the latest two remain, and chat gives the path plus a short prioritized
-  summary. Not the newagentlink one-shot snapshot.
+  Ledger for an explicit code review or an explicit fix from a handoff.
+  Use only when the user asks to review a commit, diff, branch, file, or PR,
+  or points at a /tmp/*-handoff.md ledger (or pastes that review) and asks
+  to fix, triage, or reconcile it. Do not use on any other task. Creates or
+  appends /tmp/<topic>-handoff.md, then purges closed rounds into
+  /tmp/<topic>-handoff-archive.md. Done when that ledger is created or
+  appended this turn and chat gives the path plus a short summary. Not the
+  newagentlink one-shot snapshot.
 ---
 
 # Review handoff and reconciliation
@@ -28,9 +26,11 @@ Repository `AGENTS.md` / `CLAUDE.md` remain authoritative for that project's bra
 
 ## When to write a handoff
 
-When asked to review, check, audit, find issues, or reconcile a prior handoff for a commit, diff, branch, file, or PR, write `/tmp/<short-topic>-handoff.md` without being asked.
+Write `/tmp/<short-topic>-handoff.md` only when the user explicitly asks to review code (a commit, diff, branch, file, or PR) or explicitly points at a handoff, or pastes that review, and asks to fix, triage, or reconcile it. The user invoking the code-review or security-auditor agent counts as an explicit code review.
 
-Skip a handoff when the *only* work is authoring editor rules, plans, or other meta docs. If the user also asks to review a commit, diff, or PR, write the handoff for that review.
+Do not write a handoff on any other turn. Implementation, questions, planning, refactors, installs, and checking your own work do not get a ledger. Do not infer a review because code changed, or because an earlier turn was a review.
+
+Skip a handoff when the only work is authoring editor rules, plans, or other meta docs. If the user also asks to review a commit, diff, or PR, write the handoff for that code review.
 
 Handoff markdown lives under `/tmp`, not in the repo, unless the user asks to commit it.
 
@@ -44,7 +44,7 @@ Handoff markdown lives under `/tmp`, not in the repo, unless the user asks to co
 
 In chat: state the path, then a short prioritized summary. Do not paste the file back.
 
-Chat-only review without a handoff update is not done.
+When a handoff is required, a chat-only review without a ledger update is not done. Other turns do not create or append a ledger.
 
 ### Codex read-only custom agents
 

@@ -53,11 +53,11 @@ Do not hand-edit `user-rules/copilot/`. After editing `user-rules/cursor/`, run 
 
 ## Review handoff (skill + always-on trigger)
 
-Canonical protocol: `skills/review-handoff/SKILL.md` (Cursor, Copilot, and Codex, via `EDITOR_VARIANT_SKILLS`; loaded on demand). Always-on trigger: `user-rules/cursor/review-handoff-reconciliation.mdc` (installs to `~/.cursor/rules/`) and the generated `user-rules/copilot/review-handoff.md` (concatenated into `~/.copilot/copilot-instructions.md`). Codex uses the generated `user-rules/codex/review-handoff.md` in its managed global `AGENTS.md` block. Its read-only custom agents return ledger rounds to the parent for recording. The trigger only tells the agent to read the skill. Do not duplicate the body here or in the trigger.
+Canonical protocol: `skills/review-handoff/SKILL.md` (Cursor, Copilot, and Codex, via `EDITOR_VARIANT_SKILLS`; loaded on demand). Always-on trigger: `user-rules/cursor/review-handoff-reconciliation.mdc` (installs to `~/.cursor/rules/`) and the generated `user-rules/copilot/review-handoff.md` (concatenated into `~/.copilot/copilot-instructions.md`). Codex uses the generated `user-rules/codex/review-handoff.md` in its managed global `AGENTS.md` block. Its read-only custom agents return ledger rounds to the parent for recording. The trigger states when a ledger is written and tells the agent to read the skill. Keep the rest of the protocol out of the trigger and out of this file.
 
 | Work | Done when |
 |------|-----------|
-| **review-handoff** | `/tmp/<topic>-handoff.md` **appended** this turn, then closed rounds purged with `scripts/purge_handoff.py` when more than the latest two remain (no other full-file rewrite; archive is append-only); dispositions used (FIX / DEFER / KEEP / DO NOT APPLY / FIXED / RECONCILED); chat points at the path; reviewer does not mutate the review repo (only the `/tmp` handoff and its archive). Distinct from `newagentlink` (`/tmp/<topic>-newagentlink.md`). |
+| **review-handoff** | A ledger is written only when the user explicitly asked for a code review or pointed at a handoff to fix. Then `/tmp/<topic>-handoff.md` is **appended** this turn, and closed rounds are purged with `scripts/purge_handoff.py` when more than the latest two remain (no other full-file rewrite; archive is append-only); dispositions used (FIX / DEFER / KEEP / DO NOT APPLY / FIXED / RECONCILED); chat points at the path; reviewer does not mutate the review repo (only the `/tmp` handoff and its archive). Distinct from `newagentlink` (`/tmp/<topic>-newagentlink.md`). |
 
 ## Response style (user-global protocol)
 
