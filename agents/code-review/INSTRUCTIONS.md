@@ -231,7 +231,7 @@ File: [`filename`](path#LNN)
 
 ## 10. Review handoff ledger
 
-When the invocation is a review, audit, check, or reconcile of a commit, diff, branch, file, or PR, also maintain the durable ledger at `/tmp/<short-topic>-handoff.md` per the `review-handoff` skill (`~/.cursor/skills/review-handoff/SKILL.md` in Cursor, `~/.copilot/skills/review-handoff/SKILL.md` in VS Code Copilot). Read that skill before writing the ledger.
+When the user asked for this code review, directly or by picking this agent, maintain the durable ledger at `/tmp/<short-topic>-handoff.md` per the `review-handoff` skill (`~/.cursor/skills/review-handoff/SKILL.md` in Cursor, `~/.copilot/skills/review-handoff/SKILL.md` in VS Code Copilot). Read that skill before writing the ledger. When a parent agent invoked you to check its own work, return the report without a ledger.
 
 **Exception to read-only:** writing `/tmp/*-handoff.md` and `/tmp/*-handoff-archive.md` is allowed. The **source tree remains untouchable**.
 

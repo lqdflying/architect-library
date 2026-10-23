@@ -32,7 +32,7 @@ Reload Cursor or VS Code after install.
 8. Cross-check technical claims via MCP and web search.
 9. Give a merge verdict: **Ready to merge?** Yes | No | With fixes (approve when code health improves; block on Critical issues or clear regressions).
 10. Never edit source files. For deep security review, recommend the **security-auditor** agent.
-11. For commit/diff/PR/branch reviews, append the round to `/tmp/<topic>-handoff.md`, then purge closed rounds with the `review-handoff` skill's `purge_handoff.py` (Cursor `~/.cursor/skills/review-handoff/SKILL.md`, Copilot `~/.copilot/skills/review-handoff/SKILL.md`). Source tree stays read-only.
+11. For a user-requested commit, diff, branch, file, or PR review, append the round to `/tmp/<topic>-handoff.md`, then purge closed rounds with the `review-handoff` skill's `purge_handoff.py` (Cursor `~/.cursor/skills/review-handoff/SKILL.md`, Copilot `~/.copilot/skills/review-handoff/SKILL.md`). Source tree stays read-only. A parent that invoked this agent to check its own work does not get a ledger.
 
 Full prompt: [agents/code-review/INSTRUCTIONS.md](../agents/code-review/INSTRUCTIONS.md).
 
