@@ -57,7 +57,7 @@ Canonical protocol: `skills/review-handoff/SKILL.md` (Cursor, Copilot, and Codex
 
 | Work | Done when |
 |------|-----------|
-| **review-handoff** | `/tmp/<topic>-handoff.md` **appended** this turn (no full-file overwrite, truncate, or delete of prior rounds; surgical header Status/Must fix only); dispositions used (FIX / DEFER / KEEP / DO NOT APPLY / FIXED / RECONCILED); chat points at the path; reviewer does not mutate the review repo (only the `/tmp` handoff). Distinct from `newagentlink` (`/tmp/<topic>-newagentlink.md`). |
+| **review-handoff** | `/tmp/<topic>-handoff.md` **appended** this turn, then closed rounds purged with `scripts/purge_handoff.py` when more than the latest two remain (no other full-file rewrite; archive is append-only); dispositions used (FIX / DEFER / KEEP / DO NOT APPLY / FIXED / RECONCILED); chat points at the path; reviewer does not mutate the review repo (only the `/tmp` handoff and its archive). Distinct from `newagentlink` (`/tmp/<topic>-newagentlink.md`). |
 
 ## Response style (user-global protocol)
 

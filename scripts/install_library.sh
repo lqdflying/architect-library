@@ -537,6 +537,10 @@ verify_review_handoff_skill() {
     echo "Missing ${dir}/review-handoff/SKILL.md (run: bash scripts/install_library.sh skills ${editor})" >&2
     return 1
   fi
+  if [[ ! -f "${dir}/review-handoff/scripts/purge_handoff.py" ]]; then
+    echo "Missing ${dir}/review-handoff/scripts/purge_handoff.py (run: bash scripts/install_library.sh skills ${editor})" >&2
+    return 1
+  fi
 }
 
 verify_claude_rules() {

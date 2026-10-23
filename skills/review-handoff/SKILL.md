@@ -3,12 +3,14 @@ name: review-handoff
 description: >-
   Review handoff ledger for code review and fix rounds. Creates or appends
   /tmp/<topic>-handoff.md with reviewer and fixer roles and FIX, DEFER, KEEP,
-  DO NOT APPLY, FIXED, and RECONCILED dispositions. Use when asked to review,
-  audit, check, or find issues in a commit, diff, branch, file, or PR; to
-  verify another model's or agent's work; or to fix, triage, or reconcile
-  findings from a /tmp/*-handoff.md file or pasted review feedback. Done when
-  the ledger is created or appended this turn and chat gives the path plus a
-  short prioritized summary. Not the newagentlink one-shot snapshot.
+  DO NOT APPLY, FIXED, and RECONCILED dispositions, then purges closed rounds
+  into /tmp/<topic>-handoff-archive.md. Use when asked to review, audit,
+  check, or find issues in a commit, diff, branch, file, or PR; to verify
+  another model's or agent's work; or to fix, triage, or reconcile findings
+  from a /tmp/*-handoff.md file or pasted review feedback. Done when the
+  ledger is created or appended this turn, closed rounds are purged when more
+  than the latest two remain, and chat gives the path plus a short prioritized
+  summary. Not the newagentlink one-shot snapshot.
 ---
 
 # Review handoff and reconciliation
@@ -37,7 +39,7 @@ Handoff markdown lives under `/tmp`, not in the repo, unless the user asks to co
 - Path: `/tmp/<short-topic>-handoff.md`
 - First review in a session: create the file (or reopen it if review continues).
 - Later reviews in the same session: **append** to that same file only. No `-v2` or parallel files.
-- Across sessions: a new `/tmp` file is OK for a new review topic. The prior file stays until **RECONCILED**.
+- Across sessions: a new `/tmp` file is OK for a new review topic. The prior active file stays until **RECONCILED**. Its archive stays on disk and is not read on an ordinary turn.
 - While any **FIX** items are open, keep appending to the same path.
 
 In chat: state the path, then a short prioritized summary. Do not paste the file back.
@@ -48,30 +50,57 @@ Chat-only review without a handoff update is not done.
 
 The Codex `code-review` and `security-auditor` agents return a proposed ledger
 path and a complete labeled round to the parent; they do not write even to
-`/tmp`. The parent records the round using this append-only protocol. Until the
-parent confirms the write, describe the ledger update as pending. Do not weaken
-the sandbox or use shell writes to bypass it. Ordinary Codex sessions with write
-access continue to maintain the ledger directly.
+`/tmp`. The parent appends the round, then purges closed rounds with
+`scripts/purge_handoff.py`. Until the parent confirms the write, describe the
+ledger update as pending. Do not weaken the sandbox or use shell writes to
+bypass it. Ordinary Codex sessions with write access continue to maintain the
+ledger directly.
 
-## Append-only file discipline
+## Ledger file discipline
 
-The handoff is a growing ledger. **Never delete, truncate, or full-file rewrite** an existing `/tmp/<topic>-handoff.md`.
+Append the new round first. The only rewrite of an existing `/tmp/<topic>-handoff.md` is `scripts/purge_handoff.py`, after that append.
 
-**Forbidden** once the file exists:
+**Forbidden:**
 
-- Full-file overwrite (`Write` of the whole path, `cat > file`, truncate, `rm` + recreate)
-- Deleting prior rounds, findings, fixer responses, or any historical body text
-- “Restoring” by rewriting a shorter file from memory (that still loses history)
-- Creating `-v2` or parallel files to replace the ledger
+- Replacing the ledger from memory (`Write` of the whole path, `cat > file`, truncate, `rm` + recreate)
+- Deleting the archive, or editing it by hand
+- A `-v2` or parallel file that replaces the ledger
 
 **Allowed:**
 
-- **Create** only when the path does not exist yet
-- **Append** a new labeled section each turn (`## Round — …` or fixer response)
-- **Surgical** in-place edit of the top header **Status** / **Must fix** lines only — never the historical body
-- Prefer shell append after reading the file: `printf '%s\n' '…' >> /tmp/<topic>-handoff.md`
+- **Create** the active file only when that path does not exist yet
+- **Append** the new round: `printf '%s\n' '…' >> /tmp/<topic>-handoff.md`
+- **Surgical** edits of the header (everything before the first `## Round` or `## Fixer` line): **Status**, **Must fix**, **Standing**, **Closed**, and the one line `Purge-ready: yes`
+- **Purge** by the script, which moves closed rounds verbatim into `/tmp/<topic>-handoff-archive.md`
 
-**If content was already wiped this turn:** stop further rewrites; recover prior text from chat/transcript if available; write recovered body + the new append in one reconstruction **once**; then resume append-only. Record the incident under **Already verified**.
+**If content was already wiped this turn:** stop. Recover prior text from the archive, then the chat or transcript. Write that recovered body plus the new round once. Record the incident under **Already verified**. Later purges go through the script only.
+
+## Purge closed rounds
+
+Later turns read the active ledger only. Closed rounds sit in the archive so they do not enter context.
+
+After the append, purge when the file has more than two `## Round` or `## Fixer` sections. With two or fewer, do not purge.
+
+A round is one `## Round …` or `## Fixer …` section, including every later `##` heading until the next round. `## Already verified` and finding titles stay inside that round.
+
+In the round you append, restate each open **FIX** or unanswered question that is not already stated in full in the round which will remain (path, what is wrong, **Fix:**, **Test:**). Put that text under a `### Still open` subsection of the new round. Do not add a `## Still open` section.
+
+1. **Standing** — one header line per live **DEFER**, **KEEP**, and **DO NOT APPLY**, with the reason. Use `**Standing:** none` when there are none.
+2. **Closed** — one header line per **FIXED** item whose round will leave the active file: id, `path:line`, and the evidence. Use `**Closed:** none` when there are none.
+3. Add a header line `Purge-ready: yes` only after steps 1–2. The header must already contain `**Status:**`, `**Must fix:**`, `**Standing:**`, and `**Closed:**`.
+4. Run `scripts/purge_handoff.py` from the same directory as this `SKILL.md`:
+
+```bash
+python3 <skill-dir>/scripts/purge_handoff.py /tmp/<topic>-handoff.md
+```
+
+Installed skill directories: `~/.cursor/skills/review-handoff/`, `~/.copilot/skills/review-handoff/`, `~/.agents/skills/review-handoff/`, `~/.claude/skills/review-handoff/`.
+
+The script keeps the header and the two newest rounds. It appends every older round verbatim to `/tmp/<topic>-handoff-archive.md` and removes `Purge-ready: yes`. It changes nothing when the header is not ready. A fenced `## Round` line stays inside its round, including when the closing fence has trailing spaces. If the script refuses, fix the header and run it again. Do not rewrite the ledger by hand.
+
+Read the archive only when a closed item is contested or an open item's full text is missing. Do not read it on an ordinary review or fix turn.
+
+When the script moves sections, add one chat line: the archive path and how many sections moved.
 
 ## Dispositions (both sides)
 
@@ -101,7 +130,7 @@ Never assume "the local commit" means only `HEAD`. Honor an explicit user scope 
 
 ### Read-only worktree
 
-Review does **not** change the repository under review. The only allowed write is `/tmp/<topic>-handoff.md`.
+Review does **not** change the repository under review. The only allowed writes are `/tmp/<topic>-handoff.md` and, when purging, `/tmp/<topic>-handoff-archive.md`.
 
 - Prefer read-only inspection: `git diff`, `git status`, read files, syntax-check commands that do not write into the tree.
 - Do not install, build, patch, copy artifacts, or run project-scoped library install into the review repo unless the user explicitly asks.
@@ -113,7 +142,7 @@ Review does **not** change the repository under review. The only allowed write i
 
 Verify every finding against current code before recording it. Prefer the smallest correct fix. Distinguish correctness issues from optional improvements. Point at the repo's `AGENTS.md` / `CLAUDE.md` instead of restating them. Flag docs-only findings.
 
-On first create, put a header at the top: **Status**, **Must fix**, repositories/branches/bases/ranges, worktree scope. On later turns, surgically update only those **Status** / **Must fix** lines; leave every prior round intact.
+On first create, put a header at the top: **Status**, **Must fix**, **Standing**, **Closed**, repositories/branches/bases/ranges, worktree scope. On later turns, surgically update those header lines, append the round, then purge closed rounds.
 
 Then (in the first create, and again inside each appended round as needed):
 
@@ -123,7 +152,7 @@ Then (in the first create, and again inside each appended round as needed):
 4. **Explicit NON-issues** — flagged then disproved, with evidence.
 5. **Documentation impact** and copy-pasteable follow-up verification commands.
 
-On every review turn, **append** a labeled round (for example `## Round — <date or commit>`). Do not replace, rewrite, or delete prior rounds.
+On every review turn, **append** a labeled round (for example `## Round — <date or commit>`), then purge closed rounds. Do not rewrite the file any other way.
 
 Do not create `.patch` files, run `git format-patch`, or commit the `/tmp` handoff unless the user asks.
 
@@ -131,7 +160,7 @@ Do not create `.patch` files, run `git format-patch`, or commit the `/tmp` hando
 
 When the user points at `/tmp/<topic>-handoff.md` (or pastes review feedback), the role is **fixer**. Process the handoff; do not re-review from scratch; do not treat the reviewer's word as ground truth.
 
-1. Read the entire file. Independently validate every finding, claim, open question, and NON-issue against the current branch.
+1. Read the active ledger, not the archive. Independently validate every finding, claim, open question, and NON-issue against the current branch. Open the archive only for a closed item that is contested or an open item whose full text is missing.
 2. Classify with the dispositions above. Explain disagreements with file-level evidence.
 3. On a planning or triage turn, record classifications and a fix plan for **FIX** items — no edits.
 4. Do not change a NON-issue, **KEEP**, or **DO NOT APPLY** unless current evidence disproves it or the user changes the decision.
@@ -139,7 +168,7 @@ When the user points at `/tmp/<topic>-handoff.md` (or pastes review feedback), t
 6. Verify in proportion to risk. Inspect new assertions for vacuous mocks. Do not rerun an expensive check the handoff recorded as passed unless later changes could invalidate it.
 7. Do not treat an unrelated ancestor Git root as an affected repository merely because a task file is beneath it. Never stage a previously untracked configuration or tool-state subtree solely to manufacture a commit.
 8. **Do not auto-commit.** Commit only when the user explicitly asks or the active repository's rules require a commit on this turn. Never push. If verification is blocked, record the blocker and do not describe the round as complete.
-9. Append a labeled response section to the **same** file. Never replace, rewrite, or delete reviewer content or prior rounds. Surgical header **Status** / **Must fix** updates only.
+9. Append a labeled response section (`## Fixer — …`) to the **same** file, then purge closed rounds. Do not rewrite the file any other way.
 
 The response section must include:
 
@@ -153,9 +182,9 @@ The response section must include:
 
 ## Reconciliation loop
 
-The handoff is the shared ledger. Nothing useful is deleted. Reviewer appends `## Round — <date or commit>`; fixer appends labeled response sections. Do not full-file rewrite to “refresh” status — append the body and surgically edit header **Status** / **Must fix** only.
+The active ledger stays small. Reviewer appends `## Round — <date or commit>`; fixer appends `## Fixer — …`. Then purge. Closed round text lives in the archive. The header keeps **Status**, **Must fix**, **Standing**, and **Closed**. Do not rewrite the file to refresh status.
 
-On a later review round: read the whole file first, then independently verify fixer claims against current code. Confirm each **FIXED** is present. Record suspected-then-disproved items as NON-issues.
+On a later review round: read the active ledger first, then independently verify fixer claims against current code. Confirm each **FIXED** is present. Record suspected-then-disproved items as NON-issues.
 
 Continue until a round produces **zero new FIX items and zero open questions**. Record **RECONCILED** (which round, final commit SHAs). If a finding stays contested after one evidence exchange, stop and escalate to the user.
 
@@ -167,7 +196,7 @@ When the user asks to review after another model fixed **FIX** items:
 
 1. Re-read the session handoff and the current tree (`git status`, `git diff`). Do not trust a prior **RECONCILED** label without re-checking.
 2. Independently validate every open **FIX**, every claimed **FIXED**, and any diffs since the last round.
-3. Append `## Round — <date> post-fix re-review`; surgically update header **Status** and **Must fix** only (do not rewrite the file).
+3. Append `## Round — <date> post-fix re-review`, surgically update the header, then purge closed rounds.
 4. Chat session summary (required):
    - If any **FIX** remains: heading **Remaining FIX** with numbered items.
    - If none: heading **All reconciled**.

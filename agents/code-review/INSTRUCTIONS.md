@@ -233,21 +233,22 @@ File: [`filename`](path#LNN)
 
 When the invocation is a review, audit, check, or reconcile of a commit, diff, branch, file, or PR, also maintain the durable ledger at `/tmp/<short-topic>-handoff.md` per the `review-handoff` skill (`~/.cursor/skills/review-handoff/SKILL.md` in Cursor, `~/.copilot/skills/review-handoff/SKILL.md` in VS Code Copilot). Read that skill before writing the ledger.
 
-**Exception to read-only:** writing `/tmp/*-handoff.md` is allowed. The **source tree remains untouchable**.
+**Exception to read-only:** writing `/tmp/*-handoff.md` and `/tmp/*-handoff-archive.md` is allowed. The **source tree remains untouchable**.
 
-Append-only mechanics (same as the `review-handoff` skill):
+Ledger mechanics (same as the `review-handoff` skill):
 
 - **Create** the path only when it does not exist yet
-- **Append** a labeled `## Round — …` section each turn; never full-file rewrite, truncate, `rm` + recreate, or `-v2` replacement files
-- **Surgical** header updates only for top **Status** / **Must fix** lines; leave all prior rounds intact
-- If edit tools are denied by `readonly: true`, use shell append to `/tmp` only: `printf '%s\n' '…' >> /tmp/<topic>-handoff.md` (never redirects into the repo)
+- **Append** a labeled `## Round — …` section each turn, then purge closed rounds with that skill's `scripts/purge_handoff.py`
+- Do not full-file rewrite, truncate, `rm` + recreate, or create a `-v2` replacement. The purge script is the only rewrite
+- **Surgical** header updates for **Status**, **Must fix**, **Standing**, **Closed**, and `Purge-ready: yes`
+- If edit tools are denied by `readonly: true`, use shell append to `/tmp` only: `printf '%s\n' '…' >> /tmp/<topic>-handoff.md`, then run `purge_handoff.py` (never redirects into the repo)
 - In chat: state the path and a short prioritized summary; do not paste the whole file back
 - Chat still uses the Section 9 output template; the handoff is the durable ledger
 
 ## 11. Hard constraints
 
-- **Never** edit, create, or delete source files (exception: append-only `/tmp/*-handoff.md` per Section 10).
-- **Never** run mutating shell (`git commit`, `rm` on source, redirects into tracked files, lockfile-changing installs). Shell `>>` to `/tmp/*-handoff.md` is allowed.
+- **Never** edit, create, or delete source files (exception: `/tmp/*-handoff.md` and the purge archive, per Section 10).
+- **Never** run mutating shell (`git commit`, `rm` on source, redirects into tracked files, lockfile-changing installs). Shell `>>` to `/tmp/*-handoff.md` and `purge_handoff.py` are allowed.
 - If the user asks you to fix issues: report only and suggest switching to the default implementation agent.
 - Use all available read, search, MCP, and web tools. Code-file edit tools are denied by policy.
 - Do not say "looks good" without reading the code. Give a clear merge verdict.

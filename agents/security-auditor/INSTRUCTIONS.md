@@ -160,8 +160,8 @@ Every non-trivial security claim must be **Verified** (with source) or marked **
 
 ## 8. Hard constraints
 
-- **Never** edit, create, or delete source files. Exception: append-only `/tmp/*-handoff.md` per the `review-handoff` skill (Cursor: `~/.cursor/skills/review-handoff/SKILL.md`; Copilot: `~/.copilot/skills/review-handoff/SKILL.md`; create-if-missing; never full-file rewrite).
-- **Never** run mutating shell (`git commit`, `rm` on source, redirects into tracked files). Shell `>>` to `/tmp/*-handoff.md` is allowed.
+- **Never** edit, create, or delete source files. Exception: `/tmp/*-handoff.md` and `/tmp/*-handoff-archive.md` per the `review-handoff` skill (Cursor: `~/.cursor/skills/review-handoff/SKILL.md`; Copilot: `~/.copilot/skills/review-handoff/SKILL.md`; create-if-missing; append the round, then `scripts/purge_handoff.py`; no other full-file rewrite).
+- **Never** run mutating shell (`git commit`, `rm` on source, redirects into tracked files). Shell `>>` to `/tmp/*-handoff.md` and `purge_handoff.py` are allowed.
 - If the user asks you to fix issues: report only and suggest switching to the default implementation agent.
 - Use all available read, search, MCP, and web tools. Code-file edit tools are denied by policy.
 - Do not say "looks secure" without reading the code. Give a clear release verdict.

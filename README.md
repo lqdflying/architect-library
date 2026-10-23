@@ -166,7 +166,7 @@ See [Installation](#installation) for Copilot / Claude Code / Codex paths, or [d
 | `pdf-document` | Read, create, merge, split, and fill PDFs. |
 | `verification-before-completion` | Fresh verification evidence before any completion or delivery claim. |
 | `newagentlink` | One-shot `/tmp/<topic>-newagentlink.md` so a new agent can continue without the old transcript. Not the review ledger. |
-| `review-handoff` | Review and fix ledger at `/tmp/<topic>-handoff.md` with FIX / DEFER / KEEP / DO NOT APPLY / FIXED / RECONCILED. Loaded on demand; Cursor, Copilot, and Codex. |
+| `review-handoff` | Review and fix ledger at `/tmp/<topic>-handoff.md` with FIX / DEFER / KEEP / DO NOT APPLY / FIXED / RECONCILED. Closed rounds move to `/tmp/<topic>-handoff-archive.md`. Loaded on demand; Cursor, Copilot, Codex, and Claude Code. |
 | `api-and-interface-design` | Design stable APIs and module boundaries — contract-first, error semantics, pagination, Hyrum's Law. |
 | `github-markdown` | Write correct GitHub Flavored Markdown for READMEs, issues, PRs, discussions, wikis, and repo docs. |
 | `deprecation-and-migration` | Deprecate and migrate systems safely — strangler pattern, migration guides, zero-usage removal. |
@@ -197,7 +197,7 @@ One ledger protocol in an on-demand skill, plus a short always-on trigger per ed
 | Codex trigger | [`user-rules/codex/review-handoff.md`](user-rules/codex/review-handoff.md) (generated) | Managed block in `${CODEX_HOME:-$HOME/.codex}/AGENTS.md` |
 | Claude Code trigger | [`user-rules/claude/review-handoff.md`](user-rules/claude/review-handoff.md) (generated) | `~/.claude/rules/review-handoff.md` |
 
-`/tmp/<topic>-handoff.md` is the ledger, with FIX / DEFER / KEEP / DO NOT APPLY / FIXED / RECONCILED. **Append-only** (no full-file rewrite/truncate/delete of prior rounds; surgical header Status/Must fix only). Distinct from `newagentlink` (`/tmp/<topic>-newagentlink.md`). Edit `skills/review-handoff/SKILL.md` and reinstall with `all cursor` and `all copilot`; use `all codex` for Codex and `all claude` for Claude Code. Do not keep a second protocol in the home file.
+`/tmp/<topic>-handoff.md` is the active ledger, with FIX / DEFER / KEEP / DO NOT APPLY / FIXED / RECONCILED. Append the round, then `scripts/purge_handoff.py` moves older rounds verbatim to `/tmp/<topic>-handoff-archive.md`. The active file keeps the header, open items, and the two newest rounds. Distinct from `newagentlink` (`/tmp/<topic>-newagentlink.md`). Edit `skills/review-handoff/SKILL.md` and reinstall with `all cursor` and `all copilot`; use `all codex` for Codex and `all claude` for Claude Code. Do not keep a second protocol in the home file.
 
 ## Response style (Cursor, Copilot, Codex, and Claude Code)
 
@@ -412,6 +412,8 @@ architect-library/
     review-handoff/
       SKILL.md
       README.md
+      scripts/
+        purge_handoff.py
     mcp-tool-rules/
       SKILL.cursor.md
       SKILL.copilot.md
