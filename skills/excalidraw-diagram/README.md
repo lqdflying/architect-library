@@ -62,10 +62,10 @@ uv run python shift_region.py diagram.excalidraw --below 1075 --dy 108 --dry-run
 ## Key References
 
 - `SKILL.md` - design methodology and workflow
-- `references/shape-and-layout.md` - relationship-driven placement, direct connectors without unnecessary folds and flexible icon captions
+- `references/shape-and-layout.md` - relationship-driven placement, folded orthogonal routes, aligned straight links and flexible icon captions
 - `references/azure-icons.md` - offline official Azure icon cache, usage terms and embedding helper
 - `references/vendor-icons.md` - offline F5, Palo Alto Networks, NGINX, Datadog, GitHub, and GitHub Actions SVG cache and embedding helper
-- `references/color-palette.md` - single source of truth for colors
+- `references/color-palette.md` - semantic route colors, matching captions and compact legends
 - `references/layered-server-architecture.md` - MCP/server architecture layout (vertical spine + sidebars)
 - `references/edit-existing.md` - collision pass when editing an existing diagram
 - `references/element-templates.md` - reusable Excalidraw JSON templates

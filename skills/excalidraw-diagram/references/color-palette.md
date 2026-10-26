@@ -54,11 +54,27 @@ Used for code snippets, data examples, and other concrete evidence inside techni
 
 ---
 
+## Architecture Route Colors
+
+Choose a small set of colors by relationship type before routing. These defaults distinguish traffic families; use only the families present in the diagram and preserve an existing clear color key. Do not give every edge a different color or make all routes black or dark navy. The layered server pattern keeps its own arrow table in `layered-server-architecture.md`.
+
+| Relationship | Route color | Line style |
+|--------------|-------------|------------|
+| User ingress | Blue `#3b82f6` | Solid |
+| Deployment or administrative access | Orange `#c2410c` | Solid |
+| Application-to-service or data access | Green `#047857` | Solid |
+| Configuration, identity association or scope | Slate `#64748b` | Dashed |
+
+Carry the family color along its route and use it for nearby protocol labels or matching service headings. Use darker blue `#1e40af` for small blue captions on white; keep long resource names and supporting detail neutral. Keep labels, arrowheads and solid/dashed distinctions so color is not the only cue. Include a compact legend when several families share the canvas.
+
+Boundary colors describe ownership or grouping independently of route colors; make that distinction explicit when both are used. Keep official icons unchanged. Prefer colored routes and headings with restrained fills, not large saturated backgrounds. When refining an approved layout for color alone, preserve positions, waypoints, bindings and content except the color key.
+
 ## Default Stroke & Line Colors
 
 | Element | Color |
 |---------|-------|
-| Arrows | Use the stroke color of the source element's semantic purpose |
+| Architecture arrows | Use the relationship's route color above; a shared source may emit several traffic families |
+| Other arrows | Use the stroke color of the source element's semantic purpose |
 | Structural lines (dividers, trees, timelines) | Primary stroke (`#1e3a5f`) or Slate (`#64748b`) |
 | Marker dots (fill + stroke) | Primary fill (`#3b82f6`) |
 

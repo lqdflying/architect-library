@@ -135,7 +135,7 @@ Use middle dot (`·`) to separate inline function lists. Use `\n` for multi-line
 | Client → server | match client semantic (purple, orange, navy) | solid, `strokeWidth: 2` | optional bound label (e.g. "MCP Protocol", "Inventory Script") |
 | Spine (layer to layer) | Primary stroke `#1e3a5f` | solid, vertical | **bound label** on arrow (`containerId` = arrow id), 16–20px, often `fontFamily: 5` |
 | Store → database | End/Success green `#047857` | solid | usually unlabeled |
-| Server → auth / admin | Primary stroke `#1e3a5f` | solid; straight when clear, elbowed only when needed | unlabeled |
+| Server → auth / admin | Primary stroke `#1e3a5f` | solid; folded orthogonal lane for offset nodes, straight when aligned | unlabeled |
 | Config / hot-reload | `#64748b` | **dashed**, `strokeWidth: 1` | bound label if needed (e.g. "hot-reload") |
 
 Bindings: `startBinding` / `endBinding` with `gap: 2`. Arrow color follows the **source** element's semantic color for client-origin flows.
