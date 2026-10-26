@@ -155,7 +155,7 @@ Copy-paste JSON templates for each Excalidraw element type. The `strokeColor` an
   "type": "arrow",
   "id": "arrow1",
   "x": 282, "y": 145, "width": 118, "height": 0,
-  "strokeColor": "<arrow color — typically matches source element's stroke from palette>",
+  "strokeColor": "<architecture: relationship route color; other diagrams: source element stroke (color-palette.md)>",
   "backgroundColor": "transparent",
   "fillStyle": "solid",
   "strokeWidth": 2,
@@ -180,7 +180,7 @@ Copy-paste JSON templates for each Excalidraw element type. The `strokeColor` an
 }
 ```
 
-Start with a direct two-point connector, including a diagonal when clear. Add an elbow when it reads more clearly than the straight segment, with the fewest bends the route needs; do not add one that a straight segment could replace just as clearly. An architecture elbow uses horizontal/vertical waypoints, for example `[[0, 0], [60, 0], [60, 80], [118, 80]]`, with `angle: 0` and `roundness: null`. For a required curve, such as a feedback loop, use 3+ points with `roundness: {"type": 2}`; points alone still render straight segments.
+The snippet shows an aligned straight link. For offset architecture nodes, prefer a folded orthogonal route through a clear lane: for example, `points: [[0, 0], [60, 0], [60, 80], [118, 80]]` with `width: 118`, `height: 80`, `angle: 0` and `roundness: null`. Choose the route color by relationship type from `color-palette.md`, and use dashed lines for configuration. Move port labels with their route and preserve both endpoint bindings. Use diagonals or curves when the user or concept requires them; for a required curve such as a feedback loop, use 3+ points with `roundness: {"type": 2}` because points alone still render straight segments.
 
 The arrow snippet is not attached by itself. Each `startBinding` / `endBinding` element must also list this arrow in that element's `boundElements` (`type: "arrow"`), together with any text already listed there. `endBinding: null` means that end is open. A layer-to-layer spine arrow needs both ends. On the arrow object, `boundElements` is only the label whose `containerId` is the arrow (see the spine label below).
 

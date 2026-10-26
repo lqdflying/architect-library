@@ -1,6 +1,6 @@
 ---
 name: excalidraw-diagram
-description: Create or refine Excalidraw diagram JSON files that make visual arguments. Use when the user wants to visualize workflows, architectures, or concepts, or fix diagram readability and alignment. Every Azure service and depicted private endpoint uses its cached official icon, or a reported labeled box when no icon exists. F5, Palo Alto Networks, NGINX, Datadog, GitHub, and GitHub Actions nodes use cached Simple Icons SVGs. Use readable text, aligned icon rows and straight connectors when clear. Validate bindings, icon coverage and rendered layout separately from collisions. When editing an existing .excalidraw, run the geometric collision pass before the first PNG. Keep the PNG under the 30,000-patch vision limit and inspect it.
+description: Create or refine Excalidraw diagram JSON files that make visual arguments. Use when the user wants to visualize workflows, architectures, or concepts, or fix diagram readability and alignment. Every Azure service and depicted private endpoint uses its cached official icon, or a reported labeled box when no icon exists. F5, Palo Alto Networks, NGINX, Datadog, GitHub, and GitHub Actions nodes use cached Simple Icons SVGs. Use readable text, aligned icon rows, folded orthogonal routes and meaningful route colors. Keep aligned horizontal or vertical links straight. Validate bindings, icon coverage and rendered layout separately from collisions. When editing an existing .excalidraw, run the geometric collision pass before the first PNG. Keep the PNG under the 30,000-patch vision limit and inspect it.
 ---
 
 # Excalidraw Diagram Creator
@@ -170,9 +170,9 @@ Before JSON, mentally trace how the eye moves through the diagram. There should 
 
 Choose one primary visual argument. Do not add a delivery timeline, summary strip, or footer that only restates that argument. Keep the labels the drawing needs so it can be read on its own. A timeline or sequence stays when it is part of the question.
 
-Arrange regions around the main relationships, keeping unrelated boundaries out of their paths. Reserve separate corridors for network, service and diagnostic connections when they reduce crossings. Start with a direct connector, including a clear diagonal, and avoid unnecessary folds. Use a fold when it reads more clearly than the straight segment, with the fewest bends the route needs. Choose caption placement to leave connection points clear.
+Arrange regions around the main relationships, keeping unrelated boundaries out of their paths. Prefer folded orthogonal routes for architecture diagrams, with separate lanes for offset nodes and fan-out paths; keep aligned horizontal or vertical links straight. Plan attachment sides and caption placement together. Use clean right-angle bends without zigzags or long detours, and distinguish major route families with the colors in `references/color-palette.md`.
 
-When reviewing a manually edited diagram, compare its relationships and current design facts separately from its layout changes. Remove a bend when a straight segment reads just as clearly; keep a bend that makes the route clearer. Do not replace a user's already simplified direct route with an elbow, and do not keep a route that collides or states the wrong relationship.
+When reviewing a manually edited diagram, compare its relationships and current design facts separately from its layout changes. Preserve user-approved routing, colors and placement unless the request or a verified defect requires a change. Judge routes together at overview size; a collision-free diagonal is not automatically clearer than a folded lane. Do not keep a route that collides or states the wrong relationship.
 
 Apply the font scale and repeated-row alignment rules in `references/shape-and-layout.md` before fitting containers. When refining a diagram, rewrite unclear labels without changing the design's meaning. Check every depicted private endpoint against `references/azure-icons.md`; a service icon does not cover its endpoint nodes.
 
@@ -257,7 +257,7 @@ See `references/json-schema.md` for additional schema details.
 
 ### Structural
 13. **Connections**: Every relationship the diagram claims has a traceable connector. Node-to-node arrows bind both ends, and both endpoint elements list the arrow
-14. **Flow**: Clear visual path; use a straight segment when clear, with a reason for each retained bend
+14. **Flow**: Clear visual path without avoidable crossings or zigzags; architecture diagrams use folded orthogonal lanes, aligned straight links and consistent route colors
 15. **Hierarchy**: Important elements are larger/more isolated
 
 ### Technical
