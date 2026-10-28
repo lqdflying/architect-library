@@ -89,7 +89,7 @@ Canonical sources: `user-rules/cursor/docs-lookup.mdc` (installs to `~/.cursor/r
 
 | Work | Done when |
 |------|-----------|
-| **docs-lookup** | Code documentation is looked up with Microsoft Learn or Context7 MCP first. Native web search and fetch run only when no documentation MCP applies, the call fails, or the result has nothing usable. |
+| **docs-lookup** | Code documentation is looked up with Microsoft Learn or Context7 MCP first. Native web search and fetch run only when no documentation MCP applies, the call fails, or the result has nothing usable. A fact is checked before it is stated: provider behavior against the pinned version's docs, live values against the live object, value ownership against the repo rule. |
 
 ## Temporary validators (user-global protocol)
 

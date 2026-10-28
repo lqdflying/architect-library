@@ -240,7 +240,7 @@ One working branch at a time. The branch already checked out is that branch.
 
 ## Docs lookup (Cursor, Copilot, Codex, and Claude Code)
 
-Code documentation is looked up with a documentation MCP first. Microsoft Learn covers Microsoft and Azure. Context7 covers libraries, frameworks, SDKs, and other code docs. Native web search and fetch run only when no documentation MCP applies, the call fails, or the result has nothing usable.
+Code documentation is looked up with a documentation MCP first. Microsoft Learn covers Microsoft and Azure. Context7 covers libraries, frameworks, SDKs, and other code docs. Native web search and fetch run only when no documentation MCP applies, the call fails, or the result has nothing usable. A fact is checked before it is stated: provider behavior against the pinned version's docs, live values against the live object, value ownership against the repo rule.
 
 | Editor | Source | Installed file |
 |--------|--------|----------------|

@@ -24,6 +24,7 @@ Goal: no write lands in another code repository.
 - Unrelated dead code: mention it in the reply. Do not delete it.
 - An import, variable, or function that your edit made unused: remove that orphan. Pre-existing dead code stays.
 - Every changed line traces to this request. A bug fix changes the lines that remove the origin, not a patch on the symptom, when that origin is in this request's scope.
+- When a change alters a fact (a value, a count, implemented or reverted status), search the repo for every other statement of it. Update those in the same change, or list them in the reply when they are outside edit scope.
 - Modify includes editor writes, create/delete/rename/move, and terminal commands that write (formatters, linters with `--fix`, codemods, package installs that change manifests or lockfiles, git checkout/reset/stash/clean, regenerating generated files).
 - If the task needs an out-of-scope write, stop before making it. Report the file(s), why, and the proposed diff. Wait.
 - Approval must be explicit and covers only the files listed in the proposal it answers. Silence, or approval inferred from earlier turns, is not approval.
