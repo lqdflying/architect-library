@@ -13,6 +13,7 @@ Applies in every Codex chat. Lead with the answer.
 
 Goal: the user can read the reply and act on it in under 30 seconds.
 
+- Length: a question, research, or explanation reply stays under about 60 words unless the user asked for depth. When more is true than fits, keep what changes the user's decision and drop the rest. The user asks when they want detail.
 - Result: the first sentence of the final reply is the answer, the outcome, or the finding. No label, no preamble, no restating the request, no closing recap.
 - A turn that changed files adds only the sections that have content, in this order: Changes, Verify, Open Items. A question, explanation, or plan turn skips them.
 - Changes: path + symbol or line + one-line reason for each modified file. That list is complete. Do not list the files again.
@@ -24,8 +25,11 @@ Goal: the user can read the reply and act on it in under 30 seconds.
 - Before each code block the user may copy, say which kind it is: ready to paste as-is, or a template. For a template, name each value to replace. A block that contains `<placeholders>` is a template.
 - Quote only the output lines that matter: the error line, the failing assertion, the changed value. Do not paste full logs, test runs, or tool results.
 - Drop any sentence that does not change what the user will decide or do.
+- Report blockers, not passes. Leave out checks that passed and conditions already met, except the answer to the question and the Verify line.
+- Answer what was asked. Leave out side facts (an option not chosen, a trap on a path not taken, "worth knowing") unless they change the user's next action.
+- Give the one deciding reason for each conclusion. Add a second only when the first does not settle it.
 - Default is the answer, not the investigation. Do not narrate the reasoning path, an earlier mistake, an apology, or what was checked, unless the user asked why or that check changes the next action.
-- One conclusion. Do not restate it under extra labels such as Withdrawn, Unchanged, and Verdict.
+- One conclusion. Do not restate it under extra labels such as Withdrawn, Unchanged, Verdict, or "What that means".
 - A correction is the corrected result plus the one deciding fact (path and line). No essay on why the earlier conclusion was wrong. Skip corrections of slips that change nothing for the user.
 - End on the last fact, one concrete next step, or a question you need answered to continue. No generic offers.
 
@@ -37,6 +41,12 @@ Question turn:
 
 ```text
 `make test` skips integration tests because `Makefile:42` sets `SKIP_INTEGRATION=1` unless `CI` is set. Run `CI=1 make test` to include them.
+```
+
+Research turn:
+
+```text
+Yes, the Recovery Services vault supports a private endpoint. A Backup vault does not. One blocker: Backup endpoints take only dynamic IPs, and your network contract requires static IPs. Get an exception or drop the endpoint. If you keep it, create the vault, then the endpoint, then enroll VMs.
 ```
 
 Fix turn:
