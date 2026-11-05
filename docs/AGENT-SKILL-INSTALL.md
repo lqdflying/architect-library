@@ -51,6 +51,7 @@ Architect Library publishes **two libraries** plus **Cursor user-global rules**:
 | `powerpoint-presentation` | Shared skill | If PPTX is needed |
 | `spreadsheet-document` | Shared skill | If XLSX/spreadsheet work is needed |
 | `pdf-document` | Shared skill | If PDF work is needed |
+| `iac-handoff-pdf` | Shared skill | If an IaC environment handoff PDF for a vendor or developer team is needed |
 | `verification-before-completion` | Shared skill | Evidence before completion claims; required by artifact skills at delivery |
 | `newagentlink` | Shared skill | One-shot `/tmp/<topic>-newagentlink.md` for a new agent chat; not the review ledger |
 | `review-handoff` | Shared skill (on demand) | Review and fix ledger protocol at `/tmp/<topic>-handoff.md`; read when the always-on `review-handoff` trigger fires |
@@ -408,6 +409,7 @@ The install script runs **library** checks automatically for the `EDITOR` you pa
 | **powerpoint-presentation** | Validate PPTX; **`thumbnail` every deck**; **view** images; `office-system` if missing; test native PowerPoint opening when available, otherwise report it unverified; follow repair-prompt recovery in the skill |
 | **spreadsheet-document** | Deliver `.xlsx`; formulas LibreOffice can evaluate (no `XLOOKUP`/`XMATCH`/`SORT`/`FILTER`/`UNIQUE`/`SEQUENCE`); `recalc` until JSON `status: success` if formulas used; external-link refusal fails the recalc until values are preserved or `--force` |
 | **pdf-document** | Deliver `.pdf`; form fills per `references/forms.md`. Python is `uv run --project <skill-root>/references`, not system Python or office-tools |
+| **iac-handoff-pdf** | Generator and PDF in the IaC repo; values traced to applied IaC or a live query; `pdfinfo` shows the new version; secret scan prints nothing; only reader-chosen placeholders remain; every rendered page **viewed** |
 | **verification-before-completion** | Fresh verification command output in same message before any completion/success claim |
 | **newagentlink** | `/tmp/<topic>-newagentlink.md` written once this turn; one-shot banner present; live git gathered; chat returns path + starter prompt only; never writes `/tmp/<topic>-handoff.md` |
 | **api-and-interface-design** | Contract before implementation; consistent errors; boundary validation; list pagination; deprecation cross-check when changing public interfaces |

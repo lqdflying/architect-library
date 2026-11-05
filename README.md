@@ -164,6 +164,7 @@ See [Installation](#installation) for Copilot / Claude Code / Codex paths, or [d
 | `powerpoint-presentation` | Create or edit PPTX decks; **every delivery requires layout preview** (slide images via LibreOffice + Poppler). |
 | `spreadsheet-document` | Create or edit `.xlsx`. Use formulas LibreOffice can evaluate; `office_tools.py recalc` must return JSON `status: success` before delivery. |
 | `pdf-document` | Read, create, merge, split, and fill PDFs. |
+| `iac-handoff-pdf` | Write or update the environment handoff PDF that tells a vendor or developer team what an IaC repo provisioned and how to use it. Every rendered page is viewed before delivery. |
 | `verification-before-completion` | Fresh verification evidence before any completion or delivery claim. |
 | `newagentlink` | One-shot `/tmp/<topic>-newagentlink.md` so a new agent can continue without the old transcript. Not the review ledger. |
 | `review-handoff` | Review and fix ledger at `/tmp/<topic>-handoff.md` with FIX / DEFER / KEEP / DO NOT APPLY / FIXED / RECONCILED. Closed rounds move to `/tmp/<topic>-handoff-archive.md`. Loaded on demand; Cursor, Copilot, Codex, and Claude Code. |
@@ -316,6 +317,8 @@ Intermediate status and validator scripts go under `/tmp`. They are not added to
 | [`skills/powerpoint-presentation/references/layout-preview.md`](skills/powerpoint-presentation/references/layout-preview.md) | PPTX layout preview images (grid + per-slide JPEGs) |
 | [`skills/spreadsheet-document/SKILL.md`](skills/spreadsheet-document/SKILL.md) | XLSX workflow, LibreOffice-safe formulas, and recalc |
 | [`skills/pdf-document/SKILL.md`](skills/pdf-document/SKILL.md) | PDF workflows and form fill |
+| [`skills/iac-handoff-pdf/SKILL.md`](skills/iac-handoff-pdf/SKILL.md) | IaC environment handoff PDF workflow |
+| [`skills/iac-handoff-pdf/references/handoff-guide.md`](skills/iac-handoff-pdf/references/handoff-guide.md) | Handoff section catalog, writing rules, layout, verification commands |
 | [`skills/_shared/architecture-document-principles.md`](skills/_shared/architecture-document-principles.md) | Shared structure for architecture docs and decks |
 | [`skills/_shared/office-tools/README.md`](skills/_shared/office-tools/README.md) | Full `office_tools.py` command reference and validation checks |
 
@@ -383,6 +386,12 @@ architect-library/
       SKILL.md
       references/pdf-guide.md
       scripts/
+    iac-handoff-pdf/
+      SKILL.md
+      README.md
+      references/handoff-guide.md
+      scripts/handoff_template.py
+      scripts/pil-logo.png
     verification-before-completion/
       SKILL.md
       README.md
