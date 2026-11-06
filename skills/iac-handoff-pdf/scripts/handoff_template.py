@@ -311,6 +311,9 @@ def story():
 
     s += section(
         "8. Secrets",
+        note_box("To add or change any secret in `<vault>`, submit a <request type> to <team>.", [
+            "<team> enters the value.",
+        ]),
         P("<Who supplies the values and who enters them.> Values are only in the vault. They are not in this document."),
         table([
             ["Secret name", "Purpose", "Readable by", "Status"],

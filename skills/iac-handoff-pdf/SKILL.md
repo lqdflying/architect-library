@@ -47,6 +47,7 @@ For other PDF work (merge, extract, forms), use `pdf-document`. Change the topol
 | Treat a built PDF as delivered | View every rendered page |
 | Edit the PDF directly | Edit the generator and rebuild |
 | Add a questions section | Send open questions in a separate message; the handoff states what exists |
+| Bold a request the reader must make to another team, or an action they lack permission for | One `note_box` at the top of that section, with the rule as its heading. Steps, checks and plain facts stay in body text |
 
 ## Delivery Checklist
 
