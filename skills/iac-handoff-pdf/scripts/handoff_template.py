@@ -7,10 +7,11 @@
 
 Usage: uv run --script scripts/build_<env>_handoff.py docs/<project>-<env>-handoff.pdf [--diagram design-docs/<topology>.png]
 
-The handoff text lives in this script. To issue a new version, change the text, VERSION, REVISED and CHANGES, then rebuild.
+The handoff text lives in this script. To issue a new version, change the text, add an entry at the top of HISTORY, then rebuild.
 The title-block logo is pil-logo.png next to this script. Never put a secret value in the handoff.
 
-Text helpers escape XML. Write `name` for a monospace identifier, **text** for bold, and a newline for a line break in a table cell.
+Text helpers escape XML. Write `name` for a monospace identifier, **text** for bold, [[key]] for the linked number of the
+section with that key, and a newline for a line break in a table cell. A key is lower-case letters, digits and hyphens.
 """
 import argparse
 import glob
@@ -28,6 +29,7 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import (
     BaseDocTemplate,
+    CondPageBreak,
     Frame,
     Image,
     KeepTogether,
@@ -46,15 +48,16 @@ SCOPE = "<workload in a few words>"
 REGION = "<region>"
 SENDER = "<platform team>"
 RECIPIENT = "<application vendor or developer team>"
-VERSION = "1.0"
-ISSUED = "<D Month YYYY>"  # date of version 1.0
-REVISED = ISSUED  # date of this version
+# One entry per version, newest first: (version, date, [one line per change, with the section it touches]).
+HISTORY = [
+    ("1.0", "<D Month YYYY>", ["First handoff."]),
+]
+VERSION, REVISED, CHANGES = HISTORY[0]
+ISSUED = HISTORY[-1][1]  # date of version 1.0
 AUDIENCE = "Internal and vendor use"
 HEADER = f"{PROJECT_ENV} infrastructure handoff for {RECIPIENT}"
 FOOTER = f"Prepared by {SENDER}, {ISSUED} · Version {VERSION}" + (f", revised {REVISED}" if REVISED != ISSUED else "")
 DIAGRAM_CAPTION = "<What the diagram shows. Addresses shown are the <ENV> allocations.>"
-# One bullet per change since the previous version, with the section it touches. Leave empty for version 1.0.
-CHANGES = []
 LOGO = pathlib.Path(__file__).resolve().with_name("pil-logo.png")
 
 
@@ -106,10 +109,22 @@ BOX_HEAD = ParagraphStyle("boxhead", parent=BODY, fontName=SANS_BOLD, fontSize=1
 BOX_BODY = ParagraphStyle("boxbody", parent=BODY, fontSize=8.9, leading=12.4, spaceAfter=4)
 
 
+NUMBER = {}  # section key -> number, in the order of the section() calls
+KEYS = []  # every section() key, in call order; main() rejects a repeat
+REFS = set()  # keys named by [[key]] references
+
+
+def link(match):
+    key = match.group(1)
+    REFS.add(key)
+    return f'<a href="#{key}" color="{NAVY.hexval()}">{NUMBER.get(key, "?")}</a>'
+
+
 def fmt(text):
     text = escape(text).replace("\n", "<br/>")
     text = re.sub(r"`([^`]+)`", f'<font name="{MONO}" size="{MONO_SIZE}">\\1</font>', text)
-    return re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", text)
+    text = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", text)
+    return re.sub(r"\[\[(.+?)\]\]", link, text)
 
 
 def P(text, style=BODY):
@@ -196,11 +211,38 @@ def title_block():
     return t
 
 
-def section(title, *flow, style=H2):
-    """Keep the heading on the same page as its first flowable, or as a whole first keep() group. Use style=H3 for a subsection."""
+def heading(key, text):
+    """A heading that [[key]] links to and that HandoffDoc adds to the PDF bookmarks."""
+    p = Paragraph(f'<a name="{key}"/>{fmt(text)}', H2)
+    p.bookmark = (text.replace("`", ""), key)
+    return p
+
+
+def with_heading(head, flow):
+    """Keep a heading on the same page as its first flowable, or as a whole first keep() group."""
+    first = flow[0]
+    if getattr(first, "repeatRows", 0):
+        # A table() splits by row. Reserve room for the heading and the first 60 mm of the table, so a long table starts on
+        # this page and continues on the next one. Only table() repeats a header row; code() and note_box() do not.
+        room = head.style.spaceBefore + head.style.leading + head.style.spaceAfter + min(first.wrap(W, A4[1])[1], 60 * mm)
+        return [CondPageBreak(room), head, *flow]
     # A KeepTogether nested in another one reports an oversized height and always starts a new page, so merge a first keep() group.
-    first = flow[0]._content if isinstance(flow[0], KeepTogether) else [flow[0]]
-    return [KeepTogether([P(title, style), *first]), *flow[1:]]
+    group = first._content if isinstance(first, KeepTogether) else [first]
+    return [KeepTogether([head, *group]), *flow[1:]]
+
+
+def section(key, title, *flow):
+    """Numbered section. The number is the position of this call among the section() calls. [[key]] links to it."""
+    if not re.fullmatch(r"[a-z0-9-]+", key):
+        raise SystemExit(f"section key must be lower-case letters, digits and hyphens: {key}")
+    KEYS.append(key)
+    NUMBER.setdefault(key, len(NUMBER) + 1)
+    return with_heading(heading(key, f"{NUMBER[key]}. {title}"), flow)
+
+
+def subsection(title, *flow):
+    """Unnumbered subsection inside a section."""
+    return with_heading(P(title, H3), flow)
 
 
 def story():
@@ -210,17 +252,24 @@ def story():
             f"{SENDER} has provisioned the {PROJECT_ENV} environment and verified it on <date>. This document hands it "
             "over: <every topic below, in section order>. <Environments not provisioned yet.> Secret values are not included."
         ),
+        P("**Not ready yet:** <item>, <item>. See section [[not-ready]]."),
     ]
 
-    if CHANGES:
+    if len(HISTORY) > 1:
         s += [P(f"**New in version {VERSION}**, applied on {REVISED}:"), *bullets(CHANGES)]
 
-    s += [Spacer(1, 3), note_box("Before you start: <N> access items", [
-        "**1. <Access the reader needs first>: <whom to ask, or what to wait for>.** <Why it blocks the work and what it opens.>",
+    s += [Spacer(1, 3), note_box("Before you start", [
+        "**1. <Cluster or VM> access: sign in to <jump host or privileged-access tool> as `<account>`.** <What is private "
+        "and the only place the reader works from.> See section [[sign-in]].",
+        "**2. Access from your own devices: request <client VPN> from <network team>.** The private endpoints in section "
+        "[[endpoints]] are not reachable from the public internet. <What to request, and from which team.>",
+        "**3. <Shared service>: contact <owning team>.** <What that team handles.>",
+        "**4. Integration troubleshooting: allow time.** Network and access changes go through the owning teams. Work with "
+        "<team> on integration issues.",
     ])]
 
     s += section(
-        "1. Environment",
+        "environment", "Environment",
         table([
             ["Item", "Value"],
             ["Subscription", "`<subscription name>`"],
@@ -232,16 +281,16 @@ def story():
     )
 
     s += section(
-        "2. Provisioned resources",
+        "resources", "Provisioned resources",
         table([
             ["Purpose", "Name", "Configuration"],
-            ["<Purpose>", "`<resource name>`", "<Version, size and the security settings the reader relies on>. <Detail> (section N)"],
+            ["<Purpose>", "`<resource name>`", "<Version, size and the security settings the reader relies on>. <Detail> (section [[secrets]])"],
         ], [0.17, 0.29, 0.54]),
-        P("Public network access is disabled on <resources>. <Resource> is not provisioned yet (section N)."),
+        P("Public network access is disabled on <resources>. <Resource> is not provisioned yet (section [[not-ready]])."),
     )
 
     s += section(
-        "3. Private endpoints and host names",
+        "endpoints", "Private endpoints and host names",
         keep(
             P("Each host name below resolves to its private address through the central private DNS zones. Use the normal "
               "host names, not the `privatelink` names."),
@@ -255,10 +304,10 @@ def story():
     )
 
     s += section(
-        "4. Identities and access",
+        "identities", "Identities and access",
         table([
             ["Identity", "Used by", "Access granted"],
-            ["`<sign-in account>`\n<where it signs in>", "<who uses it>", "<What it can do. See section 5>"],
+            ["`<sign-in account>`\n<where it signs in>", "<who uses it>", "<What it can do.> See section [[sign-in]]"],
             ["`<workload identity>`\nClient ID `<guid>`", "<application component>", "<Role> on `<scope>`"],
         ], [0.32, 0.23, 0.45]),
         *bullets([
@@ -268,7 +317,7 @@ def story():
     )
 
     s += section(
-        "5. Sign in and check access",
+        "sign-in", "Sign in and check access",
         keep(
             P("<Steps to sign in, in order, with the exact host and account.>"),
             code("""
@@ -286,7 +335,7 @@ def story():
     )
 
     s += section(
-        "6. <Task in the reader's work order>",
+        "task", "<Task in the reader's work order>",
         P("<What to do, with the exact names.>"),
         keep(
             P("Example <object>:"),
@@ -302,7 +351,7 @@ def story():
     )
 
     s += section(
-        "7. Guardrails",
+        "guardrails", "Guardrails",
         table([
             ["Object", "Rule"],
             ["<Object type>", "<What is denied, on which operation, and what to use instead.>"],
@@ -310,7 +359,7 @@ def story():
     )
 
     s += section(
-        "8. Secrets",
+        "secrets", "Secrets",
         note_box("To add or change any secret in `<vault>`, submit a <request type> to <team>.", [
             "<team> enters the value.",
         ]),
@@ -323,7 +372,7 @@ def story():
     )
 
     s += section(
-        "9. Settings you own",
+        "settings", "Settings you own",
         P("<Which settings the IaC sets once and the reader then owns.>"),
         *bullets([
             "Do not change <IaC-managed properties>. The next apply reverts them. Ask <team> instead.",
@@ -332,7 +381,7 @@ def story():
     )
 
     s += section(
-        "10. Order before the first deployment",
+        "first-deployment", "Order before the first deployment",
         *numbered([
             "<Who> <does what>.",
             "<Who> <does what>, then confirms <result>.",
@@ -341,23 +390,29 @@ def story():
     )
 
     s += section(
-        "11. What is not ready yet",
+        "not-ready", "What is not ready yet",
         *bullets(["<Item>. Until <team> confirms it, <effect on the reader>."]),
     )
 
     s += section(
-        "12. What this document does not include",
+        "not-included", "What this document does not include",
         P("<Secret values, admin credentials and permissions that are withheld.>"),
         P(f"Reply to {SENDER} if <each failure point the reader can hit> fails."),
     )
 
     s += section(
-        "13. Whom to contact",
+        "contacts", "Whom to contact",
         table([
             ["Need", "Team"],
             ["<request>", "<team>"],
         ], [0.78, 0.22]),
     )
+
+    if len(HISTORY) > 1:
+        s += section(
+            "history", "Version history",
+            table([["Version", "Date", "Changes"], *[[v, d, "\n".join(c)] for v, d, c in HISTORY]], [0.1, 0.2, 0.7]),
+        )
     return s
 
 
@@ -369,7 +424,7 @@ def appendix(diagram):
     return [
         NextPageTemplate("landscape"),
         PageBreak(),
-        P("Appendix: topology", H2),
+        heading("APPENDIX", "Appendix: topology"),  # upper case, so no section key can collide with it
         Image(diagram, width=iw * scale, height=ih * scale),
         Spacer(1, 6),
         note(DIAGRAM_CAPTION),
@@ -392,6 +447,12 @@ def decorate(canvas, doc):
     canvas.restoreState()
 
 
+class HandoffDoc(BaseDocTemplate):
+    def afterFlowable(self, flowable):
+        if hasattr(flowable, "bookmark"):
+            self.canv.addOutlineEntry(*flowable.bookmark, 0)
+
+
 def template(name, pagesize):
     pw, ph = pagesize
     frame = Frame(MARGIN, 16 * mm, pw - 2 * MARGIN, ph - 32 * mm, leftPadding=0, rightPadding=0, topPadding=0, bottomPadding=0)
@@ -404,7 +465,7 @@ def main():
     parser.add_argument("--diagram", help="topology PNG for a landscape appendix page")
     args = parser.parse_args()
 
-    doc = BaseDocTemplate(
+    doc = HandoffDoc(
         args.out,
         pagesize=A4,
         title=f"{PROJECT_ENV} infrastructure handoff, version {VERSION}",
@@ -412,9 +473,15 @@ def main():
         subject=f"{PROJECT_ENV} infrastructure handoff for {RECIPIENT}, version {VERSION}",
     )
     doc.addPageTemplates([template("portrait", A4), template("landscape", landscape(A4))])
+    story()  # The first pass numbers the sections, so the second pass resolves [[key]] references to later sections.
+    repeated = sorted({k for k in KEYS if KEYS.count(k) > 1})
+    if repeated:
+        raise SystemExit(f"section key used more than once: {', '.join(repeated)}")
     flow = story()
     if args.diagram:
         flow += appendix(args.diagram)
+    if REFS - NUMBER.keys():
+        raise SystemExit(f"[[key]] names no section: {', '.join(sorted(REFS - NUMBER.keys()))}")
     doc.build(flow)
     print(args.out)
 

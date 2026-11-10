@@ -20,7 +20,7 @@ uv run --script scripts/handoff_template.py /tmp/handoff-sample.pdf
 |------|---------|
 | `SKILL.md` | Agent workflow and delivery checklist |
 | `references/handoff-guide.md` | Section catalog, task pattern, writing rules, secrets policy, versioning, layout, verification commands |
-| `scripts/handoff_template.py` | reportlab template: page theme, helpers, placeholder story, optional landscape topology appendix |
+| `scripts/handoff_template.py` | reportlab template: page theme, helpers, automatic section numbers with linked references and PDF bookmarks, version history, placeholder story, optional landscape topology appendix |
 | `scripts/pil-logo.png` | Title-block logo; copy it next to the generator |
 
 ## Design sources

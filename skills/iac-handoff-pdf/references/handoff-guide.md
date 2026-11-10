@@ -4,13 +4,14 @@ Reference for `iac-handoff-pdf`. A handoff tells one reader, usually an applicat
 
 ## Section catalog
 
-Number the sections. Order them in the reader's work order: what exists, how to reach it, who they are, then each task they perform, then what is missing and whom to ask. Keep a section only when the environment has something for it.
+`section()` numbers the sections in the order of its calls. Order them in the reader's work order: what exists, how to reach it, who they are, then each task they perform, then what is missing and whom to ask. Keep a section only when the environment has something for it.
 
 | Section | Keep when | Content |
 |---------|-----------|---------|
 | Title block | Always | The PIL logo on the left. On the right: title `<PROJECT ENV> Infrastructure Handoff`, subtitle `<scope> · <sender> to <recipient> · <region>`, version line `Version N · <date>`. Then one paragraph: provisioned and verified on `<date>`, every topic in section order, which environments are not provisioned yet, and `Secret values are not included.` |
-| New in version N | Every version after 1.0 | `**New in version N**, applied on <date>:` followed by one bullet per change since the previous version, each with the section it touches: `A Windows VM, <name> at <ip>, is provisioned. See section 9.` |
-| Before you start | The reader must request access before anything works | Amber note box. One numbered item per request: what to request, from which team, and what it unblocks. Example: VPN access to private endpoints from the network team. |
+| Not ready yet line | "What is not ready yet" has an item | One line under the opening paragraph, so the reader sees it on the first page: `**Not ready yet:** <item>, <item>. See section [[not-ready]].` It names every item of that section and nothing else. |
+| New in version N | Every version after 1.0 | `**New in version N**, applied on <date>:` followed by one bullet per change since the previous version, each with the section it touches: `A Windows VM, <name> at <ip>, is provisioned. See section [[vm]].` The template prints the newest `HISTORY` entry. |
+| Before you start | The reader must request access before anything works | Amber note box headed `Before you start`, on the first page. One numbered item per question that applies under "Before you start items". |
 | Environment | Always | Item / Value table: subscription, tenant ID, region, resource group, and the jump host or entry address the reader uses. |
 | Provisioned resources | Always | Purpose / Name / Configuration table: one row per resource with its exact name and the settings the reader relies on (version, size, TLS, keys disabled). Then one paragraph: which resources have public network access disabled, and what is not provisioned yet. |
 | Private endpoints and host names | Private endpoints, custom DNS, or controlled egress exist | Host name / Address / Port table. Tell the reader to use the normal host name, not the `privatelink` name. Then one paragraph: the egress address or range, and whom to ask for another destination. |
@@ -24,7 +25,19 @@ Number the sections. Order them in the reader's work order: what exists, how to 
 | What is not ready yet | Anything designed is not applied | One bullet per item: what is missing, who confirms it, and the effect on the reader until then (`connections time out`). |
 | What this document does not include | Always | The secrets, admin credentials, and permissions that are withheld. Then `Reply to <sender> if <A>, <B>, or <C> fails`, listing each failure point the document describes. |
 | Whom to contact | More than one team owns something the reader needs | Need / Team table. |
+| Version history | Every version after 1.0 | Last numbered section. Version / Date / Changes table, newest first, printed from `HISTORY`. A reader who skipped a version finds its changes here. |
 | Appendix: topology | The repo has a topology diagram | Landscape page, the existing PNG, one caption line naming the environment the addresses belong to. |
+
+## Before you start items
+
+Write one numbered item for each question that applies, in this order. Each item reads `**N. <Topic>: <action>.** <Why it blocks the work and what it opens.> See section [[key]].`
+
+| Question | Item |
+|----------|------|
+| Is the cluster API, a VM, or another entry point private? | The jump host or privileged-access tool, the account, and the only place the reader works from: `Cluster access: sign in to the jump host as <account>.` One item per entry point. |
+| Does the reader work from their own devices? | The client VPN and the firewall rules for their addresses, and the team that grants both: `Access from your own devices: request client VPN from <network team>.` |
+| Does the workload use a shared service that another team owns? | The owning team: `<Service>: contact <team>.` |
+| Do network and access changes go through the owning teams? | The last item: `Integration troubleshooting: allow time.` Name the team the reader works with. This is the only item that is not an access request. |
 
 ## Task pattern
 
@@ -46,7 +59,7 @@ Each task section has four parts, in this order:
 - Give an address with its port and protocol: `172.16.62.4, TCP 443`.
 - One fact per sentence. Active voice. Present tense for what exists.
 - Name the actor in every step that crosses teams: `<sender> changes the secret, and you deploy the token version.`
-- Cross-reference by section number: `See section 6.` After renumbering, search the script for every `section N`.
+- Cross-reference by section key, never by a typed number: `See section [[secrets]].` The template prints the current number as a link. Removing or moving a `section()` call renumbers every reference.
 - Name teams, not people, unless the project assigned named contacts for that support path.
 - Do not explain IaC internals the reader cannot act on (module names, state layout, apply phases).
 - A handoff states what exists and how to use it. It asks the reader nothing: send open questions in a separate message, not in the PDF.
@@ -59,8 +72,8 @@ Each task section has four parts, in this order:
 
 ## Versioning
 
-- Version 1.0 is the first handoff. Each content change bumps the version: 1.1, 1.2, and so on. Set `VERSION` and `REVISED`; `ISSUED` stays the date of version 1.0, and the footer shows both.
-- Every version after 1.0 starts with "New in version N".
+- Version 1.0 is the first handoff. Each content change adds one entry at the top of `HISTORY`: the version (1.1, 1.2, and so on), the date, and one line per change with the section it touches. The template reads the version, the revision date, and the date of version 1.0 from `HISTORY`, and the footer shows both dates.
+- Every version after 1.0 starts with "New in version N" and ends with "Version history". Keep every earlier entry. When an earlier entry links to a section that no longer exists, remove that link.
 - Send the handoff after the apply that creates what it describes. If it goes out before an apply, that item belongs in "What is not ready yet".
 - Rebuild the PDF and commit it together with the generator and `scripts/pil-logo.png`. The commit message lists the content changes, for example `Update the <PROJECT ENV> handoff to version 1.4` followed by one line per changed section.
 
@@ -68,7 +81,7 @@ Each task section has four parts, in this order:
 
 | File | Purpose |
 |------|---------|
-| `scripts/build_<env>_handoff.py` | Generator copied from `scripts/handoff_template.py`. Holds the text, `VERSION`, `ISSUED`, `REVISED`, and `CHANGES`. |
+| `scripts/build_<env>_handoff.py` | Generator copied from `scripts/handoff_template.py`. Holds the text and `HISTORY`. |
 | `scripts/pil-logo.png` | Title-block logo, copied from `<skill-root>/scripts/pil-logo.png`. |
 | `docs/<project>-<env>-<audience>-handoff.pdf` | The built handoff. Keep an existing file name when the repo already has one. |
 | `design-docs/<topology>.png` | Existing diagram for the appendix. Do not create one for the handoff. |
@@ -84,10 +97,11 @@ The template implements this layout. Keep it unless the repo already has a diffe
 - Fonts: Liberation Sans for text and DejaVu Sans Mono for identifiers and code, found under `/usr/share/fonts`. Without them the template falls back to Helvetica and Courier, which keep the same metrics.
 - Colors: ink `#111111`, navy `#1f3a5f` for the title and headings, muted `#5f6b7a` for subtitle, notes, header, and footer, rule `#c7d0da`, table header fill `#e8eef6`, code box fill `#f3f5f7` with border `#c9cfd6` and text `#1f2933`, note box `#fff3dc` with border `#d4900f` and heading `#8a5a00`.
 - Sizes: title 21 pt, subtitle 11 pt, section heading 12.5 pt, subsection heading 9.8 pt, body 9.4 pt, table cells 8.2 pt, code 7.6 pt. Identifiers (`` `name` `` in the template helpers) render in monospace at 6.8 pt.
-- Callouts: the amber note box (`note_box`) marks what the reader must do before or instead of acting alone: the "Before you start" access requests, and a request path that replaces a permission the reader lacks, such as adding a secret. Put the callout at the top of its section, with a heading that states the rule, and use at most one per section. A plain fact stays in body text. Bold text alone is not a callout.
+- Callouts: the amber note box (`note_box`) marks what the reader must do before or instead of acting alone: the "Before you start" items, and a request path that replaces a permission the reader lacks, such as adding a secret. Put the callout at the top of its section, with a heading that states the rule, and use at most one per section. A plain fact stays in body text. Bold text alone is not a callout.
 - Tables: header row repeats on each page, top-aligned cells, light grid. Column widths are fractions that sum to 1; give the long column the most width.
 - Code blocks: shaded box with a thin border, one block per command group, short enough to fit on one page. Wrap a lead-in line and the block or list it introduces in `keep()`.
-- `section()` keeps each heading with its first flowable, or with the whole group when the first flowable is a `keep()`, so no heading ends a page. Pass `style=H3` for a subsection.
+- Section numbers and links: `section(key, title, ...)` numbers the sections in call order. `[[key]]` in any text prints that section's number as a navy link. Each numbered section and the appendix is a PDF bookmark. A key is lower-case letters, digits and hyphens, and each key is used once. The build stops with `[[key]] names no section` when a key matches no `section()` call, and with `section key used more than once` on a repeat.
+- `section()` keeps each heading with its first flowable, or with the whole group when the first flowable is a `keep()`, so no heading ends a page. When the first flowable is a `table()`, the heading stays with the first 60 mm of the table, and a longer table continues on the next page. `subsection(title, ...)` does the same for an unnumbered subsection.
 - PDF metadata: title `<PROJECT ENV> infrastructure handoff, version N`, author is the sender, subject includes the recipient and the version.
 
 ## Verification commands
@@ -105,5 +119,5 @@ pdftoppm -r 80 -png <pdf> <scratch-dir>/page
 - `pdfinfo`: Title and Subject show the new version.
 - The secret scan prints nothing. A hit is a stop: remove the value, rebuild, rescan.
 - The placeholder scan lists every `<...>` left in the text. Each one must be a value the reader chooses, such as `<tag>`. Template placeholders like `<team>` mean the handoff is unfinished.
-- View every rendered page: header and footer on each page, no clipped table cell or code line, no heading alone at a page bottom, appendix readable.
+- View every rendered page: header and footer on each page, the "Not ready yet" line and the "Before you start" box on page 1, no clipped table cell or code line, no heading alone at a page bottom, appendix readable.
 - Compare each name, address, and port in the Environment, Provisioned resources, and host name tables against its source once more.
