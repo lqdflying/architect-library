@@ -6,7 +6,7 @@
 set -euo pipefail
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-SKILL_BUNDLE="excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document iac-handoff-pdf verification-before-completion newagentlink api-and-interface-design deprecation-and-migration github-markdown security-audit review-handoff _shared"
+SKILL_BUNDLE="excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document iac-handoff-pdf verification-before-completion api-and-interface-design deprecation-and-migration github-markdown security-audit review-handoff wiz-code-scan _shared"
 # Cursor + Copilot + Codex (never Claude). SKILL.<editor>.md wins over SKILL.md.
 EDITOR_VARIANT_SKILLS="mcp-tool-rules context7-docs notion-mcp-ops"
 AGENT_BUNDLE="code-review security-auditor"
@@ -142,6 +142,7 @@ install_skills_to() {
       rm -rf "${dest}/${legacy}"
     done
   fi
+  rm -rf "${dest}/newagentlink"
   for name in $SKILL_BUNDLE; do
     rm -rf "${dest}/${name}"
     cp -a "${REPO}/skills/${name}" "${dest}/${name}"
@@ -173,24 +174,14 @@ install_agent_file() {
   cat "${agent_dir}/${header}" "${agent_dir}/INSTRUCTIONS.md" > "$dest"
 }
 
-install_cursor_newagentlink_command() {
+remove_retired_cursor_commands() {
   if ! selected cursor; then
     return 0
   fi
   if [[ "$SCOPE" != "global" ]]; then
     return 0
   fi
-  local src dest_dir dest
-  src="${REPO}/skills/newagentlink/cursor.command.md"
-  dest_dir="${HOME}/.cursor/commands"
-  dest="${dest_dir}/newagentlink.md"
-  if [[ ! -f "$src" ]]; then
-    echo "Missing Cursor command source: ${src}" >&2
-    exit 1
-  fi
-  mkdir -p "$dest_dir"
-  rm -f "${dest_dir}/handoff.md"
-  cp -a "$src" "$dest"
+  rm -f "${HOME}/.cursor/commands/newagentlink.md" "${HOME}/.cursor/commands/handoff.md"
 }
 
 install_skills() {
@@ -203,7 +194,7 @@ install_skills() {
       install_editor_variants "$dest" "$editor"
     fi
   done
-  install_cursor_newagentlink_command
+  remove_retired_cursor_commands
 }
 
 # Project-scope from this clone (repo root or any subdirectory) would copy
@@ -377,12 +368,6 @@ preflight() {
           fi
         done
       fi
-      if [[ "$editor" == "cursor" && "$SCOPE" == "global" ]]; then
-        test -f "${REPO}/skills/newagentlink/cursor.command.md" || return 1
-      fi
-      if [[ "$editor" == "codex" ]]; then
-        test -f "${REPO}/skills/newagentlink/agents/openai.yaml" || return 1
-      fi
     fi
     if [[ "$WHAT" == "all" || "$WHAT" == "agents" ]]; then
       for name in $AGENT_BUNDLE; do
@@ -463,8 +448,7 @@ verify_skills_at() {
   test -f "${dir}/api-and-interface-design/SKILL.md" || return 1
   test -f "${dir}/deprecation-and-migration/SKILL.md" || return 1
   test -f "${dir}/security-audit/SKILL.md" || return 1
-  test -f "${dir}/newagentlink/SKILL.md" || return 1
-  grep -q 'disable-model-invocation: true' "${dir}/newagentlink/SKILL.md" || return 1
+  test ! -d "${dir}/newagentlink" || return 1
   [[ "$editor" == "codex" || ! -d "${dir}/handoff" ]] || return 1
   [[ "$editor" == "codex" || ! -d "${dir}/terraform-commit-review" ]] || return 1
   [[ "$editor" == "codex" || ! -d "${dir}/terraform-apply-assistance" ]] || return 1
@@ -572,8 +556,7 @@ verify() {
       if [[ "$SCOPE" == "global" ]]; then
         test ! -d "${HOME}/.cursor/skills/handoff" || ok=1
         test ! -f "${HOME}/.cursor/commands/handoff.md" || ok=1
-        test -f "${HOME}/.cursor/commands/newagentlink.md" || ok=1
-        cmp -s "${REPO}/skills/newagentlink/cursor.command.md" "${HOME}/.cursor/commands/newagentlink.md" || ok=1
+        test ! -f "${HOME}/.cursor/commands/newagentlink.md" || ok=1
       fi
     fi
     if selected copilot; then
@@ -586,7 +569,6 @@ verify() {
     if selected codex; then
       verify_skills_at "$(codex_skills_dir)" codex || ok=1
       verify_editor_variants_at "$(codex_skills_dir)" || ok=1
-      grep -q 'allow_implicit_invocation: false' "$(codex_skills_dir)/newagentlink/agents/openai.yaml" || ok=1
     fi
   fi
   if [[ "$WHAT" == "all" || "$WHAT" == "agents" ]]; then

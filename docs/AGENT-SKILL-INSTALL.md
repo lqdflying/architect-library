@@ -44,6 +44,8 @@ Architect Library publishes **two libraries** plus **Cursor user-global rules**:
 
 ### Skill library (`skills/`)
 
+A shared skill is one `SKILL.md` in `SKILL_BUNDLE`, copied to Cursor, Copilot, Claude Code, and Codex. `mcp-tool-rules`, `context7-docs`, and `notion-mcp-ops` are editor variants in `EDITOR_VARIANT_SKILLS`: install renames `SKILL.<editor>.md` to `SKILL.md` for Cursor, Copilot, and Codex, and does not install those three for Claude Code. `wiz-code-scan` is an editor variant in `SKILL_BUNDLE` because it also has `SKILL.claude.md`, so Claude Code receives it. The decision rule is [MAINTAINING-SKILLS.md](MAINTAINING-SKILLS.md#one-skill-file-or-one-file-per-editor).
+
 | Folder | Type | Required |
 |--------|------|----------|
 | `excalidraw-diagram` | Shared skill | If diagrams are needed |
@@ -53,7 +55,6 @@ Architect Library publishes **two libraries** plus **Cursor user-global rules**:
 | `pdf-document` | Shared skill | If PDF work is needed |
 | `iac-handoff-pdf` | Shared skill | If an IaC environment handoff PDF for a vendor or developer team is needed |
 | `verification-before-completion` | Shared skill | Evidence before completion claims; required by artifact skills at delivery |
-| `newagentlink` | Shared skill | One-shot `/tmp/<topic>-newagentlink.md` for a new agent chat; not the review ledger |
 | `review-handoff` | Shared skill (on demand) | Review and fix ledger protocol at `/tmp/<topic>-handoff.md`; read when the always-on `review-handoff` trigger fires |
 | `api-and-interface-design` | Shared skill | API and module boundary design workflow |
 | `github-markdown` | Shared skill | GitHub Flavored Markdown for READMEs, issues, PRs, discussions, wikis, and repo docs |
@@ -62,6 +63,7 @@ Architect Library publishes **two libraries** plus **Cursor user-global rules**:
 | `mcp-tool-rules` | Cursor + Copilot + Codex (editor variants) | Scan MCP servers and generate rule/instruction files with correct tool arguments (`.mdc` for Cursor, `.instructions.md` for Copilot, `.agents/mcp-tools/` references plus a project `AGENTS.md` trigger for Codex) |
 | `context7-docs` | Cursor + Copilot + Codex (editor variants) | Fetch current library/framework documentation via Context7 MCP instead of training data; editor variants use correct MCP server name |
 | `notion-mcp-ops` | Cursor + Copilot + Codex (editor variants) | Notion MCP CRUD and formatting; fetch-before-write; failure-mode avoidance; editor variants use correct MCP server name (`plugin-notion-workspace-notion` in Cursor, `notion` in Copilot; Codex discovers the available tool names) |
+| `wiz-code-scan` | All four editors (editor variants in `SKILL_BUNDLE`) | Wiz IaC code-scan findings and four fix levels. Calls differ: `user-wiz` in Cursor, `wiz-discover` / `wiz-execute` in Copilot, `mcp__wiz__discover` / `mcp__wiz__execute` in Claude Code, `mcp__wiz` in Codex |
 | `_shared` | Support files (not a standalone skill) | **Yes** whenever Word, PowerPoint, or spreadsheet skills are installed |
 
 Word, PowerPoint, and spreadsheet skills reference Office tools via `../_shared/office-tools/`. If `_shared` is missing or not a **sibling** of those folders, paths break.
@@ -81,7 +83,7 @@ Installed to `~/.cursor/rules/<name>.mdc` (not the Cursor Settings → Customize
 
 | File | Purpose |
 |------|---------|
-| `review-handoff-reconciliation.mdc` | Always-on trigger (about 1 KB): read the `review-handoff` skill only when the user explicitly asks for a code review, or points at a handoff and asks to fix it. Other tasks do not get a ledger. The protocol (`/tmp/<topic>-handoff.md` ledger, FIX / DEFER / KEEP / DO NOT APPLY / FIXED / RECONCILED, purge of closed rounds to `/tmp/<topic>-handoff-archive.md`) lives in `skills/review-handoff/SKILL.md` and loads on demand. Distinct from the `newagentlink` skill (`/tmp/<topic>-newagentlink.md`). |
+| `review-handoff-reconciliation.mdc` | Always-on trigger (about 1 KB): read the `review-handoff` skill only when the user explicitly asks for a code review, or points at a handoff and asks to fix it. Other tasks do not get a ledger. The protocol (`/tmp/<topic>-handoff.md` ledger, FIX / DEFER / KEEP / DO NOT APPLY / FIXED / RECONCILED, purge of closed rounds to `/tmp/<topic>-handoff-archive.md`) lives in `skills/review-handoff/SKILL.md` and loads on demand. |
 | `response-style.mdc` | Short replies (result first; a vague objective stops the work; a worse approach is named and the shorter path is used; excess complexity in the task's own work is deleted rather than defended; Changes, Verify, Open Items only on file-changing turns and only when they have content; one conclusion; no step narration, pasted logs, or AI filler). Matching Copilot fragment: `user-rules/copilot/response-style.md`. |
 | `edit-scope.mdc` | Writes stay in the current repo. Auto-read is allowed everywhere. The diff is the minimum that meets the request, and work that a simpler means already settles is not done again. `/tmp`, `~/.cursor/`, and `~/.copilot/` may be written when this request or an installed protocol requires that write. Matching Copilot fragment: `user-rules/copilot/edit-scope.md`. |
 | `branch-strategy.mdc` | One working branch at a time (the branch already checked out). Before the first write, `git status --short --branch` decides the branch, including when a session note says the directory is not a git repo. No edit, commit, or push on `main`. No switch off a branch that still has unmerged commits or uncommitted files. A new branch only from `main`, when the current branch is `main` or the user asks, named from branch names already used in that repository without asking the user for the name. Mixed topics on one branch are expected. Pause before `git commit` or `git push`. Matching Copilot fragment: `user-rules/copilot/branch-strategy.md`. |
@@ -119,7 +121,7 @@ it does not write `AGENTS.md` or global instructions. User skills stay under
 Cursor and VS Code Copilot also load `~/.agents/skills/` and project
 `.agents/skills/`, so after a Codex install they list the library skills twice.
 Shared skills are identical copies. The Codex variants of `mcp-tool-rules`,
-`context7-docs`, and `notion-mcp-ops` are marked Codex only, so other editors
+`context7-docs`, `notion-mcp-ops`, and `wiz-code-scan` are marked Codex only, so other editors
 use their own copy.
 
 See official documentation for [skill discovery and invocation metadata](https://learn.chatgpt.com/docs/build-skills),
@@ -219,9 +221,9 @@ If a runtime command fails because of missing permissions, sudo, network, or npm
 | **New** user-global rule | Added under `~/.cursor/rules/` |
 | **Existing** user-global rule | File replaced |
 | **Legacy** user-global rule (`code-review-handoff.mdc`) | Removed from dest so two `alwaysApply` protocols cannot load |
-| **Legacy** skill (`handoff`) | Removed from dest; replaced by `newagentlink` |
+| **Legacy** skill (`handoff`, `newagentlink`) | Removed from Cursor, Copilot, Claude Code, and Codex destinations. No replacement |
 | **Legacy** skills (`terraform-commit-review`, `terraform-apply-assistance`) | Removed from Cursor, Copilot, and Claude destinations. No replacement. Codex `~/.agents/skills/` is left in place, same as other legacy names |
-| **Legacy** Cursor command (`~/.cursor/commands/handoff.md`) | Removed; replaced by `~/.cursor/commands/newagentlink.md` |
+| **Legacy** Cursor commands (`~/.cursor/commands/handoff.md`, `~/.cursor/commands/newagentlink.md`) | Removed |
 
 Repo rule (Cursor): [`.cursor/rules/architect-library-patch.mdc`](../.cursor/rules/architect-library-patch.mdc).  
 Copilot rule: [`.github/instructions/update-library.instructions.md`](../.github/instructions/update-library.instructions.md).
@@ -269,7 +271,7 @@ bash scripts/sync_codex_rules.sh --check
 bash scripts/install_library.sh all codex
 ```
 
-Start a fresh Codex session and confirm `$word-document`, `$newagentlink`, and
+Start a fresh Codex session and confirm `$word-document` and
 the other library skills are discoverable. Ask which instruction sources are
 active and confirm the six user-rule groups. Confirm the custom agents
 `code-review` and `security-auditor` are available. Read-only agents return a
@@ -296,14 +298,12 @@ bash scripts/sync_claude_rules.sh --check
 test -f ~/.cursor/skills/_shared/office-tools/office_tools.py && echo "OK: cursor skills"
 test -f ~/.cursor/skills/word-document/SKILL.md && echo "OK: cursor skills"
 test -f ~/.cursor/skills/verification-before-completion/SKILL.md && echo "OK: verification skill"
-test -f ~/.cursor/skills/newagentlink/SKILL.md && echo "OK: newagentlink skill"
-grep -q 'disable-model-invocation: true' ~/.cursor/skills/newagentlink/SKILL.md && echo "OK: newagentlink disable-model-invocation"
+test ! -d ~/.cursor/skills/newagentlink && echo "OK: newagentlink skill absent"
 test ! -d ~/.cursor/skills/handoff && echo "OK: legacy handoff skill absent"
 test ! -d ~/.cursor/skills/terraform-commit-review && echo "OK: legacy terraform-commit-review absent"
 test ! -d ~/.cursor/skills/terraform-apply-assistance && echo "OK: legacy terraform-apply-assistance absent"
 test ! -f ~/.cursor/commands/handoff.md && echo "OK: leftover commands/handoff.md absent"
-test -f ~/.cursor/commands/newagentlink.md && echo "OK: newagentlink Cursor command"
-cmp -s /path/to/architect-library/skills/newagentlink/cursor.command.md ~/.cursor/commands/newagentlink.md && echo "OK: command matches repo source"
+test ! -f ~/.cursor/commands/newagentlink.md && echo "OK: newagentlink command absent"
 test -f ~/.cursor/skills/api-and-interface-design/SKILL.md && echo "OK: api skill"
 test -f ~/.cursor/skills/github-markdown/SKILL.md && echo "OK: github-markdown skill"
 test -f ~/.cursor/skills/deprecation-and-migration/SKILL.md && echo "OK: deprecation skill"
@@ -311,6 +311,7 @@ test -f ~/.cursor/skills/security-audit/SKILL.md && echo "OK: security-audit ski
 test -f ~/.cursor/skills/mcp-tool-rules/SKILL.md && echo "OK: mcp-tool-rules variant"
 test -f ~/.cursor/skills/context7-docs/SKILL.md && echo "OK: context7-docs variant"
 test -f ~/.cursor/skills/notion-mcp-ops/SKILL.md && echo "OK: notion-mcp-ops variant"
+test -f ~/.cursor/skills/wiz-code-scan/SKILL.md && echo "OK: wiz-code-scan variant"
 test -f ~/.cursor/skills/review-handoff/SKILL.md && echo "OK: review-handoff skill (trigger target)"
 test -f ~/.cursor/skills/review-handoff/scripts/purge_handoff.py && echo "OK: review-handoff purge"
 test -f ~/.cursor/agents/code-review.md && echo "OK: cursor agents"
@@ -365,7 +366,7 @@ bash /path/to/architect-library/scripts/runtime_readiness.sh
 test -f ~/.copilot/skills/_shared/office-tools/office_tools.py && echo "OK: copilot skills"
 test -f ~/.copilot/skills/word-document/SKILL.md && echo "OK: copilot skills"
 test -f ~/.copilot/skills/verification-before-completion/SKILL.md && echo "OK: verification skill"
-test -f ~/.copilot/skills/newagentlink/SKILL.md && echo "OK: newagentlink skill"
+test ! -d ~/.copilot/skills/newagentlink && echo "OK: newagentlink skill absent"
 test ! -d ~/.copilot/skills/handoff && echo "OK: legacy handoff skill absent"
 test ! -d ~/.copilot/skills/terraform-commit-review && echo "OK: legacy terraform-commit-review absent"
 test ! -d ~/.copilot/skills/terraform-apply-assistance && echo "OK: legacy terraform-apply-assistance absent"
@@ -376,6 +377,7 @@ test -f ~/.copilot/skills/security-audit/SKILL.md && echo "OK: security-audit sk
 test -f ~/.copilot/skills/mcp-tool-rules/SKILL.md && echo "OK: mcp-tool-rules variant"
 test -f ~/.copilot/skills/context7-docs/SKILL.md && echo "OK: context7-docs variant"
 test -f ~/.copilot/skills/notion-mcp-ops/SKILL.md && echo "OK: notion-mcp-ops variant"
+test -f ~/.copilot/skills/wiz-code-scan/SKILL.md && echo "OK: wiz-code-scan variant"
 test -f ~/.copilot/agents/code-review.agent.md && echo "OK: copilot agents"
 test -f ~/.copilot/agents/security-auditor.agent.md && echo "OK: security-auditor"
 grep -q 'disallowedTools: edit' ~/.copilot/agents/security-auditor.agent.md && echo "OK: security-auditor readonly"
@@ -394,7 +396,7 @@ The install script runs **library** checks automatically for the `EDITOR` you pa
 
 ## Step 5: Reload the editor
 
-- **Codex:** start a fresh session; skills use `$skill-name`, and `$newagentlink` is explicit-only.
+- **Codex:** start a fresh session; skills use `$skill-name`.
 - **Cursor:** new agent chat or reload window (skills, agents, and user-global rules reload).
 - **VS Code:** reload window.
 
@@ -411,7 +413,6 @@ The install script runs **library** checks automatically for the `EDITOR` you pa
 | **pdf-document** | Deliver `.pdf`; form fills per `references/forms.md`. Python is `uv run --project <skill-root>/references`, not system Python or office-tools |
 | **iac-handoff-pdf** | Generator and PDF in the IaC repo; values traced to applied IaC or a live query; `pdfinfo` shows the new version; secret scan prints nothing; only reader-chosen placeholders remain; every rendered page **viewed** |
 | **verification-before-completion** | Fresh verification command output in same message before any completion/success claim |
-| **newagentlink** | `/tmp/<topic>-newagentlink.md` written once this turn; one-shot banner present; live git gathered; chat returns path + starter prompt only; never writes `/tmp/<topic>-handoff.md` |
 | **api-and-interface-design** | Contract before implementation; consistent errors; boundary validation; list pagination; deprecation cross-check when changing public interfaces |
 | **github-markdown** | Render context identified; valid GFM syntax; context-limited features avoided (e.g. no footnotes in wikis); relative in-repo links where applicable; delivery checklist in `SKILL.md` satisfied |
 | **deprecation-and-migration** | Replacement before deprecation; migration guide; zero-usage verified before removal |
@@ -419,6 +420,7 @@ The install script runs **library** checks automatically for the `EDITOR` you pa
 | **mcp-tool-rules** | MCP config read; servers presented and confirmed; tools discovered per server; editor-appropriate files generated (Cursor: `.mdc` rules, Copilot: `.instructions.md`, Codex: `.agents/mcp-tools/` references plus a managed project `AGENTS.md` trigger) with parameter tables and example calls; files validated (server names, tables, examples, frontmatter); report delivered |
 | **context7-docs** | Library/framework docs fetched via Context7 MCP; version-specific library ID selected when applicable; query decomposed to one topic per call; source cited in response; fallback to web search or Microsoft Learn when Context7 lacks the library |
 | **notion-mcp-ops** | Notion MCP server discovered with correct editor server name; fetch before write on updates; anchors from fetched content; formatting rules applied (`<callout>`, HTML tables); post-update verify fetch for structural edits; property names from fetched schema |
+| **wiz-code-scan** | Open counts by severity compared with the Wiz page or the repository analytics; every finding of medium severity or above placed in one of four fix levels; every recommended change checked against the cited file |
 
 **PowerPoint is not done** when the `.pptx` exists — only after layout preview (or user waives).
 
@@ -472,7 +474,7 @@ Do not run `install_deps.sh` inside `~/.cursor/skills/` — run from the **repos
 | Copy `user-rules/` into `repo/.cursor/rules/` | Maintainer rules and user-global rules are different sources |
 | Leave `~/.cursor/rules/code-review-handoff.mdc` after install | Two `alwaysApply` review protocols load — install must delete the legacy name |
 | Leave `~/.cursor/rules/response-and-edit-scope.mdc` after install | Old combined rule overlaps `response-style.mdc` and `edit-scope.mdc` — install must delete the legacy name |
-| Leave `~/.cursor/skills/handoff` or `~/.cursor/commands/handoff.md` after install | Old continuation skill/command collides with `newagentlink` — install must delete both and install `~/.cursor/commands/newagentlink.md` |
+| Leave `~/.cursor/skills/handoff`, `~/.cursor/skills/newagentlink`, `~/.cursor/commands/handoff.md`, or `~/.cursor/commands/newagentlink.md` after install | Retired continuation skill and command — install must delete them |
 | Leave `terraform-commit-review` or `terraform-apply-assistance` installed on Cursor, Copilot, or Claude | Retired skills — install deletes those directories on those editors |
 | Install Claude without being asked | Default is Cursor and VS Code Copilot; bare `install_library.sh` also installs Claude |
 | Edit `agents/` without running install | Global agents stale |

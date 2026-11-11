@@ -7,13 +7,13 @@ description: >-
   to fix, triage, or reconcile it. Do not use on any other task. Creates or
   appends /tmp/<topic>-handoff.md, then purges closed rounds into
   /tmp/<topic>-handoff-archive.md. Done when that ledger is created or
-  appended this turn and chat gives the path plus a short summary. Not the
-  newagentlink one-shot snapshot.
+  appended this turn and chat gives the path plus a short summary. Not a
+  one-shot continuation file.
 ---
 
 # Review handoff and reconciliation
 
-This protocol is the living review ledger at `/tmp/<topic>-handoff.md` (append across reviewer/fixer rounds). It is **not** the `newagentlink` skill, which writes a one-shot `/tmp/<topic>-newagentlink.md` for a new chat. Do not overwrite a review ledger. Do not append to a newagentlink file.
+This protocol is the living review ledger at `/tmp/<topic>-handoff.md` (append across reviewer/fixer rounds). Do not overwrite a review ledger. Do not append to a one-shot continuation file.
 
 Treat each turn as **one role** unless the user explicitly asks for both phases:
 

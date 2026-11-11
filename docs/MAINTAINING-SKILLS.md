@@ -4,20 +4,63 @@ Use this checklist when adding or changing **skills**, **custom agents**, **Curs
 
 **Reviewing external ref material (`tmp/skills/`, etc.)?** Read [`.cursor/skills/absorb-reference-materials/SKILL.md`](../.cursor/skills/absorb-reference-materials/SKILL.md) first — ship only high-value install targets, harden existing skills/agents, ignore the rest. That skill is **not** in `SKILL_BUNDLE`. After absorb: audit [README.md](../README.md) per [readme-after-absorb.md](../.cursor/skills/absorb-reference-materials/references/readme-after-absorb.md) (skills/agents tables, documentation map, repository layout).
 
+## One skill file or one file per editor
+
+A skill is one `SKILL.md` unless that file would tell another editor to use the wrong MCP server name, call syntax, config path, or output file.
+
+A skill install writes a single `SKILL.md`.
+
+### Shared skill
+
+Use one `skills/<name>/SKILL.md` and add the folder to `SKILL_BUNDLE`.
+
+The installer copies that folder unchanged to Cursor, Copilot, Claude Code, and Codex. One file may name each editor's install path. `pdf-document` and `iac-handoff-pdf` do this.
+
+Keep one `SKILL.md` when the skill only mentions MCP. `excalidraw-diagram` does this.
+
+An editor-only install hook needs an installer change.
+
+### Editor-variant skill
+
+Write `SKILL.cursor.md`, `SKILL.copilot.md`, and `SKILL.codex.md`. Do not also commit `SKILL.md`. Keep the bundle string identical in [`.cursor/rules/architect-library-patch.mdc`](../.cursor/rules/architect-library-patch.mdc).
+
+A variant with those three files goes in `EDITOR_VARIANT_SKILLS`. Claude Code does not receive that list.
+
+A variant that also has `SKILL.claude.md` goes in `SKILL_BUNDLE`. That install path renames `SKILL.<editor>.md` for all four editors. Mark the Codex file Codex-only, because Cursor and Copilot also load `~/.agents/skills/`.
+
+On install, the matching file is renamed to `SKILL.md` and the other `SKILL.*.md` files are deleted.
+
+Each variant:
+
+- uses the same YAML `name`
+- states only that editor's server name, call syntax, config path, and output path
+- loads procedure that is the same for every editor from `references/`
+
+When you change a variant, put a shared step in `references/` instead of pasting it into the other variant files.
+
+| Skill | What differs |
+|:------|:-------------|
+| `mcp-tool-rules` | Output file (`.mdc`, `.instructions.md`, or `.agents/mcp-tools/` plus an `AGENTS.md` block) and the discovery path |
+| `context7-docs` | MCP server name and call syntax |
+| `notion-mcp-ops` | MCP server name and call syntax |
+| `wiz-code-scan` | MCP call, including a Claude Code file. Shared report files live in `scripts/`. Installed from `SKILL_BUNDLE` |
+
 ## New skill folder
+
+Decide shared or editor-variant above before creating files.
 
 Create `skills/<skill-name>/` with at minimum:
 
-- [ ] `SKILL.md` — YAML `name` + **`description`** (include completion criteria)
-- [ ] `README.md` — human setup summary
-- [ ] `references/` — guides agents load from “Load First” in `SKILL.md`
+- [ ] `SKILL.md`, or `SKILL.cursor.md` + `SKILL.copilot.md` + `SKILL.codex.md` — YAML `name` + **`description`** (include completion criteria)
+- [ ] `README.md` — human setup summary; an editor-variant README names the server or output file per editor
+- [ ] `references/` — guides agents load from “Load First” in the skill file; shared steps for an editor-variant skill live here
 
 Update **agent guidance** (all that apply):
 
 - [ ] [`.cursor/rules/`](../.cursor/rules/) — execution row, deps if needed
 - [ ] [AGENT-SKILL-INSTALL.md](AGENT-SKILL-INSTALL.md) — skill table, execution rules
 - [ ] [README.md](../README.md) — Skills table, documentation map
-- [ ] [scripts/install_library.sh](../scripts/install_library.sh) — add to `SKILL_BUNDLE`
+- [ ] [scripts/install_library.sh](../scripts/install_library.sh) — add a shared skill, or a variant that includes `SKILL.claude.md`, to `SKILL_BUNDLE`. Add a Cursor/Copilot/Codex-only variant to `EDITOR_VARIANT_SKILLS`
 - [ ] Run full readiness: `bash scripts/install_deps.sh`, `bash scripts/install_deps.sh office-system`, then `bash scripts/install_library.sh all cursor` and `bash scripts/install_library.sh all copilot`
 
 If the skill uses Office tools:
@@ -81,9 +124,8 @@ The fragments are generated. Edit the Cursor source in `user-rules/cursor/`, the
 
 ## Codex skills and user instructions
 
-- [ ] Every shared skill installs to `~/.agents/skills/`; editor variants use `SKILL.codex.md` when needed. The installer removes unselected variants.
+- [ ] Every shared skill installs to `~/.agents/skills/`. An editor-variant skill follows [One skill file or one file per editor](#one-skill-file-or-one-file-per-editor): `SKILL.codex.md` is installed as `SKILL.md`, and the installer deletes the other variant files.
 - [ ] Adapt actual tool discovery, Codex configuration paths, and invocation syntax; do not copy Cursor or Copilot tool prefixes.
-- [ ] `newagentlink/agents/openai.yaml` preserves explicit-only invocation in Codex.
 - [ ] Generate all six `user-rules/codex/` fragments from Cursor sources with `bash scripts/sync_codex_rules.sh`; never hand-edit them.
 - [ ] New rule: update `PAIRS` in all three sync scripts and the instruction fragment bundles in the installer.
 - [ ] Global instructions live in the marked Architect Library block in `${CODEX_HOME:-$HOME/.codex}/AGENTS.md`; preserve personal content outside it.

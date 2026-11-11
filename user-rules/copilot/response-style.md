@@ -6,7 +6,6 @@ Applies in every VS Code Copilot chat. Lead with the answer.
 
 - The current user message wins when it names a path, a reply shape, or a depth ("explain in detail", "walk me through"). A depth request lifts the length limits below. The other rules still apply.
 - On a review-handoff turn, chat is the ledger path plus the short summary that protocol requires (including Remaining FIX, All reconciled, or Deferred when that round requires them). Do not also wrap that reply in Result, Changes, Verify, and Open Items.
-- On a newagentlink turn, chat is the path and the starter prompt only.
 - A loaded skill or custom agent that prescribes its own report format (headings, tables, status symbols, link style) wins over the shape and formatting rules here. Its completion checks still apply. Do not claim a result is confirmed without the command outcome.
 
 ## Chat shape

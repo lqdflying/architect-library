@@ -18,7 +18,6 @@ Task is **not** complete until:
 | **pdf-document** | Deliver requested `.pdf`; form fills: run validation scripts per `references/forms.md`. Python is `uv run --project <skill-root>/references`, not system Python or office-tools |
 | **iac-handoff-pdf** | Generator `scripts/build_<env>_handoff.py` and PDF under `docs/` in the IaC repo; every value traced to applied IaC or a live query; `pdfinfo` shows the new version; secret scan prints nothing; only reader-chosen placeholders remain; every `pdftoppm` page **viewed** |
 | **verification-before-completion** | No completion/success claim without fresh verification command output in the same message |
-| **newagentlink** | `/tmp/<topic>-newagentlink.md` written once this turn; one-shot banner present; live git gathered; chat returns path + starter prompt only; never writes `/tmp/<topic>-handoff.md` |
 | **api-and-interface-design** | Contract defined before implementation; consistent errors; validation at boundaries; pagination on lists; cross-check against `deprecation-and-migration` when changing public interfaces |
 | **github-markdown** | Render context identified; valid GFM syntax; context-limited features avoided (e.g. no footnotes in wikis); relative in-repo links where applicable; delivery checklist in `SKILL.md` satisfied |
 | **deprecation-and-migration** | Replacement exists before deprecation; migration guide with concrete steps; usage verified at zero before removal; formal deliverables use `word-document` when requested |
@@ -26,6 +25,7 @@ Task is **not** complete until:
 | **security-audit** | All 6 phases completed (Recon → Hunt → Validate → Report → Structured output → Independent verification); `findings.json` validates against schema (`validate-findings.cjs`); `REPORT.md` and `FINDINGS-DETAIL.md` reconciled with `findings.json`; output directory contains all artifacts (`architecture.md`, `REPORT.md`, `FINDINGS-DETAIL.md`, `findings.json`) |
 | **context7-docs** | Library/framework docs fetched via Context7 MCP (`user-context7` in Cursor, `context7` in Copilot); version-specific library ID selected when applicable; query decomposed to one topic per call; source cited in response; fallback to web search or Microsoft Learn when Context7 lacks the library |
 | **notion-mcp-ops** | Notion MCP server discovered with correct editor server name; fetch before write on updates; anchors from fetched content; formatting rules applied (`<callout>`, HTML tables); post-update verify fetch for structural edits; property names from fetched schema |
+| **wiz-code-scan** | Open counts by severity compared with the Wiz page or the repository analytics; every finding of medium severity or above placed in one of four fix levels; every recommended change checked against the cited file |
 
 **PowerPoint is not done** when the `.pptx` exists—only after layout preview (or user waives visual QA).
 
@@ -54,11 +54,11 @@ Do not hand-edit `user-rules/copilot/`. After editing `user-rules/cursor/`, run 
 
 ## Review handoff (skill + always-on trigger)
 
-Canonical protocol: `skills/review-handoff/SKILL.md` (Cursor, Copilot, and Codex, via `EDITOR_VARIANT_SKILLS`; loaded on demand). Always-on trigger: `user-rules/cursor/review-handoff-reconciliation.mdc` (installs to `~/.cursor/rules/`) and the generated `user-rules/copilot/review-handoff.md` (concatenated into `~/.copilot/copilot-instructions.md`). Codex uses the generated `user-rules/codex/review-handoff.md` in its managed global `AGENTS.md` block. Its read-only custom agents return ledger rounds to the parent for recording. The trigger states when a ledger is written and tells the agent to read the skill. Keep the rest of the protocol out of the trigger and out of this file.
+Canonical protocol: `skills/review-handoff/SKILL.md` (shared skill in `SKILL_BUNDLE`, all four editors; loaded on demand). Always-on trigger: `user-rules/cursor/review-handoff-reconciliation.mdc` (installs to `~/.cursor/rules/`) and the generated `user-rules/copilot/review-handoff.md` (concatenated into `~/.copilot/copilot-instructions.md`). Codex uses the generated `user-rules/codex/review-handoff.md` in its managed global `AGENTS.md` block. Its read-only custom agents return ledger rounds to the parent for recording. The trigger states when a ledger is written and tells the agent to read the skill. Keep the rest of the protocol out of the trigger and out of this file.
 
 | Work | Done when |
 |------|-----------|
-| **review-handoff** | A ledger is written only when the user explicitly asked for a code review or pointed at a handoff to fix. Then `/tmp/<topic>-handoff.md` is **appended** this turn, and closed rounds are purged with `scripts/purge_handoff.py` when more than the latest two remain (no other full-file rewrite; archive is append-only); dispositions used (FIX / DEFER / KEEP / DO NOT APPLY / FIXED / RECONCILED); chat points at the path; reviewer does not mutate the review repo (only the `/tmp` handoff and its archive). Distinct from `newagentlink` (`/tmp/<topic>-newagentlink.md`). |
+| **review-handoff** | A ledger is written only when the user explicitly asked for a code review or pointed at a handoff to fix. Then `/tmp/<topic>-handoff.md` is **appended** this turn, and closed rounds are purged with `scripts/purge_handoff.py` when more than the latest two remain (no other full-file rewrite; archive is append-only); dispositions used (FIX / DEFER / KEEP / DO NOT APPLY / FIXED / RECONCILED); chat points at the path; reviewer does not mutate the review repo (only the `/tmp` handoff and its archive). |
 
 ## Response style (user-global protocol)
 

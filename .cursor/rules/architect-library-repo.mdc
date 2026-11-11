@@ -13,7 +13,7 @@ Skill library + custom agent library + Cursor user-global rules. Work in this cl
 
 | Path | Role |
 |------|------|
-| `skills/` | Skill library source → `~/.cursor/skills/`, `~/.copilot/skills/` |
+| `skills/` | Skill library source → `~/.cursor/skills/`, `~/.copilot/skills/`, `~/.claude/skills/`, `~/.agents/skills/` |
 | `agents/` | Custom agent library source → `~/.cursor/agents/`, `~/.copilot/agents/` |
 | `user-rules/cursor/` | Cursor user-global rules source → `~/.cursor/rules/` (not this repo’s `.cursor/rules/`). Includes `review-handoff-reconciliation.mdc`, `response-style.mdc`, `edit-scope.mdc`, `branch-strategy.mdc`, `docs-lookup.mdc`, and `temp-validators.mdc`. |
 | `user-rules/copilot/` | Copilot always-on fragments (`response-style.md`, `edit-scope.md`, `branch-strategy.md`, `review-handoff.md`, `docs-lookup.md`, `temp-validators.md`) generated from `user-rules/cursor/` by `scripts/sync_copilot_rules.sh`, then concatenated to `~/.copilot/copilot-instructions.md`. Do not hand-edit. |
@@ -28,8 +28,8 @@ Skill library + custom agent library + Cursor user-global rules. Work in this cl
 | `skills/pdf-document/` | PDF read/create/merge/forms |
 | `skills/iac-handoff-pdf/` | IaC environment handoff PDF for a vendor or developer team; reportlab template generator |
 | `skills/github-markdown/` | GitHub Flavored Markdown for READMEs, issues, PRs, discussions, wikis, repo docs |
-| `skills/newagentlink/` | One-shot new-agent continuation snapshot (`/tmp/<topic>-newagentlink.md`); Cursor command `cursor.command.md` → `~/.cursor/commands/newagentlink.md` |
-| `skills/notion-mcp-ops/` | Notion MCP CRUD, formatting, fetch-before-write; editor variants for Cursor and Copilot |
+| `skills/notion-mcp-ops/` | Notion MCP CRUD, formatting, fetch-before-write; `SKILL.cursor.md`, `SKILL.copilot.md`, `SKILL.codex.md`. Not installed for Claude Code |
+| `skills/wiz-code-scan/` | Wiz IaC code-scan findings; `SKILL.cursor.md`, `SKILL.copilot.md`, `SKILL.claude.md`, `SKILL.codex.md`. Installed for all four editors |
 | `skills/_shared/` | `architecture-document-principles.md`, `office-tools/` |
 | `scripts/install_library.sh` | Install/patch skills, agents, Cursor user-global rules, and the Copilot always-on instruction |
 | `scripts/install_deps.sh` | Runtimes only (`all` \| `excalidraw` \| `office` \| `office-system` \| `pdf` \| `node`) |
@@ -40,14 +40,14 @@ Skill library + custom agent library + Cursor user-global rules. Work in this cl
 | `docs/MAINTAINING-SKILLS.md` | Maintainer checklist (skills + agents + Cursor user-global rules) |
 | `docs/AGENTS.md` | Agent catalog |
 
-Skill behavior: `skills/<name>/SKILL.md` and `skills/<name>/references/`.
+Skill files: a shared skill is `skills/<name>/SKILL.md` plus `references/`, copied to all four editors. An editor-variant skill is `SKILL.cursor.md`, `SKILL.copilot.md`, and `SKILL.codex.md`. Without a Claude file it is installed for Cursor, Copilot, and Codex from `EDITOR_VARIANT_SKILLS`. With `SKILL.claude.md` it stays in `SKILL_BUNDLE` and is installed for all four editors. Split only when one `SKILL.md` would give another editor the wrong MCP server name, call syntax, config path, or output file. Full rule: [docs/MAINTAINING-SKILLS.md](../../docs/MAINTAINING-SKILLS.md#one-skill-file-or-one-file-per-editor).
 
 ## Changing this repo
 
 Do **not** update only scripts or README. When adding or changing a skill, agent, user-global Cursor rule, workflow step, or dependency:
 
 1. Follow [docs/MAINTAINING-SKILLS.md](docs/MAINTAINING-SKILLS.md).
-2. **Skill change** → update `skills/*/SKILL.md`, execution rule row, `SKILL_BUNDLE` in `install_library.sh` if new skill, run `bash scripts/install_library.sh skills cursor` and `bash scripts/install_library.sh skills copilot`.
+2. **Skill change** → update the skill file (`SKILL.md`, or `SKILL.cursor.md` / `SKILL.copilot.md` / `SKILL.codex.md`), execution rule row, and `SKILL_BUNDLE` or `EDITOR_VARIANT_SKILLS` in `install_library.sh` if new, run `bash scripts/install_library.sh skills cursor` and `bash scripts/install_library.sh skills copilot`.
 3. **Agent change** → update `agents/<name>/`, [docs/AGENTS.md](docs/AGENTS.md), `AGENT_BUNDLE` in `install_library.sh` if new agent, run `bash scripts/install_library.sh agents cursor` and `bash scripts/install_library.sh agents copilot`.
 4. **Cursor user-global rule change** → update `user-rules/cursor/<name>.mdc`, `CURSOR_RULE_BUNDLE` in `install_library.sh` if new, run `bash scripts/sync_copilot_rules.sh`, `bash scripts/sync_codex_rules.sh`, and `bash scripts/sync_claude_rules.sh`, then `bash scripts/install_library.sh rules cursor` and `bash scripts/install_library.sh rules copilot`.
 5. **Copilot always-on instruction change** → edit the Cursor source under `user-rules/cursor/`, run `bash scripts/sync_copilot_rules.sh`, `bash scripts/sync_codex_rules.sh`, and `bash scripts/sync_claude_rules.sh` to regenerate `user-rules/copilot/`, `user-rules/codex/`, and `user-rules/claude/`, then `bash scripts/install_library.sh rules copilot`.
