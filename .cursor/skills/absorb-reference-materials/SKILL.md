@@ -103,7 +103,8 @@ When the user asks to review `tmp/` ref material:
 5. **Adapt** ref → architect-library:
    - Drop `superpowers:` prefixes; use `REQUIRED SUB-SKILL:` like existing office skills
    - `description` = when-to-use only (not workflow summary)
-   - Map tools to Cursor (`Task`, skill `Read` paths); drop alien editor refs
+   - For a shared skill, name the action instead of one editor's tool, list every editor's install path when a path is needed (as `pdf-document` does), and drop alien editor refs
+   - If one `SKILL.md` would give another editor the wrong MCP server name, call syntax, config path, or output file, ship `SKILL.cursor.md`, `SKILL.copilot.md`, and `SKILL.codex.md` per [docs/MAINTAINING-SKILLS.md](../../../docs/MAINTAINING-SKILLS.md#one-skill-file-or-one-file-per-editor) and keep each editor's call syntax
    - Paths: no `docs/superpowers/` — use neutral project paths if needed
    - One-line attribution in shipped `README.md` when license requires
 6. **Harden** artifact skills with rationalization tables + `REQUIRED SUB-SKILL: verification-before-completion` when verification skill exists.
@@ -157,10 +158,10 @@ After skill/agent source changes: run the runtime setup above, then `bash script
 
 ## Shipping checklist (new install target only)
 
-Follow [docs/MAINTAINING-SKILLS.md](../../docs/MAINTAINING-SKILLS.md):
+Follow [docs/MAINTAINING-SKILLS.md](../../../docs/MAINTAINING-SKILLS.md):
 
-- [ ] `skills/<name>/SKILL.md` + `README.md` (or full `agents/<name>/` layout)
-- [ ] `SKILL_BUNDLE` or `AGENT_BUNDLE` in `scripts/install_library.sh`
+- [ ] Shared skill: `skills/<name>/SKILL.md` + `README.md`. Editor-variant skill: `SKILL.cursor.md`, `SKILL.copilot.md`, `SKILL.codex.md` + `README.md`. Agents: full `agents/<name>/` layout
+- [ ] `SKILL_BUNDLE`, `EDITOR_VARIANT_SKILLS`, or `AGENT_BUNDLE` in `scripts/install_library.sh`
 - [ ] `.cursor/rules/architect-library-patch.mdc` bundle string in sync
 - [ ] `.cursor/rules/architect-library-execution.mdc` done-when row
 - [ ] `docs/AGENT-SKILL-INSTALL.md` (+ `docs/AGENTS.md` / `CODE-REVIEW-AGENT.md` if agent)
@@ -203,8 +204,8 @@ Task is **not** done until:
 
 ## Load first
 
-- [docs/MAINTAINING-SKILLS.md](../../docs/MAINTAINING-SKILLS.md)
-- [docs/AGENT-SKILL-INSTALL.md](../../docs/AGENT-SKILL-INSTALL.md)
+- [docs/MAINTAINING-SKILLS.md](../../../docs/MAINTAINING-SKILLS.md)
+- [docs/AGENT-SKILL-INSTALL.md](../../../docs/AGENT-SKILL-INSTALL.md)
 - [.cursor/rules/architect-library-repo.mdc](../../rules/architect-library-repo.mdc)
 - [references/readme-after-absorb.md](references/readme-after-absorb.md) — README audit after every absorb
 - [references/triage-examples.md](references/triage-examples.md) — extended session example

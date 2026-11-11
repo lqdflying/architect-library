@@ -91,7 +91,7 @@ Reload the editor or open a **new agent chat**. If any runtime step failed, say 
 
 ## Library layout (source of truth)
 
-- **Skills:** `skills/<name>/` → bundled in `SKILL_BUNDLE` in `scripts/install_library.sh`
+- **Skills:** `skills/<name>/` with one `SKILL.md`, bundled in `SKILL_BUNDLE`, copied to Cursor, Copilot, Claude Code, and Codex. An editor-variant skill has `SKILL.cursor.md`, `SKILL.copilot.md`, and `SKILL.codex.md` instead, is listed in `EDITOR_VARIANT_SKILLS`, and is installed for Cursor, Copilot, and Codex. Split only when one `SKILL.md` would give another editor the wrong MCP server name, call syntax, config path, or output file. Full rule: [docs/MAINTAINING-SKILLS.md](docs/MAINTAINING-SKILLS.md#one-skill-file-or-one-file-per-editor).
 - **Custom agents:** `agents/<name>/` → `AGENT_BUNDLE`; assembled from editor headers + `INSTRUCTIONS.md`. Codex uses `codex.json` metadata + the shared body + `agents/codex-review.md` to generate read-only `.toml` agents; the parent records review ledgers.
 - **Cursor user-global rules:** `user-rules/cursor/<name>.mdc` → `CURSOR_RULE_BUNDLE` (`review-handoff-reconciliation`, `response-style`, `edit-scope`, `branch-strategy`, `docs-lookup`, `temp-validators`); installed to `~/.cursor/rules/`. Distinct from this repo’s maintainer `.cursor/rules/`.
 - **Copilot always-on instructions:** `user-rules/copilot/{response-style,edit-scope,branch-strategy,review-handoff,docs-lookup,temp-validators}.md` are generated from `user-rules/cursor/` by `bash scripts/sync_copilot_rules.sh` (do not hand-edit) and concatenate to `~/.copilot/copilot-instructions.md` on a global Copilot install. Project scope does not write `.github/copilot-instructions.md`.

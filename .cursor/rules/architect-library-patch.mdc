@@ -67,7 +67,7 @@ LEGACY_SKILLS="docx pptx xlsx pdf terraform-apply-fix-review terraform-commit-re
 LEGACY_CURSOR_RULES="code-review-handoff response-and-edit-scope"
 ```
 
-- **New** skill, agent, or Cursor user-global rule → add to the matching bundle and install target.
+- **New** skill, agent, or Cursor user-global rule → add to the matching bundle and install target. A shared skill goes in `SKILL_BUNDLE`. An editor-variant skill goes in `EDITOR_VARIANT_SKILLS`. The split test is [docs/MAINTAINING-SKILLS.md](../../docs/MAINTAINING-SKILLS.md#one-skill-file-or-one-file-per-editor).
 - **Existing** entry → **replace** whole folder/file (`rm -rf` then fresh copy/assemble; rules: `rm` then copy the `.mdc`).
 
 ## Patch procedure (Cursor and VS Code Copilot)

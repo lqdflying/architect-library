@@ -279,7 +279,7 @@ Intermediate status and validator scripts go under `/tmp`. They are not added to
 |-----------|----------------|
 | [`AGENTS.md`](AGENTS.md) | **Agent (Cursor + Copilot):** install library contract, editor scope, anti-patterns |
 | [`.cursor/`](.cursor/) | **Agent:** Cursor project rules and config (tracked in git) |
-| [`docs/MAINTAINING-SKILLS.md`](docs/MAINTAINING-SKILLS.md) | **Maintainer/agent:** checklist when adding skills, agents, user-global rules, steps, or dependencies |
+| [`docs/MAINTAINING-SKILLS.md`](docs/MAINTAINING-SKILLS.md) | **Maintainer/agent:** checklist when adding skills, agents, user-global rules, steps, or dependencies, including when a skill stays one `SKILL.md` or splits per editor |
 | [`user-rules/cursor/`](user-rules/cursor/) | **Cursor user-global rules source** — installed to `~/.cursor/rules/` (not this repo’s `.cursor/rules/`) |
 | [`user-rules/copilot/`](user-rules/copilot/) | **Copilot always-on fragments** — concatenated to `~/.copilot/copilot-instructions.md` |
 | [`tmp/README.md`](tmp/README.md) | **Maintainer:** staging area for external ref skills/agents before absorption |

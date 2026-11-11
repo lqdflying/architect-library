@@ -44,6 +44,8 @@ Architect Library publishes **two libraries** plus **Cursor user-global rules**:
 
 ### Skill library (`skills/`)
 
+A shared skill is one `SKILL.md` in `SKILL_BUNDLE`, copied to Cursor, Copilot, Claude Code, and Codex. `mcp-tool-rules`, `context7-docs`, and `notion-mcp-ops` are editor variants in `EDITOR_VARIANT_SKILLS`: install renames `SKILL.<editor>.md` to `SKILL.md` for Cursor, Copilot, and Codex, and does not install those three for Claude Code. The decision rule is [MAINTAINING-SKILLS.md](MAINTAINING-SKILLS.md#one-skill-file-or-one-file-per-editor).
+
 | Folder | Type | Required |
 |--------|------|----------|
 | `excalidraw-diagram` | Shared skill | If diagrams are needed |
