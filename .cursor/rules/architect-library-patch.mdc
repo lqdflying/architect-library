@@ -57,7 +57,7 @@ Do **not** copy skills into `<repo>/.cursor/skills/`, agents into `<repo>/.curso
 ## Bundles (in `scripts/install_library.sh`)
 
 ```
-SKILL_BUNDLE="excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document iac-handoff-pdf verification-before-completion newagentlink api-and-interface-design deprecation-and-migration github-markdown security-audit review-handoff _shared"
+SKILL_BUNDLE="excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document iac-handoff-pdf verification-before-completion newagentlink api-and-interface-design deprecation-and-migration github-markdown security-audit review-handoff wiz-code-scan _shared"
 EDITOR_VARIANT_SKILLS="mcp-tool-rules context7-docs notion-mcp-ops"
 AGENT_BUNDLE="code-review security-auditor"
 CURSOR_RULE_BUNDLE="review-handoff-reconciliation response-style edit-scope branch-strategy docs-lookup temp-validators"
@@ -67,7 +67,7 @@ LEGACY_SKILLS="docx pptx xlsx pdf terraform-apply-fix-review terraform-commit-re
 LEGACY_CURSOR_RULES="code-review-handoff response-and-edit-scope"
 ```
 
-- **New** skill, agent, or Cursor user-global rule → add to the matching bundle and install target. A shared skill goes in `SKILL_BUNDLE`. An editor-variant skill goes in `EDITOR_VARIANT_SKILLS`. The split test is [docs/MAINTAINING-SKILLS.md](../../docs/MAINTAINING-SKILLS.md#one-skill-file-or-one-file-per-editor).
+- **New** skill, agent, or Cursor user-global rule → add to the matching bundle and install target. A shared skill goes in `SKILL_BUNDLE`. A Cursor/Copilot/Codex variant goes in `EDITOR_VARIANT_SKILLS`. A variant that also has `SKILL.claude.md` stays in `SKILL_BUNDLE`. The split test is [docs/MAINTAINING-SKILLS.md](../../docs/MAINTAINING-SKILLS.md#one-skill-file-or-one-file-per-editor).
 - **Existing** entry → **replace** whole folder/file (`rm -rf` then fresh copy/assemble; rules: `rm` then copy the `.mdc`).
 
 ## Patch procedure (Cursor and VS Code Copilot)

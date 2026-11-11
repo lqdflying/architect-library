@@ -3,6 +3,7 @@ tmp/
 **/.venv/
 *.png
 !skills/iac-handoff-pdf/scripts/pil-logo.png
+!skills/wiz-code-scan/scripts/pil-logo.png
 *.pdf
 __pycache__/
 **/__pycache__/

@@ -22,9 +22,13 @@ An editor-only install hook stays beside that `SKILL.md`. `newagentlink` keeps `
 
 ### Editor-variant skill
 
-Write `SKILL.cursor.md`, `SKILL.copilot.md`, and `SKILL.codex.md`. Do not also commit `SKILL.md`. Add the folder to `EDITOR_VARIANT_SKILLS`, not `SKILL_BUNDLE`. Keep that string identical in [`.cursor/rules/architect-library-patch.mdc`](../.cursor/rules/architect-library-patch.mdc).
+Write `SKILL.cursor.md`, `SKILL.copilot.md`, and `SKILL.codex.md`. Do not also commit `SKILL.md`. Keep the bundle string identical in [`.cursor/rules/architect-library-patch.mdc`](../.cursor/rules/architect-library-patch.mdc).
 
-On install, the matching file is renamed to `SKILL.md` and the other `SKILL.*.md` files are deleted. Cursor, Copilot, and Codex each receive their variant. Claude Code does not receive `EDITOR_VARIANT_SKILLS`. Do not add `SKILL.claude.md` until the installer copies variants for Claude Code.
+A variant with those three files goes in `EDITOR_VARIANT_SKILLS`. Claude Code does not receive that list.
+
+A variant that also has `SKILL.claude.md` goes in `SKILL_BUNDLE`. That install path renames `SKILL.<editor>.md` for all four editors. Mark the Codex file Codex-only, because Cursor and Copilot also load `~/.agents/skills/`.
+
+On install, the matching file is renamed to `SKILL.md` and the other `SKILL.*.md` files are deleted.
 
 Each variant:
 
@@ -39,6 +43,7 @@ When you change a variant, put a shared step in `references/` instead of pasting
 | `mcp-tool-rules` | Output file (`.mdc`, `.instructions.md`, or `.agents/mcp-tools/` plus an `AGENTS.md` block) and the discovery path |
 | `context7-docs` | MCP server name and call syntax |
 | `notion-mcp-ops` | MCP server name and call syntax |
+| `wiz-code-scan` | MCP call, including a Claude Code file. Shared report files live in `scripts/`. Installed from `SKILL_BUNDLE` |
 
 ## New skill folder
 
@@ -55,7 +60,7 @@ Update **agent guidance** (all that apply):
 - [ ] [`.cursor/rules/`](../.cursor/rules/) — execution row, deps if needed
 - [ ] [AGENT-SKILL-INSTALL.md](AGENT-SKILL-INSTALL.md) — skill table, execution rules
 - [ ] [README.md](../README.md) — Skills table, documentation map
-- [ ] [scripts/install_library.sh](../scripts/install_library.sh) — add a shared skill to `SKILL_BUNDLE`, or an editor-variant skill to `EDITOR_VARIANT_SKILLS`
+- [ ] [scripts/install_library.sh](../scripts/install_library.sh) — add a shared skill, or a variant that includes `SKILL.claude.md`, to `SKILL_BUNDLE`. Add a Cursor/Copilot/Codex-only variant to `EDITOR_VARIANT_SKILLS`
 - [ ] Run full readiness: `bash scripts/install_deps.sh`, `bash scripts/install_deps.sh office-system`, then `bash scripts/install_library.sh all cursor` and `bash scripts/install_library.sh all copilot`
 
 If the skill uses Office tools:

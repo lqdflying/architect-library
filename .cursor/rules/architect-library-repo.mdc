@@ -30,6 +30,7 @@ Skill library + custom agent library + Cursor user-global rules. Work in this cl
 | `skills/github-markdown/` | GitHub Flavored Markdown for READMEs, issues, PRs, discussions, wikis, repo docs |
 | `skills/newagentlink/` | One-shot new-agent continuation snapshot (`/tmp/<topic>-newagentlink.md`); Cursor command `cursor.command.md` → `~/.cursor/commands/newagentlink.md` |
 | `skills/notion-mcp-ops/` | Notion MCP CRUD, formatting, fetch-before-write; `SKILL.cursor.md`, `SKILL.copilot.md`, `SKILL.codex.md`. Not installed for Claude Code |
+| `skills/wiz-code-scan/` | Wiz IaC code-scan findings; `SKILL.cursor.md`, `SKILL.copilot.md`, `SKILL.claude.md`, `SKILL.codex.md`. Installed for all four editors |
 | `skills/_shared/` | `architecture-document-principles.md`, `office-tools/` |
 | `scripts/install_library.sh` | Install/patch skills, agents, Cursor user-global rules, and the Copilot always-on instruction |
 | `scripts/install_deps.sh` | Runtimes only (`all` \| `excalidraw` \| `office` \| `office-system` \| `pdf` \| `node`) |
@@ -40,7 +41,7 @@ Skill library + custom agent library + Cursor user-global rules. Work in this cl
 | `docs/MAINTAINING-SKILLS.md` | Maintainer checklist (skills + agents + Cursor user-global rules) |
 | `docs/AGENTS.md` | Agent catalog |
 
-Skill files: a shared skill is `skills/<name>/SKILL.md` plus `references/`, copied to all four editors. An editor-variant skill is `SKILL.cursor.md`, `SKILL.copilot.md`, and `SKILL.codex.md` plus shared `references/`, installed for Cursor, Copilot, and Codex. Split only when one `SKILL.md` would give another editor the wrong MCP server name, call syntax, config path, or output file. Full rule: [docs/MAINTAINING-SKILLS.md](../../docs/MAINTAINING-SKILLS.md#one-skill-file-or-one-file-per-editor).
+Skill files: a shared skill is `skills/<name>/SKILL.md` plus `references/`, copied to all four editors. An editor-variant skill is `SKILL.cursor.md`, `SKILL.copilot.md`, and `SKILL.codex.md`. Without a Claude file it is installed for Cursor, Copilot, and Codex from `EDITOR_VARIANT_SKILLS`. With `SKILL.claude.md` it stays in `SKILL_BUNDLE` and is installed for all four editors. Split only when one `SKILL.md` would give another editor the wrong MCP server name, call syntax, config path, or output file. Full rule: [docs/MAINTAINING-SKILLS.md](../../docs/MAINTAINING-SKILLS.md#one-skill-file-or-one-file-per-editor).
 
 ## Changing this repo
 

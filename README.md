@@ -175,6 +175,7 @@ See [Installation](#installation) for Copilot / Claude Code / Codex paths, or [d
 | `mcp-tool-rules` | Scan MCP servers, discover tool schemas, generate rule/instruction files with correct tool arguments. Editor-specific variants: `.mdc` rules for Cursor, `.instructions.md` for Copilot. |
 | `context7-docs` | Fetch current library/framework documentation via Context7 MCP instead of training data. Editor variants use correct MCP server name (`user-context7` in Cursor, `context7` in Copilot). |
 | `notion-mcp-ops` | Notion MCP operations — fetch-before-write, CRUD, formatting (callouts/tables), failure avoidance. Editor variants: `plugin-notion-workspace-notion` in Cursor, `notion` in Copilot. |
+| `wiz-code-scan` | Wiz IaC code-scan findings and four fix levels. Editor variants: `user-wiz` in Cursor, `wiz-discover` / `wiz-execute` in Copilot, `mcp__wiz__discover` / `mcp__wiz__execute` in Claude Code, `mcp__wiz` in Codex. |
 | `_shared` | Shared principles and Office tooling for Word, PowerPoint, and spreadsheet skills. **Must** be a sibling of those skills. |
 
 ## Custom agents
@@ -302,6 +303,7 @@ Intermediate status and validator scripts go under `/tmp`. They are not added to
 | [`skills/context7-docs/SKILL.copilot.md`](skills/context7-docs/SKILL.copilot.md) | Context7 library docs lookup (VS Code Copilot) |
 | [`skills/notion-mcp-ops/SKILL.cursor.md`](skills/notion-mcp-ops/SKILL.cursor.md) | Notion MCP operations (Cursor) |
 | [`skills/notion-mcp-ops/SKILL.copilot.md`](skills/notion-mcp-ops/SKILL.copilot.md) | Notion MCP operations (VS Code Copilot) |
+| [`skills/wiz-code-scan/README.md`](skills/wiz-code-scan/README.md) | Wiz IaC code-scan findings; one skill file per editor |
 | This README → [How to use](#how-to-use) | Using installed skills in Cursor, Copilot, or Claude Code chat |
 | [`skills/excalidraw-diagram/SKILL.md`](skills/excalidraw-diagram/SKILL.md) | Diagram design rules and agent workflow |
 | [`skills/excalidraw-diagram/README.md`](skills/excalidraw-diagram/README.md) | Render setup, offline bundle, PNG validation |
@@ -439,6 +441,13 @@ architect-library/
       SKILL.codex.md
       README.md
       references/
+    wiz-code-scan/
+      SKILL.cursor.md
+      SKILL.copilot.md
+      SKILL.claude.md
+      SKILL.codex.md
+      README.md
+      scripts/
     _shared/
       architecture-document-principles.md
       office-tools/

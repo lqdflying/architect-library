@@ -44,7 +44,7 @@ Architect Library publishes **two libraries** plus **Cursor user-global rules**:
 
 ### Skill library (`skills/`)
 
-A shared skill is one `SKILL.md` in `SKILL_BUNDLE`, copied to Cursor, Copilot, Claude Code, and Codex. `mcp-tool-rules`, `context7-docs`, and `notion-mcp-ops` are editor variants in `EDITOR_VARIANT_SKILLS`: install renames `SKILL.<editor>.md` to `SKILL.md` for Cursor, Copilot, and Codex, and does not install those three for Claude Code. The decision rule is [MAINTAINING-SKILLS.md](MAINTAINING-SKILLS.md#one-skill-file-or-one-file-per-editor).
+A shared skill is one `SKILL.md` in `SKILL_BUNDLE`, copied to Cursor, Copilot, Claude Code, and Codex. `mcp-tool-rules`, `context7-docs`, and `notion-mcp-ops` are editor variants in `EDITOR_VARIANT_SKILLS`: install renames `SKILL.<editor>.md` to `SKILL.md` for Cursor, Copilot, and Codex, and does not install those three for Claude Code. `wiz-code-scan` is an editor variant in `SKILL_BUNDLE` because it also has `SKILL.claude.md`, so Claude Code receives it. The decision rule is [MAINTAINING-SKILLS.md](MAINTAINING-SKILLS.md#one-skill-file-or-one-file-per-editor).
 
 | Folder | Type | Required |
 |--------|------|----------|
@@ -64,6 +64,7 @@ A shared skill is one `SKILL.md` in `SKILL_BUNDLE`, copied to Cursor, Copilot, C
 | `mcp-tool-rules` | Cursor + Copilot + Codex (editor variants) | Scan MCP servers and generate rule/instruction files with correct tool arguments (`.mdc` for Cursor, `.instructions.md` for Copilot, `.agents/mcp-tools/` references plus a project `AGENTS.md` trigger for Codex) |
 | `context7-docs` | Cursor + Copilot + Codex (editor variants) | Fetch current library/framework documentation via Context7 MCP instead of training data; editor variants use correct MCP server name |
 | `notion-mcp-ops` | Cursor + Copilot + Codex (editor variants) | Notion MCP CRUD and formatting; fetch-before-write; failure-mode avoidance; editor variants use correct MCP server name (`plugin-notion-workspace-notion` in Cursor, `notion` in Copilot; Codex discovers the available tool names) |
+| `wiz-code-scan` | All four editors (editor variants in `SKILL_BUNDLE`) | Wiz IaC code-scan findings and four fix levels. Calls differ: `user-wiz` in Cursor, `wiz-discover` / `wiz-execute` in Copilot, `mcp__wiz__discover` / `mcp__wiz__execute` in Claude Code, `mcp__wiz` in Codex |
 | `_shared` | Support files (not a standalone skill) | **Yes** whenever Word, PowerPoint, or spreadsheet skills are installed |
 
 Word, PowerPoint, and spreadsheet skills reference Office tools via `../_shared/office-tools/`. If `_shared` is missing or not a **sibling** of those folders, paths break.
@@ -121,7 +122,7 @@ it does not write `AGENTS.md` or global instructions. User skills stay under
 Cursor and VS Code Copilot also load `~/.agents/skills/` and project
 `.agents/skills/`, so after a Codex install they list the library skills twice.
 Shared skills are identical copies. The Codex variants of `mcp-tool-rules`,
-`context7-docs`, and `notion-mcp-ops` are marked Codex only, so other editors
+`context7-docs`, `notion-mcp-ops`, and `wiz-code-scan` are marked Codex only, so other editors
 use their own copy.
 
 See official documentation for [skill discovery and invocation metadata](https://learn.chatgpt.com/docs/build-skills),
@@ -313,6 +314,7 @@ test -f ~/.cursor/skills/security-audit/SKILL.md && echo "OK: security-audit ski
 test -f ~/.cursor/skills/mcp-tool-rules/SKILL.md && echo "OK: mcp-tool-rules variant"
 test -f ~/.cursor/skills/context7-docs/SKILL.md && echo "OK: context7-docs variant"
 test -f ~/.cursor/skills/notion-mcp-ops/SKILL.md && echo "OK: notion-mcp-ops variant"
+test -f ~/.cursor/skills/wiz-code-scan/SKILL.md && echo "OK: wiz-code-scan variant"
 test -f ~/.cursor/skills/review-handoff/SKILL.md && echo "OK: review-handoff skill (trigger target)"
 test -f ~/.cursor/skills/review-handoff/scripts/purge_handoff.py && echo "OK: review-handoff purge"
 test -f ~/.cursor/agents/code-review.md && echo "OK: cursor agents"
@@ -378,6 +380,7 @@ test -f ~/.copilot/skills/security-audit/SKILL.md && echo "OK: security-audit sk
 test -f ~/.copilot/skills/mcp-tool-rules/SKILL.md && echo "OK: mcp-tool-rules variant"
 test -f ~/.copilot/skills/context7-docs/SKILL.md && echo "OK: context7-docs variant"
 test -f ~/.copilot/skills/notion-mcp-ops/SKILL.md && echo "OK: notion-mcp-ops variant"
+test -f ~/.copilot/skills/wiz-code-scan/SKILL.md && echo "OK: wiz-code-scan variant"
 test -f ~/.copilot/agents/code-review.agent.md && echo "OK: copilot agents"
 test -f ~/.copilot/agents/security-auditor.agent.md && echo "OK: security-auditor"
 grep -q 'disallowedTools: edit' ~/.copilot/agents/security-auditor.agent.md && echo "OK: security-auditor readonly"
@@ -421,6 +424,7 @@ The install script runs **library** checks automatically for the `EDITOR` you pa
 | **mcp-tool-rules** | MCP config read; servers presented and confirmed; tools discovered per server; editor-appropriate files generated (Cursor: `.mdc` rules, Copilot: `.instructions.md`, Codex: `.agents/mcp-tools/` references plus a managed project `AGENTS.md` trigger) with parameter tables and example calls; files validated (server names, tables, examples, frontmatter); report delivered |
 | **context7-docs** | Library/framework docs fetched via Context7 MCP; version-specific library ID selected when applicable; query decomposed to one topic per call; source cited in response; fallback to web search or Microsoft Learn when Context7 lacks the library |
 | **notion-mcp-ops** | Notion MCP server discovered with correct editor server name; fetch before write on updates; anchors from fetched content; formatting rules applied (`<callout>`, HTML tables); post-update verify fetch for structural edits; property names from fetched schema |
+| **wiz-code-scan** | Open counts by severity compared with the Wiz page or the repository analytics; every finding of medium severity or above placed in one of four fix levels; every recommended change checked against the cited file |
 
 **PowerPoint is not done** when the `.pptx` exists — only after layout preview (or user waives).
 

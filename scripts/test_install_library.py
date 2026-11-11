@@ -242,7 +242,7 @@ class InstallLibraryTests(unittest.TestCase):
         self.assertTrue(self.instructions().exists())
         self.assert_skills(self.home / ".agents/skills", "codex")
         # Cursor and Copilot also load ~/.agents/skills; the Codex variants must say they are Codex only.
-        for name in ("mcp-tool-rules", "context7-docs", "notion-mcp-ops"):
+        for name in ("mcp-tool-rules", "context7-docs", "notion-mcp-ops", "wiz-code-scan"):
             frontmatter, body = (self.home / f".agents/skills/{name}/SKILL.md").read_text().split("\n---\n", 1)
             self.assertIn("Codex only.", frontmatter)
             self.assertIn("**Codex only.**", body)
