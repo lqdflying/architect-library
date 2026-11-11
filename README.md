@@ -2,7 +2,7 @@
 
 A **skill library**, **custom agent library**, and **user instructions** for Cursor, VS Code Copilot, and Codex. Install once globally; use in any project.
 
-**Skills** handle artifacts (Excalidraw, Word, PowerPoint, spreadsheets, PDFs) and architecture workflows (API design, deprecation/migration). **Custom agents** handle focused readonly tasks such as [code review](docs/CODE-REVIEW-AGENT.md) and [security audit](docs/SECURITY-AUDITOR-AGENT.md). **Cursor user-global rules** install to `~/.cursor/rules/` and apply in every Cursor project: response style, edit scope, branch strategy, docs lookup, temporary validators, and a short trigger that loads the on-demand `review-handoff` skill. VS Code Copilot concatenates the matching fragments from [`user-rules/copilot/`](user-rules/copilot/) (generated from the Cursor sources) into `~/.copilot/copilot-instructions.md`. Codex transforms the same rules into [`user-rules/codex/`](user-rules/codex/) and installs them in a managed global `AGENTS.md` block. Claude Code transforms them into [`user-rules/claude/`](user-rules/claude/) and installs one file per rule in `~/.claude/rules/`. Host files are install copies. The `newagentlink` skill is a separate one-shot snapshot for starting a new agent chat — not that ledger.
+**Skills** handle artifacts (Excalidraw, Word, PowerPoint, spreadsheets, PDFs) and architecture workflows (API design, deprecation/migration). **Custom agents** handle focused readonly tasks such as [code review](docs/CODE-REVIEW-AGENT.md) and [security audit](docs/SECURITY-AUDITOR-AGENT.md). **Cursor user-global rules** install to `~/.cursor/rules/` and apply in every Cursor project: response style, edit scope, branch strategy, docs lookup, temporary validators, and a short trigger that loads the on-demand `review-handoff` skill. VS Code Copilot concatenates the matching fragments from [`user-rules/copilot/`](user-rules/copilot/) (generated from the Cursor sources) into `~/.copilot/copilot-instructions.md`. Codex transforms the same rules into [`user-rules/codex/`](user-rules/codex/) and installs them in a managed global `AGENTS.md` block. Claude Code transforms them into [`user-rules/claude/`](user-rules/claude/) and installs one file per rule in `~/.claude/rules/`. Host files are install copies.
 
 Compatible with [Cursor](https://cursor.com), [VS Code + GitHub Copilot](https://code.visualstudio.com/docs/copilot/customization/agent-skills), [Claude Code](https://docs.anthropic.com/en/docs/claude-code), OpenCode, and [Codex](https://learn.chatgpt.com/docs/build-skills).
 
@@ -166,7 +166,6 @@ See [Installation](#installation) for Copilot / Claude Code / Codex paths, or [d
 | `pdf-document` | Read, create, merge, split, and fill PDFs. |
 | `iac-handoff-pdf` | Write or update the environment handoff PDF that tells a vendor or developer team what an IaC repo provisioned and how to use it. Every rendered page is viewed before delivery. |
 | `verification-before-completion` | Fresh verification evidence before any completion or delivery claim. |
-| `newagentlink` | One-shot `/tmp/<topic>-newagentlink.md` so a new agent can continue without the old transcript. Not the review ledger. |
 | `review-handoff` | Review and fix ledger at `/tmp/<topic>-handoff.md` with FIX / DEFER / KEEP / DO NOT APPLY / FIXED / RECONCILED. Closed rounds move to `/tmp/<topic>-handoff-archive.md`. Loaded on demand; Cursor, Copilot, Codex, and Claude Code. |
 | `api-and-interface-design` | Design stable APIs and module boundaries — contract-first, error semantics, pagination, Hyrum's Law. |
 | `github-markdown` | Write correct GitHub Flavored Markdown for READMEs, issues, PRs, discussions, wikis, and repo docs. |
@@ -199,7 +198,7 @@ One ledger protocol in an on-demand skill, plus a short always-on trigger per ed
 | Codex trigger | [`user-rules/codex/review-handoff.md`](user-rules/codex/review-handoff.md) (generated) | Managed block in `${CODEX_HOME:-$HOME/.codex}/AGENTS.md` |
 | Claude Code trigger | [`user-rules/claude/review-handoff.md`](user-rules/claude/review-handoff.md) (generated) | `~/.claude/rules/review-handoff.md` |
 
-`/tmp/<topic>-handoff.md` is the active ledger, with FIX / DEFER / KEEP / DO NOT APPLY / FIXED / RECONCILED. Append the round, then `scripts/purge_handoff.py` moves older rounds verbatim to `/tmp/<topic>-handoff-archive.md`. The active file keeps the header, open items, and the two newest rounds. Distinct from `newagentlink` (`/tmp/<topic>-newagentlink.md`). Edit `skills/review-handoff/SKILL.md` and reinstall with `all cursor` and `all copilot`; use `all codex` for Codex and `all claude` for Claude Code. Do not keep a second protocol in the home file.
+`/tmp/<topic>-handoff.md` is the active ledger, with FIX / DEFER / KEEP / DO NOT APPLY / FIXED / RECONCILED. Append the round, then `scripts/purge_handoff.py` moves older rounds verbatim to `/tmp/<topic>-handoff-archive.md`. The active file keeps the header, open items, and the two newest rounds. Edit `skills/review-handoff/SKILL.md` and reinstall with `all cursor` and `all copilot`; use `all codex` for Codex and `all claude` for Claude Code. Do not keep a second protocol in the home file.
 
 ## Response style (Cursor, Copilot, Codex, and Claude Code)
 
@@ -292,8 +291,6 @@ Intermediate status and validator scripts go under `/tmp`. They are not added to
 | [`docs/SECURITY-AUDITOR-AGENT.md`](docs/SECURITY-AUDITOR-AGENT.md) | security-auditor agent usage |
 | [`skills/api-and-interface-design/SKILL.md`](skills/api-and-interface-design/SKILL.md) | API and interface design workflow |
 | [`skills/github-markdown/SKILL.md`](skills/github-markdown/SKILL.md) | GitHub Flavored Markdown writing workflow |
-| [`skills/newagentlink/SKILL.md`](skills/newagentlink/SKILL.md) | One-shot new-agent continuation snapshot |
-| [`skills/newagentlink/cursor.command.md`](skills/newagentlink/cursor.command.md) | Cursor `/newagentlink` command (install copy: `~/.cursor/commands/newagentlink.md`) |
 | [`skills/deprecation-and-migration/SKILL.md`](skills/deprecation-and-migration/SKILL.md) | Deprecation and migration workflow |
 | [`skills/security-audit/SKILL.md`](skills/security-audit/SKILL.md) | Deep codebase security audit (6-phase, multi-agent, structured output) |
 | [`skills/review-handoff/SKILL.md`](skills/review-handoff/SKILL.md) | Review and fix ledger protocol (on demand; Cursor and Copilot) |
@@ -397,10 +394,6 @@ architect-library/
     verification-before-completion/
       SKILL.md
       README.md
-    newagentlink/
-      SKILL.md
-      README.md
-      cursor.command.md         # Cursor /newagentlink → ~/.cursor/commands/
     api-and-interface-design/
       SKILL.md
       README.md
@@ -584,7 +577,6 @@ Runtime setup ([first-time preparation](#first-time-preparation-one-time-per-mac
    | `/excalidraw-diagram` | Excalidraw | Diagrams, workflows, system maps |
    | `/word-document` | Word | HLD, LLD, ADR, DOCX edit/validate |
    | `/powerpoint-presentation` | PowerPoint | Executive decks, migration/roadmap slides |
-   | `/newagentlink` | New agent link | One-shot continuation file for a new agent chat |
 
    `_shared` has no slash command — it is loaded automatically when Word or PowerPoint skills need Office tools.
 
@@ -629,7 +621,6 @@ Requires [GitHub Copilot](https://github.com/features/copilot) and [Agent Skills
    | `/excalidraw-diagram` | Excalidraw | Diagrams, workflows, system maps |
    | `/word-document` | Word | HLD, LLD, ADR, DOCX edit/validate |
    | `/powerpoint-presentation` | PowerPoint | Executive decks, migration/roadmap slides |
-   | `/newagentlink` | New agent link | One-shot continuation file for a new agent chat |
 
    Pick one command, then add your task on the **same message** (recommended):
 
@@ -674,8 +665,7 @@ Deliverable: .excalidraw / .docx / .pptx
 ### Codex
 
 Start a fresh Codex session after installing. Invoke skills with `$skill-name`,
-for example `$word-document Create an HLD` or `$newagentlink`. The continuation
-skill is explicit-only; other skills can be selected from their descriptions.
+for example `$word-document Create an HLD`. Other skills can be selected from their descriptions.
 Ask Codex to use the `code-review` or `security-auditor` custom agent by name.
 Those agents return ledger entries to the parent, which records them under `/tmp`.
 

@@ -57,7 +57,7 @@ Do **not** copy skills into `<repo>/.cursor/skills/`, agents into `<repo>/.curso
 ## Bundles (in `scripts/install_library.sh`)
 
 ```
-SKILL_BUNDLE="excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document iac-handoff-pdf verification-before-completion newagentlink api-and-interface-design deprecation-and-migration github-markdown security-audit review-handoff wiz-code-scan _shared"
+SKILL_BUNDLE="excalidraw-diagram word-document powerpoint-presentation spreadsheet-document pdf-document iac-handoff-pdf verification-before-completion api-and-interface-design deprecation-and-migration github-markdown security-audit review-handoff wiz-code-scan _shared"
 EDITOR_VARIANT_SKILLS="mcp-tool-rules context7-docs notion-mcp-ops"
 AGENT_BUNDLE="code-review security-auditor"
 CURSOR_RULE_BUNDLE="review-handoff-reconciliation response-style edit-scope branch-strategy docs-lookup temp-validators"
@@ -89,14 +89,12 @@ bash scripts/install_library.sh all copilot
 test -f ~/.cursor/skills/_shared/office-tools/office_tools.py
 test -f ~/.cursor/skills/word-document/SKILL.md
 test -f ~/.cursor/skills/verification-before-completion/SKILL.md
-test -f ~/.cursor/skills/newagentlink/SKILL.md
-grep -q 'disable-model-invocation: true' ~/.cursor/skills/newagentlink/SKILL.md
+test ! -d ~/.cursor/skills/newagentlink
 test ! -d ~/.cursor/skills/handoff
 test ! -d ~/.cursor/skills/terraform-commit-review
 test ! -d ~/.cursor/skills/terraform-apply-assistance
 test ! -f ~/.cursor/commands/handoff.md
-test -f ~/.cursor/commands/newagentlink.md
-cmp -s skills/newagentlink/cursor.command.md ~/.cursor/commands/newagentlink.md
+test ! -f ~/.cursor/commands/newagentlink.md
 test -f ~/.cursor/skills/review-handoff/SKILL.md
 test -f ~/.cursor/skills/review-handoff/scripts/purge_handoff.py
 bash scripts/sync_copilot_rules.sh --check

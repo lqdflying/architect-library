@@ -18,7 +18,7 @@ The installer copies that folder unchanged to Cursor, Copilot, Claude Code, and 
 
 Keep one `SKILL.md` when the skill only mentions MCP. `excalidraw-diagram` does this.
 
-An editor-only install hook stays beside that `SKILL.md`. `newagentlink` keeps `cursor.command.md` (copied to `~/.cursor/commands/` on a global Cursor install) and `agents/openai.yaml` (Codex explicit invocation). A new hook needs an installer change.
+An editor-only install hook needs an installer change.
 
 ### Editor-variant skill
 
@@ -126,7 +126,6 @@ The fragments are generated. Edit the Cursor source in `user-rules/cursor/`, the
 
 - [ ] Every shared skill installs to `~/.agents/skills/`. An editor-variant skill follows [One skill file or one file per editor](#one-skill-file-or-one-file-per-editor): `SKILL.codex.md` is installed as `SKILL.md`, and the installer deletes the other variant files.
 - [ ] Adapt actual tool discovery, Codex configuration paths, and invocation syntax; do not copy Cursor or Copilot tool prefixes.
-- [ ] `newagentlink/agents/openai.yaml` preserves explicit-only invocation in Codex.
 - [ ] Generate all six `user-rules/codex/` fragments from Cursor sources with `bash scripts/sync_codex_rules.sh`; never hand-edit them.
 - [ ] New rule: update `PAIRS` in all three sync scripts and the instruction fragment bundles in the installer.
 - [ ] Global instructions live in the marked Architect Library block in `${CODEX_HOME:-$HOME/.codex}/AGENTS.md`; preserve personal content outside it.

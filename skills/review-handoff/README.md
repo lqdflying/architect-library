@@ -19,9 +19,6 @@ A short always-on trigger keeps that load reliable:
 
 Installed for all four editors (listed in `SKILL_BUNDLE`).
 
-This is **not** the `newagentlink` one-shot snapshot
-(`/tmp/<topic>-newagentlink.md`).
-
 ## Install
 
 Ships with Architect Library:
