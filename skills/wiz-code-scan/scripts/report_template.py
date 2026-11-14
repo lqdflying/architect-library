@@ -46,21 +46,23 @@ HISTORY = [
     ("1.0", "<D Month YYYY>", ["First report."]),
 ]
 
-# Each finding sits in exactly one level. The count is the number of Wiz findings the row covers.
-LEVEL_1 = [  # (findings, count, file, change)
-    ("<finding>", 1, "`<path>:<line>`", "<In-place change, and the effect while it applies.>"),
+# Each finding sits in exactly one level. A row is one Wiz rule and becomes a numbered subsection titled with the rule name,
+# so write the name exactly as Wiz returns it (rule.name). The count is the number of that rule's findings in this level.
+# The note qualifies the count, such as "one-click" or the roots the findings are in, and may be empty.
+LEVEL_1 = [  # (Wiz rule name, count, note, file, change)
+    ("<Wiz rule name>", 1, "", "`<path>:<line>`", "<In-place change, and the effect while it applies.>"),
 ]
 LEVEL_1_WAITING = 0  # Level 1 findings that wait for the prerequisite in LEVEL_1_NOTE
 LEVEL_1_NOTE = "<Prerequisite outside the repository and which findings wait for it, or empty.>"
-LEVEL_2 = [  # (findings, count, file, change)
-    ("<finding>", 1, "`<path>:<line>`", "<Change, and the risk it removes.>"),
+LEVEL_2 = [  # (Wiz rule name, count, note, file, change)
+    ("<Wiz rule name>", 1, "", "`<path>:<line>`", "<Change, and the risk it removes.>"),
 ]
 LEVEL_2_NOTE = "<What the replacement disrupts, or empty.>"
-LEVEL_3 = [  # (findings, count, "Forces new" or "In place", why it is not needed, harmless in-place change)
-    ("<finding>", 1, "In place", "<Why the environment or the design does not need it.>", False),
+LEVEL_3 = [  # (Wiz rule name, count, note, "Forces new" or "In place", why it is not needed, harmless in-place change)
+    ("<Wiz rule name>", 1, "", "In place", "<Why the environment or the design does not need it.>", False),
 ]
-LEVEL_4 = [  # (findings, count, reason)
-    ("<finding>", 1, "<Contract rule, unsupported setting, conflicting rule, or renamed attribute.>"),
+LEVEL_4 = [  # (Wiz rule name, count, note, reason)
+    ("<Wiz rule name>", 1, "", "<Contract rule, unsupported setting, conflicting rule, or renamed attribute.>"),
 ]
 
 VERSION, REVISED, CHANGES = HISTORY[0]
@@ -103,6 +105,7 @@ TITLE = ParagraphStyle("title", parent=BODY, fontName=SANS_BOLD, fontSize=21, le
 SUBTITLE = ParagraphStyle("subtitle", parent=BODY, fontSize=11, leading=14, textColor=MUTED, spaceAfter=8)
 VERSION_LINE = ParagraphStyle("version", parent=BODY, fontSize=8.4, textColor=MUTED, spaceAfter=4)
 H2 = ParagraphStyle("h2", parent=BODY, fontName=SANS_BOLD, fontSize=12.5, leading=16, textColor=NAVY, spaceBefore=10, spaceAfter=5)
+H3 = ParagraphStyle("h3", parent=BODY, fontName=SANS_BOLD, fontSize=9.8, leading=13, textColor=NAVY, spaceBefore=5, spaceAfter=3)
 CELL = ParagraphStyle("cell", parent=BODY, fontSize=8.2, leading=10.8, spaceAfter=0)
 CELL_HEAD = ParagraphStyle("cellhead", parent=CELL, fontName=SANS_BOLD)
 BULLET = ParagraphStyle("bullet", parent=BODY, leftIndent=12, bulletIndent=3, bulletFontName=SANS, spaceAfter=3)
@@ -134,19 +137,21 @@ def bullets(items):
     return [Paragraph(fmt(t), BULLET, bulletText="•") for t in items]
 
 
+GRID = [
+    ("GRID", (0, 0), (-1, -1), 0.5, RULE),
+    ("VALIGN", (0, 0), (-1, -1), "TOP"),
+    ("LEFTPADDING", (0, 0), (-1, -1), 4),
+    ("RIGHTPADDING", (0, 0), (-1, -1), 4),
+    ("TOPPADDING", (0, 0), (-1, -1), 3),
+    ("BOTTOMPADDING", (0, 0), (-1, -1), 3.5),
+]
+
+
 def table(rows, widths):
     """rows[0] is the header. widths are fractions of the text width and sum to 1."""
     data = [[P(c, CELL_HEAD if r == 0 else CELL) for c in row] for r, row in enumerate(rows)]
     t = Table(data, colWidths=[W * f for f in widths], repeatRows=1, hAlign="LEFT", spaceAfter=5)
-    t.setStyle(TableStyle([
-        ("BACKGROUND", (0, 0), (-1, 0), HEAD_BG),
-        ("GRID", (0, 0), (-1, -1), 0.5, RULE),
-        ("VALIGN", (0, 0), (-1, -1), "TOP"),
-        ("LEFTPADDING", (0, 0), (-1, -1), 4),
-        ("RIGHTPADDING", (0, 0), (-1, -1), 4),
-        ("TOPPADDING", (0, 0), (-1, -1), 3),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 3.5),
-    ]))
+    t.setStyle(TableStyle([("BACKGROUND", (0, 0), (-1, 0), HEAD_BG), *GRID]))
     return t
 
 
@@ -202,15 +207,35 @@ def total(rows):
     return sum(r[1] for r in rows)
 
 
-def label(row):
-    return f"{row[0]} ({row[1]})"
+def level(key, title, labels, rows, note=""):
+    """Level section: the note, then one numbered subsection per Wiz rule, titled with the rule name.
+
+    A row is the Wiz rule name, the finding count, a note on the count, then exactly one value per label.
+    """
+    flow = [P(note)] if note else []
+    if not rows:
+        flow.append(P("No finding is in this level."))
+    for n, (name, count, count_note, *values) in enumerate(rows, 1):
+        if len(values) != len(labels):
+            raise SystemExit(f"{key} row {n} ({name}): expected {len(labels)} values after the name, count and note "
+                             f"({', '.join(labels)}), found {len(values)}")
+        head = Paragraph(fmt(f"{NUMBER.get(key, '?')}.{n} {name}"), H3)
+        fields = [("Findings", f"{count} ({count_note})" if count_note else str(count)), *zip(labels, values)]
+        t = Table([[P(k, CELL_HEAD), P(v, CELL)] for k, v in fields], colWidths=[W * 0.22, W * 0.78], hAlign="LEFT", spaceAfter=5)
+        t.setStyle(TableStyle([("BACKGROUND", (0, 0), (0, -1), HEAD_BG), *GRID]))
+        flow.append(KeepTogether([head, t]))
+    return section(key, title, *flow)
 
 
 def story():
     n1, n2, n3, n4 = (total(rows) for rows in (LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4))
     reported = n1 + n2 + n3 + n4
     fixable, stay = n1 + n2, n3 + n4
-    harmless = sum(r[1] for r in LEVEL_3 if r[4])
+    for n, r in enumerate(LEVEL_3, 1):
+        if len(r) != 6:  # so that r[5] is the harmless flag and r[:5] is the row level() shows
+            raise SystemExit(f"level-3 row {n} ({r[0]}): expected 6 values (name, count, note, change type, why, harmless flag), "
+                             f"found {len(r)}")
+    harmless = sum(r[1] for r in LEVEL_3 if r[5])
     high = SEVERITY["CRITICAL"] + SEVERITY["HIGH"]
     severe = (f"{SEVERITY['HIGH']} are high and {SEVERITY['CRITICAL']} are critical." if high else
               "No finding is high or critical.")
@@ -252,25 +277,11 @@ def story():
         *bullets(summary),
     )
 
-    s += section(
-        "level-1", "Level 1: in-place update, low risk",
-        table([["Findings (count)", "File", "Change"], *[[label(r), r[2], r[3]] for r in LEVEL_1]], [0.27, 0.27, 0.46]),
-        *([P(LEVEL_1_NOTE)] if LEVEL_1_NOTE else []),
-    )
-    s += section(
-        "level-2", "Level 2: forces a new resource, but recommended",
-        table([["Findings (count)", "File", "Change"], *[[label(r), r[2], r[3]] for r in LEVEL_2]], [0.27, 0.27, 0.46]),
-        *([P(LEVEL_2_NOTE)] if LEVEL_2_NOTE else []),
-    )
-    s += section(
-        "level-3", "Level 3: not necessary",
-        table([["Findings (count)", "Change type", "Why it is not needed"], *[[label(r), r[2], r[3]] for r in LEVEL_3]],
-              [0.36, 0.14, 0.5]),
-    )
-    s += section(
-        "level-4", "Level 4: not possible or not supported",
-        table([["Findings (count)", "Reason"], *[[label(r), r[2]] for r in LEVEL_4]], [0.36, 0.64]),
-    )
+    s += level("level-1", "Level 1: in-place update, low risk", ("File", "Change"), LEVEL_1, LEVEL_1_NOTE)
+    s += level("level-2", "Level 2: forces a new resource, but recommended", ("File", "Change"), LEVEL_2, LEVEL_2_NOTE)
+    # The harmless flag at the end of a Level 3 row feeds the summary and is not a field of the subsection.
+    s += level("level-3", "Level 3: not necessary", ("Change type", "Why it is not needed"), [r[:5] for r in LEVEL_3])
+    s += level("level-4", "Level 4: not possible or not supported", ("Reason",), LEVEL_4)
 
     s += section(
         "method", "How the findings were classified",
