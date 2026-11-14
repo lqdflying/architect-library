@@ -66,7 +66,7 @@ Scope the report by repository and commit, not by environment: Wiz scans the cod
 
 Name the sender and the recipient: the team that owns the repository and the team that requires the scan, such as a security or compliance office.
 
-Place each finding in exactly one level, and mark one-click findings in their row.
+Place each finding in exactly one level. Report by Wiz rule: one row per Wiz rule per level, named with `rule.name` exactly as Wiz returns it, so the reader can find the rule in Wiz, for example to set an exclusion. When a rule's findings fall in different levels, the same `rule.name` has one row in each of those levels: 3 findings split 2 and 1 give a Level 1 row with 2 and a Level 3 row with 1. Do not merge different rules under a label of your own. The row's count is the number of that rule's findings in that level. Put the count and a note such as one-click in the Findings column, not in the name. Take the names and each rule's total from `list_iac_findings_grouped` with `group_by` `["RULE"]`, `repository_id`, `status` `["OPEN"]`, `severity` `["MEDIUM", "HIGH", "CRITICAL"]` and `first` at least the number of groups: each node carries `rule.name` and `analytics.totalFindingCount`, and a rule's counts across the four levels add up to that total. The File cell lists `path:line` for every finding in the row: `filePath` is on each `list_iac_findings` node, and `startLine` is on `get_iac_finding`.
 
 1. **Level 1: in-place update, low risk.** The pinned provider updates the resource in place, and the contract and design do not contradict the change. A rewrite that only lets Wiz read existing code, such as replacing a `dynamic` block, belongs here. When a change needs a prerequisite outside the repository, such as a subscription feature, name it and count those findings separately.
 2. **Level 2: forces a new resource, but recommended.** The fix replaces an applied resource, and the risk it removes justifies the replacement. Name what the replacement disrupts and any in-place path the platform offers outside the pinned provider.
@@ -75,9 +75,9 @@ Place each finding in exactly one level, and mark one-click findings in their ro
 
 Use one table per level:
 
-- Levels 1 and 2: `| Findings (count) | File | Change |`, with `path:line` in File.
-- Level 3: `| Findings | Change type | Why it is not needed |`.
-- Level 4: `| Findings | Reason |`.
+- Levels 1 and 2: `| Wiz rule name | Findings | File | Change |`, with `path:line` in File.
+- Level 3: `| Wiz rule name | Findings | Change type | Why it is not needed |`.
+- Level 4: `| Wiz rule name | Findings | Reason |`.
 
 End with a summary table of the finding count per level. Below it, give the findings fixed and left if Levels 1 and 2 are done, the same for Level 1 only, and how many Level 3 `In place` findings are harmless and would only lower the Wiz count. Then name the next step. Do not paste every CLI block.
 
@@ -86,7 +86,7 @@ End with a summary table of the finding count per level. Below it, give the find
 Build a PDF only when the user asks for one. It goes to the team that requires the scan, so it states the findings and their fix levels and carries no apply steps: how and when to apply is the repository owner's decision. `scripts/report_template.py` in this skill holds the layout and the report sections, and `scripts/pil-logo.png` is its title-block logo. `<skill-root>` below is the folder that holds this file.
 
 1. Copy `<skill-root>/scripts/report_template.py` to `scripts/build_wiz_code_scan_report.py` and `<skill-root>/scripts/pil-logo.png` to `scripts/pil-logo.png` in the repository, or edit the generator the repository already has.
-2. Replace every `<placeholder>` and fill the four level lists. Each row carries its finding count. The build computes the summary, and it stops when the levels do not add up to the critical, high and medium counts in `SEVERITY`.
+2. Replace every `<placeholder>` and fill the four level lists with one row per Wiz rule per level. Every row starts with the exact rule name, the count of that rule's findings in that level, and a note on the count that may be empty. Levels 1 and 2 then take the file and the change, Level 3 the change type, the reason and the harmless in-place flag, and Level 4 the reason. The build titles a numbered subsection with each rule name (2.1, 2.2), computes the summary, and stops when a row has the wrong number of values or the levels do not add up to the critical, high and medium counts in `SEVERITY`.
 3. Build into `docs/` with `uv run --script scripts/build_wiz_code_scan_report.py docs/<project>-wiz-code-scan-report.pdf`. The script pins `reportlab==4.5.1` as inline metadata, so `uv` installs it in an isolated environment.
 4. Check the PDF with Poppler. Template: replace `<pdf>` with the PDF path and `<scratch-dir>` with a temporary folder.
 
