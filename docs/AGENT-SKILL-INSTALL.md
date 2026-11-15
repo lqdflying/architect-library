@@ -64,6 +64,7 @@ A shared skill is one `SKILL.md` in `SKILL_BUNDLE`, copied to Cursor, Copilot, C
 | `context7-docs` | Cursor + Copilot + Codex (editor variants) | Fetch current library/framework documentation via Context7 MCP instead of training data; editor variants use correct MCP server name |
 | `notion-mcp-ops` | Cursor + Copilot + Codex (editor variants) | Notion MCP CRUD and formatting; fetch-before-write; failure-mode avoidance; editor variants use correct MCP server name (`plugin-notion-workspace-notion` in Cursor, `notion` in Copilot; Codex discovers the available tool names) |
 | `wiz-code-scan` | All four editors (editor variants in `SKILL_BUNDLE`) | Wiz IaC code-scan findings and four fix levels. Calls differ: `user-wiz` in Cursor, `wiz-discover` / `wiz-execute` in Copilot, `mcp__wiz__discover` / `mcp__wiz__execute` in Claude Code, `mcp__wiz` in Codex |
+| `box-images` | Shared skill | If a disposable test container or pod is needed for network troubleshooting (`lqdflying/osbox`) or Azure service integration (`lqdflying/azurebox`) |
 | `_shared` | Support files (not a standalone skill) | **Yes** whenever Word, PowerPoint, or spreadsheet skills are installed |
 
 Word, PowerPoint, and spreadsheet skills reference Office tools via `../_shared/office-tools/`. If `_shared` is missing or not a **sibling** of those folders, paths break.
@@ -312,6 +313,7 @@ test -f ~/.cursor/skills/mcp-tool-rules/SKILL.md && echo "OK: mcp-tool-rules var
 test -f ~/.cursor/skills/context7-docs/SKILL.md && echo "OK: context7-docs variant"
 test -f ~/.cursor/skills/notion-mcp-ops/SKILL.md && echo "OK: notion-mcp-ops variant"
 test -f ~/.cursor/skills/wiz-code-scan/SKILL.md && echo "OK: wiz-code-scan variant"
+test -f ~/.cursor/skills/box-images/SKILL.md && echo "OK: box-images skill"
 test -f ~/.cursor/skills/review-handoff/SKILL.md && echo "OK: review-handoff skill (trigger target)"
 test -f ~/.cursor/skills/review-handoff/scripts/purge_handoff.py && echo "OK: review-handoff purge"
 test -f ~/.cursor/agents/code-review.md && echo "OK: cursor agents"
@@ -378,6 +380,7 @@ test -f ~/.copilot/skills/mcp-tool-rules/SKILL.md && echo "OK: mcp-tool-rules va
 test -f ~/.copilot/skills/context7-docs/SKILL.md && echo "OK: context7-docs variant"
 test -f ~/.copilot/skills/notion-mcp-ops/SKILL.md && echo "OK: notion-mcp-ops variant"
 test -f ~/.copilot/skills/wiz-code-scan/SKILL.md && echo "OK: wiz-code-scan variant"
+test -f ~/.copilot/skills/box-images/SKILL.md && echo "OK: box-images skill"
 test -f ~/.copilot/agents/code-review.agent.md && echo "OK: copilot agents"
 test -f ~/.copilot/agents/security-auditor.agent.md && echo "OK: security-auditor"
 grep -q 'disallowedTools: edit' ~/.copilot/agents/security-auditor.agent.md && echo "OK: security-auditor readonly"
@@ -421,6 +424,7 @@ The install script runs **library** checks automatically for the `EDITOR` you pa
 | **context7-docs** | Library/framework docs fetched via Context7 MCP; version-specific library ID selected when applicable; query decomposed to one topic per call; source cited in response; fallback to web search or Microsoft Learn when Context7 lacks the library |
 | **notion-mcp-ops** | Notion MCP server discovered with correct editor server name; fetch before write on updates; anchors from fetched content; formatting rules applied (`<callout>`, HTML tables); post-update verify fetch for structural edits; property names from fetched schema |
 | **wiz-code-scan** | Open counts by severity compared with the Wiz page or the repository analytics; every finding of medium severity or above placed in one of four fix levels; every recommended change checked against the cited file |
+| **box-images** | Image picked from the skill table, not a new build; digest read from the registry; the requested check ran inside the container or pod and its outcome is reported; port 22 published on loopback only in Docker, with no Service, Ingress, or host port in Kubernetes; no token, secret value, or password in the reply |
 
 **PowerPoint is not done** when the `.pptx` exists — only after layout preview (or user waives).
 
