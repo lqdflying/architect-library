@@ -4,7 +4,7 @@
 
 ## Image
 
-- Tags `1.1` and `latest` share one digest. Read it from the registry with the command in `SKILL.md`.
+- Launch with tag `latest`.
 - Built `FROM lqdflying/osbox:5.0`, so every tool in `osbox.md` is present. 330 MiB compressed, 1.25 GB on disk.
 - Added in 1.1: Azure CLI 2.92.0, PostgreSQL client 17.12 (`psql`, `pg_dump`, `pg_restore`, `pg_isready`, `createdb`, `dropdb`), and the Python packages `psycopg` 3.2.6, `qpid-proton` 0.37.0 (`import proton`), `PyJWT` 2.10.1, `cryptography` 43.0.0.
 - Not in the image: `confluent-kafka`, and any `azure-*` or `msal` package in system Python. Install one with `pip install <package>` when a test needs it.
@@ -13,7 +13,7 @@
 
 Prerequisites: the cluster has the OIDC issuer and workload identity enabled, and the managed identity or app registration has a federated credential with subject `system:serviceaccount:<namespace>:azurebox`.
 
-Template. Replace `<digest>` and `<managed-identity-client-id>`, set the namespace, and keep only the `env` entries the test uses.
+Template. Replace `<managed-identity-client-id>`, set the namespace, and keep only the `env` entries the test uses.
 
 ```yaml
 apiVersion: v1
@@ -36,7 +36,7 @@ spec:
   restartPolicy: Never
   containers:
     - name: azurebox
-      image: lqdflying/azurebox@sha256:<digest>
+      image: lqdflying/azurebox:latest
       env:
         - name: AZURE_STORAGE_ACCOUNT
           value: "<storage-account>"
@@ -72,7 +72,7 @@ Ready to paste as-is:
 docker run -d --name azurebox \
   -p 127.0.0.1:2222:22 \
   -v azurebox-ssh:/etc/ssh \
-  lqdflying/azurebox:1.1
+  lqdflying/azurebox:latest
 docker exec -it azurebox bash
 docker rm -f azurebox
 ```

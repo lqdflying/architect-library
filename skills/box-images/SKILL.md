@@ -8,8 +8,8 @@ description: >-
   behavior, or to try Azure identity, RBAC, Blob Storage, Key Vault, Event
   Hubs, or PostgreSQL from inside a network, including as an AKS pod with
   workload identity. Use instead of building a test image or installing tools
-  on a node. Done when the container or pod runs the digest read from the
-  registry, the requested check ran inside it and its outcome is reported,
+  on a node. Done when the container or pod runs the latest tag, the
+  requested check ran inside it and its outcome is reported,
   port 22 has no Service, Ingress, or host port and is published only on
   loopback in Docker, and no token or secret value is printed.
 ---
@@ -49,23 +49,16 @@ Pick `osbox` unless the check needs the Azure CLI, a PostgreSQL client, or an En
 ## Workflow
 
 1. Pick the image from the table and read its reference.
-2. Read the tag digest from the registry. Tags move, so do not reuse a digest from a file or an earlier chat. Ready to paste after you replace `<image>` with `osbox` or `azurebox`:
-
-   ```bash
-   curl -fsS "https://hub.docker.com/v2/repositories/lqdflying/<image>/tags?page_size=25" \
-     | jq -r '.results[] | "\(.name) \(.digest)"'
-   ```
-
-3. Read the image overview when you need its full manifest or code samples. Same placeholder:
+2. Read the image overview when you need its full manifest or code samples. Ready to paste after you replace `<image>` with `osbox` or `azurebox`:
 
    ```bash
    curl -fsS "https://hub.docker.com/v2/repositories/lqdflying/<image>/" | jq -r .full_description
    ```
 
-4. Start the container or pod with the launch commands in the reference. Pin `lqdflying/<image>@sha256:<digest>` in Kubernetes.
-5. Open a shell with `docker exec -it <name> bash` or `kubectl exec -it <pod> -- bash` and run the check.
-6. Report the command and its outcome.
-7. Remove the container or pod, or tell the user it is still running.
+3. Start the container or pod with the launch commands in the reference. Use `lqdflying/<image>:latest`.
+4. Open a shell with `docker exec -it <name> bash` or `kubectl exec -it <pod> -- bash` and run the check.
+5. Report the command and its outcome.
+6. Remove the container or pod, or tell the user it is still running.
 
 ## Limits
 
@@ -79,7 +72,7 @@ Both images are intentionally unhardened: root SSH login, password authenticatio
 ## Delivery checklist
 
 - The image came from the table above, not a new build.
-- The digest was read from the registry in this task.
+- The launch used the `latest` tag.
 - The check ran inside the container or pod, and the reply gives the command and its outcome.
 - Port 22 is published on loopback only in Docker. In Kubernetes it has no Service, Ingress, or host port, and the reply states that the pod IP accepts TCP 22 from the cluster network.
 - The reply contains no token, secret value, or password.
