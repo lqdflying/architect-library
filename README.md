@@ -176,6 +176,7 @@ See [Installation](#installation) for Copilot / Claude Code / Codex paths, or [d
 | `notion-mcp-ops` | Notion MCP operations — fetch-before-write, CRUD, formatting (callouts/tables), failure avoidance. Editor variants: `plugin-notion-workspace-notion` in Cursor, `notion` in Copilot. |
 | `wiz-code-scan` | Wiz IaC code-scan findings and four fix levels. Editor variants: `user-wiz` in Cursor, `wiz-discover` / `wiz-execute` in Copilot, `mcp__wiz__discover` / `mcp__wiz__execute` in Claude Code, `mcp__wiz` in Codex. |
 | `box-images` | Bring up a disposable test container or pod from the public toolbox images `lqdflying/osbox` (general network troubleshooting) and `lqdflying/azurebox` (Azure service integration, AKS workload identity). |
+| `azure-iac-diagram` | Draw the architecture diagram of an Azure IaC project in one fixed layout and style. Builds on `excalidraw-diagram`. |
 | `_shared` | Shared principles and Office tooling for Word, PowerPoint, and spreadsheet skills. **Must** be a sibling of those skills. |
 
 ## Custom agents
@@ -304,6 +305,8 @@ Intermediate status and validator scripts go under `/tmp`. They are not added to
 | [`skills/wiz-code-scan/README.md`](skills/wiz-code-scan/README.md) | Wiz IaC code-scan findings; one skill file per editor |
 | [`skills/box-images/SKILL.md`](skills/box-images/SKILL.md) | Toolbox test images: pick `osbox` or `azurebox`, launch, limits |
 | [`skills/box-images/references/azurebox.md`](skills/box-images/references/azurebox.md) | azurebox AKS workload identity manifest, token scopes, troubleshooting |
+| [`skills/azure-iac-diagram/SKILL.md`](skills/azure-iac-diagram/SKILL.md) | Azure IaC diagram rules, what it overrides in `excalidraw-diagram`, workflow, checklist |
+| [`skills/azure-iac-diagram/references/layout-and-style.md`](skills/azure-iac-diagram/references/layout-and-style.md) | Zone coordinates, row rhythm, style tokens, route key, text templates |
 | This README → [How to use](#how-to-use) | Using installed skills in Cursor, Copilot, or Claude Code chat |
 | [`skills/excalidraw-diagram/SKILL.md`](skills/excalidraw-diagram/SKILL.md) | Diagram design rules and agent workflow |
 | [`skills/excalidraw-diagram/README.md`](skills/excalidraw-diagram/README.md) | Render setup, offline bundle, PNG validation |
@@ -450,6 +453,11 @@ architect-library/
       references/
         osbox.md
         azurebox.md
+    azure-iac-diagram/
+      SKILL.md
+      README.md
+      references/
+        layout-and-style.md
     _shared/
       architecture-document-principles.md
       office-tools/
