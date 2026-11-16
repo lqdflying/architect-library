@@ -9,7 +9,7 @@ Agent skill for bringing up a disposable test container or pod from the public t
 
 ## Setup
 
-No runtime dependencies in this library. The agent needs `docker` or `kubectl` for the launch, and `curl` plus `jq` to read digests and overviews from Docker Hub.
+No runtime dependencies in this library. The agent needs `docker` or `kubectl` for the launch, and `curl` plus `jq` to read overviews from Docker Hub.
 
 Installed with the library for Cursor, VS Code Copilot, Claude Code, and Codex:
 
@@ -33,4 +33,4 @@ bash scripts/install_library.sh all copilot
 3. Add the image to the `description` in `SKILL.md` so agents select the skill for it.
 4. Update "Shared behavior" in `SKILL.md` if the new image does not derive from `osbox`.
 
-When an image tag changes, update the versions and sizes in its reference file. Digests are read from the registry at use time and are not stored here.
+When the image contents change, update the versions and sizes in its reference file. Launch commands use the `latest` tag.

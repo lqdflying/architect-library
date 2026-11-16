@@ -4,7 +4,7 @@
 
 ## Image
 
-- Tags `5.0` and `latest` share one digest. Read it from the registry with the command in `SKILL.md`.
+- Launch with tag `latest`.
 - Debian 13 (trixie). 193 MiB compressed, 588 MB on disk.
 - Python 3.13.5 with `pip`, `venv`, `requests` 2.32.3, plus `jq` 1.7.
 
@@ -30,14 +30,14 @@ Docker, with SSH on loopback. Ready to paste as-is:
 docker run -d --name osbox \
   -p 127.0.0.1:2222:22 \
   -v osbox-ssh:/etc/ssh \
-  lqdflying/osbox:5.0
+  lqdflying/osbox:latest
 docker exec -it osbox bash
 ```
 
-Kubernetes. Template: replace `<digest>` with the value read from the registry.
+Kubernetes. Ready to paste as-is:
 
 ```bash
-kubectl run osbox --restart=Never --image=lqdflying/osbox@sha256:<digest>
+kubectl run osbox --restart=Never --image=lqdflying/osbox:latest
 kubectl exec -it osbox -- bash
 ```
 
@@ -45,7 +45,7 @@ Host-network diagnostics on a Docker host. This shell can read and change the ho
 
 ```bash
 docker run --rm -it --network host --cap-add NET_ADMIN --cap-add NET_RAW \
-  --entrypoint /bin/bash lqdflying/osbox:5.0
+  --entrypoint /bin/bash lqdflying/osbox:latest
 ```
 
 `tcpdump`, `tshark`, and `ngrep` work with Docker's default `NET_RAW` capability. Changes through `iptables`, `nft`, or `conntrack` need `NET_ADMIN`.
