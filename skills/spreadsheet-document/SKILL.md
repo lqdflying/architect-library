@@ -43,6 +43,7 @@ uv run python3 office_tools.py --help
 | Task | Primary tool |
 |------|--------------|
 | Data analysis, bulk read/write | pandas (`read_excel` / `to_excel`) |
+| Create a new workbook from data or a table | xlsxwriter (see [Viewer compatibility](#viewer-compatibility)) |
 | Formulas, formatting, multi-sheet edits | openpyxl |
 | Recalculate formula values | `office_tools.py recalc` (LibreOffice Calc) |
 | Edit XLSX XML directly | `office_tools.py unpack` → edit → `pack` |
@@ -57,6 +58,22 @@ uv run python3 office_tools.py --help
 - **A workbook you create for someone to fill in** needs a short legend of which cells to edit, and one example row of realistic values. Do not add that row to a file you were asked to edit.
 - **Editing an existing file: match its conventions.** They override the financial-model colors below. Find designated input cells first (a distinct font color, fill, or shading), write only there, and leave existing formulas untouched.
 - **Zero formula errors** (`#REF!`, `#DIV/0!`, `#VALUE!`, `#N/A`, `#NAME?`, `#NULL!`, `#NUM!`). If you think an error predates you, prove it: load the original with `data_only=True` and read that cell.
+
+## Viewer compatibility
+
+`openpyxl` on this host writes every string as `inlineStr` and omits `xl/sharedStrings.xml`. The package is schema-valid and LibreOffice renders it, but the VS Code preview and some Excel builds show **blank cells**. Confirmed with a two-cell workbook, so it is the writer, not the sheet content.
+
+- **Generate new workbooks with `xlsxwriter`.** Its output matches Excel's own structure (shared strings, `t="s"` cell references) and displays everywhere. Keep `openpyxl` for editing an existing file in place, and for formulas in a file it wrote.
+- **Check the structure before delivery.** Both commands must show a result, and `inlineStr` must be absent:
+
+```bash
+unzip -l output.xlsx | grep sharedStrings
+unzip -p output.xlsx xl/worksheets/sheet1.xml | grep -c 't="s"'
+unzip -p output.xlsx xl/worksheets/sheet1.xml | grep -c inlineStr
+```
+
+- **`validate` is not viewer compatibility.** A schema-valid package can still open with empty cells. Confirm the text in the viewer the recipient uses, or inspect a rendered page produced from that exact file.
+- **Do not normalize through LibreOffice.** `soffice --convert-to xlsx` adds `dateCompatibility`, a workbook `ext` element and `xml:space="preserve"` that this validator rejects, and it drops freeze panes. Change the writer instead of re-saving the file.
 
 ## Formulas LibreOffice can verify
 
@@ -129,6 +146,7 @@ uv run python3 office_tools.py recalc output.xlsx
 5. Fix `error_summary` and recalc again until `status` is `success`.
 6. Check 2–3 calculated values against the spec.
 7. When using unpack/pack, run `validate` before delivery.
+8. Run the structure check and open the file in a viewer per [Viewer compatibility](#viewer-compatibility).
 
 ## Completion discipline
 
@@ -143,6 +161,8 @@ uv run python3 office_tools.py recalc output.xlsx
 | "XLOOKUP is clearer" | LibreOffice verification cannot evaluate it |
 | "That `#REF!` was already there" | Prove it on the original with `data_only=True` |
 | "Exit code 0" | Read JSON `status`. An `error` key means nothing was recalculated |
+| "`validate` passed" | Schema validity does not prove a viewer shows the cells |
+| "LibreOffice rendered it" | LibreOffice accepts inline strings that other viewers leave blank |
 
 ## Delivery Checklist
 
@@ -150,4 +170,5 @@ uv run python3 office_tools.py recalc output.xlsx
 2. Zero formula errors when formulas are present — fresh `recalc` JSON `status: success` in this message.
 3. Formulas use functions LibreOffice can evaluate (see above).
 4. Match existing conventions when editing a file. New financial models use the color and number rules above.
-5. Mention skipped checks (no LibreOffice Calc, recalc not run, `--force` used on external links).
+5. The package contains `xl/sharedStrings.xml` and the sheet uses `t="s"` with no `inlineStr`, and the text is visible in the viewer the recipient uses ([Viewer compatibility](#viewer-compatibility)).
+6. Mention skipped checks (no LibreOffice Calc, recalc not run, `--force` used on external links).
