@@ -1,6 +1,6 @@
 ---
 name: spreadsheet-document
-description: "Open, create, edit, or analyze spreadsheet files (.xlsx, .xlsm, .xltx, .csv, .tsv). Deliver .xlsx with zero formula errors after office_tools recalc when formulas are used. Use formulas LibreOffice can evaluate. Financial models, data cleanup, tabular exports. Install office + office-system for recalc. Do not use when the primary deliverable is Word, PDF, a standalone script, or a Google Sheets API integration."
+description: "Open, create, edit, or analyze spreadsheet files (.xlsx, .xlsm, .xltx, .csv, .tsv). Deliver .xlsx with zero formula errors after office_tools recalc when formulas are used. Before delivery, office_tools.py share-strings must exit 0 so text cells are shared strings. Use formulas LibreOffice can evaluate. Financial models, data cleanup, tabular exports. Install office + office-system for recalc. Do not use when the primary deliverable is Word, PDF, a standalone script, or a Google Sheets API integration."
 ---
 
 # Spreadsheet Creator
@@ -45,6 +45,7 @@ uv run python3 office_tools.py --help
 | Data analysis, bulk read/write | pandas (`read_excel` / `to_excel`) |
 | Formulas, formatting, multi-sheet edits | openpyxl |
 | Recalculate formula values | `office_tools.py recalc` (LibreOffice Calc) |
+| Rewrite inline strings for viewers | `office_tools.py share-strings` |
 | Edit XLSX XML directly | `office_tools.py unpack` → edit → `pack` |
 | Validate OOXML | `office_tools.py validate` |
 
@@ -57,6 +58,24 @@ uv run python3 office_tools.py --help
 - **A workbook you create for someone to fill in** needs a short legend of which cells to edit, and one example row of realistic values. Do not add that row to a file you were asked to edit.
 - **Editing an existing file: match its conventions.** They override the financial-model colors below. Find designated input cells first (a distinct font color, fill, or shading), write only there, and leave existing formulas untouched.
 - **Zero formula errors** (`#REF!`, `#DIV/0!`, `#VALUE!`, `#N/A`, `#NAME?`, `#NULL!`, `#NUM!`). If you think an error predates you, prove it: load the original with `data_only=True` and read that cell.
+
+## Viewer compatibility
+
+`openpyxl` 3.1 writes every string as `inlineStr` and omits `xl/sharedStrings.xml`. The package is schema-valid and LibreOffice shows the text. The VS Code preview and some Excel builds show blank cells. pandas `to_excel` uses openpyxl in this environment, so it does the same.
+
+After the last save, and after `recalc` when the workbook has formulas, rewrite those cells to shared strings:
+
+```bash
+cd ../_shared/office-tools
+uv run python3 office_tools.py share-strings output.xlsx
+```
+
+The command rewrites the file in place and prints JSON. Delivery requires `status` of `success` and `inline_strings` of 0. When `text_cells` is greater than 0, `shared_string_part` is true and those cells use `t="s"`. A workbook with no text does not get `xl/sharedStrings.xml`. The command checks every `xl/worksheets/sheet*.xml`. A zero `inline_strings` count is success.
+
+An openpyxl save turns shared strings back into `inlineStr`. Run `share-strings` again after that save.
+
+- **`validate` is not viewer compatibility.** A schema-valid package can still open with empty cells. `share-strings` is the check. Confirm the text in the viewer the recipient uses, or inspect a rendered page produced from that exact file.
+- **Do not normalize through LibreOffice.** `soffice --convert-to xlsx` adds `dateCompatibility`, a workbook `ext` element and `xml:space="preserve"` that this validator rejects, and it drops freeze panes. Change the writer instead of re-saving the file.
 
 ## Formulas LibreOffice can verify
 
@@ -128,7 +147,8 @@ uv run python3 office_tools.py recalc output.xlsx
 
 5. Fix `error_summary` and recalc again until `status` is `success`.
 6. Check 2–3 calculated values against the spec.
-7. When using unpack/pack, run `validate` before delivery.
+7. Run `share-strings` after the last save. When formulas were recalculated, run it after that `recalc` ([Viewer compatibility](#viewer-compatibility)). `inline_strings` must be 0.
+8. When using unpack/pack, run `validate` on the file from step 7 before delivery.
 
 ## Completion discipline
 
@@ -143,6 +163,9 @@ uv run python3 office_tools.py recalc output.xlsx
 | "XLOOKUP is clearer" | LibreOffice verification cannot evaluate it |
 | "That `#REF!` was already there" | Prove it on the original with `data_only=True` |
 | "Exit code 0" | Read JSON `status`. An `error` key means nothing was recalculated |
+| "`validate` passed" | Schema validity does not prove a viewer shows the cells |
+| "LibreOffice rendered it" | LibreOffice accepts inline strings that other viewers leave blank |
+| "`share-strings` already ran" | Run it again after the last openpyxl save and after `recalc` |
 
 ## Delivery Checklist
 
@@ -150,4 +173,5 @@ uv run python3 office_tools.py recalc output.xlsx
 2. Zero formula errors when formulas are present — fresh `recalc` JSON `status: success` in this message.
 3. Formulas use functions LibreOffice can evaluate (see above).
 4. Match existing conventions when editing a file. New financial models use the color and number rules above.
-5. Mention skipped checks (no LibreOffice Calc, recalc not run, `--force` used on external links).
+5. `share-strings` ran after the last save, and after `recalc` when formulas were recalculated. JSON `status` is `success`, `inline_strings` is 0, and `text_cells` greater than 0 means `shared_string_part` is true ([Viewer compatibility](#viewer-compatibility)).
+6. Mention skipped checks (no LibreOffice Calc, recalc not run, `--force` used on external links).

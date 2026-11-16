@@ -13,6 +13,7 @@ Usage:
     python3 office_tools.py clean unpacked/
     python3 office_tools.py thumbnail presentation.pptx /tmp/preview --per-slide /tmp/slides --dpi 150
     python3 office_tools.py recalc model.xlsx [timeout_seconds] [--force]
+    python3 office_tools.py share-strings model.xlsx
 """
 
 import sys
@@ -31,6 +32,7 @@ COMMANDS = {
     "thumbnail": ("thumbnail.py",          "PPTX layout preview: grid and/or per-slide JPEGs"),
     "analyze":   ("analyze_template.py",   "Analyze PPTX template structure"),
     "recalc":    ("recalc.py",             "Recalculate Excel formulas via LibreOffice"),
+    "share-strings": ("share_strings.py",  "Rewrite inline strings to a shared-string table"),
 }
 
 
