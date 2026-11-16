@@ -144,7 +144,7 @@ sheet['D20'] = '=AVERAGE(D2:D19)'
 This applies to ALL calculations - totals, percentages, ratios, differences, etc. The spreadsheet should be able to recalculate when source data changes.
 
 ## Common Workflow
-1. **Choose tool**: pandas for data, xlsxwriter for a new workbook, openpyxl for formulas/formatting or editing an existing file
+1. **Choose tool**: pandas for data, openpyxl for formulas, formatting, and editing an existing file
 2. **Create/Load**: Create new workbook or load existing file
 3. **Modify**: Add/edit data, formulas, and formatting
 4. **Save**: Write to file
@@ -161,10 +161,12 @@ This applies to ALL calculations - totals, percentages, ratios, differences, etc
      - `#DIV/0!`: Division by zero
      - `#VALUE!`: Wrong data type in formula
      - `#NAME?`: Unrecognized formula name
+7. **Rewrite inline strings** after the last save and after recalc. `inline_strings` must be 0. A workbook with no text does not need `xl/sharedStrings.xml`.
+   ```bash
+   python ../_shared/office-tools/office_tools.py share-strings output.xlsx
+   ```
 
 ### Creating new Excel files
-
-Prefer `xlsxwriter` for a new file (see **Library Selection**). The example below uses openpyxl, which is the right choice when the same script must also read or edit existing workbooks.
 
 ```python
 # Using openpyxl for formulas and formatting
@@ -295,8 +297,7 @@ See **JSON shape** above. `status` is `success` or `errors_found`. `error_summar
 
 ### Library Selection
 - **pandas**: Best for data analysis, bulk operations, and simple data export
-- **xlsxwriter**: Best for generating a new workbook from data or a table. It writes shared strings, so every viewer shows the text; `openpyxl` on this host writes `inlineStr` and some viewers render blank cells
-- **openpyxl**: Best for complex formatting, formulas, and Excel-specific features, and for editing an existing file in place
+- **openpyxl**: Best for formulas, formatting, and editing an existing file in place. It writes strings as `inlineStr`. Run `share-strings` before delivery so viewers show the text
 
 ### Working with openpyxl
 - Cell indices are 1-based (row=1, column=1 refers to cell A1)

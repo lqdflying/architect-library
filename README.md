@@ -162,7 +162,7 @@ See [Installation](#installation) for Copilot / Claude Code / Codex paths, or [d
 | `excalidraw-diagram` | Create Excalidraw architecture diagrams, workflows, system maps, and concept visuals. |
 | `word-document` | Create or edit DOCX architecture documents, HLDs, LLDs, ADRs, design docs, requirements, comments, and tracked changes. |
 | `powerpoint-presentation` | Create or edit PPTX decks; **every delivery requires layout preview** (slide images via LibreOffice + Poppler). |
-| `spreadsheet-document` | Create or edit `.xlsx`. Use formulas LibreOffice can evaluate; `office_tools.py recalc` must return JSON `status: success` before delivery. |
+| `spreadsheet-document` | Create or edit `.xlsx`. Use formulas LibreOffice can evaluate; `office_tools.py recalc` must return JSON `status: success` before delivery. Then `office_tools.py share-strings` must exit 0 with `inline_strings` 0. |
 | `pdf-document` | Read, create, merge, split, and fill PDFs. |
 | `iac-handoff-pdf` | Write or update the environment handoff PDF that tells a vendor or developer team what an IaC repo provisioned and how to use it. Every rendered page is viewed before delivery. |
 | `verification-before-completion` | Fresh verification evidence before any completion or delivery claim. |
@@ -317,7 +317,7 @@ Intermediate status and validator scripts go under `/tmp`. They are not added to
 | [`skills/powerpoint-presentation/README.md`](skills/powerpoint-presentation/README.md) | PPT setup (including optional icon packages) |
 | [`skills/powerpoint-presentation/references/pptx-guide.md`](skills/powerpoint-presentation/references/pptx-guide.md) | pptxgenjs and template editing |
 | [`skills/powerpoint-presentation/references/layout-preview.md`](skills/powerpoint-presentation/references/layout-preview.md) | PPTX layout preview images (grid + per-slide JPEGs) |
-| [`skills/spreadsheet-document/SKILL.md`](skills/spreadsheet-document/SKILL.md) | XLSX workflow, LibreOffice-safe formulas, and recalc |
+| [`skills/spreadsheet-document/SKILL.md`](skills/spreadsheet-document/SKILL.md) | XLSX workflow, LibreOffice-safe formulas, recalc, and shared-string delivery |
 | [`skills/pdf-document/SKILL.md`](skills/pdf-document/SKILL.md) | PDF workflows and form fill |
 | [`skills/iac-handoff-pdf/SKILL.md`](skills/iac-handoff-pdf/SKILL.md) | IaC environment handoff PDF workflow |
 | [`skills/iac-handoff-pdf/references/handoff-guide.md`](skills/iac-handoff-pdf/references/handoff-guide.md) | Handoff section catalog, writing rules, layout, verification commands |

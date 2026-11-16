@@ -30,6 +30,7 @@ python3 office_tools.py <command> [args...]
 | `clean` | Remove orphaned PPTX files (cascading) |
 | `thumbnail` | PPTX layout preview: thumbnail grid and/or per-slide JPEGs (`--per-slide`, `--dpi`, `--no-grid`) |
 | `recalc` | Recalculate XLSX formulas via LibreOffice. Refuses when external-link cached values are missing (`--force` overrides). JSON reports `#REF!`, `#DIV/0!`, and the other Excel errors (up to 100 locations per type). |
+| `share-strings` | Rewrite worksheet `inlineStr` cells into `xl/sharedStrings.xml` so viewers that skip inline strings show the text. Rewrites the file in place. |
 
 ### Standalone scripts (also usable directly)
 
