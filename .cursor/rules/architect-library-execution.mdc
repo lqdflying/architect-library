@@ -84,7 +84,7 @@ Canonical sources: `user-rules/cursor/branch-strategy.mdc` (installs to `~/.curs
 
 | Work | Done when |
 |------|-----------|
-| **branch-strategy** | One working branch at a time (the branch already checked out). Before the first write, `git status --short --branch` decides the branch, including when a session note says the directory is not a git repo. No edit, commit, or push on `main`. No switch off a branch that still has unmerged commits or uncommitted files. A new branch only when the current branch is `main`, or the user asks, and it is created from `main` and named from branch names already used in that repository without asking the user for the name. Mixed topics on one branch are expected. Pause before `git commit` or `git push`. |
+| **branch-strategy** | One working branch at a time (the branch already checked out). Before the first write, `git status --short --branch` decides the branch, including when a session note says the directory is not a git repo. No edit, commit, or push on `main`. No switch off a branch that still has unmerged commits or uncommitted files. A new branch only when `main` is checked out and no working branch exists, or the user asks, and it is created from `main` and named from branch names already used in that repository without asking the user for the name. After the branch is merged and the tree is clean, stay on it and fast-forward `origin/main` before the next edit. An agent checkout of `main` while a working branch exists is not a reason to create another branch. Mixed topics on one branch are expected. Pause before `git commit` or `git push`. |
 
 ## Docs lookup (user-global protocol)
 
