@@ -138,6 +138,8 @@ The fragments are generated. Edit the Cursor source in `user-rules/cursor/`, the
 
 - [ ] Generate all six `user-rules/claude/` fragments from Cursor sources with `bash scripts/sync_claude_rules.sh`; never hand-edit them.
 - [ ] Global install copies them to `~/.claude/rules/<name>.md` (`CLAUDE_RULE_BUNDLE`). It never edits `~/.claude/CLAUDE.md`. Project scope does not write `.claude/rules/`.
+- [ ] A Claude Code-only rule is hand-written in `user-rules/claude-only/<name>.md` and listed in `CLAUDE_ONLY_RULE_BUNDLE`. It has no Cursor source and no sync script.
+- [ ] Settings a Claude Code-only rule relies on go in `user-rules/claude-only/settings.json`. Global install merges those keys into `~/.claude/settings.json` (`scripts/claude_settings.py`, Python 3) and keeps every other key. Project scope does not write `.claude/settings.json`. A new key that needs a newer Claude Code raises `CLAUDE_MIN_VERSION` in `scripts/install_library.sh`.
 - [ ] A rules-only global install requires the `review-handoff` skill already present in `~/.claude/skills/`.
 - [ ] Run `bash scripts/sync_claude_rules.sh --check` and the installer tests, then `bash scripts/install_library.sh all claude` when Claude Code is the requested target.
 

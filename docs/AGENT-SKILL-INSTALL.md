@@ -29,7 +29,7 @@ Then run both library commands:
 |------------|-----------------|---------|
 | **Cursor** | `bash scripts/install_library.sh all cursor` | `~/.cursor/skills/`, `~/.cursor/agents/`, `~/.cursor/rules/` |
 | **VS Code Copilot** | `bash scripts/install_library.sh all copilot` | `~/.copilot/skills/`, `~/.copilot/agents/`, `~/.copilot/copilot-instructions.md` |
-| **Claude Code** (only when the user asks) | `bash scripts/install_library.sh all claude` | `~/.claude/skills/`, `~/.claude/agents/`, `~/.claude/rules/` |
+| **Claude Code** (only when the user asks) | `bash scripts/install_library.sh all claude` | `~/.claude/skills/`, `~/.claude/agents/`, `~/.claude/rules/`, managed keys in `~/.claude/settings.json` |
 | **Codex** (only when the user asks) | `bash scripts/install_library.sh all codex` | `~/.agents/skills/`, `${CODEX_HOME:-$HOME/.codex}/agents/`, `${CODEX_HOME:-$HOME/.codex}/AGENTS.md` |
 
 Do **not** ask which editor, scope, subset, or runtime set to install for these trigger phrases. Install Cursor and VS Code Copilot.
@@ -142,10 +142,40 @@ drops Cursor frontmatter, changes the scope wording to Claude Code, uses
 Global installation copies each fragment to `~/.claude/rules/<name>.md`. Claude
 Code loads user-level rules without `paths` frontmatter in every project
 ([memory docs](https://code.claude.com/docs/en/memory)). The installer replaces
-only its six files and never edits `~/.claude/CLAUDE.md`, so keep personal
+only its own rule files and never edits `~/.claude/CLAUDE.md`, so keep personal
 instructions there and do not repeat the library rules in it. A `rules claude`
 refresh requires the installed `review-handoff` skill; on a fresh machine use
 `all claude`. Project scope does not write `.claude/rules/`.
+
+### Claude Code-only rule and settings (`user-rules/claude-only/`)
+
+These two files are hand-written and have no Cursor source.
+
+`subagent-delegation.md` installs to `~/.claude/rules/subagent-delegation.md`
+with the six generated rules. The main session splits a task into subtasks,
+delegates them to subagents, and reviews what they return. Small tasks and
+review turns stay in the main session. Claude Code has no priority setting for
+rule files, so the rule states its own precedence in its text.
+
+`settings.json` holds the settings that rule relies on:
+
+| Key | Value | Effect |
+|-----|-------|--------|
+| `model` | `fable` | Model of the main session |
+| `env.CLAUDE_CODE_SUBAGENT_MODEL` | `claude-opus-5-5` | Model of subagents, teammates, and workflow agents. A fork keeps the main session's model |
+| `env.CLAUDE_CODE_SUBAGENT_MODEL_FORCE` | `1` | Ignore the `model` field of a subagent definition ([subagent docs](https://code.claude.com/docs/en/sub-agents)) |
+| `env.CLAUDE_CODE_SUBAGENT_EFFORT` | `xhigh` | Default effort level of subagents and workflow agents. Does not apply to forks, forked skills, or teammates |
+
+A global `all claude` or `rules claude` install merges those keys into
+`~/.claude/settings.json` with `scripts/claude_settings.py` (Python 3 standard
+library). The listed keys are overwritten. Every other key stays, including
+other entries under `env`. A file that already holds the values is not
+rewritten. Invalid JSON or a symlinked settings file fails preflight before any
+library file is copied. The settings need Claude Code v2.1.315 or later. An
+older CLI fails preflight and prints `run: claude update`. When `claude` is not
+on PATH, the install prints the requirement and continues. To change a model or
+effort level, edit `user-rules/claude-only/settings.json` and reinstall. Project scope does not
+write `.claude/settings.json`.
 
 **Source of truth:** `<repo>/skills/<name>/`, `<repo>/agents/<name>/`, `<repo>/user-rules/cursor/<name>.mdc`, and `<repo>/user-rules/copilot/{response-style,edit-scope,branch-strategy,review-handoff,docs-lookup,temp-validators}.md`  
 **Do not** copy into `<repo>/.cursor/skills/`, `<repo>/.cursor/agents/`, or `<repo>/.cursor/rules/` — use `install_library.sh`.
@@ -238,7 +268,7 @@ Copilot rule: [`.github/instructions/update-library.instructions.md`](../.github
 |---------|--------|---------|-------------------|------------------|
 | Skills | `~/.cursor/skills/<name>/` | `~/.copilot/skills/<name>/` | `~/.claude/skills/<name>/` | `~/.agents/skills/<name>/` |
 | Agents | `~/.cursor/agents/<name>.md` | `~/.copilot/agents/<name>.agent.md` | `~/.claude/agents/<name>.md` | `${CODEX_HOME:-$HOME/.codex}/agents/<name>.toml` |
-| User-global rules | `~/.cursor/rules/<name>.mdc` | `~/.copilot/copilot-instructions.md` | `~/.claude/rules/<name>.md` | `${CODEX_HOME:-$HOME/.codex}/AGENTS.md` |
+| User-global rules | `~/.cursor/rules/<name>.mdc` | `~/.copilot/copilot-instructions.md` | `~/.claude/rules/<name>.md`, managed keys in `~/.claude/settings.json` | `${CODEX_HOME:-$HOME/.codex}/AGENTS.md` |
 
 ### Per project (only when asked)
 

@@ -14,6 +14,10 @@ CURSOR_RULE_BUNDLE="review-handoff-reconciliation response-style edit-scope bran
 COPILOT_INSTRUCTION_FRAGMENTS="response-style edit-scope branch-strategy review-handoff docs-lookup temp-validators"
 CODEX_INSTRUCTION_FRAGMENTS="$COPILOT_INSTRUCTION_FRAGMENTS"
 CLAUDE_RULE_BUNDLE="$COPILOT_INSTRUCTION_FRAGMENTS"
+# Hand-written rules in user-rules/claude-only/. They have no Cursor source.
+CLAUDE_ONLY_RULE_BUNDLE="subagent-delegation"
+# CLAUDE_CODE_SUBAGENT_EFFORT in user-rules/claude-only/settings.json needs this Claude Code version.
+CLAUDE_MIN_VERSION="2.1.315"
 
 LEGACY_SKILLS="docx pptx xlsx pdf terraform-apply-fix-review terraform-commit-review terraform-apply-assistance mcp-tool-rules-copilot handoff"
 LEGACY_CURSOR_RULES="code-review-handoff response-and-edit-scope"
@@ -26,14 +30,14 @@ WHAT (default: all):
   all      Install skills, agents, and supported user instructions
   skills   Install skill library only
   agents   Install custom agent library only
-  rules    Install Cursor rules, Copilot instructions, Claude rules, or Codex AGENTS.md
+  rules    Install Cursor rules, Copilot instructions, Claude rules and settings, or Codex AGENTS.md
 
 EDITOR (default: both):
   both     Cursor + Copilot + Claude
   all      Cursor + Copilot + Claude + Codex
   cursor   Cursor paths only
   copilot  Copilot paths only
-  claude   Claude Code paths only
+  claude   Claude Code paths only (global rules and settings require Python 3 and Claude Code v2.1.315+)
   codex    Codex skills, agents, and user instructions (requires Python 3)
 
 SCOPE (default: global):
@@ -271,10 +275,35 @@ install_copilot_instructions() {
   assemble_copilot_instructions "$dest" || exit 1
 }
 
+claude_settings() {
+  python3 "${REPO}/scripts/claude_settings.py" "$1" \
+    "${HOME}/.claude/settings.json" "${REPO}/user-rules/claude-only/settings.json"
+}
+
+claude_version_check() {
+  local found
+  if ! command -v claude >/dev/null; then
+    echo "Claude Code not found on PATH; the managed settings need v${CLAUDE_MIN_VERSION} or later"
+    return 0
+  fi
+  found="$(claude --version | awk '{print $1}')"
+  # Compare the three numeric fields in Bash: version sort is not a POSIX sort option.
+  local IFS=. i
+  local -a have=($found) need=($CLAUDE_MIN_VERSION)
+  for i in 0 1 2; do
+    if (( 10#${have[i]:-0} > 10#${need[i]:-0} )); then
+      return 0
+    elif (( 10#${have[i]:-0} < 10#${need[i]:-0} )); then
+      echo "Claude Code ${found} is older than v${CLAUDE_MIN_VERSION}, which the managed settings need (run: claude update)" >&2
+      return 1
+    fi
+  done
+}
+
 install_claude_rules() {
   selected claude || return 0
   if [[ "$SCOPE" != "global" ]]; then
-    echo "Skip Claude user rules (project scope does not write .claude/rules/)"
+    echo "Skip Claude user rules and settings (project scope does not write .claude/rules/ or .claude/settings.json)"
     return 0
   fi
   local dest name
@@ -284,6 +313,12 @@ install_claude_rules() {
     rm -f "${dest}/${name}.md"
     cp -a "${REPO}/user-rules/claude/${name}.md" "${dest}/${name}.md"
   done
+  for name in $CLAUDE_ONLY_RULE_BUNDLE; do
+    rm -f "${dest}/${name}.md"
+    cp -a "${REPO}/user-rules/claude-only/${name}.md" "${dest}/${name}.md"
+  done
+  # subagent-delegation relies on the main and subagent models these settings select.
+  claude_settings write
 }
 
 codex_instructions() {
@@ -391,6 +426,14 @@ preflight() {
     fi
     if selected claude; then
       bash "${REPO}/scripts/sync_claude_rules.sh" --check || return 1
+      for name in $CLAUDE_ONLY_RULE_BUNDLE; do
+        test -f "${REPO}/user-rules/claude-only/${name}.md" || { echo "Missing Claude rule: $name" >&2; return 1; }
+      done
+      if [[ "$SCOPE" == "global" ]]; then
+        command -v python3 >/dev/null || { echo "Claude settings installation requires Python 3" >&2; return 1; }
+        claude_settings preflight || return 1
+        claude_version_check || return 1
+      fi
       if [[ "$SCOPE" == "global" && "$WHAT" == "rules" && ! -f "$(claude_skills_dir)/review-handoff/SKILL.md" ]]; then
         echo "Missing review-handoff skill (run: bash scripts/install_library.sh skills claude)" >&2
         return 1
@@ -533,6 +576,9 @@ verify_claude_rules() {
   for name in $CLAUDE_RULE_BUNDLE; do
     cmp -s "${REPO}/user-rules/claude/${name}.md" "${dir}/${name}.md" || return 1
   done
+  for name in $CLAUDE_ONLY_RULE_BUNDLE; do
+    cmp -s "${REPO}/user-rules/claude-only/${name}.md" "${dir}/${name}.md" || return 1
+  done
 }
 
 verify_cursor_rules() {
@@ -607,6 +653,7 @@ verify() {
       bash "${REPO}/scripts/sync_claude_rules.sh" --check || ok=1
       if [[ "$SCOPE" == "global" ]]; then
         verify_claude_rules "$(claude_rules_dir)" || ok=1
+        claude_settings verify || ok=1
         verify_review_handoff_skill "$(claude_skills_dir)" claude || ok=1
       fi
     fi

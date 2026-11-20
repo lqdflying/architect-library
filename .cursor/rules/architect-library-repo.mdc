@@ -86,5 +86,10 @@ When Claude Code is requested, use `bash scripts/install_library.sh all claude`.
 Skills, agents, and rules go to `~/.claude/skills/`, `~/.claude/agents/`, and
 `~/.claude/rules/`. The six rule files in `user-rules/claude/` are generated from
 `user-rules/cursor/` by `bash scripts/sync_claude_rules.sh`; do not hand-edit them.
+`user-rules/claude-only/` is hand-written: its rule (`CLAUDE_ONLY_RULE_BUNDLE`)
+is copied to `~/.claude/rules/`, and the keys in its `settings.json` are merged
+into `~/.claude/settings.json` by `scripts/claude_settings.py` (Python 3), which
+keeps every other key.
+The settings need Claude Code v2.1.315 or later; preflight fails on an older CLI.
 The installer never edits `~/.claude/CLAUDE.md`. Project Claude installs do not
-write `.claude/rules/`.
+write `.claude/rules/` or `.claude/settings.json`.

@@ -63,6 +63,8 @@ AGENT_BUNDLE="code-review security-auditor"
 CURSOR_RULE_BUNDLE="review-handoff-reconciliation response-style edit-scope branch-strategy docs-lookup temp-validators"
 COPILOT_INSTRUCTION_FRAGMENTS="response-style edit-scope branch-strategy review-handoff docs-lookup temp-validators"
 CLAUDE_RULE_BUNDLE="$COPILOT_INSTRUCTION_FRAGMENTS"
+CLAUDE_ONLY_RULE_BUNDLE="subagent-delegation"
+CLAUDE_MIN_VERSION="2.1.315"
 LEGACY_SKILLS="docx pptx xlsx pdf terraform-apply-fix-review terraform-commit-review terraform-apply-assistance mcp-tool-rules-copilot handoff"
 LEGACY_CURSOR_RULES="code-review-handoff response-and-edit-scope"
 ```
@@ -178,5 +180,10 @@ When Claude Code is requested, use `bash scripts/install_library.sh all claude`.
 Skills, agents, and rules go to `~/.claude/skills/`, `~/.claude/agents/`, and
 `~/.claude/rules/`. The six rule files in `user-rules/claude/` are generated from
 `user-rules/cursor/` by `bash scripts/sync_claude_rules.sh`; do not hand-edit them.
+`user-rules/claude-only/` is hand-written: its rule (`CLAUDE_ONLY_RULE_BUNDLE`)
+is copied to `~/.claude/rules/`, and the keys in its `settings.json` are merged
+into `~/.claude/settings.json` by `scripts/claude_settings.py` (Python 3), which
+keeps every other key.
+The settings need Claude Code v2.1.315 or later; preflight fails on an older CLI.
 The installer never edits `~/.claude/CLAUDE.md`. Project Claude installs do not
-write `.claude/rules/`.
+write `.claude/rules/` or `.claude/settings.json`.

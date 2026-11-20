@@ -6,6 +6,7 @@ Python 3.11+ is needed here for independent TOML parsing, not for installation.
 """
 
 import hashlib
+import json
 import os
 from pathlib import Path
 import shutil
@@ -259,6 +260,7 @@ class InstallLibraryTests(unittest.TestCase):
         self.assertTrue((self.project / ".cursor/rules/response-style.mdc").exists())
         self.assertFalse((self.project / ".github/copilot-instructions.md").exists())
         self.assertFalse((self.project / ".claude/rules").exists())
+        self.assertFalse((self.project / ".claude/settings.json").exists())
         self.assertFalse((self.project / "AGENTS.md").exists())
 
     def test_claude_rules_install_and_keep_personal_files(self):
@@ -267,8 +269,12 @@ class InstallLibraryTests(unittest.TestCase):
         for path, text in personal.items():
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(text)
+        settings = self.home / ".claude/settings.json"
+        settings.write_text(json.dumps({"theme": "light", "model": "sonnet",
+                                        "env": {"PERSONAL": "1", "CLAUDE_CODE_SUBAGENT_MODEL": "haiku"}}))
         self.install("all", "claude")
-        for source in (self.repo / "user-rules/claude").iterdir():
+        for source in [*(self.repo / "user-rules/claude").iterdir(),
+                       self.repo / "user-rules/claude-only/subagent-delegation.md"]:
             installed = (self.home / ".claude/rules" / source.name).read_bytes()
             self.assertEqual(installed, source.read_bytes())
             self.assertNotIn(b"alwaysApply", installed)
@@ -276,9 +282,38 @@ class InstallLibraryTests(unittest.TestCase):
                       (self.home / ".claude/rules/review-handoff.md").read_bytes())
         for path, text in personal.items():
             self.assertEqual(path.read_text(), text)
+        managed = json.loads((self.repo / "user-rules/claude-only/settings.json").read_text())
+        self.assertEqual(json.loads(settings.read_text()),
+                         {"theme": "light", "model": managed["model"],
+                          "env": {"PERSONAL": "1", **managed["env"]}})
         stable = snapshot(self.home)
         self.install("all", "claude")
         self.assertEqual(snapshot(self.home), stable)
+
+    def test_claude_invalid_settings_change_nothing(self):
+        settings = self.home / ".claude/settings.json"
+        settings.parent.mkdir()
+        settings.write_text("{ not json")
+        before = snapshot(self.home)
+        result = self.install("all", "claude", success=False)
+        self.assertIn("Invalid JSON", result.stderr)
+        self.assertEqual(snapshot(self.home), before)
+
+    def test_claude_old_cli_changes_nothing(self):
+        claude = self.root / "bin/claude"
+        claude.parent.mkdir()
+        self.env["PATH"] = f"{claude.parent}{os.pathsep}{self.env['PATH']}"
+        claude.write_text("#!/bin/sh\necho '2.1.314 (Claude Code)'\n")
+        claude.chmod(0o755)
+        # The version check must not depend on a sort that supports -V.
+        sort = self.root / "bin/sort"
+        sort.write_text("#!/bin/sh\nexit 2\n")
+        sort.chmod(0o755)
+        result = self.install("all", "claude", success=False)
+        self.assertIn("older than v2.1.315", result.stderr)
+        self.assertEqual(snapshot(self.home), {})
+        claude.write_text("#!/bin/sh\necho '2.1.315 (Claude Code)'\n")
+        self.install("all", "claude")
 
     def test_claude_rules_only_missing_skill_changes_nothing(self):
         result = self.install("rules", "claude", success=False)

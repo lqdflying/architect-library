@@ -22,7 +22,7 @@ The default install is **Cursor and VS Code Copilot together**.
 | You are in | Install to |
 |------------|------------|
 | **Cursor** or **VS Code Copilot** | `~/.cursor/skills/`, `~/.cursor/agents/`, `~/.cursor/rules/`, and `~/.copilot/skills/`, `~/.copilot/agents/`, `~/.copilot/copilot-instructions.md` |
-| **Claude Code** | `~/.claude/skills/`, `~/.claude/agents/`, `~/.claude/rules/` |
+| **Claude Code** | `~/.claude/skills/`, `~/.claude/agents/`, `~/.claude/rules/`, and managed keys in `~/.claude/settings.json` |
 | **Codex** (explicit request) | `~/.agents/skills/`, `${CODEX_HOME:-$HOME/.codex}/agents/`, `${CODEX_HOME:-$HOME/.codex}/AGENTS.md` |
 
 Codex and Claude are opt-in: include them only when the user requests that editor or all editors. When the user names one editor, install only that editor. Generic requests still install Cursor + Copilot.
@@ -97,6 +97,7 @@ Reload the editor or open a **new agent chat**. If any runtime step failed, say 
 - **Copilot always-on instructions:** `user-rules/copilot/{response-style,edit-scope,branch-strategy,review-handoff,docs-lookup,temp-validators}.md` are generated from `user-rules/cursor/` by `bash scripts/sync_copilot_rules.sh` (do not hand-edit) and concatenate to `~/.copilot/copilot-instructions.md` on a global Copilot install. Project scope does not write `.github/copilot-instructions.md`.
 - **Codex user instructions:** `user-rules/codex/` contains the same six fragments, generated from `user-rules/cursor/` by `bash scripts/sync_codex_rules.sh` (do not hand-edit). Global installation updates only the `architect-library` marked block in the active Codex home’s `AGENTS.md`, preserving personal text. Conflicting nonempty `AGENTS.override.md` or malformed markers fail before copying. Project scope installs `.agents/skills/` and `.codex/agents/` but never writes project `AGENTS.md`. Python 3 is required for Codex agent/instruction rendering.
 - **Claude Code user rules:** `user-rules/claude/` contains the same six fragments, generated from `user-rules/cursor/` by `bash scripts/sync_claude_rules.sh` (do not hand-edit). Global installation copies them to `~/.claude/rules/<name>.md` and leaves `~/.claude/CLAUDE.md` and other rule files untouched. Project scope does not write `.claude/rules/`.
+- **Claude Code-only rule and settings:** `user-rules/claude-only/` is hand-written and has no Cursor source. `subagent-delegation.md` (`CLAUDE_ONLY_RULE_BUNDLE`) installs to `~/.claude/rules/`: the main session chairs and reviews, subagents do the subtasks. `settings.json` holds the keys that rule relies on (`model` and the `CLAUDE_CODE_SUBAGENT_*` entries under `env`). A global install merges those keys into `~/.claude/settings.json` with `scripts/claude_settings.py` and keeps every other key. Invalid JSON or a symlinked settings file fails before copying. Python 3 is required. Claude Code v2.1.315 or later is required; an older CLI fails before copying. Project scope writes neither file.
 - **Review handoff:** the protocol is the on-demand skill `skills/review-handoff/` (all four editors, via `SKILL_BUNDLE`). The `review-handoff` rule and fragment are only its always-on trigger.
 - **End-user skills/agents/rules** live in the user’s home directory after install — not in this repo’s `.cursor/skills/` (except maintainer-only `.cursor/skills/absorb-reference-materials/`)
 
